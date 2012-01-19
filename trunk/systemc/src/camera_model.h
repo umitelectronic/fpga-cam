@@ -9,7 +9,7 @@
 SC_MODULE (camera_model) {
 
 	sc_in_clk clock;
-	sc_inout<sc_lv<8> > data;
+	sc_inout_rv<8> data;
 	sc_in_resolved scl;
 	sc_inout_resolved sda;
 	sc_out<bool> pix_clk, href, vsync;
