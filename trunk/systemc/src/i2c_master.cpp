@@ -8,7 +8,6 @@
 void i2c_master::run_i2c() {
 	switch (state.read()) {
 	case idle:
-		cout << "idle " << endl;
 		scl.write(SC_LOGIC_Z);
 		sda.write(SC_LOGIC_Z);
 		dispo.write(1);

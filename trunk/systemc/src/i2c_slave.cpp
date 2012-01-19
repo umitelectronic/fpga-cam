@@ -8,7 +8,9 @@ void i2c_slave::run_i2c() {
 	switch (state.read()) {
 	case detect_start:
 		cout << "waiting for start " << endl;
-		cout << "scl= "<<scl.read()<< "sda= " << sda.read() << endl;
+		cout << "scl= " << scl.read() << "sda= " << sda.read() << endl;
+		rd.write(SC_LOGIC_0);
+		wr.write(SC_LOGIC_0);
 		if (scl.read() == SC_LOGIC_Z && sda.read() == SC_LOGIC_0) {
 			state.write(rx_addr);
 			new_bit.write(0);
@@ -32,13 +34,13 @@ void i2c_slave::run_i2c() {
 				}
 			}
 		} else {
-			cout << "address received " << data_i.read() <<endl;
+			cout << "address received " << data_i.read() << endl;
 			if (data_i.read() == SLAVE_READ_ADDR) {
 				tx_rxb.write(1);
-				state.write(ack);
+				state.write(ack_addr);
 			} else if (data_i.read() == SLAVE_WRITE_ADDR) {
 				tx_rxb.write(0);
-				state.write(ack);
+				state.write(ack_addr);
 			} else {
 				state.write(nack);
 			}
@@ -46,8 +48,8 @@ void i2c_slave::run_i2c() {
 			bit_count.write(0);
 		}
 		break;
-	case ack:
-		cout << "sending ack " <<endl;
+	case ack_addr:
+		cout << "sending ack " << endl;
 		data.write(data_i.read());
 		if (!new_bit.read()) {
 			if (scl.read() == SC_LOGIC_0) {
@@ -62,6 +64,7 @@ void i2c_slave::run_i2c() {
 		}
 		break;
 	case tx_byte:
+		rd.write(SC_LOGIC_0);
 		if (bit_count.read() < 8) {
 			if (scl.read() == SC_LOGIC_0 && !new_bit.read()) {
 				new_bit.write(1);
@@ -72,7 +75,7 @@ void i2c_slave::run_i2c() {
 			}
 		} else {
 			bit_count.write(0);
-			state.write(ack);
+			state.write(detect_ack);
 		}
 		if (data_i.read()[7] == SC_LOGIC_1) {
 			sda.write(SC_LOGIC_Z);
@@ -81,6 +84,7 @@ void i2c_slave::run_i2c() {
 		}
 		break;
 	case rx_byte:
+		wr.write(SC_LOGIC_0);
 		if (bit_count.read() < 8) {
 			if (scl.read() == SC_LOGIC_0) {
 				sda.write(SC_LOGIC_Z);
@@ -96,9 +100,27 @@ void i2c_slave::run_i2c() {
 				}
 			}
 		} else {
-			cout << "byte received " << data_i.read() <<endl;
+			cout << "byte received " << data_i.read() << endl;
 			bit_count.write(0);
-			state.write(ack);
+			index.write(index.read() + 1);
+			state.write(ack_byte);
+		}
+		break;
+	case ack_byte:
+		cout << "sending ack " << endl;
+		data.write(data_i.read());
+		wr.write(SC_LOGIC_1);
+		if (!new_bit.read()) {
+			if (scl.read() == SC_LOGIC_0) {
+				sda.write(SC_LOGIC_0);
+				new_bit.write(1);
+			} else {
+				new_bit.write(1);
+
+			}
+		} else {
+			new_bit.write(0);
+			state.write(rx_byte);
 		}
 		break;
 	case nack:

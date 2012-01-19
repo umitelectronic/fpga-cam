@@ -6,10 +6,12 @@
 SC_MODULE (i2c_slave) {
 
 	sc_inout<sc_lv<8> > data;
+	sc_inout< sc_uint<8> > index;
+	sc_out<sc_logic> rd, wr ;
 	sc_in_resolved scl;
 	sc_inout_resolved sda;
 	enum slave_state {
-		detect_start, rx_addr, ack, nack, tx_byte, rx_byte, detect_stop
+		detect_start, rx_addr, ack_addr, ack_byte, detect_ack,nack, tx_byte, rx_byte, detect_stop
 	};
 	sc_signal<slave_state> state;
 	sc_signal<sc_lv<8> > data_i;
