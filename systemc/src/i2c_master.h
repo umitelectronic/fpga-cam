@@ -18,6 +18,7 @@ SC_MODULE (i2c_master) {
 	enum master_state {
 		idle, i2c_start, tx_addr, ack_addr, tx_byte, rx_byte, ack, i2c_stop
 	};
+
 	sc_signal<master_state> state;
 	sc_signal<sc_uint<8> > tick_count;
 	sc_signal<sc_uint<8> > bit_count;

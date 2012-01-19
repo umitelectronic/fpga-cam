@@ -1,6 +1,6 @@
 #include "systemc.h"
 #include "i2c_master.h"
-#include "i2c_slave.h"
+#include "camera_model.h"
 
 
 int sc_main(int argc, char* argv[]) {
@@ -11,10 +11,9 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal_resolved sda;
 	sc_signal<bool> dispo;
 	sc_signal<sc_lv<8> > data;
-	sc_signal<sc_lv<8> > data_out;
-	sc_signal<sc_uint<8> > index_out;
+	sc_signal<sc_lv<8> > pixel;
 	sc_signal<sc_lv<7> > addr;
-	sc_signal<sc_logic> rd, wr;
+	sc_signal<bool> h,v,p;
 	int i = 0;
 
 	i2c_master i2c_master0("i2c_master0");
@@ -29,17 +28,18 @@ int sc_main(int argc, char* argv[]) {
 	i2c_master0.dispo(dispo);
 
 
-	i2c_slave i2c_slave0("i2c_slave0");
-	i2c_slave0.scl(scl);
-	i2c_slave0.sda(sda);
-	i2c_slave0.data(data_out);
-	i2c_slave0.wr(wr);
-	i2c_slave0.rd(rd);
-	i2c_slave0.index(index_out);
+	camera_model camera0("camera0");
+	camera0.scl(scl);
+	camera0.sda(sda);
+	camera0.clock(clock);
+	camera0.data(pixel);
+	camera0.href(h);
+	camera0.vsync(v);
+	camera0.pix_clk(p);
 	sc_start(1);
 
 	// Open VCD file
-	sc_trace_file *wf = sc_create_vcd_trace_file("i2c_slave");
+	sc_trace_file *wf = sc_create_vcd_trace_file("camera");
 	// Dump the desired signals
 	sc_trace(wf, clock, "clock");
 	sc_trace(wf, arazb, "arazb");
@@ -50,10 +50,10 @@ int sc_main(int argc, char* argv[]) {
 	sc_trace(wf, send, "send");
 	sc_trace(wf, rcv, "rcv");
 	sc_trace(wf, dispo, "dispo");
-	sc_trace(wf, data_out, "data_out");
-	sc_trace(wf, index_out, "index_out");
-	sc_trace(wf, wr, "wr");
-	sc_trace(wf, rd, "rd");
+	sc_trace(wf, pixel, "pixel");
+	sc_trace(wf, h, "href");
+	sc_trace(wf, p, "pxclk");
+	sc_trace(wf, v, "vsync");
 	send = 0;
 	rcv = 0;
 	data = 0x055;
@@ -78,7 +78,7 @@ int sc_main(int argc, char* argv[]) {
 		clock = 1;
 		sc_start(1);
 	}
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 1000000; i++) {
 		clock = 0;
 		sc_start(1);
 		clock = 1;
