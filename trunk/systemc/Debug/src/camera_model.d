@@ -99,7 +99,8 @@ src/camera_model.d src/camera_model.o: ../src/camera_model.cpp \
  /usr/lib64/systemc-2.2/include/sysc/tracing/sc_vcd_trace.h \
  /usr/lib64/systemc-2.2/include/sysc/tracing/sc_wif_trace.h \
  /usr/lib64/systemc-2.2/include/sysc/utils/sc_iostream.h \
- /usr/lib64/systemc-2.2/include/sysc/utils/sc_utils_ids.h
+ /usr/lib64/systemc-2.2/include/sysc/utils/sc_utils_ids.h \
+ ../src/i2c_slave.h
 
 ../src/camera_model.h:
 
@@ -304,3 +305,5 @@ src/camera_model.d src/camera_model.o: ../src/camera_model.cpp \
 /usr/lib64/systemc-2.2/include/sysc/utils/sc_iostream.h:
 
 /usr/lib64/systemc-2.2/include/sysc/utils/sc_utils_ids.h:
+
+../src/i2c_slave.h:
