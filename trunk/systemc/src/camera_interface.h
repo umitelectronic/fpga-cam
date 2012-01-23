@@ -3,12 +3,11 @@
 
 #include "systemc.h"
 #include "i2c_master.h"
+#include "register_rom.h"
 
-	enum pixel_state {
-		Y1, U1, Y2, V1
-	};
-
-#define I2C_ADDR 0x40
+enum pixel_state {
+	Y1, U1, Y2, V1
+};
 
 SC_MODULE (camera_interface) {
 
@@ -26,27 +25,34 @@ SC_MODULE (camera_interface) {
 	sc_in<bool> pxclk, href, vsync;
 
 	sc_signal<sc_lv<8> > i2c_data;
+	sc_signal<sc_lv<16> > reg_data;
 	sc_signal<sc_lv<7> > i2c_addr;
 	sc_signal<bool> send;
 	sc_signal<bool> rcv;
 	sc_signal<bool> dispo;
-
-
+	sc_signal<bool> ack_byte;
 
 	sc_signal<pixel_state> pix_state;
 
+	enum registers_state {
+		init, send_addr, send_data, next_reg, stop
+	};
+
+	sc_signal<registers_state> reg_state;
+
 	sc_signal<sc_lv<8> > y1_delay, u_delay, v_delay, y2_delay;
 
-	sc_signal<sc_logic> sccb_wr, sccb_rd ;
+	sc_signal<sc_logic> sccb_wr, sccb_rd;
 	sc_signal<bool> valid_pixel;
-	sc_signal<sc_uint<8> > reg_count;
+	sc_signal<sc_uint<8> > reg_addr;
 	i2c_master i2c_master0;
+	register_rom register_rom0;
 
 	void sccb_interface();
 	void pixel_interface();
 
 	SC_CTOR(camera_interface) :
-		i2c_master0("i2c_master0") {
+			i2c_master0("i2c_master0"), register_rom0("register_rom0") {
 		i2c_master0.clock(i2c_clk);
 		i2c_master0.arazb(arazb);
 		i2c_master0.sda(sda);
@@ -56,9 +62,14 @@ SC_MODULE (camera_interface) {
 		i2c_master0.send(send);
 		i2c_master0.rcv(rcv);
 		i2c_master0.dispo(dispo);
+		i2c_master0.ack_byte(ack_byte);
+
+		register_rom0.addr(reg_addr);
+		register_rom0.data(reg_data);
 
 		SC_METHOD(sccb_interface);
 		sensitive << dispo;
+		sensitive << ack_byte;
 
 		SC_METHOD(pixel_interface);
 		sensitive << pclock.pos();
