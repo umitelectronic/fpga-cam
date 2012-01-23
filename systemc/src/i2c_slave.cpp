@@ -1,7 +1,7 @@
 #include "systemc.h"
 #include "i2c_slave.h"
 
-#define SLAVE_WRITE_ADDR "10000000"
+#define SLAVE_WRITE_ADDR "10000100"
 #define SLAVE_READ_ADDR "10000001"
 
 void i2c_slave::run_i2c() {
@@ -18,7 +18,7 @@ void i2c_slave::run_i2c() {
 		}
 		break;
 	case rx_addr:
-		cout << "receiving address" << endl;
+		//cout << "receiving address" << endl;
 		if (bit_count.read() < 8) {
 			if (scl.read() == SC_LOGIC_0) {
 				sda.write(SC_LOGIC_Z);
@@ -34,7 +34,7 @@ void i2c_slave::run_i2c() {
 				}
 			}
 		} else {
-			cout << "address received " << data_i.read() << endl;
+			//cout << "address received " << data_i.read() << endl;
 			if (data_i.read() == SLAVE_READ_ADDR) {
 				tx_rxb.write(1);
 				state.write(ack_addr);
@@ -49,7 +49,7 @@ void i2c_slave::run_i2c() {
 		}
 		break;
 	case ack_addr:
-		cout << "sending ack " << endl;
+		//cout << "sending ack " << endl;
 		data.write(data_i.read());
 		if (!new_bit.read()) {
 			if (scl.read() == SC_LOGIC_0) {
@@ -84,6 +84,7 @@ void i2c_slave::run_i2c() {
 		}
 		break;
 	case rx_byte:
+		//cout << "rx_byte" << endl;
 		wr.write(SC_LOGIC_0);
 		if (bit_count.read() < 8) {
 			if (scl.read() == SC_LOGIC_0) {
@@ -98,27 +99,31 @@ void i2c_slave::run_i2c() {
 				} else {
 					data_i.write((data_i.read().range(7, 1), SC_LOGIC_0));
 				}
+			} else {
+				if (data_i.read()[0] == SC_LOGIC_0
+						&& sda.read() == SC_LOGIC_Z) {
+					//cout << "stop condition detected !" << endl;
+					bit_count.write(0);
+					index.write(0);
+					sda.write(SC_LOGIC_Z);
+					state.write(detect_start);
+				}
 			}
 		} else {
 			cout << "byte received " << data_i.read() << endl;
+			if (scl.read() == SC_LOGIC_0) {
+				//cout << "sending ack " << endl;
+				sda.write(SC_LOGIC_0);
+			}
 			bit_count.write(0);
 			index.write(index.read() + 1);
 			state.write(ack_byte);
 		}
 		break;
 	case ack_byte:
-		cout << "sending ack " << endl;
 		data.write(data_i.read());
 		wr.write(SC_LOGIC_1);
-		if (!new_bit.read()) {
-			if (scl.read() == SC_LOGIC_0) {
-				sda.write(SC_LOGIC_0);
-				new_bit.write(1);
-			} else {
-				new_bit.write(1);
-
-			}
-		} else {
+		if (scl.read() == SC_LOGIC_Z) {
 			new_bit.write(0);
 			state.write(rx_byte);
 		}
@@ -128,8 +133,6 @@ void i2c_slave::run_i2c() {
 		sda.write(SC_LOGIC_Z);
 		break;
 	case detect_stop:
-		cout << "stop " << endl;
-		state.write(detect_start);
 		break;
 	default:
 		state.write(detect_start);

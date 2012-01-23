@@ -61,8 +61,11 @@ int sc_main(int argc, char* argv[]) {
 	sc_trace(wf, p, "pxclk");
 	sc_trace(wf, v, "vsync");
 	sc_trace(wf, pixel, "pixel");
+	sc_trace(wf, camera_interface0.dispo, "dispo");
+	sc_trace(wf, camera_interface0.ack_byte, "ack_byte");
+	sc_trace(wf, camera_interface0.send, "send_reg_byte");
 
-	for (i = 0; i < 1000000; i++) {
+	for (i = 0; i < 2000000; i++) {
 		clock = 0;
 		sc_start(1);
 		clock = 1;

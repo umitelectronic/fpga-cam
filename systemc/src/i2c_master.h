@@ -13,7 +13,7 @@ SC_MODULE (i2c_master) {
 	sc_in<bool> rcv;
 	sc_inout_resolved scl;
 	sc_inout_resolved sda;
-	sc_out<bool> dispo;
+	sc_out<bool> dispo, ack_byte;
 
 	enum master_state {
 		idle, i2c_start, tx_addr, ack_addr, tx_byte, rx_byte, ack, i2c_stop

@@ -1,9 +1,9 @@
 #include "systemc.h"
 #include "i2c_master.h"
 
-#define QUARTER_BIT 1
-#define HALF_BIT 2
-#define FULL_BIT 4
+#define QUARTER_BIT 4
+#define HALF_BIT 8
+#define FULL_BIT 16
 
 void i2c_master::run_i2c() {
 	switch (state.read()) {
@@ -11,6 +11,7 @@ void i2c_master::run_i2c() {
 		scl.write(SC_LOGIC_Z);
 		sda.write(SC_LOGIC_Z);
 		dispo.write(1);
+		ack_byte.write(0);
 		if (send.read() || rcv.read()) {
 			slave_addr_i.write((slave_addr.read(), rcv.read()));
 			send_rvcb.write(send.read());
@@ -20,8 +21,9 @@ void i2c_master::run_i2c() {
 		}
 		break;
 	case i2c_start:
-		cout << "start  " << endl;
+		//cout << "start  " << endl;
 		dispo.write(0);
+		ack_byte.write(0);
 		if (tick_count.read() < QUARTER_BIT) {
 			scl.write(SC_LOGIC_Z);
 			sda.write(SC_LOGIC_Z);
@@ -38,14 +40,15 @@ void i2c_master::run_i2c() {
 		break;
 	case tx_addr:
 		dispo.write(0);
+		ack_byte.write(0);
 		if (bit_count.read() < 8) {
 			if (tick_count.read() < HALF_BIT) {
 				scl.write(SC_LOGIC_0);
 				if (slave_addr_i.read()[7] == SC_LOGIC_1) {
-					cout << "sending bit 1 " << endl;
+					//cout << "sending bit 1 " << endl;
 					sda.write(SC_LOGIC_Z);
 				} else {
-					cout << "sending bit 0 " << endl;
+					//cout << "sending bit 0 " << endl;
 					sda.write(SC_LOGIC_0);
 				}
 				tick_count.write(tick_count.read() + 1);
@@ -70,8 +73,9 @@ void i2c_master::run_i2c() {
 		}
 		break;
 	case ack_addr:
-		cout << "ack addr  " << endl;
+		//cout << "ack addr  " << endl;
 		dispo.write(0);
+		ack_byte.write(0);
 		if (tick_count.read() < HALF_BIT) {
 			scl.write(SC_LOGIC_0);
 			sda.write(SC_LOGIC_Z);
@@ -98,8 +102,9 @@ void i2c_master::run_i2c() {
 		}
 		break;
 	case tx_byte:
-		cout << "tx byte " << endl;
+		//cout << "tx byte " << endl;
 		dispo.write(0);
+		ack_byte.write(0);
 		if (bit_count.read() < 8) {
 			if (tick_count.read() < HALF_BIT) {
 				scl.write(SC_LOGIC_0);
@@ -129,8 +134,9 @@ void i2c_master::run_i2c() {
 		}
 		break;
 	case rx_byte:
-		cout << "rx byte " << endl;
+		//cout << "rx byte " << endl;
 		dispo.write(0);
+		ack_byte.write(0);
 		if (bit_count.read() < 8) {
 			if (tick_count.read() < HALF_BIT) {
 				scl.write(SC_LOGIC_0);
@@ -152,8 +158,9 @@ void i2c_master::run_i2c() {
 		}
 		break;
 	case ack:
-		cout << "ack " << endl;
-		dispo.write(1);
+		//cout << "ack " << endl;
+		dispo.write(0);
+		ack_byte.write(1);
 		if (tick_count.read() < HALF_BIT) {
 			scl.write(SC_LOGIC_0);
 			sda.write(SC_LOGIC_Z);
@@ -181,8 +188,9 @@ void i2c_master::run_i2c() {
 		}
 		break;
 	case i2c_stop:
-		cout << "stop " << endl;
+		//cout << "stop " << endl;
 		dispo.write(1);
+		ack_byte.write(0);
 		if (tick_count.read() < HALF_BIT) {
 			scl.write(SC_LOGIC_0);
 			sda.write(SC_LOGIC_0);

@@ -4,7 +4,7 @@
 #include "systemc.h"
 #include "i2c_slave.h"
 
-#define I2C_ADDR 0x40
+#define I2C_ADDR 0x42
 
 SC_MODULE (camera_model) {
 
@@ -13,6 +13,8 @@ SC_MODULE (camera_model) {
 	sc_in_resolved scl;
 	sc_inout_resolved sda;
 	sc_out<bool> pix_clk, href, vsync;
+
+
 
 	sc_signal<sc_lv<8> > sccb_data;
 	sc_signal<sc_uint<8> > sccb_index;
