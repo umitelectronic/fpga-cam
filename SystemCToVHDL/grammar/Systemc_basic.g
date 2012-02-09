@@ -20,17 +20,20 @@ cfile
 scope {
       HashMap functions;
       HashMap vars;
+      HashMap type_obj;
+       
 }
 @init {
   $cfile::functions = new HashMap();
   $cfile::vars = new HashMap();
+   $cfile::type_obj = new HashMap();
 }
 	:
-	 pre_processor+
+	 pre_processor*
 	 declarations[$cfile::vars] *
 	 module_decl SEMICOLON
 	 declarations[$cfile::vars]*
-	 pre_processor+
+	 pre_processor*
 	-> file(entity = {$module_decl.st})
 	;
 
@@ -42,7 +45,7 @@ pre_processor	: (includes
 includes	: '#include' STRING_LITERAL
 	;
 
-define	: ('#define '|'#ifndef ') ID (INT|ID)?
+define	: ('#define '|'#ifndef ') ID (INT|ID | HEX)?
 	;
 endif	: '#endif '
 	;
@@ -55,6 +58,7 @@ scope {
   List enums;
   HashMap connections;
   HashMap obj_type;
+   HashMap type_obj;
   HashMap mod_type;
 }
 @init {
@@ -82,7 +86,7 @@ scope {
 
 
 module_body 
-	: declarations[$module_decl::mod_type]+
+	: declarations[$module_decl::obj_type]+
 	;
 	
 declarations	[HashMap vars]
@@ -111,7 +115,12 @@ scope slist;
 	;
 
 variable_decl [HashMap vars]:
-	v_type { $vars.put($v_type.text, new ArrayList());} ('*'|'[]')* n=ID { ((List) $vars.get($v_type.text)).add($n.text);}  (',' elt=ID { ((List) $vars.get($v_type.text)).add($elt.text);})* fixed_size_array* assignement? 
+	v_type { $vars.put($v_type.text, new ArrayList());}
+	 ('*'|'[]')* 
+	 n=ID { ((List) $vars.get($v_type.text)).add($n.text);  
+	 $cfile::type_obj.put($n.text, $v_type.text);}  
+	 (',' elt=ID { ((List) $vars.get($v_type.text)).add($elt.text);
+	$cfile::type_obj.put($elt.text, $v_type.text); })* fixed_size_array* assignement? 
 	;	
 	
 fixed_size_array	: ('['INT']')
@@ -139,8 +148,11 @@ actor	:'SC_CTOR''('ID')'  (':' actor_inst(','actor_inst)*)?'{' (actor_body) '}'
 	;
 
 actor_inst
-	:ID'('STRING_LITERAL')'  {	$module_decl::mod_type.put($ID.text, $module_decl::obj_type.get($ID.text));
-			 $module_decl::obj_type.remove($ID.text);
+	:ID'('STRING_LITERAL')'  {	
+			$module_decl::mod_type.put($ID.text, $cfile::type_obj.get($ID.text));
+			  $module_decl::obj_type.remove($cfile::type_obj.get($ID.text));
+			 $cfile::type_obj.remove($ID.text);
+			
 			}
 	;
 
@@ -340,6 +352,7 @@ List ops ;
 	 test_express  -> dummy(val = {$test_express.st})
 	;
 
+/*
 test_express
 options{backtrack = true;}
 scope {
@@ -356,18 +369,39 @@ List ops ;
 	( test  {$test_express::vals.add($test.st);})  (expr_right[$test_express::vals, $test_express::ops])* ->  conditions(vals = {$test_express::vals}, ops = {$test_express::ops})
 	| enclosed_expr  -> dummy(val = {$enclosed_expr.st})
 	;
+*/
 	
+	
+test_express
+
+options{backtrack = true;}
+scope {
+List vals ;
+List ops ;
+}
+@init {
+  $test_express::vals = new ArrayList();
+  $test_express::ops = new ArrayList();
+}
+: 
+	expression {$test_express::vals.add($expression.st) ;}
+	(logic_op {$test_express::ops.add($logic_op.st) ;} tx = test_express {$test_express::vals.add($tx.st) ;})? ->  conditions(vals = {$test_express::vals}, ops = {$test_express::ops})
+	;
+
 enclosed_expr	:
 	'('  expr = test_express   ')' -> enclosed(val = {$expr.st})
 	;	
-	
-expr_right	[List vals, List ops]:
- 	(logic_op  {$ops.add($logic_op.st);} t2 = test_express {$vals.add($t2.st);})
+
+expression	
+options{backtrack = true;}
+:
+ 	 ((NOT)? enclosed_expr) -> dummy(val = {$enclosed_expr.st})
+ 	| (test) -> dummy(val = {$test.st})
 	;
 
-test	:
-	not =( NOT)? 
-	 l = value( op =comp_op r = value)?  -> test(neg = {$not.text},  l = {$l.st}, r = {$r.st}, operand = {$op.text})
+
+test	: 
+	 l = value( op =comp_op r = value)?  -> test( l = {$l.st}, r = {$r.st}, operator = {$op.text})
 	;
 	
 comp_op	:
@@ -440,7 +474,7 @@ value	:
 	
 var_value	:
 
-	(var_name) var_comp*  -> var_value(var = {$var_name.st},  methods = {$var_comp.st})
+	(NOT)?  (var_name) var_comp*  -> var_value(not = {$NOT.text}, var = {$var_name.st},  methods = {$var_comp.st})
 	;
 
 var_comp	:
@@ -471,8 +505,9 @@ sc_method
 	'range('from = INT ',' to = INT')' -> range(from = {$from.text}, to = {$to.text})
 	|'concat('  left = value  ',' right= value ')'-> concat(left = {$left.st}, right = {$right.st})
 	| 'read()'
-	|'('  left = value  ',' right= value')'-> concat(left = {$left.st}, right = {$right.st})
+	|'('  left = value ',' right= value')'-> concat(left = {$left.st}, right = {$right.st})
 	;
+	
 	
 ID  :   ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;

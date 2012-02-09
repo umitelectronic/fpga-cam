@@ -85,8 +85,8 @@ method(name, args) ::= ".<name>(<args>)"
 
 range(from, to) ::= "(<from> downto <to>)"
 concat(left, right) ::= "(<left> & <right>)"
-var_value(var, methods) ::=<<
-<var; format="toVHDL"><methods>
+var_value(not, var, methods) ::=<<
+<if(not)>NOT <endif><var; format="toVHDL"><methods>
 >>
 array_value(var, index, methods) ::="<var>(<index>)<methods>"
 expression(head, op, tail) ::= "<head> <op> <tail>"
@@ -119,8 +119,8 @@ conditions(vals, ops) ::= <<
 
 
 
-test(neg, l, r, operand)::=<<
-<if(neg)>NOT<endif> <l; format="toVHDL"> <if(operand)><operand; format="toVHDL"> <r; format="toVHDL"> <else>= '1' <endif>
+test(neg, l, r, operator)::=<<
+<if(neg)>NOT<endif> <l; format="toVHDL"> <if(operator)><operator; format="toVHDL"> <r; format="toVHDL"> <else>= '1' <endif>
 >>
 
 var_assign(var, val) ::=<<

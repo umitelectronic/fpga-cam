@@ -1,4 +1,4 @@
-// $ANTLR 3.4 /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g 2012-02-03 17:57:03
+// $ANTLR 3.4 /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g 2012-02-06 17:28:10
 
 import org.antlr.runtime.*;
 import java.util.Stack;
@@ -1440,8 +1440,8 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:477:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:477:9: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:512:5: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:512:9: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
             {
             if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -1453,7 +1453,7 @@ public class Systemc_basicLexer extends Lexer {
             }
 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:477:33: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:512:33: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
             loop1:
             do {
                 int alt1=2;
@@ -1503,10 +1503,10 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = INT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:480:5: ( ( '0' .. '9' )+ )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:480:7: ( '0' .. '9' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:515:5: ( ( '0' .. '9' )+ )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:515:7: ( '0' .. '9' )+
             {
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:480:7: ( '0' .. '9' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:515:7: ( '0' .. '9' )+
             int cnt2=0;
             loop2:
             do {
@@ -1561,10 +1561,10 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = FLOAT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:7: ( ( INT )+ ( '.' ) ( INT )+ )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:9: ( INT )+ ( '.' ) ( INT )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:7: ( ( INT )+ ( '.' ) ( INT )+ )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:9: ( INT )+ ( '.' ) ( INT )+
             {
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:9: ( INT )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:9: ( INT )+
             int cnt3=0;
             loop3:
             do {
@@ -1578,7 +1578,7 @@ public class Systemc_basicLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:9: INT
+            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:9: INT
             	    {
             	    mINT(); 
 
@@ -1596,15 +1596,15 @@ public class Systemc_basicLexer extends Lexer {
             } while (true);
 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:13: ( '.' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:14: '.'
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:13: ( '.' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:14: '.'
             {
             match('.'); 
 
             }
 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:18: ( INT )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:18: ( INT )+
             int cnt4=0;
             loop4:
             do {
@@ -1618,7 +1618,7 @@ public class Systemc_basicLexer extends Lexer {
 
                 switch (alt4) {
             	case 1 :
-            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:482:18: INT
+            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:517:18: INT
             	    {
             	    mINT(); 
 
@@ -1652,10 +1652,10 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:485:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:485:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:520:5: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:520:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
             {
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:485:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:520:9: ( ' ' | '\\t' | '\\r' | '\\n' )+
             int cnt5=0;
             loop5:
             do {
@@ -1712,12 +1712,12 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = STRING_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:488:16: ( '\"' (~ ( '\\\\' | '\"' ) )* '\"' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:488:20: '\"' (~ ( '\\\\' | '\"' ) )* '\"'
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:523:16: ( '\"' (~ ( '\\\\' | '\"' ) )* '\"' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:523:20: '\"' (~ ( '\\\\' | '\"' ) )* '\"'
             {
             match('\"'); 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:488:24: (~ ( '\\\\' | '\"' ) )*
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:523:24: (~ ( '\\\\' | '\"' ) )*
             loop6:
             do {
                 int alt6=2;
@@ -1769,14 +1769,14 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:492:2: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:492:4: '/*' ( options {greedy=false; } : . )* '*/'
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:527:2: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:527:4: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:492:9: ( options {greedy=false; } : . )*
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:527:9: ( options {greedy=false; } : . )*
             loop7:
             do {
                 int alt7=2;
@@ -1801,7 +1801,7 @@ public class Systemc_basicLexer extends Lexer {
 
                 switch (alt7) {
             	case 1 :
-            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:492:36: .
+            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:527:36: .
             	    {
             	    matchAny(); 
 
@@ -1836,14 +1836,14 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = SINGLE_LINE_COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:497:2: ( '//' (~ ( '\\n' | '\\r' ) )* )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:498:3: '//' (~ ( '\\n' | '\\r' ) )*
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:532:2: ( '//' (~ ( '\\n' | '\\r' ) )* )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:533:3: '//' (~ ( '\\n' | '\\r' ) )*
             {
             match("//"); 
 
 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:498:8: (~ ( '\\n' | '\\r' ) )*
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:533:8: (~ ( '\\n' | '\\r' ) )*
             loop8:
             do {
                 int alt8=2;
@@ -1895,14 +1895,14 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = HEX;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:501:5: ( '0x' ( ( '0' .. '9' ) | 'a' .. 'f' | 'A..F' )+ )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:502:2: '0x' ( ( '0' .. '9' ) | 'a' .. 'f' | 'A..F' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:536:5: ( '0x' ( ( '0' .. '9' ) | 'a' .. 'f' | 'A..F' )+ )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:537:2: '0x' ( ( '0' .. '9' ) | 'a' .. 'f' | 'A..F' )+
             {
             match("0x"); 
 
 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:502:6: ( ( '0' .. '9' ) | 'a' .. 'f' | 'A..F' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:537:6: ( ( '0' .. '9' ) | 'a' .. 'f' | 'A..F' )+
             int cnt9=0;
             loop9:
             do {
@@ -1942,7 +1942,7 @@ public class Systemc_basicLexer extends Lexer {
 
                 switch (alt9) {
             	case 1 :
-            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:502:7: ( '0' .. '9' )
+            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:537:7: ( '0' .. '9' )
             	    {
             	    if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
             	        input.consume();
@@ -1957,14 +1957,14 @@ public class Systemc_basicLexer extends Lexer {
             	    }
             	    break;
             	case 2 :
-            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:502:18: 'a' .. 'f'
+            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:537:18: 'a' .. 'f'
             	    {
             	    matchRange('a','f'); 
 
             	    }
             	    break;
             	case 3 :
-            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:502:28: 'A..F'
+            	    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:537:28: 'A..F'
             	    {
             	    match("A..F"); 
 
@@ -1999,14 +1999,14 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = BIN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:505:5: ( '0b' ( '0' | '1' )+ )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:506:2: '0b' ( '0' | '1' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:540:5: ( '0b' ( '0' | '1' )+ )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:541:2: '0b' ( '0' | '1' )+
             {
             match("0b"); 
 
 
 
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:506:6: ( '0' | '1' )+
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:541:6: ( '0' | '1' )+
             int cnt10=0;
             loop10:
             do {
@@ -2061,10 +2061,10 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = OP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:508:4: ( ( '+' | '-' | '*' | '/ ' | '%' ) )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:509:2: ( '+' | '-' | '*' | '/ ' | '%' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:543:4: ( ( '+' | '-' | '*' | '/ ' | '%' ) )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:544:2: ( '+' | '-' | '*' | '/ ' | '%' )
             {
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:509:2: ( '+' | '-' | '*' | '/ ' | '%' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:544:2: ( '+' | '-' | '*' | '/ ' | '%' )
             int alt11=5;
             switch ( input.LA(1) ) {
             case '+':
@@ -2102,28 +2102,28 @@ public class Systemc_basicLexer extends Lexer {
 
             switch (alt11) {
                 case 1 :
-                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:509:3: '+'
+                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:544:3: '+'
                     {
                     match('+'); 
 
                     }
                     break;
                 case 2 :
-                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:509:9: '-'
+                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:544:9: '-'
                     {
                     match('-'); 
 
                     }
                     break;
                 case 3 :
-                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:509:15: '*'
+                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:544:15: '*'
                     {
                     match('*'); 
 
                     }
                     break;
                 case 4 :
-                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:509:21: '/ '
+                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:544:21: '/ '
                     {
                     match("/ "); 
 
@@ -2132,7 +2132,7 @@ public class Systemc_basicLexer extends Lexer {
                     }
                     break;
                 case 5 :
-                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:509:27: '%'
+                    // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:544:27: '%'
                     {
                     match('%'); 
 
@@ -2158,8 +2158,8 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = GT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:512:4: ( '>' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:512:5: '>'
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:547:4: ( '>' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:547:5: '>'
             {
             match('>'); 
 
@@ -2179,8 +2179,8 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = LT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:515:4: ( '<' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:515:5: '<'
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:550:4: ( '<' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:550:5: '<'
             {
             match('<'); 
 
@@ -2200,8 +2200,8 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = EQUAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:518:7: ( '=' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:518:8: '='
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:553:7: ( '=' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:553:8: '='
             {
             match('='); 
 
@@ -2221,8 +2221,8 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = SEMICOLON;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:520:11: ( ';' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:520:12: ';'
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:555:11: ( ';' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:555:12: ';'
             {
             match(';'); 
 
@@ -2242,8 +2242,8 @@ public class Systemc_basicLexer extends Lexer {
         try {
             int _type = NOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:522:5: ( '!' )
-            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:522:6: '!'
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:557:5: ( '!' )
+            // /home/jpiat/workspace/SystemCToVHDL/grammar/Systemc_basic.g:557:6: '!'
             {
             match('!'); 
 
