@@ -1,10 +1,8 @@
 library IEEE;
         use IEEE.std_logic_1164.all;
-        use IEEE.std_logic_arith.all;
-        use IEEE.numeric_bit.all;
-        use IEEE.numeric_std.all;
-        use IEEE.std_logic_signed.all;
         use IEEE.std_logic_unsigned.all;
+library work;
+        use work.all ;
 
 entity register_rom is
 	port(
@@ -23,7 +21,7 @@ architecture systemc of register_rom is
 	-- rom_process
 	process(addr)
 		 begin
-		 	data <= rom(addr  ) ;
+		 	data <= rom(conv_integer(addr)  ) ;
 		 end process;  
 	
 end systemc ;
