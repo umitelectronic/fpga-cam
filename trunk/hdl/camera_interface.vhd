@@ -1,10 +1,8 @@
 library IEEE;
         use IEEE.std_logic_1164.all;
-        use IEEE.std_logic_arith.all;
-        use IEEE.numeric_bit.all;
-        use IEEE.numeric_std.all;
-        use IEEE.std_logic_signed.all;
         use IEEE.std_logic_unsigned.all;
+library work;
+        use work.camera.all ;
 
 entity camera_interface is
 	port(
@@ -25,7 +23,7 @@ end camera_interface;
 
 architecture systemc of camera_interface is
 	constant NB_REGS : integer := 255; 
-	constant OV7670_I2C_ADDR : std_logic_vector(8 downto 0) := X"42"; 
+	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "1000010"; 
 	TYPE pixel_state IS (Y1, U1, Y2, V1) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, SEND_DATA, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
@@ -106,7 +104,7 @@ architecture systemc of camera_interface is
 		 begin
 		 	new_line <= NOT href ;
 		 	new_frame <= vsync ;
-		 	if  pclock.posedge() = '1'  then
+		 	if  pclock'event and pclock = '1'  then
 		 		if  href = '1'  AND  NOT vsync = '1'  AND  pclock = '1'  then
 		 			case pix_state   is
 		 				when Y1 => 

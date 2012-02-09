@@ -1,10 +1,8 @@
 library IEEE;
         use IEEE.std_logic_1164.all;
-        use IEEE.std_logic_arith.all;
-        use IEEE.numeric_bit.all;
-        use IEEE.numeric_std.all;
-        use IEEE.std_logic_signed.all;
         use IEEE.std_logic_unsigned.all;
+library work;
+        use work.all ;
 
 entity i2c_master is
 	port(
