@@ -1,9 +1,6 @@
 #include "systemc.h"
 #include "i2c_slave.h"
 
-#define SLAVE_WRITE_ADDR "10000100"
-#define SLAVE_READ_ADDR "10000001"
-
 void i2c_slave::run_i2c() {
 	switch (state.read()) {
 	case detect_start:

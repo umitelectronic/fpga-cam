@@ -82,3 +82,6 @@ void camera_model::video_timing_generator() {
 		}
 	}
 }
+
+
+

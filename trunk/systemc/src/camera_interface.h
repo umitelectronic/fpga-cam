@@ -5,17 +5,19 @@
 #include "i2c_master.h"
 #include "register_rom.h"
 
-enum pixel_state {
-	Y1, U1, Y2, V1
-};
+
+/* je suis 
+*
+* un commentaire */
+
+//un autre commentaire
 
 SC_MODULE (camera_interface) {
 
 	sc_in_clk clock;
-	sc_in_clk pclock;
 	sc_in_clk i2c_clk;
 	sc_in<bool> arazb;
-	sc_inout_rv<8> pixel_data;
+	sc_in<sc_lv<8> > pixel_data;
 	sc_inout<sc_lv<8> > y_data;
 	sc_inout<sc_lv<8> > u_data;
 	sc_inout<sc_lv<8> > v_data;
@@ -32,7 +34,12 @@ SC_MODULE (camera_interface) {
 	sc_signal<bool> dispo;
 	sc_signal<bool> ack_byte;
 
+	enum pixel_state {
+		Y1, U1, Y2, V1
+	};
+
 	sc_signal<pixel_state> pix_state;
+	sc_signal<pixel_state> next_state;
 
 	enum registers_state {
 		init, send_addr, send_data, next_reg, stop
@@ -44,7 +51,7 @@ SC_MODULE (camera_interface) {
 
 	sc_signal<sc_logic> sccb_wr, sccb_rd;
 	sc_signal<bool> valid_pixel;
-	sc_signal<sc_uint<8> > reg_addr;
+	sc_signal<sc_lv<8> > reg_addr;
 	i2c_master i2c_master0;
 	register_rom register_rom0;
 
@@ -70,9 +77,12 @@ SC_MODULE (camera_interface) {
 		SC_METHOD(sccb_interface);
 		sensitive << dispo;
 		sensitive << ack_byte;
+		sensitive << arazb;
 
 		SC_METHOD(pixel_interface);
-		sensitive << pclock.pos();
+		sensitive << clock;
+		sensitive << arazb;
+
 	}
 
 };
