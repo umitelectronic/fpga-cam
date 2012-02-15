@@ -1,7 +1,8 @@
 #ifndef I2C_SLAVE_H
 #define I2C_SLAVE_H
 
-
+#define SLAVE_WRITE_ADDR 0x84
+#define SLAVE_READ_ADDR 0x81
 
 SC_MODULE (i2c_slave) {
 

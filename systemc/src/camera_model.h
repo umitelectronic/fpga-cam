@@ -1,10 +1,10 @@
 #ifndef CAMERA_MODEL_H
 #define CAMERA_MODEL_H
 
+#define I2C_ADDR 0x42
+
 #include "systemc.h"
 #include "i2c_slave.h"
-
-#define I2C_ADDR 0x42
 
 SC_MODULE (camera_model) {
 
@@ -20,6 +20,7 @@ SC_MODULE (camera_model) {
 	sc_signal<sc_uint<8> > sccb_index;
 	sc_signal<sc_logic> sccb_wr, sccb_rd;
 	i2c_slave i2c_slave0;
+	unsigned int test_int;
 
 	void sccb_interface();
 	void video_timing_generator();

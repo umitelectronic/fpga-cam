@@ -16,6 +16,8 @@ void i2c_master::run_i2c() {
 			slave_addr_i.write((slave_addr.read(), rcv.read()));
 			send_rvcb.write(send.read());
 			state.write(i2c_start);
+			tick_count.write(0);
+			bit_count.write(0);
 			cout << "loading addr " << slave_addr.read() << endl;
 			cout << "loading data " << data.read() << endl;
 		}
@@ -86,7 +88,7 @@ void i2c_master::run_i2c() {
 			tick_count.write(tick_count.read() + 1);
 		} else {
 			tick_count.write(0);
-			if (sda.read() == 0) {
+			if (sda.read() == SC_LOGIC_0) {
 				cout << "ack received  " << endl;
 				if (send_rvcb.read()) {
 					data_i.write(data.read());
@@ -171,7 +173,7 @@ void i2c_master::run_i2c() {
 			tick_count.write(tick_count.read() + 1);
 		} else {
 			tick_count.write(0);
-			if (sda.read() == 0
+			if (sda.read() == SC_LOGIC_0
 					&& ((send.read() && send_rvcb.read())
 							|| (rcv.read() && !send_rvcb.read()))) {
 				if (send_rvcb.read()) {
