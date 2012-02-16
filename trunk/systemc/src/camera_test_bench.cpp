@@ -3,6 +3,7 @@
 #include "camera_interface.h"
 #include "down_scaler.h"
 #include "div_clock.h"
+#include "send_picture.h"
 
 int sc_main(int argc, char* argv[]) {
 	sc_report_handler::set_actions("/IEEE_Std_1666/deprecated", SC_DO_NOTHING);
@@ -15,6 +16,8 @@ int sc_main(int argc, char* argv[]) {
 	sc_signal<sc_lv<8> > data_y, data_u, data_v, data_y_scaled;
 	sc_signal_rv<8> pixel;
 	sc_signal<bool> h, v, p, new_pix, new_line, new_frame, new_pix_out, new_line_out, new_frame_out;
+	sc_signal<sc_logic> send_data ;
+	sc_signal<sc_lv<8> > data_to_send ;
 	int i = 0;
 
 	div_clock div_clock0("div_clock0");
@@ -59,6 +62,16 @@ int sc_main(int argc, char* argv[]) {
 	down_scaler0.vsync_out(new_frame_out);
 	down_scaler0.pixel_clock_out(new_pix_out);
 
+	send_picture send_picture0("send_picture0");
+	send_picture0.clk(clock);
+	send_picture0.arazb(arazb);
+	send_picture0.hsync(new_line_out);
+	send_picture0.vsync(new_frame_out);
+	send_picture0.pixel_clock(new_pix_out);
+	send_picture0.pixel_data_in(data_y_scaled);
+	send_picture0.data_out(data_to_send);
+	send_picture0.send(send_data);
+
 	sc_start(1);
 
 	// Open VCD file
@@ -89,6 +102,9 @@ int sc_main(int argc, char* argv[]) {
 	sc_trace(wf, new_pix_out, "new_pix_out");
 	sc_trace(wf, new_frame_out, "new_frame_out");
 
+	sc_trace(wf, data_to_send, "data_to_send");
+	sc_trace(wf, send_data, "send_data");
+
 	arazb.write(0);
 
 	for (i = 0; i < 10; i++) {
@@ -99,7 +115,7 @@ int sc_main(int argc, char* argv[]) {
 		}
 
 	arazb.write(1);
-	for (i = 0; i < 500000; i++) {
+	for (i = 0; i < 5000000; i++) {
 		clock = 0;
 		sc_start(1);
 		clock = 1;

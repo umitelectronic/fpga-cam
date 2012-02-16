@@ -23,6 +23,7 @@ SC_MODULE (down_scaler) {
 	sc_signal<sc_logic> line_ram_en, line_ram_we;
 
 	sc_signal<sc_uint<16> > add_result ;
+	sc_signal<sc_uint<16> > add_temp ;
 
 	sc_signal<sc_uint<4> > nb_line_accumulated ;
 	sc_signal<sc_uint<4> > nb_pix_accumulated ;
@@ -50,6 +51,8 @@ SC_MODULE (down_scaler) {
 
 		SC_METHOD(update_output);
 		sensitive << line_ram_data_out;
+		sensitive << add_result ;
+		sensitive << pixel_data_in ;
 	}
 
 };
