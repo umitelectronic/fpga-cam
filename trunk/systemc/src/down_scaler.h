@@ -6,7 +6,7 @@
 
 
 enum scaler_state {
-	wait_line, wait_pixel, write_pixel, add_line
+	wait_line, wait_pixel, write_pixel
 };
 
 SC_MODULE (down_scaler) {
