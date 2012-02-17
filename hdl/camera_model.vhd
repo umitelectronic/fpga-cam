@@ -7,7 +7,7 @@ library work;
 entity camera_model is
 	port(
  		clock : in std_logic; 
- 		data : inout std_logic_vector(7 downto 0 ); 
+ 		data : inout std_logic_vector(<8> -1 downto 0 ); 
  		scl : in std_logic; 
  		sda : inout std_logic; 
  		pix_clk, href, vsync : out std_logic

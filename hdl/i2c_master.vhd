@@ -35,14 +35,14 @@ architecture systemc of i2c_master is
 	-- run_i2c
 	process(arazb, clock)
 		 begin
-		 	case state   is
+		 	case state is
 		 		when idle => 
 		 			scl <= 'Z' ;
 		 			sda <= 'Z' ;
 		 			dispo <= '1' ;
 		 			ack_byte <= '0' ;
 		 			if  send = '1'  OR  rcv = '1'  then
-		 				slave_addr_i <= (slave_addr   & rcv  ) ; 
+		 				slave_addr_i <= (slave_addr & rcv) ; 
 		 				send_rvcb <= send ; 
 		 				state <= i2c_start ; 
 		 				tick_count <= (others => '0') ; 
@@ -54,11 +54,11 @@ architecture systemc of i2c_master is
 		 			if  tick_count < QUARTER_BIT  then
 		 				scl <= 'Z' ; 
 		 				sda <= 'Z' ; 
-		 				tick_count <= tick_count + 1 ;
+		 				tick_count <= (tick_count + 1) ;
 		 			elsif  tick_count < HALF_BIT  then
 		 				scl <= 'Z' ; 
 		 				sda <= '0' ; 
-		 				tick_count <= tick_count + 1 ;
+		 				tick_count <= (tick_count + 1) ;
 		 			else
 		 				tick_count <= (others => '0') ; 
 		 				scl <= '0' ; 
@@ -75,7 +75,7 @@ architecture systemc of i2c_master is
 		 					else
 		 						sda <= '0' ;
 		 					end if ; 
-		 					tick_count <= tick_count + 1 ;
+		 					tick_count <= (tick_count + 1) ;
 		 				elsif  tick_count < FULL_BIT  then
 		 					scl <= 'Z' ; 
 		 					if  slave_addr_i(7) = '1'  then
@@ -83,10 +83,10 @@ architecture systemc of i2c_master is
 		 					else
 		 						sda <= '0' ;
 		 					end if ; 
-		 					tick_count <= tick_count + 1 ;
+		 					tick_count <= (tick_count + 1) ;
 		 				else
-		 					slave_addr_i <= (slave_addr_i(6 downto 0)   & '0'  ) ; 
-		 					bit_count <= bit_count + 1 ; 
+		 					slave_addr_i <= (slave_addr_i(6 downto 0) & '0') ; 
+		 					bit_count <= (bit_count + 1) ; 
 		 					tick_count <= (others => '0') ;
 		 				end if ;
 		 			else
@@ -100,11 +100,11 @@ architecture systemc of i2c_master is
 		 			if  tick_count < HALF_BIT  then
 		 				scl <= '0' ; 
 		 				sda <= 'Z' ; 
-		 				tick_count <= tick_count + 1 ;
+		 				tick_count <= (tick_count + 1) ;
 		 			elsif  tick_count < FULL_BIT  then
 		 				scl <= 'Z' ; 
 		 				sda <= 'Z' ; 
-		 				tick_count <= tick_count + 1 ;
+		 				tick_count <= (tick_count + 1) ;
 		 			else
 		 				tick_count <= (others => '0') ; 
 		 				if  sda = '0'  then
@@ -130,7 +130,7 @@ architecture systemc of i2c_master is
 		 					else
 		 						sda <= '0' ;
 		 					end if ; 
-		 					tick_count <= tick_count + 1 ;
+		 					tick_count <= (tick_count + 1) ;
 		 				elsif  tick_count < FULL_BIT  then
 		 					scl <= 'Z' ; 
 		 					if  data_i(7) = '1'  then
@@ -138,10 +138,10 @@ architecture systemc of i2c_master is
 		 					else
 		 						sda <= '0' ;
 		 					end if ; 
-		 					tick_count <= tick_count + 1 ;
+		 					tick_count <= (tick_count + 1) ;
 		 				else
-		 					data_i <= (data_i(6 downto 0)   & '0'  ) ; 
-		 					bit_count <= bit_count + 1 ; 
+		 					data_i <= (data_i(6 downto 0) & '0') ; 
+		 					bit_count <= (bit_count + 1) ; 
 		 					tick_count <= (others => '0') ;
 		 				end if ;
 		 			else
@@ -156,14 +156,14 @@ architecture systemc of i2c_master is
 		 				if  tick_count < HALF_BIT  then
 		 					scl <= '0' ; 
 		 					sda <= 'Z' ; 
-		 					tick_count <= tick_count + 1 ;
+		 					tick_count <= (tick_count + 1) ;
 		 				elsif  tick_count < FULL_BIT  then
 		 					scl <= 'Z' ; 
-		 					data_i <= (data_i(7 downto 1)   & sda  ) ; 
-		 					tick_count <= tick_count + 1 ;
+		 					data_i <= (data_i(7 downto 1) & sda) ; 
+		 					tick_count <= (tick_count + 1) ;
 		 				else
-		 					data_i <= (data_i(6 downto 0)   & '0'  ) ; 
-		 					bit_count <= bit_count + 1 ; 
+		 					data_i <= (data_i(6 downto 0) & '0') ; 
+		 					bit_count <= (bit_count + 1) ; 
 		 					tick_count <= (others => '0') ;
 		 				end if ;
 		 			else
@@ -177,11 +177,11 @@ architecture systemc of i2c_master is
 		 			if  tick_count < HALF_BIT  then
 		 				scl <= '0' ; 
 		 				sda <= 'Z' ; 
-		 				tick_count <= tick_count + 1 ;
+		 				tick_count <= (tick_count + 1) ;
 		 			elsif  tick_count < FULL_BIT  then
 		 				scl <= 'Z' ; 
 		 				sda <= 'Z' ; 
-		 				tick_count <= tick_count + 1 ;
+		 				tick_count <= (tick_count + 1) ;
 		 			else
 		 				tick_count <= (others => '0') ; 
 		 				if  sda = '0'  AND (( send = '1'  AND  send_rvcb = '1' ) OR ( rcv = '1'  AND  NOT send_rvcb = '1' )) then
@@ -202,21 +202,8 @@ architecture systemc of i2c_master is
 		 			if  tick_count < HALF_BIT  then
 		 				scl <= '0' ; 
 		 				sda <= '0' ; 
-		 				tick_count <= tick_count + 1 ;
-		 			elsif  tick_count < HALF_BIT + QUARTER_BIT  then
-		 				scl <= 'Z' ; 
-		 				sda <= '0' ; 
-		 				tick_count <= tick_count + 1 ;
-		 			elsif  tick_count < FULL_BIT  then
-		 				scl <= 'Z' ; 
-		 				sda <= 'Z' ; 
-		 				tick_count <= tick_count + 1 ;
-		 			else
-		 				tick_count <= (others => '0') ; 
-		 				state <= idle ;
+		 				tick_count <= (tick_count + 1) ;
 		 			end if ;
-		 		when others => 
-		 			state <= idle ;
 		 	end case ;
 		 end process;  
 	

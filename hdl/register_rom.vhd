@@ -21,7 +21,7 @@ architecture systemc of register_rom is
 	-- rom_process
 	process(addr)
 		 begin
-		 	data <= rom(conv_integer(addr)  ) ;
+		 	data <= rom(conv_integer(addr)) ;
 		 end process;  
 	
 end systemc ;

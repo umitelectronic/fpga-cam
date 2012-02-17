@@ -15,8 +15,8 @@ entity i2c_slave is
 end i2c_slave;
 
 architecture systemc of i2c_slave is
-	constant SLAVE_WRITE_ADDR : std_logic_vector(7 downto 0) := X"84"; 
-	constant SLAVE_READ_ADDR : std_logic_vector(7 downto 0) := X"81"; 
+	constant SLAVE_WRITE_ADDR : std_logic_vector(6 downto 0) := "1000010"; 
+	constant SLAVE_READ_ADDR : std_logic_vector(6 downto 0) := "1000011"; 
 	TYPE slave_state IS (DETECT_START, RX_ADDR, ACK_ADDR, ACK_BYTE, DETECT_ACK, NACK, TX_BYTE, RX_BYTE, DETECT_STOP) ; 
 	signal state : slave_state ; 
 	signal data_i : std_logic_vector(7 downto 0 ) ; 
@@ -28,7 +28,7 @@ architecture systemc of i2c_slave is
 	-- run_i2c
 	process(scl, sda)
 		 begin
-		 	case state   is
+		 	case state is
 		 		when detect_start => 
 		 			rd <= '0' ;
 		 			wr <= '0' ;
@@ -40,15 +40,15 @@ architecture systemc of i2c_slave is
 		 			if  bit_count < 8  then
 		 				if  scl = '0'  then
 		 					sda <= 'Z' ; 
-		 					data_i <= (data_i(6 downto 0)   & '0'  ) ; 
+		 					data_i <= (data_i(6 downto 0) & '0') ; 
 		 					new_bit <= '1' ;
 		 				elsif  scl = 'Z'  AND  new_bit = '1'  then
 		 					new_bit <= '0' ; 
-		 					bit_count <= bit_count + 1 ; 
+		 					bit_count <= (bit_count + 1) ; 
 		 					if  sda = 'Z'  then
-		 						data_i <= (data_i(7 downto 1)   & '1'  ) ;
+		 						data_i <= (data_i(7 downto 1) & '1') ;
 		 					else
-		 						data_i <= (data_i(7 downto 1)   & '0'  ) ;
+		 						data_i <= (data_i(7 downto 1) & '0') ;
 		 					end if ;
 		 				end if ;
 		 			else
@@ -82,8 +82,8 @@ architecture systemc of i2c_slave is
 		 			if  bit_count < 8  then
 		 				if  scl = '0'  AND  NOT new_bit = '1'  then
 		 					new_bit <= '1' ; 
-		 					data_i <= (data_i(6 downto 0)   & '0'  ) ; 
-		 					bit_count <= bit_count + 1 ;
+		 					data_i <= (data_i(6 downto 0) & '0') ; 
+		 					bit_count <= (bit_count + 1) ;
 		 				elsif  scl = 'Z'  AND  new_bit = '1'  then
 		 					new_bit <= '0' ;
 		 				end if ;
@@ -101,15 +101,15 @@ architecture systemc of i2c_slave is
 		 			if  bit_count < 8  then
 		 				if  scl = '0'  then
 		 					sda <= 'Z' ; 
-		 					data_i <= (data_i(6 downto 0)   & '0'  ) ; 
+		 					data_i <= (data_i(6 downto 0) & '0') ; 
 		 					new_bit <= '1' ;
 		 				elsif  scl = 'Z'  AND  new_bit = '1'  then
 		 					new_bit <= '0' ; 
-		 					bit_count <= bit_count + 1 ; 
+		 					bit_count <= (bit_count + 1) ; 
 		 					if  sda = 'Z'  then
-		 						data_i <= (data_i(7 downto 1)   & '1'  ) ;
+		 						data_i <= (data_i(7 downto 1) & '1') ;
 		 					else
-		 						data_i <= (data_i(7 downto 1)   & '0'  ) ;
+		 						data_i <= (data_i(7 downto 1) & '0') ;
 		 					end if ;
 		 				else
 		 					if  data_i(0) = '0'  AND  sda = 'Z'  then
@@ -124,7 +124,7 @@ architecture systemc of i2c_slave is
 		 					sda <= '0' ;
 		 				end if ; 
 		 				bit_count <= (others => '0') ; 
-		 				index <= index + 1 ; 
+		 				index <= (index + 1) ; 
 		 				state <= ack_byte ;
 		 			end if ;
 		 		when ack_byte => 
