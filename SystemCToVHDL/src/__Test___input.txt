@@ -1,4 +1,3 @@
-
 #include "systemc.h"
 #include "i2c_master.h"
 #include "register_rom.h"
@@ -75,6 +74,7 @@ SC_MODULE (camera_interface) {
 		register_rom0.addr(reg_addr);
 		register_rom0.data(reg_data);
 
+
 		SC_METHOD(sccb_interface);
 		sensitive << dispo;
 		sensitive << ack_byte;
@@ -93,7 +93,7 @@ void camera_interface::sccb_interface() {
 	case init:
 		if (dispo.read()) {
 			send.write(1);
-			i2c_data.write(reg_data.read().range(15, 8));
+			i2c_data.write( 0xFFFF );
 			reg_state.write(send_addr);
 		}
 		break;

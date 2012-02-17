@@ -18,7 +18,7 @@ public class __Test__template {
 		templates = new StringTemplateGroup(new FileReader(templateFileName),
 				AngleBracketTemplateLexer.class);
 		templates.registerRenderer(String.class,VHDLRenderer.getInstance());
-        Systemc_basicLexer lex = new Systemc_basicLexer(new ANTLRFileStream("/home/jpiat/workspace/SystemCToVHDL/src/__Test___input.txt", "UTF8"));
+        Systemc_basicLexer lex = new Systemc_basicLexer(new ANTLRFileStream("/home/jpiat/development/FPGA/projects/fpga-cam/systemc/src/down_scaler.cpp", "UTF8"));
         CommonTokenStream tokens = new CommonTokenStream(lex);
 
         Systemc_basicParser g = new Systemc_basicParser(tokens, 49105, null);

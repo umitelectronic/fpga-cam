@@ -5,7 +5,13 @@ file(entity) ::= <<
 <entity>
 >>
 
-entity(name, ports, signals, enums, variables,process, structure, instances, functions) ::= <<
+entity(name, ports, signals, type_decl, variables,process, structure, instances, functions, constants) ::= <<
+library IEEE;
+        use IEEE.std_logic_1164.all;
+        use IEEE.std_logic_unsigned.all;
+library work;
+        use work.all ;
+
 entity <name> is
 	port(
  		<ports; separator="; \n">
@@ -13,18 +19,19 @@ entity <name> is
 end <name>;
 
 architecture systemc of <name> is
-	<enums; separator="; \n"> 
-	<variables.keys:{k|variable <variables.(k); separator=", "> : <k>  }; separator="; \n">
-	<signals; separator="; \n">;
+	<constants; separator=" \n"> 
+	<type_decl; separator=" \n"> 
+	<variables.keys:{k|variable <variables.(k); separator=", "> : <k> ; }; separator="\n">
+	<signals; separator=" \n">
 	begin
 	
 	<structure.keys:{k| <k> : <instances.(k)>
-	port map { 
+	port map ( 
 		<structure.(k); separator=", \n">
-	}; }; separator="\n">
+	); }; separator="\n">
 	
 	<process.keys:{k|<process.(k)>
-	 <functions.(k)>  }; separator="\n">;
+	 <functions.(k)>  }; separator="\n\n">
 	
 end systemc ;
 >>
@@ -42,7 +49,7 @@ output_type(type) ::= "out <type>"
 inout_type(type) ::= "inout <type>"
 
 signal(name, type) ::=<<
-signal <name; separator=", "> : <type>
+signal <name; separator=", "> : <type> ;
 >>
 
 
@@ -74,7 +81,7 @@ signal_assignement(dest, source)::= <<
 >>
 
 enum(name, members) ::= <<
-TYPE <name> IS (<members; format="toUpper", separator=", ">);
+TYPE <name> IS (<members; format="toUpper", separator=", ">) ;
 >>
 
 link(source, dest) ::= "<source> => <dest>"
@@ -83,13 +90,17 @@ actor_inst(type, name) ::="<name> : <type>"
 
 method(name, args) ::= ".<name>(<args>)"
 
-range(from, to) ::= "(<from> downto <to>)"
+range(sc, from, to) ::= "<sc>(<from> downto <to>)"
 concat(left, right) ::= "(<left> & <right>)"
-var_value(not, var, methods) ::=<<
-<if(not)>NOT <endif><var; format="toVHDL"><methods>
+
+
+var_value(not, var) ::=<<
+<if(not)>NOT <endif><if(var)><var; format="toVHDL"><endif>
 >>
+
 array_value(var, index, methods) ::="<var>(<index>)<methods>"
-expression(head, op, tail) ::= "<head> <op> <tail>"
+
+expression(head, op, tail) ::= "<if(op)>(<endif><head> <op> <tail><if(op)>)<endif>"
 
 if_construct(condition, elts, alternatives) ::= <<
 if <condition> then
@@ -157,3 +168,35 @@ func_call(name, args)::=<<
 
 
 enclosed(val) ::= "(<val>)"
+
+hex(val) ::= <<
+X"<val>"
+>>
+
+bin(val) ::= <<
+X"<val>"
+>>
+
+int_constant(name, val) ::= <<
+constant <name> : integer := <val>;
+>>
+
+hex_constant(name, val, size) ::=<<
+constant <name> : std_logic_vector(<size;format="decrement"> downto 0) := <hex(val=val)>;
+>>
+
+array_type_decl(name, size, type) ::= <<
+type <name> is array (0 to <size;format="decrement"> ) of <type>;
+>>
+posedge(signal) ::= <<
+<signal>'event and <signal>
+>>
+ negedge(signal) ::= <<
+<signal>'event and NOT <signal>
+>>
+ 
+ integer_conv(signal) ::= "conv_integer(<signal>)"
+
+ 
+ uinteger_conv(signal) ::= "conv_integer(<signal>)"
+

@@ -9,10 +9,48 @@ scope slist {
     List stack;
 }
 
+@lexer::header{
+import java.io.File ;
+}
 
+@lexer::members {
+    class SaveStruct {
+      SaveStruct(CharStream input){
+        this.input = input;
+        this.marker = input.mark();
+      }
+      public CharStream input;
+      public int marker;
+     }
+ 
+     Stack<SaveStruct> includes = new Stack<SaveStruct>();
+ 
+    // We should override this method for handling EOF of included file
+     public Token nextToken(){
+       Token token = super.nextToken();
+ 
+       if(token.getType() == Token.EOF && !includes.empty()){
+        // We've got EOF and have non empty stack.
+         SaveStruct ss = includes.pop();
+         setCharStream(ss.input);
+         input.rewind(ss.marker);
+         //this should be used instead of super [like below] to handle exits from nested includes
+         //it matters, when the 'include' token is the last in previous stream (using super, lexer 'crashes' returning EOF token)
+         token = this.nextToken();
+       }
+ 
+      // Skip first token after switching on another input.
+      // You need to use this rather than super as there may be nested include files
+       if(((CommonToken)token).getStartIndex() < 0)
+         token = this.nextToken();
+ 
+       return token;
+     }
+ }
 
 @header {
 import org.antlr.stringtemplate.*;
+
 }
 
 
@@ -21,33 +59,37 @@ scope {
       HashMap functions;
       HashMap vars;
       HashMap type_obj;
+      List constants ;
+      List typeDecl ;
        
 }
 @init {
   $cfile::functions = new HashMap();
   $cfile::vars = new HashMap();
    $cfile::type_obj = new HashMap();
+   $cfile::constants = new ArrayList();
+   $cfile::typeDecl = new ArrayList();
 }
 	:
 	 pre_processor*
-	 declarations[$cfile::vars] *
+	 declarations[$cfile::vars, null, null,$cfile::typeDecl] *
 	 module_decl SEMICOLON
-	 declarations[$cfile::vars]*
-	 pre_processor*
+	 (pre_processor
+	|declarations[$cfile::vars, null, null,$cfile::typeDecl])*
 	-> file(entity = {$module_decl.st})
 	;
 
-pre_processor	: (includes 
-	| define
-	| '#endif')
+pre_processor	: '#'(INCLUDE 
+	| define { $cfile::constants.add($define.st);}
+	|IFNDEF
+	| 'endif')
 	;
-
-includes	: '#include' STRING_LITERAL
-	;
-
-define	: ('#define '|'#ifndef ') ID (INT|ID | HEX)?
-	;
-endif	: '#endif '
+define	:	
+	 'define' (WS)? (id = ID)  (WS)? (
+	 STRING_LITERAL 
+	 | HEX -> hex_constant( name = {$id.text}, val = {$HEX.text.substring(2)}, size = {$HEX.text.substring(2).length()*4})
+	 | INT -> int_constant( name = {$id.text}, val = {$INT.text})
+	 )?
 	;
 
 module_decl
@@ -55,7 +97,6 @@ scope {
   List ports;
   List signals;
   HashMap processes;
-  List enums;
   HashMap connections;
   HashMap obj_type;
    HashMap type_obj;
@@ -65,7 +106,6 @@ scope {
   $module_decl::ports = new ArrayList();
   $module_decl::processes = new HashMap();
   $module_decl::signals = new ArrayList();
-  $module_decl::enums = new ArrayList();
   $module_decl::connections = new HashMap();
   $module_decl::obj_type = new HashMap();
   $module_decl::mod_type = new HashMap();
@@ -76,24 +116,26 @@ scope {
         -> entity(name = {$ID.text}, 
         ports= {$module_decl::ports},
         signals =  {$module_decl::signals}, 
-        enums = {$module_decl::enums}, 
+        type_decl = {$cfile::typeDecl}, 
         variables = {$module_decl::obj_type}, 
         process =  {$module_decl::processes}, 
         structure = { $module_decl::connections},
         instances = {$module_decl::mod_type},
-        functions ={$cfile::functions} )
+        functions ={$cfile::functions},
+        constants = {$cfile::constants}
+        )
     ;
 
 
 module_body 
-	: declarations[$module_decl::obj_type]+
+	: declarations[$module_decl::obj_type,  $module_decl::ports, $module_decl::signals, $cfile::typeDecl]+
 	;
 	
-declarations	[HashMap vars]
+declarations	[HashMap vars, List ports, List signals, List typeDecl]
 	:
-	(port_decl SEMICOLON  {  $module_decl::ports.add($port_decl.st);}
-	| signal_dec SEMICOLON {  $module_decl::signals.add($signal_dec.st);}
-	| enum_decl SEMICOLON {  $module_decl::enums.add($enum_decl.st);}
+	(port_decl SEMICOLON  {  $ports.add($port_decl.st);}
+	| signal_dec SEMICOLON {  $signals.add($signal_dec.st);}
+	| enum_decl SEMICOLON {  $typeDecl.add($enum_decl.st);}
 	| variable_decl[$vars] SEMICOLON
 	| func_decl SEMICOLON?
 	| actor)
@@ -123,11 +165,13 @@ variable_decl [HashMap vars]:
 	$cfile::type_obj.put($elt.text, $v_type.text); })* fixed_size_array* assignement? 
 	;	
 	
-fixed_size_array	: ('['INT']')
+fixed_size_array returns [int size]
+:
+ ('['INT']'{$size = Integer.valueOf($INT.text);})
 		;
 
 assignement	:
-	'=' (INT |array_of_value | FLOAT |  STRING_LITERAL)
+	'=' value
 	;
 	
 array_of_value	: '{'(INT |array_of_value | FLOAT) (',' (INT |array_of_value | FLOAT))*'}'
@@ -143,23 +187,26 @@ v_signed_modifier	: 'unsigned'
 otemplate	:	'<' (ID|INT) (',' (ID|INT))*'>'	
 	;
 
-actor	:'SC_CTOR''('ID')'  (':' actor_inst(','actor_inst)*)?'{' (actor_body) '}'
+actor	:'SC_CTOR''('ID')'  (':' actor_inst[$module_decl::mod_type, $module_decl::obj_type](','actor_inst[$module_decl::mod_type, $module_decl::obj_type])*)?'{' (actor_body) '}'
 
 	;
 
-actor_inst
-	:ID'('STRING_LITERAL')'  {	
-			$module_decl::mod_type.put($ID.text, $cfile::type_obj.get($ID.text));
-			  $module_decl::obj_type.remove($cfile::type_obj.get($ID.text));
-			 $cfile::type_obj.remove($ID.text);
-			
+actor_inst [HashMap mod_type, HashMap obj_type]
+	:(type = ID)? actorName=ID'('STRING_LITERAL')'  {
+			if($type == null){
+			  $mod_type.put($actorName.text, $cfile::type_obj.get($actorName.text));
+			  $obj_type.remove($cfile::type_obj.get($actorName.text));
+			  $cfile::type_obj.remove($actorName.text);
+			}else{
+			  $mod_type.put($actorName.text, $type.text);
+			}
 			}
 	;
 
-connection	: component=ID'.'link	{if($module_decl::connections.get($component.text) == null){
-				$module_decl::connections.put($component.text,  new ArrayList()) ;
+connection	[HashMap  connections]: component=ID'.'link	{if($connections.get($component.text) == null){
+				$connections.put($component.text,  new ArrayList()) ;
 			}
- 			((ArrayList) $module_decl::connections.get($component.text)).add($link.st);
+ 			((ArrayList) $connections.get($component.text)).add($link.st);
  			}
 	;
 
@@ -205,21 +252,37 @@ actor_body_elt
 	:
 	(meth=actor_method {$module_decl::processes.put($meth.name, $actor_method.st);}
 	| (func_call SEMICOLON)
-	|(connection SEMICOLON)) 
+	|(connection[$module_decl::connections] SEMICOLON)) 
 	;
 
-signal_dec
+signal_dec returns [Object type]
 scope slist;
 @init {
   $slist::names = new ArrayList();
+  $type = new String();
 }:
-	((sc_signal) name (','name )* fixed_size_array*)  -> signal(name = {$slist::names}, type={$sc_signal.st})
+	((sc_signal) {$type = $sc_signal.st ;} name (','name )* 
+	(fixed_size_array {
+	String typeName = "array_"+$fixed_size_array.size;
+	STAttrMap attrMap = new STAttrMap();
+	attrMap.put("name", typeName );
+	attrMap.put("size", $fixed_size_array.size );
+	attrMap.put("type", $type);
+	$cfile::typeDecl.add(templateLib.getInstanceOf("array_type_decl",attrMap));
+	$type = typeName;
+	})
+	*) 
+	{SignalAssignementConversion.getInstance().registerType($slist::names, $sc_signal.st.toString());}  -> signal(name = {$slist::names}, type={$type})
 	;
 
 
 	
 sc_signal	:
-	('sc_signal'('_rv')?'<'  signal_type  '>')  ->dummy(val={$signal_type.st})
+	('sc_signal'('_rv')?ctemplate )  ->dummy(val={$ctemplate.st})
+	;
+	
+ctemplate 
+	:	LT(signal_type)GT ->dummy(val={$signal_type.st})
 	;
 
 signal_type	:
@@ -233,7 +296,7 @@ scope slist;
   $slist::stack = new ArrayList();
 }
 :
-	(ID) '('(func_arg (',' func_arg)*)?')' -> func_call(name = {$ID.text}, args = {$slist::stack} )
+	(ID)'('(func_arg (',' func_arg)*)?')' -> func_call(name = {$ID.text}, args = {$slist::stack} )
 	;
 
 port_decl
@@ -241,7 +304,7 @@ scope slist;
 @init {
   $slist::names = new ArrayList();
 }:
-	port_type name (',' name )* -> port(name={$slist::names}, type = {$port_type.st})
+	port_type name (',' name )*{SignalAssignementConversion.getInstance().registerType($slist::names, $port_type.st.toString());} -> port(name={$slist::names}, type = {$port_type.st})
 	;
 
 
@@ -259,22 +322,22 @@ port_type	:
 	
 
 sc_inout	:
-	'sc_inout'(LT (sc_type) GT)  ->dummy(val={$sc_type.st})
+	'sc_inout'(ctemplate)  ->dummy(val={$ctemplate.st})
 	| 'sc_inout_resolved'   -> logic()
-	| 'sc_inout_rv'(LT (INT) GT)  -> logic_vector(size={$INT.text})
+	| 'sc_inout_rv'(ctemplate)  -> logic_vector(size={$ctemplate.text})
 	;
 	
 	
 sc_out	:
-	'sc_out' (LT (sc_type)  GT) ->dummy(val={$sc_type.st})
+	'sc_out' (ctemplate) ->dummy(val={$ctemplate.st})
 	| 'sc_out_resolved'  ->  logic()
-	| 'sc_out_rv'(LT  (INT) GT)  -> logic_vector(size={$INT.text})
+	| 'sc_out_rv'(ctemplate)  -> logic_vector(size={$ctemplate.text})
 	;
 
 sc_in	:
-	'sc_in'(LT (sc_type)  GT) ->dummy(val={$sc_type.st})
+	'sc_in'(ctemplate) ->dummy(val={$ctemplate.st})
 	| 'sc_in_resolved'  ->  logic()
-	| 'sc_in_rv'(LT ( INT) GT)  -> logic_vector(size={$INT.text})
+	| 'sc_in_rv'(ctemplate)  -> logic_vector(size={$ctemplate.text})
 	;
 
 sc_clock	:
@@ -308,7 +371,14 @@ cconstruct
 	:
 	case_construct ->dummy(val = {$case_construct.st})
 	|if_construct ->dummy(val = {$if_construct.st})
+	|while_construct 
 	;
+
+while_construct
+	:
+	'while''('cond ')'( if_content)
+	;
+
 
 if_construct
 scope slist;
@@ -453,41 +523,85 @@ v_assignement
 	;
 
 sc_assignement
+scope {
+StringTemplate var ;
+}
 	:
-	ID'.write('assignement_value')' -> signal_assignement(dest = {$ID.text}, source = {$assignement_value.st})
+	ID{$sc_assignement::var = templateLib.getInstanceOf("dummy",new STAttrMap().put("val", $ID.text));}(array_index[$sc_assignement::var]{$sc_assignement::var=$array_index.st;})?'.write('assignement_value')' -> signal_assignement(dest = {$sc_assignement::var}, source = {SignalAssignementConversion.getInstance().getAssignementValue($ID.text, $assignement_value.st.toString())})
 	;
 
 assignement_value
 	:
-	  value  ->  dummy(val ={$value.st})
+	  h=value  (OP t=value)? ->   expression (head ={$h.st}, op ={$OP.text}, tail = {$t.st})
 	;
 
-value	:
-	 HEX  ->  dummy(val ={ $HEX.text})
-	 |BIN  ->  dummy(val ={ $BIN.text})
+value	
+:
+	 HEX  ->  hex(val ={ $HEX.text.substring(2)})
+	 |BIN  ->  bin(val ={ $BIN.text.substring(2)})
 	 |INT  ->  dummy(val ={ $INT.text})
 	 |STRING_LITERAL   ->  dummy(val ={ $STRING_LITERAL.text})  //vector
-	 |h=var_value  (OP t=value)?-> expression (head ={$h.st}, op ={$OP.text}, tail = {$t.st})
+	 |scconstructor -> dummy(val= {$scconstructor.st})
 	 |func_call ->  dummy(val= {$func_call.st})
-	 |sc_method ->  dummy(val= {$sc_method.st})
+	 |h=var_value   -> dummy (val ={$h.st})
+	 |sc_method[null] ->  dummy(val= {$sc_method.st})
+	;
+
+scconstructor
+	:	
+	sc_type'('value')' -> dummy(val = {$value.st})
 	;
 	
-var_value	:
-
-	(NOT)?  (var_name) var_comp*  -> var_value(not = {$NOT.text}, var = {$var_name.st},  methods = {$var_comp.st})
+/*	
+var_value	
+scope {
+List methods ;
+String varName ;
+}
+@init {
+  $var_value::methods = new ArrayList();
+}
+:
+	(NOT)?  (var_name {$var_value::varName = $var_name.st.toString();}) (var_comp[$var_name.st] {$var_value::methods.add($var_comp.st);})*  -> var_value(not = {$NOT.text}, var = {$var_name.st},  methods = {$var_value::methods})
 	;
 
-var_comp	:
-	('.'
-	((sc_method) -> dummy(val = {$sc_method.st})
-	| ( method)) -> dummy(val = {$method.st})
+var_comp[String varName]	:
+	(('.'
+	((fmethod = sc_method[$varName) -> dummy(val = {$sc_method.st})
+	| ( method) -> dummy(val = {$method.st})
+	) 
 	)
-	| ('['value']') -> array_value( index = {$value.st})
+	| ('['value']') -> array_value( index = {$value.st})) 
+	;	
+*/
+
+var_value	
+scope {
+StringTemplate val ;
+}
+:
+	(NOT)?  (var_name {$var_value::val = $var_name.st;}) (var_comp[$var_value::val] {$var_value::val = $var_comp.st;})?  -> var_value(not = {$NOT.text}, var = {$var_value::val})
+	;
+
+
+var_comp  [StringTemplate attTemplate]:
+	(('.'
+	(( sc_method[$attTemplate] {$attTemplate = $sc_method.st ; })
+	| (method {$attTemplate = $method.st ; })
+	) 
+	)
+	| (array_index [$attTemplate]{$attTemplate = $array_index.st ;}) 
+	) (vcomp = var_comp[$attTemplate] {$attTemplate = $vcomp.st ;})? -> dummy(val = {$attTemplate})
 	;	
 
+array_index [StringTemplate attTemplate]
+	:
+	'['value']'  -> array_value( var = {$attTemplate}, index = {$value.st})
+	;
+	
 var_name
 	:
-	ID -> dummy(val = {$ID.text})
+	ID -> dummy(val = {$ID.text.trim()})
 	;
 
 
@@ -498,17 +612,64 @@ sc_type	:
 	| 'sc_logic' -> logic()
 	| 'bool' -> bool()
 	;
-//LEXER
+/*
+main	
+scope {
+  List signals;
+  HashMap processes;
+  HashMap connections;
+  HashMap obj_type;
+   HashMap type_obj;
+  HashMap mod_type;
+}
+@init {
+  $main::ports = new ArrayList();
+  $main::processes = new HashMap();
+  $main::signals = new ArrayList();
+  $main::connections = new HashMap();
+  $main::obj_type = new HashMap();
+  $main::mod_type = new HashMap();
+}
+:	
+	'int sc_main(int argc, char* argv[]) {'
+	 (
+	 declarations[$main::obj_type, null, $main::signals, , $cfile::typeDecl]
+	 |actor_inst[ mod_type, obj_type]
+	 |connection[$main::connections]
+	 )*
+	'}' ->  entity(name = {this.getSourceName()}, connections = {$main::connections})
+	;
+*/
 
-sc_method	
+/*
+sc_method[String signalName]
 :
 	'range('from = INT ',' to = INT')' -> range(from = {$from.text}, to = {$to.text})
 	|'concat('  left = value  ',' right= value ')'-> concat(left = {$left.st}, right = {$right.st})
-	| 'read()'
+	| 'read()' -> dummy()
+	| 'posedge()' -> posedge(signal = {$signalName})
+	| 'negedge()' -> negedge(signal = {$signalName})
+	|'('  left = value ',' right= value')'-> concat(left = {$left.st}, right = {$right.st})
+	;
+
+*/
+
+
+
+sc_method[StringTemplate signalSt]
+:
+	'range('from = INT ',' to = INT')' -> range(sc = {$signalSt}, from = {$from.text}, to = {$to.text})
+	|'concat('  left = value  ',' right= value ')'-> concat(left = {$left.st}, right = {$right.st})
+	| 'read()' -> dummy(val = {$signalSt})
+	| 'posedge()' -> posedge(signal = {$signalSt})
+	| 'negedge()' -> negedge(signal = {$signalSt})
+	| 'to_int()' -> integer_conv(signal = {$signalSt})
+	| 'to_uint()' ->uinteger_conv(signal = {$signalSt})
 	|'('  left = value ',' right= value')'-> concat(left = {$left.st}, right = {$right.st})
 	;
 	
-	
+//LEXER
+
 ID  :   ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
 
@@ -534,14 +695,14 @@ SINGLE_LINE_COMMENT
 	;
 
 HEX	:
-	'0x'(('0'..'9')|'a'..'f'| 'A..F')+
+	'0x'(('0'..'9')|('a'..'f')|( 'A'..'F'))+
 	;
 	   
 BIN	:
 	'0b'('0'|'1')+
 	; 
 OP	:
-	('+' | '-' | '*' | '/ '| '%')
+	('+' | '-' | '*' | '/ '| '%' | '<<' | '>>')
 	;
 	
 GT	:'>'
@@ -556,3 +717,42 @@ SEMICOLON	:';'
 	;
 NOT	:'!'
 	;
+	
+
+INCLUDE
+     : 'include' (WS)? f=STRING_LITERAL {
+       String name = f.getText();
+       name = name.substring(1,name.length()-1);
+        File parentFile = new File(this.getSourceName());
+        String parentName = parentFile.getName();
+        parentName = parentName.substring(0, parentName.lastIndexOf('.'));
+         File includeFile ;
+       try {
+           includeFile = new File(parentFile.getParent()+File.separator+name);
+          if(includeFile.exists()){
+            String includeName = includeFile.getName();
+           includeName = includeName.substring(0, includeName.lastIndexOf('.'));
+           if(includeName.equals(parentName)){
+           	 SaveStruct ss = new SaveStruct(input);
+        	 includes.push(ss);
+       	 // switch on new input stream
+         	setCharStream(new ANTLRFileStream(includeFile.getAbsolutePath()));
+        	 reset();
+        	 }
+          }else{
+        	 
+          	System.out.println("File "+name+" does not exist from "+includeFile.getAbsolutePath());
+          }
+        // save current lexer's state
+       
+ 
+       } catch(Exception fnf) { throw new Error("Cannot open file " + name); }
+     }
+     ;
+
+	
+IFNDEF	:	
+	 'ifndef' (WS)? (ID)
+	;
+	
+	
