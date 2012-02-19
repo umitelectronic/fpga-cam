@@ -59,6 +59,15 @@ void send_picture::send_picture_process() {
 			break;
 
 		}
+	}else if (clk.negedge()) {
+		switch(state){
+			case write_data :
+				send.write(SC_LOGIC_1);
+			break ;
+			default :
+				send.write(SC_LOGIC_0);
+			break;
+		}
 	}
 }
 
