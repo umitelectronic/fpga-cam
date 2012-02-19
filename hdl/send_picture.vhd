@@ -34,7 +34,6 @@ architecture systemc of send_picture is
 		 	elsif  clk'event and clk = '1'  then
 		 		case state is
 		 			when wait_pixel => 
-		 				send <= '0' ;
 		 				if  pixel_clock = '1'  then
 		 					select_end <= (others => '0') ; 
 							data_out <= pixel_data_in(7 downto 1) & (pixel_data_in(0) AND (NOT isControlChar));
@@ -49,16 +48,21 @@ architecture systemc of send_picture is
 		 					state <= write_data ;
 		 				end if ;
 		 			when write_data => 
-		 				send <= '1' ;
 		 				state <= wait_sync ;
 		 			when wait_sync => 
-		 				send <= '0' ;
 		 				if  end_sig = '1'  then
 		 					state <= wait_pixel ;
 		 				end if ;
 		 			when others => 
 		 				state <= wait_pixel ;
 		 		end case ;
+		 	elsif clk'event and clk = '0' then
+		 	  case state is
+		 			when write_data => 
+		 				send <= '1' ;
+		 			when others => 
+		 				send <= '0' ;
+		 		end case;
 		 	end if ;
 		 end process;  
 

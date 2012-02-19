@@ -10,15 +10,17 @@ entity camera_interface_testbench is
 end camera_interface_testbench;
 
 architecture test of camera_interface_testbench is
-	constant clk_period : time := 1 ns ;
-	constant pclk_period : time := 21 ns ;
+	constant clk_period : time := 5 ns ;
+	constant pclk_period : time := 20 ns ;
 	signal clk : std_logic ;
 	signal pixel_from_camera : std_logic_vector(7 downto 0);
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
+	signal data_to_send : std_logic_vector(7 downto 0);
 	signal pxclk_from_camera, href_from_camera, vsync_from_camera : std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
+	signal send_data : std_logic ;
 	begin
 	camera0: camera_interface
 		port map(clock => clk,
@@ -39,6 +41,16 @@ architecture test of camera_interface_testbench is
 		  pixel_data_out => pixel_from_ds 
 		);
 pixel_from_camera <= "10100101";
+
+send_pic0 : send_picture 
+	port map(
+ 		clk => clk, 
+ 		arazb => '1',
+ 		pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
+ 		pixel_data_in => pixel_from_ds,
+ 		data_out => data_to_send, 
+ 		send => send_data
+	); 
 
 
 process
