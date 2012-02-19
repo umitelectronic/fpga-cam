@@ -16,7 +16,8 @@ entity send_picture is
 end send_picture;
 
 architecture systemc of send_picture is
-	constant VSYNC_CHAR : integer := 0; 
+	constant VSYNC_CHAR : std_logic_vector(7 downto 0) := "01010101"; 
+	constant HSYNC_CHAR : std_logic_vector(7 downto 0) := "10101001";
 	TYPE send_state IS (WAIT_PIXEL, WRITE_DATA, WAIT_SYNC) ; 
 	signal state : send_state ; 
 	signal isControlChar : std_logic ; 
@@ -36,10 +37,11 @@ architecture systemc of send_picture is
 		 				send <= '0' ;
 		 				if  pixel_clock = '1'  then
 		 					select_end <= (others => '0') ; 
+							data_out <= pixel_data_in(7 downto 1) & (pixel_data_in(0) AND (NOT isControlChar));
 		 					state <= write_data ;
 		 				elsif  vsync = '1'  then
 		 					data_out <= VSYNC_CHAR ; 
-		 					select_end <= "1" ; 
+		 					select_end <= "01" ; 
 		 					state <= write_data ;
 		 				elsif  hsync = '1'  then
 		 					data_out <= HSYNC_CHAR ; 
@@ -66,13 +68,14 @@ architecture systemc of send_picture is
 		 	if  conv_integer(select_end) = 1  then
 		 		end_sig <= NOT vsync ;
 		 	elsif  conv_integer(select_end) = 2  then
-
+				end_sig <= vsync OR (NOT hsync);
+			else
+				end_sig <= NOT pixel_clock ; 
 		 	end if ;
 		 end process;  
 
-	-- update_is_control_char
-	process(pixel_data_in)
-		 begin
-		 end process;  
+isControlChar <= '1' when (pixel_data_in = "01010101") else -- equals VSYNC
+					  '1' when (pixel_data_in = "10101001") else -- equals HSYNC
+					  '0';
 	
 end systemc ;

@@ -9,7 +9,8 @@ entity i2c_master is
  		clock : in std_logic; 
  		arazb : in std_logic; 
  		slave_addr : in std_logic_vector(6 downto 0 ); 
- 		data : inout std_logic_vector(7 downto 0 ); 
+ 		data_in : in std_logic_vector(7 downto 0 );
+		data_out : out std_logic_vector(7 downto 0 ); 
  		send : in std_logic; 
  		rcv : in std_logic; 
  		scl : inout std_logic; 
@@ -19,15 +20,15 @@ entity i2c_master is
 end i2c_master;
 
 architecture systemc of i2c_master is
-	constant QUARTER_BIT : integer := 4; 
-	constant HALF_BIT : integer := 8; 
-	constant FULL_BIT : integer := 16; 
+	constant QUARTER_BIT : integer := 15; 
+	constant HALF_BIT : integer := 30; 
+	constant FULL_BIT : integer := 60; 
 	TYPE master_state IS (IDLE, I2C_START, TX_ADDR, ACK_ADDR, TX_BYTE, RX_BYTE, ACK, I2C_STOP) ; 
 	signal state : master_state ; 
-	signal tick_count : std_logic_vector(7 downto 0 ) ; 
-	signal bit_count : std_logic_vector(7 downto 0 ) ; 
-	signal slave_addr_i : std_logic_vector(7 downto 0 ) ; 
-	signal data_i : std_logic_vector(7 downto 0 ) ; 
+	signal tick_count : std_logic_vector(7 downto 0 ) := (others => '0'); 
+	signal bit_count : std_logic_vector(7 downto 0 ) := (others => '0'); 
+	signal slave_addr_i : std_logic_vector(7 downto 0 )  := (others => '0'); 
+	signal data_i : std_logic_vector(7 downto 0 )  := (others => '0'); 
 	signal send_rvcb : std_logic ;
 	begin
 	
@@ -35,6 +36,11 @@ architecture systemc of i2c_master is
 	-- run_i2c
 	process(arazb, clock)
 		 begin
+		 if arazb = '0' then
+			state <= idle ;
+			tick_count <= (others => '0') ; 
+		 	bit_count <= (others => '0') ;
+		 elsif clock'event and clock = '1' then
 		 	case state is
 		 		when idle => 
 		 			scl <= 'Z' ;
@@ -109,10 +115,10 @@ architecture systemc of i2c_master is
 		 				tick_count <= (others => '0') ; 
 		 				if  sda = '0'  then
 		 					if  send_rvcb = '1'  then
-		 						data_i <= data ; 
+		 						data_i <= data_in ; 
 		 						state <= tx_byte ;
 		 					else
-		 						data <= data_i ; 
+		 						data_out <= data_i ; 
 		 						state <= rx_byte ;
 		 					end if ;
 		 				else
@@ -186,10 +192,10 @@ architecture systemc of i2c_master is
 		 				tick_count <= (others => '0') ; 
 		 				if  sda = '0'  AND (( send = '1'  AND  send_rvcb = '1' ) OR ( rcv = '1'  AND  NOT send_rvcb = '1' )) then
 		 					if  send_rvcb = '1'  then
-		 						data_i <= data ; 
+		 						data_i <= data_in ; 
 		 						state <= tx_byte ;
 		 					else
-		 						data <= data_i ; 
+		 						data_out <= data_i ; 
 		 						state <= rx_byte ;
 		 					end if ;
 		 				else
@@ -205,6 +211,7 @@ architecture systemc of i2c_master is
 		 				tick_count <= (tick_count + 1) ;
 		 			end if ;
 		 	end case ;
+			end if;
 		 end process;  
 	
 end systemc ;

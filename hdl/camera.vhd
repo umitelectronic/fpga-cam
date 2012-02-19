@@ -8,7 +8,8 @@ component i2c_master is
  		clock : in std_logic; 
  		arazb : in std_logic; 
  		slave_addr : in std_logic_vector(6 downto 0 ); 
- 		data : inout std_logic_vector(7 downto 0 ); 
+ 		data_in : in std_logic_vector(7 downto 0 );
+		data_out : out std_logic_vector(7 downto 0 );  
  		send : in std_logic; 
  		rcv : in std_logic; 
  		scl : inout std_logic; 
@@ -29,10 +30,10 @@ component camera_interface is
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
  		arazb : in std_logic; 
- 		pixel_data : inout std_logic_vector(7 downto 0 ); 
- 		y_data : inout std_logic_vector(7 downto 0 ); 
- 		u_data : inout std_logic_vector(7 downto 0 ); 
- 		v_data : inout std_logic_vector(7 downto 0 ); 
+ 		pixel_data : in std_logic_vector(7 downto 0 ); 
+ 		y_data : out std_logic_vector(7 downto 0 ); 
+ 		u_data : out std_logic_vector(7 downto 0 ); 
+ 		v_data : out std_logic_vector(7 downto 0 ); 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
  		new_pix, new_line, new_frame : out std_logic; 
@@ -62,5 +63,16 @@ component line_ram is
 	); 
 end component;
 
+
+component send_picture is
+	port(
+ 		clk : in std_logic; 
+ 		arazb : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+ 		data_out : out std_logic_vector(7 downto 0 ); 
+ 		send : out std_logic
+	); 
+end component;
 
 END camera;
