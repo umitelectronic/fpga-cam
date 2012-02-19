@@ -10,9 +10,9 @@ entity camera_interface is
  		i2c_clk : in std_logic; 
  		arazb : in std_logic; 
  		pixel_data : in std_logic_vector(7 downto 0 ); 
- 		y_data : inout std_logic_vector(7 downto 0 ); 
- 		u_data : inout std_logic_vector(7 downto 0 ); 
- 		v_data : inout std_logic_vector(7 downto 0 ); 
+ 		y_data : out std_logic_vector(7 downto 0 ); 
+ 		u_data : out std_logic_vector(7 downto 0 ); 
+ 		v_data : out std_logic_vector(7 downto 0 ); 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
  		new_pix, new_line, new_frame : out std_logic; 
@@ -36,7 +36,6 @@ architecture systemc of camera_interface is
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
 	signal y1_delay, u_delay, v_delay, y2_delay : std_logic_vector(7 downto 0 ) ; 
-	signal sccb_wr, sccb_rd : std_logic ; 
 	signal valid_pixel : std_logic ; 
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
 	begin
@@ -52,7 +51,7 @@ architecture systemc of camera_interface is
 			arazb => arazb, 
 			sda => sda, 
 			scl => scl, 
-			data => i2c_data, 
+			data_in => i2c_data, 
 			slave_addr => i2c_addr, 
 			send => send, 
 			rcv => rcv, 
@@ -61,12 +60,12 @@ architecture systemc of camera_interface is
 		); 
 	
 	-- sccb_interface
-	process(dispo, ack_byte, arazb)
+	process(clock, arazb)
 		 begin
 		 	i2c_addr <= OV7670_I2C_ADDR ;
-		 	if  NOT arazb = '1'  then
+		 	if  arazb = '0'  then
 		 		reg_state <= init ;
-		 	else
+		 	elsif clock'event and clock = '1' then
 		 		case reg_state is
 		 			when init => 
 		 				if  dispo = '1'  then
@@ -109,7 +108,7 @@ architecture systemc of camera_interface is
 		 begin
 		 	new_line <= NOT href ;
 		 	new_frame <= vsync ;
-		 	if  NOT arazb = '1'  then
+		 	if arazb = '0'  then
 		 		pix_state <= Y1 ;
 		 	elsif  clock'event and clock = '1'  then
 		 		if  pxclk = '1'  AND  href = '1'  AND  NOT vsync = '1'  then
