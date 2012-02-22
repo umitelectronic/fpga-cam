@@ -24,7 +24,7 @@ architecture systemc of camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "1000010"; 
 	TYPE pixel_state IS (Y1, U1, Y2, V1) ; 
-	TYPE registers_state IS (INIT, SEND_ADDR, SEND_DATA, NEXT_REG, STOP) ; 
+	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
 	signal i2c_addr : std_logic_vector(6 downto 0 ) ; 
@@ -41,7 +41,9 @@ architecture systemc of camera_interface is
 	begin
 	
 	register_rom0 : register_rom
-		port map ( 
+		port map (
+		   clk => clock,
+			en => '1',
 			addr => reg_addr, 
 			data => reg_data
 		); 
@@ -77,13 +79,21 @@ architecture systemc of camera_interface is
 		 				if  ack_byte = '1'  then
 		 					send <= '1' ; 
 		 					i2c_data <= reg_data(7 downto 0) ; 
+		 					reg_state <= wait_ack0 ;
+		 				end if ;
+		 			when wait_ack0 =>
+		 			  if  ack_byte = '0'  then
 		 					reg_state <= send_data ;
 		 				end if ;
 		 			when send_data => 
 		 				if  ack_byte = '1'  then
 		 					send <= '0' ; 
-		 					reg_state <= next_reg ; 
+		 					reg_state <= wait_ack1 ; 
 		 					reg_addr <= (reg_addr + 1) ;
+		 				end if ;
+		 			when wait_ack1 =>
+		 			  if  ack_byte = '0'  then
+		 					reg_state <= next_reg ;
 		 				end if ;
 		 			when next_reg => 
 		 				send <= '0' ;

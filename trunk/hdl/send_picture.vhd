@@ -56,15 +56,20 @@ architecture systemc of send_picture is
 		 			when others => 
 		 				state <= wait_pixel ;
 		 		end case ;
-		 	elsif clk'event and clk = '0' then
-		 	  case state is
-		 			when write_data => 
-		 				send <= '1' ;
-		 			when others => 
-		 				send <= '0' ;
-		 		end case;
-		 	end if ;
+				end if ;
 		 end process;  
+
+	process(clk)
+	begin 
+	if clk'event and clk = '0' then
+		  case state is
+				when write_data => 
+					send <= '1' ;
+				when others => 
+					send <= '0' ;
+			end case;
+	end if ;
+	end process ;
 
 	-- end_sig_mux
 	process(pixel_clock, hsync, vsync, select_end)
