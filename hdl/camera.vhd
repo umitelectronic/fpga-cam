@@ -20,6 +20,7 @@ end component;
 
 component register_rom is
 	port(
+		clk,en : in std_logic;
  		data : out std_logic_vector(15 downto 0 ); 
  		addr : in std_logic_vector(7 downto 0 )
 	); 
