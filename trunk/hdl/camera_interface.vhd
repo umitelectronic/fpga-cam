@@ -23,7 +23,7 @@ end camera_interface;
 architecture systemc of camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "1000010"; 
-	TYPE pixel_state IS (Y1, U1, Y2, V1) ; 
+	TYPE pixel_state IS (Y1, U1, Y2, V1, DUMMY1, DUMMY2) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
@@ -124,35 +124,28 @@ architecture systemc of camera_interface is
 		 		if  pxclk = '1'  AND  href = '1'  AND  NOT vsync = '1'  then
 		 			case pix_state is
 		 				when Y1 => 
-		 					y2_delay <= pixel_data ;
-		 					new_pix <= valid_pixel ;
+		 					y_data <= pixel_data ;
+		 					new_pix <= '0' ;
 		 					next_state <= U1 ;
 		 				when U1 => 
-		 					y_data <= y1_delay ;
-		 					u_data <= u_delay ;
-		 					v_data <= v_delay ;
-		 					u_delay <= pixel_data ;
-		 					new_pix <= '0' ;
+		 					u_data <= pixel_data ;
+		 					new_pix <= '1' ;
 		 					next_state <= Y2 ;
 		 				when Y2 => 
-		 					y1_delay <= pixel_data ;
-		 					new_pix <= valid_pixel ;
+		 					y_data <= pixel_data ;
+		 					new_pix <= '0' ;
 		 					next_state <= V1 ;
 		 				when V1 => 
-		 					y_data <= y2_delay ;
-		 					u_data <= u_delay ;
 		 					v_data <= pixel_data ;
-		 					v_delay <= pixel_data ;
-		 					new_pix <= '0' ;
-		 					valid_pixel <= '1' ;
-		 					next_state <= Y1 ;
+		 					new_pix <= '1' ;
+							next_state <= Y1 ;
 		 				when others => 
 		 					next_state <= Y1 ;
 		 			end case ;
 		 		elsif ( NOT pxclk = '1' ) AND  href = '1'  AND  NOT vsync = '1'  then
 		 			pix_state <= next_state ;
-		 		else
-		 			valid_pixel <= '0' ;
+				else
+					new_pix <= '0' ;
 		 		end if ;
 		 	end if ;
 		 end process;  
