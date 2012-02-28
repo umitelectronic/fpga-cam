@@ -48,7 +48,7 @@ architecture systemc of down_scaler is
 	-- down_scaler_process
 	process(clk, arazb)
 		 begin
-		 	if  NOT arazb = '1'  then
+		 	if arazb = '0'  then
 		 		nb_line_accumulated <= (others => '0') ; 
 		 		nb_pix_accumulated <= (others => '0') ; 
 		 		add_result <= (others => '0') ; 
@@ -89,9 +89,9 @@ architecture systemc of down_scaler is
 		 					elsif  pixel_clock = '1'  then
 		 						pixel_clock_out <= '0' ; 
 		 						hsync_out <= '0' ; 
-		 						if  conv_integer(nb_pix_accumulated) = 0  then
+		 						if  nb_pix_accumulated = 0  then
 		 							add_result <= "00000000" & pixel_data_in ;
-		 						elsif  conv_integer(nb_pix_accumulated) = 7  then
+		 						elsif  nb_pix_accumulated = 7  then
 		 							if  nb_line_accumulated = 0  then
 		 								line_ram_data_in <= "00000000" & add_temp(10 downto 3) ;
 		 							else
@@ -113,11 +113,11 @@ architecture systemc of down_scaler is
 		 						else
 		 							pixel_clock_out <= '0' ;
 		 						end if ; 
-		 						if  conv_integer(nb_pix_accumulated) = 7  then
+		 						if  nb_pix_accumulated = 7  then
 		 							line_ram_addr <= line_ram_addr + 1 ; 
 		 							nb_pix_accumulated <= (others => '0') ;
 		 						else
-		 							if  conv_integer(nb_pix_accumulated) /= 0  then
+		 							if  nb_pix_accumulated /= 0  then
 		 								line_ram_en <= '1' ;
 		 							end if ; 
 		 							nb_pix_accumulated <= (nb_pix_accumulated + 1) ;

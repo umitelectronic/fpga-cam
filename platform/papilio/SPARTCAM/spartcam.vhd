@@ -34,11 +34,13 @@ use work.camera.all ;
 
 entity spartcam is
 port( CLK : in std_logic;
+		ARAZB	:	in std_logic;
 		CAM_XCLK	:	out std_logic;
 		TXD	:	out std_logic;
-		CAM_SIOC, CAM_SIOD	:	inout std_logic;
+		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
 		CAM_DATA	:	in std_logic_vector(7 downto 0);
 		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;
+		CAM_PCLK_OUT, CAM_HREF_OUT, CAM_VSYNC_OUT	:	out std_logic;
 		CAM_RESET	:	out std_logic ;
 		CAM_PWEN		:	out std_logic
 );
@@ -75,8 +77,9 @@ architecture Structural of spartcam is
     end component;
 
 	signal clk_24, clk_96, clk_48 : std_logic ;
-	signal baud_count, arazb : std_logic ;
-	signal arazb_time : integer range 0 to 64 := 64 ;
+	signal baud_count, arazb_delayed, clk0 : std_logic ;
+	constant arazb_delay : integer := 1024 ;
+	signal arazb_time : integer range 0 to 1024 := arazb_delay ;
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
@@ -86,13 +89,15 @@ architecture Structural of spartcam is
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	begin
 
-	process(clk_96) -- reset process
+	process(clk0, arazb) -- reset process
 	begin
-		if clk_96'event and clk_96 = '1' then
+		if arazb = '0' then
+			arazb_time <= arazb_delay;
+		elsif clk0'event and clk0 = '1' then
 			if arazb_time = 0 then
-				arazb <= '1' ;
+				arazb_delayed <= '1' ;
 			else
-				arazb <= '0';
+				arazb_delayed <= '0';
 				arazb_time <= arazb_time - 1 ;
 			end if;
 		end if;
@@ -111,13 +116,23 @@ architecture Structural of spartcam is
 	end if;
 	end process;
 
-	CAM_RESET <= '1';
-	CAM_PWEN <= '1';
+	CAM_RESET <= arazb_delayed ;
+	CAM_PWEN <= '0';
 	CAM_XCLK <= clk_24 ;
+	--CAM_PCLK_OUT <= CAM_PCLK;
+	--CAM_HREF_OUT <= CAM_HREF;
+	--CAM_VSYNC_OUT <= CAM_VSYNC;
+	--CAM_PCLK_OUT <= pxclk_from_interface;
+	--CAM_HREF_OUT <= href_from_interface;
+	--CAM_VSYNC_OUT <= vsync_from_interface;
+	CAM_PCLK_OUT <= pxclk_from_ds;
+	CAM_HREF_OUT <= href_from_ds;
+	CAM_VSYNC_OUT <= vsync_from_ds;
 
 	Inst_dcm96: dcm96 PORT MAP(
 		CLKIN_IN => clk,
-		CLKFX_OUT => clk_96
+		CLKFX_OUT => clk_96, 
+		CLKIN_IBUFG_OUT => clk0
 	);	
 
 
@@ -133,7 +148,7 @@ architecture Structural of spartcam is
  		i2c_clk => clk_24,
 		scl => CAM_SIOC ,
 		sda => CAM_SIOD ,
- 		arazb => arazb,
+ 		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		new_pix => pxclk_from_interface, new_line => href_from_interface, new_frame => vsync_from_interface,
  		y_data => pixel_from_interface
@@ -141,7 +156,7 @@ architecture Structural of spartcam is
 		
 		down_scaler0: down_scaler
 		port map(clk => clk_96,
-		  arazb => arazb,
+		  arazb => arazb_delayed,
 		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
 		  pixel_data_in => pixel_from_interface,
@@ -151,7 +166,7 @@ architecture Structural of spartcam is
 		send_picture0: send_picture
 		port map(
 			clk => clk_96,
-			arazb => arazb,
+			arazb => arazb_delayed,
 			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
 			pixel_data_in => pixel_from_ds,
 			data_out => data_to_send, 
@@ -161,7 +176,7 @@ architecture Structural of spartcam is
 	uart_tx0 : uart_tx 
     port map (   data_in => data_to_send, 
                  write_buffer => send_signal,
-                 reset_buffer => arazb, 
+                 reset_buffer => NOT arazb_delayed, 
                  en_16_x_baud => clk_48,
                  serial_out => TXD,
                  clk => clk_96);
