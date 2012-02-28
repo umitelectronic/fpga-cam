@@ -17,14 +17,15 @@ end down_scaler;
 
 architecture systemc of down_scaler is
  
-	TYPE scaler_state IS (WAIT_LINE, WAIT_PIXEL, WRITE_PIXEL) ; 
+	TYPE scaler_state IS (WAIT_FRAME, WAIT_LINE, WAIT_PIXEL, WRITE_PIXEL) ; 
 	signal line_ram_addr : std_logic_vector(6 downto 0 ) ; 
 	signal line_ram_data_in, line_ram_data_out : std_logic_vector(15 downto 0 ) ; 
 	signal line_ram_en, line_ram_we : std_logic ; 
 	signal add_result : std_logic_vector(15 downto 0 ) ; 
 	signal add_temp : std_logic_vector(15 downto 0 ) ; 
-	signal nb_line_accumulated : std_logic_vector(3 downto 0 ) ; 
-	signal nb_pix_accumulated : std_logic_vector(3 downto 0 ) ; 
+	signal nb_line_accumulated : std_logic_vector(2 downto 0 ) ; 
+	signal nb_pix_accumulated : std_logic_vector(2 downto 0 ) ; 
+	signal nb_line_output : std_logic_vector(5 downto 0 ) ;
 	signal state : scaler_state ;
 	begin
 	
@@ -51,44 +52,56 @@ architecture systemc of down_scaler is
 		 	if arazb = '0'  then
 		 		nb_line_accumulated <= (others => '0') ; 
 		 		nb_pix_accumulated <= (others => '0') ; 
+				nb_line_output <= (others => '0') ; 
 		 		add_result <= (others => '0') ; 
-		 		state <= wait_line ;
+		 		state <= wait_frame ;
 		 	else
 		 		if  clk'event and clk = '1'  then
-		 			vsync_out <= vsync ; 
 		 			case state is
+						when wait_frame =>
+							pixel_clock_out <= '0' ;
+		 					line_ram_en <= '0' ;
+		 					line_ram_we <= '0' ;
+							vsync_out <= '1' ;
+							if  vsync = '1'  then
+								state <= wait_line ;
+								nb_line_accumulated <= (others => '0') ;
+		 					   nb_pix_accumulated <= (others => '0') ;
+								nb_line_output <= (others => '0') ; 
+		 					   line_ram_addr <= (others => '0') ;
+		 					   hsync_out <= '1' ;
+		 					   add_result <= (others => '0') ;
+							end if;
 		 				when wait_line => 
+							vsync_out <= '0' ;
 		 					pixel_clock_out <= '0' ;
 		 					line_ram_en <= '0' ;
 		 					line_ram_we <= '0' ;
-		 					if  vsync = '1'  then
-		 					  nb_line_accumulated <= (others => '0') ;
-		 					  nb_pix_accumulated <= (others => '0') ;
-		 					  line_ram_addr <= (others => '0') ;
-		 					  hsync_out <= '1' ;
-		 					  add_result <= (others => '0') ; 
-		 					elsif hsync = '0'  then
-		 						state <= wait_pixel ;
-		 					end if ;
-		 				when wait_pixel => 
-		 					line_ram_en <= '0' ;
-		 					line_ram_we <= '0' ;
-		 					if  hsync = '1'  then
-		 						line_ram_addr <= (others => '0') ; 
+		 					if hsync = '1'  then
+								line_ram_addr <= (others => '0') ; 
 		 						nb_pix_accumulated <= (others => '0') ; 
 		 						if  nb_line_accumulated = 7  then
 		 							nb_line_accumulated <= (others => '0') ; 
 		 							add_result <= (others => '0') ; 
-		 							hsync_out <= '1' ;
-		 						else
+									nb_line_output <= (nb_line_output + 1) ;
+									hsync_out <= '1' ;
+								else
 		 							hsync_out <= '0' ; 
-		 							nb_line_accumulated <= (nb_line_accumulated + 1) ;
+									nb_line_accumulated <= nb_line_accumulated + 1 ;
 		 						end if ; 
 		 						line_ram_we <= '0' ; 
-		 						state <= wait_line ;
+								state <= wait_pixel ;
+		 					end if ;
+		 				when wait_pixel => 
+							vsync_out <= '0' ;
+		 					line_ram_en <= '0' ;
+		 					line_ram_we <= '0' ;
+							if nb_line_output = 60 then
+								state <= wait_frame ;
+							elsif line_ram_addr = 80 then
+								state <= wait_line ;
 		 					elsif  pixel_clock = '1'  then
-		 						pixel_clock_out <= '0' ; 
-		 						hsync_out <= '0' ; 
+		 						pixel_clock_out <= '0' ;  
 		 						if  nb_pix_accumulated = 0  then
 		 							add_result <= "00000000" & pixel_data_in ;
 		 						elsif  nb_pix_accumulated = 7  then
@@ -105,9 +118,10 @@ architecture systemc of down_scaler is
 		 						state <= write_pixel ;
 		 					end if ;
 		 				when write_pixel => 
+							vsync_out <= '0' ;
 		 					line_ram_we <= '0' ;
 		 					line_ram_en <= '0' ;
-		 					if  NOT pixel_clock = '1'  then
+		 					if pixel_clock = '0'  then
 		 						if  nb_line_accumulated = 7  AND  nb_pix_accumulated = 7  then
 		 							pixel_clock_out <= '1' ;
 		 						else
