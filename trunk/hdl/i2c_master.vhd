@@ -20,9 +20,9 @@ entity i2c_master is
 end i2c_master;
 
 architecture systemc of i2c_master is
-	constant QUARTER_BIT : integer := 15; 
-	constant HALF_BIT : integer := 30; 
-	constant FULL_BIT : integer := 60; 
+	constant QUARTER_BIT : integer := 30; 
+	constant HALF_BIT : integer := 60; 
+	constant FULL_BIT : integer := 120; 
 	TYPE master_state IS (IDLE, I2C_START, TX_ADDR, ACK_ADDR, TX_BYTE, RX_BYTE, ACK, I2C_STOP) ; 
 	signal state : master_state ; 
 	signal tick_count : std_logic_vector(7 downto 0 ) := (others => '0'); 
@@ -37,6 +37,8 @@ architecture systemc of i2c_master is
 	process(arazb, clock)
 		 begin
 		 if arazb = '0' then
+			scl <= 'Z' ;
+		 	sda <= 'Z' ;
 			state <= idle ;
 			tick_count <= (others => '0') ; 
 		 	bit_count <= (others => '0') ;
@@ -205,10 +207,26 @@ architecture systemc of i2c_master is
 		 		when i2c_stop => 
 		 			dispo <= '1' ;
 		 			ack_byte <= '0' ;
-		 			if  tick_count < HALF_BIT  then
+					if  tick_count < QUARTER_BIT  then
+						scl <= '0' ; 
+		 				sda <= 'Z' ; 
+		 				tick_count <= (tick_count + 1) ;
+		 			elsif  tick_count < HALF_BIT  then
 		 				scl <= '0' ; 
 		 				sda <= '0' ; 
 		 				tick_count <= (tick_count + 1) ;
+					elsif tick_count < FULL_BIT  then
+						scl <= 'Z' ; 
+		 				sda <= '0' ; 
+		 				tick_count <= (tick_count + 1) ;
+					else
+						scl <= 'Z' ;
+						sda <= 'Z' ;
+						dispo <= '1' ;
+						ack_byte <= '0' ;
+						if  send = '0'  AND  rcv = '0'  then
+							state <= idle ;
+						end if;
 		 			end if ;
 		 	end case ;
 			end if;
