@@ -35,7 +35,6 @@ architecture systemc of camera_interface is
 	signal pix_state : pixel_state ; 
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
-	signal y1_delay, u_delay, v_delay, y2_delay : std_logic_vector(7 downto 0 ) ; 
 	signal valid_pixel : std_logic ; 
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
 	begin
