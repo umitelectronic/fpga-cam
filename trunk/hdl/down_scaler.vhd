@@ -22,7 +22,7 @@ architecture systemc of down_scaler is
 	signal line_ram_data_in, line_ram_data_out : std_logic_vector(15 downto 0 ) ; 
 	signal line_ram_en, line_ram_we : std_logic ; 
 	signal add_result : std_logic_vector(15 downto 0 ) ; 
-	signal add_temp : std_logic_vector(15 downto 0 ) ; 
+	signal add_temp : std_logic_vector(15 downto 0 ); 
 	signal nb_line_accumulated : std_logic_vector(2 downto 0 ) ; 
 	signal nb_pix_accumulated : std_logic_vector(2 downto 0 ) ; 
 	signal nb_line_output : std_logic_vector(5 downto 0 ) ;
@@ -39,12 +39,8 @@ architecture systemc of down_scaler is
 			we => line_ram_we
 		); 
 	
-	-- update_output
-	process(line_ram_data_out, add_result, pixel_data_in)
-		 begin
-		 	pixel_data_out <= line_ram_data_out(10 downto 3) ;
-		 	add_temp <= (add_result + ("00000000" & pixel_data_in)) ;
-		 end process;  
+	pixel_data_out <= line_ram_data_out(10 downto 3) ;
+	add_temp <= (add_result + ("00000000" & pixel_data_in)) ;
 
 	-- down_scaler_process
 	process(clk, arazb)
@@ -55,22 +51,21 @@ architecture systemc of down_scaler is
 				nb_line_output <= (others => '0') ; 
 		 		add_result <= (others => '0') ; 
 		 		state <= wait_frame ;
-		 	else
-		 		if  clk'event and clk = '1'  then
+		 	elsif  clk'event and clk = '1'  then
 		 			case state is
 						when wait_frame =>
 							pixel_clock_out <= '0' ;
 		 					line_ram_en <= '0' ;
 		 					line_ram_we <= '0' ;
 							vsync_out <= '1' ;
-							if  vsync = '1'  then
-								state <= wait_line ;
+							if  vsync = '1'  and hsync = '1' then
 								nb_line_accumulated <= (others => '0') ;
 		 					   nb_pix_accumulated <= (others => '0') ;
 								nb_line_output <= (others => '0') ; 
 		 					   line_ram_addr <= (others => '0') ;
 		 					   hsync_out <= '1' ;
 		 					   add_result <= (others => '0') ;
+								state <= wait_pixel ;
 							end if;
 		 				when wait_line => 
 							vsync_out <= '0' ;
@@ -119,6 +114,7 @@ architecture systemc of down_scaler is
 		 					end if ;
 		 				when write_pixel => 
 							vsync_out <= '0' ;
+							hsync_out <= '0' ; 
 		 					line_ram_we <= '0' ;
 		 					line_ram_en <= '0' ;
 		 					if pixel_clock = '0'  then
@@ -141,7 +137,6 @@ architecture systemc of down_scaler is
 		 				when others => 
 
 		 			end case ;
-		 		end if ;
 		 	end if ;
 		 end process;  
 	
