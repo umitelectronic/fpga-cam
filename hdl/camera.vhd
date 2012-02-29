@@ -72,7 +72,28 @@ component send_picture is
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
  		data_out : out std_logic_vector(7 downto 0 ); 
- 		send : out std_logic
+ 		send : out std_logic; 
+		output_ready : in std_logic
+	); 
+end component;
+
+component ram_8x64 is
+	port(
+ 		clk : in std_logic; 
+ 		we, en : in std_logic; 
+ 		data_out : out std_logic_vector(7 downto 0 ); 
+ 		data_in : in std_logic_vector(7 downto 0 ); 
+ 		addr : in std_logic_vector(5 downto 0 )
+	); 
+end component;
+
+component fifo_64x8 is
+	port(
+ 		clk, arazb : in std_logic; 
+ 		wr, rd : in std_logic; 
+		empty, full, data_rdy : out std_logic ;
+ 		data_out : out std_logic_vector(7 downto 0 ); 
+ 		data_in : in std_logic_vector(7 downto 0 )
 	); 
 end component;
 

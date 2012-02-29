@@ -12,7 +12,9 @@ end camera_interface_testbench;
 architecture test of camera_interface_testbench is
 	constant clk_period : time := 5 ns ;
 	constant pclk_period : time := 20 ns ;
-	signal clk : std_logic ;
+	constant arazb_delay : integer := 1024 ;
+	signal arazb_time : integer range 0 to 1024 := arazb_delay ;
+	signal clk, arazb_delayed : std_logic ;
 	signal pixel_from_camera : std_logic_vector(7 downto 0);
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
@@ -22,11 +24,25 @@ architecture test of camera_interface_testbench is
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal send_data : std_logic ;
 	begin
+	
+	process(clk) -- reset process
+	begin
+		if clk'event and clk = '1' then
+			if arazb_time = 0 then
+				arazb_delayed <= '1' ;
+			else
+				arazb_delayed <= '0';
+				arazb_time <= arazb_time - 1 ;
+			end if;
+		end if;
+	end process;
+	
+	
 	camera0: camera_interface
 		port map(clock => clk,
 		pixel_data => pixel_from_camera, 
  		i2c_clk => clk,
- 		arazb => '1',
+ 		arazb => arazb_delayed,
  		pxclk => pxclk_from_camera, href => href_from_camera, vsync => vsync_from_camera,
  		new_pix => pxclk_from_interface, new_line => href_from_interface, new_frame => vsync_from_interface,
  		y_data => pixel_from_interface
@@ -34,7 +50,7 @@ architecture test of camera_interface_testbench is
 		
 		down_scaler0: down_scaler
 		port map(clk => clk,
-		  arazb => '1',
+		  arazb => arazb_delayed,
 		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
 		  pixel_data_in => pixel_from_interface,
@@ -45,11 +61,12 @@ pixel_from_camera <= "10100101";
 send_pic0 : send_picture 
 	port map(
  		clk => clk, 
- 		arazb => '1',
+ 		arazb => arazb_delayed,
  		pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
  		pixel_data_in => pixel_from_ds,
  		data_out => data_to_send, 
- 		send => send_data
+ 		send => send_data, 
+		output_ready => '1'
 	); 
 
 
