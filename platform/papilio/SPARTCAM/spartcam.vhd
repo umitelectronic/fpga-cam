@@ -84,7 +84,7 @@ architecture Structural of spartcam is
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
 	signal data_to_send : std_logic_vector(7 downto 0);
-	signal send_signal	:	std_logic ;
+	signal send_signal, tx_buffer_full	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	begin
@@ -170,7 +170,8 @@ architecture Structural of spartcam is
 			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
 			pixel_data_in => pixel_from_ds,
 			data_out => data_to_send, 
-			send => send_signal
+			send => send_signal, 
+			output_ready => NOT tx_buffer_full
 		);
 
 	uart_tx0 : uart_tx 
@@ -179,7 +180,8 @@ architecture Structural of spartcam is
                  reset_buffer => NOT arazb_delayed, 
                  en_16_x_baud => clk_48,
                  serial_out => TXD,
-                 clk => clk_96);
+                 clk => clk_96,
+					  buffer_full => tx_buffer_full);
 
 
 
