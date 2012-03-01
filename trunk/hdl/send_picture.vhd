@@ -90,8 +90,10 @@ architecture systemc of send_picture is
 		 		end_sig <= NOT vsync ;
 		 	elsif  conv_integer(select_end) = 2  then
 				end_sig <= vsync OR (NOT hsync);
-			else
+			elsif conv_integer(select_end) = 0 then
 				end_sig <= NOT pixel_clock ; 
+			else 
+				end_sig <= NOT pixel_clock ;
 		 	end if ;
 		 end process;  
 
