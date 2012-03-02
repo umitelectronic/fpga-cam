@@ -27,7 +27,7 @@
       <SelectedItems>
          <SelectedItem>Compile HDL Simulation Libraries</SelectedItem>
       </SelectedItems>
-      <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
+      <ScrollbarPosition orientation="vertical" >1</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000000e3000000010000000100000000000000000000000064ffffffff000000810000000000000001000000e30000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
@@ -42,7 +42,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000000000000001000000000000000000000000000000000000028e000000040101000100000000000000000000000064ffffffff0000008100000000000000040000009a00000001000000000000002400000001000000000000006600000001000000000000016a0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000000000000010000000000000000000000000000000000000188000000040101000100000000000000000000000064ffffffff0000008100000000000000040000009a0000000100000000000000240000000100000000000000660000000100000000000000640000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem>camera.vhd</CurrentItem>
    </ItemView>
@@ -76,7 +76,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000000e3000000010000000100000000000000000000000064ffffffff000000810000000000000001000000e30000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000117000000010000000100000000000000000000000064ffffffff000000810000000000000001000001170000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem>Design Summary/Reports</CurrentItem>
    </ItemView>
@@ -99,16 +99,19 @@
          <ClosedNode>/camera_interface_testbench - test C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|hdl|camera_interface_testbench.vhd/camera0 - camera_interface - systemc</ClosedNode>
          <ClosedNode>/camera_interface_testbench - test C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|hdl|camera_interface_testbench.vhd/down_scaler0 - down_scaler - systemc</ClosedNode>
          <ClosedNode>/i2c_master_testbench - test C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|hdl|i2c_master_testbench.vhd</ClosedNode>
-         <ClosedNode>/spartcam - Structural C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|platform|papilio|SPARTCAM|spartcam.vhd</ClosedNode>
+         <ClosedNode>/spartcam - Structural C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|platform|papilio|SPARTCAM|spartcam.vhd/camera0 - camera_interface - systemc</ClosedNode>
+         <ClosedNode>/spartcam - Structural C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|platform|papilio|SPARTCAM|spartcam.vhd/down_scaler0 - down_scaler - systemc</ClosedNode>
+         <ClosedNode>/spartcam - Structural C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|platform|papilio|SPARTCAM|spartcam.vhd/send_picture0 - send_picture - systemc</ClosedNode>
+         <ClosedNode>/spartcam - Structural C:|Users|jpiat|Documents|Recherche-LAAS|development|fpga-cam|platform|papilio|SPARTCAM|spartcam.vhd/uart_tx0 - uart_tx - macro_level_definition</ClosedNode>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem>camera_interface_testbench - test (C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/hdl/camera_interface_testbench.vhd)</SelectedItem>
+         <SelectedItem>down_scaler0 - down_scaler - systemc (C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/hdl/down_scaler.vhd)</SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000202000000010000000100000064000001aa000000020000000000000000000000000200000064ffffffff000000810000000300000002000001aa0000000100000003000000000000000100000003</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem>camera_interface_testbench - test (C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/hdl/camera_interface_testbench.vhd)</CurrentItem>
+      <CurrentItem>down_scaler0 - down_scaler - systemc (C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/hdl/down_scaler.vhd)</CurrentItem>
    </ItemView>
    <ItemView engineview="BehavioralSim" sourcetype="" guiview="Process" >
       <ClosedNodes>
@@ -116,13 +119,13 @@
          <ClosedNode>Design Utilities</ClosedNode>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem/>
+         <SelectedItem></SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000128000000010000000100000000000000000000000064ffffffff000000810000000000000001000001280000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem/>
+      <CurrentItem></CurrentItem>
    </ItemView>
    <ItemView engineview="BehavioralSim" sourcetype="DESUT_VHDL_ARCHITECTURE" guiview="Process" >
       <ClosedNodes>
@@ -133,12 +136,12 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000001000000000000000000000000000000000000000000000000f4000000010000000100000000000000000000000064ffffffff000000810000000000000001000000f40000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000128000000010000000100000000000000000000000064ffffffff000000810000000000000001000001280000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem>Simulate Behavioral Model</CurrentItem>
    </ItemView>
    <SourceProcessView>000000ff0000000000000002000000f50000007601000000050100000002</SourceProcessView>
-   <CurrentView>Behavioral Simulation</CurrentView>
+   <CurrentView>Implementation</CurrentView>
    <ItemView engineview="SynthesisOnly" sourcetype="DESUT_UCF" guiview="Process" >
       <ClosedNodes>
          <ClosedNodesVersion>1</ClosedNodesVersion>

@@ -1,0 +1,8 @@
+INTSTYLE=ise
+INFILE=C:\Users\jpiat\Documents\Recherche-LAAS\development\fpga-cam\platform\papilio\SPARTCAM\spartcam.ncd
+OUTFILE=C:\Users\jpiat\Documents\Recherche-LAAS\development\fpga-cam\platform\papilio\SPARTCAM\spartcam.bit
+FAMILY=Spartan3E
+PART=xc3s250e-4vq100
+WORKINGDIR=C:\Users\jpiat\Documents\Recherche-LAAS\development\fpga-cam\platform\papilio\SPARTCAM
+LICENSE=WebPack
+USER_INFO=208450455_0_0_959
