@@ -37,6 +37,7 @@
     <file xil_pn:fileType="FILE_UCF" xil_pn:name="dcm24_arwz.ucf" xil_pn:origination="imported"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="dcm96.vhd"/>
     <file xil_pn:fileType="FILE_UCF" xil_pn:name="dcm96_arwz.ucf" xil_pn:origination="imported"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="fifo_test_bench_isim_beh.exe"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
     <file xil_pn:fileType="FILE_VHDL" xil_pn:name="ipcore_dir/dcm24.vhd" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_VHDL" xil_pn:name="ipcore_dir/dcm96.vhd" xil_pn:origination="imported"/>
@@ -96,28 +97,35 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1330493714" xil_pn:in_ck="208209575290467007" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1330493714">
+    <transform xil_pn:end_ts="1330649315" xil_pn:in_ck="2877761203506395999" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1330649314">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="../../../hdl/bbfifo_16x8.vhd"/>
       <outfile xil_pn:name="../../../hdl/camera.vhd"/>
       <outfile xil_pn:name="../../../hdl/camera_interface.vhd"/>
       <outfile xil_pn:name="../../../hdl/camera_interface_testbench.vhd"/>
       <outfile xil_pn:name="../../../hdl/down_scaler.vhd"/>
+      <outfile xil_pn:name="../../../hdl/fifo_64x8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/fifo_test_bench.vhd"/>
       <outfile xil_pn:name="../../../hdl/i2c_master.vhd"/>
       <outfile xil_pn:name="../../../hdl/i2c_master_testbench.vhd"/>
       <outfile xil_pn:name="../../../hdl/kcuart_tx.vhd"/>
       <outfile xil_pn:name="../../../hdl/line_ram.vhd"/>
+      <outfile xil_pn:name="../../../hdl/ram_8x64.vhd"/>
       <outfile xil_pn:name="../../../hdl/register_rom.vhd"/>
       <outfile xil_pn:name="../../../hdl/send_picture.vhd"/>
       <outfile xil_pn:name="../../../hdl/uart_tx.vhd"/>
       <outfile xil_pn:name="spartcam.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1330467757" xil_pn:in_ck="7141863822930202743" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="295003968141060670" xil_pn:start_ts="1330467757">
+    <transform xil_pn:end_ts="1330643068" xil_pn:in_ck="7141863822930202743" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="295003968141060670" xil_pn:start_ts="1330643068">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1330467757" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-6315345391797183552" xil_pn:start_ts="1330467757">
+    <transform xil_pn:end_ts="1330643068" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-6315345391797183552" xil_pn:start_ts="1330643068">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
@@ -125,28 +133,39 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1330493714" xil_pn:in_ck="208209575290467007" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1330493714">
+    <transform xil_pn:end_ts="1330649315" xil_pn:in_ck="2877761203506395999" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1330649315">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="../../../hdl/bbfifo_16x8.vhd"/>
       <outfile xil_pn:name="../../../hdl/camera.vhd"/>
       <outfile xil_pn:name="../../../hdl/camera_interface.vhd"/>
       <outfile xil_pn:name="../../../hdl/camera_interface_testbench.vhd"/>
       <outfile xil_pn:name="../../../hdl/down_scaler.vhd"/>
+      <outfile xil_pn:name="../../../hdl/fifo_64x8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/fifo_test_bench.vhd"/>
       <outfile xil_pn:name="../../../hdl/i2c_master.vhd"/>
       <outfile xil_pn:name="../../../hdl/i2c_master_testbench.vhd"/>
       <outfile xil_pn:name="../../../hdl/kcuart_tx.vhd"/>
       <outfile xil_pn:name="../../../hdl/line_ram.vhd"/>
+      <outfile xil_pn:name="../../../hdl/ram_8x64.vhd"/>
       <outfile xil_pn:name="../../../hdl/register_rom.vhd"/>
       <outfile xil_pn:name="../../../hdl/send_picture.vhd"/>
       <outfile xil_pn:name="../../../hdl/uart_tx.vhd"/>
       <outfile xil_pn:name="spartcam.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1330494693" xil_pn:in_ck="208209575290467007" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-293033133172036372" xil_pn:start_ts="1330494684">
+    <transform xil_pn:end_ts="1330649324" xil_pn:in_ck="2877761203506395999" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-9062712523971018539" xil_pn:start_ts="1330649315">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="camera_interface_testbench_beh.prj"/>
       <outfile xil_pn:name="camera_interface_testbench_isim_beh.exe"/>
@@ -155,9 +174,10 @@
       <outfile xil_pn:name="isim.log"/>
       <outfile xil_pn:name="xilinxsim.ini"/>
     </transform>
-    <transform xil_pn:end_ts="1330494693" xil_pn:in_ck="-2922047167252987449" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="4183096255120702715" xil_pn:start_ts="1330494693">
+    <transform xil_pn:end_ts="1330649325" xil_pn:in_ck="-6239475160188016008" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="4183096255120702715" xil_pn:start_ts="1330649324">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
@@ -195,7 +215,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1330493341" xil_pn:in_ck="9098326584026553260" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="-6988033429635733289" xil_pn:start_ts="1330493305">
+    <transform xil_pn:end_ts="1330650138" xil_pn:in_ck="-3939026788525643540" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="-6988033429635733289" xil_pn:start_ts="1330650109">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -218,7 +238,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1330493352" xil_pn:in_ck="7162836336830263196" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="9131598020865661735" xil_pn:start_ts="1330493341">
+    <transform xil_pn:end_ts="1330650149" xil_pn:in_ck="7162836336830263196" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="9131598020865661735" xil_pn:start_ts="1330650138">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_ngo"/>
@@ -227,10 +247,12 @@
       <outfile xil_pn:name="spartcam.ngd"/>
       <outfile xil_pn:name="spartcam_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1330493361" xil_pn:in_ck="7162836336830263197" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="-8535960543883491901" xil_pn:start_ts="1330493352">
+    <transform xil_pn:end_ts="1330650160" xil_pn:in_ck="7162836336830263197" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="-8535960543883491901" xil_pn:start_ts="1330650149">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="spartcam.pcf"/>
       <outfile xil_pn:name="spartcam_map.map"/>
@@ -241,7 +263,7 @@
       <outfile xil_pn:name="spartcam_summary.xml"/>
       <outfile xil_pn:name="spartcam_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1330493385" xil_pn:in_ck="-1593834415778921162" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1330493361">
+    <transform xil_pn:end_ts="1330650185" xil_pn:in_ck="-1593834415778921162" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1330650160">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -256,14 +278,10 @@
       <outfile xil_pn:name="spartcam_pad.txt"/>
       <outfile xil_pn:name="spartcam_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1330472957" xil_pn:in_ck="5988546415519560190" xil_pn:name="TRANEXT_bitFile_spartan3e" xil_pn:prop_ck="-7817169320884990698" xil_pn:start_ts="1330472934">
+    <transform xil_pn:end_ts="1330650282" xil_pn:in_ck="5988546415519560190" xil_pn:name="TRANEXT_bitFile_spartan3e" xil_pn:prop_ck="-7817169320884990698" xil_pn:start_ts="1330650259">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputChanged"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
       <outfile xil_pn:name="spartcam.bgn"/>
       <outfile xil_pn:name="spartcam.bit"/>
@@ -273,14 +291,13 @@
       <outfile xil_pn:name="webtalk.log"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1330381508" xil_pn:in_ck="5988546415519547336" xil_pn:name="TRAN_configureTargetDevice" xil_pn:prop_ck="5582947192412673156" xil_pn:start_ts="1330381506">
+    <transform xil_pn:end_ts="1330647687" xil_pn:in_ck="5988546415519547336" xil_pn:name="TRAN_configureTargetDevice" xil_pn:prop_ck="5582947192412673156" xil_pn:start_ts="1330647682">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="InputChanged"/>
     </transform>
-    <transform xil_pn:end_ts="1330493385" xil_pn:in_ck="7162836336830263065" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1330493379">
+    <transform xil_pn:end_ts="1330650185" xil_pn:in_ck="7162836336830263065" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1330650178">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>

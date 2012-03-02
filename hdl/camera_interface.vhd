@@ -114,11 +114,11 @@ architecture systemc of camera_interface is
 	-- pixel_interface
 	process(clock, arazb)
 		 begin
-		 	new_line <= NOT href ;
-		 	new_frame <= vsync ;
 		 	if arazb = '0'  then
 		 		pix_state <= Y1 ;
 		 	elsif  clock'event and clock = '1'  then
+				new_line <= NOT href ;
+				new_frame <= vsync ;
 		 		if  pxclk = '1'  AND  href = '1'  AND  NOT vsync = '1'  then
 		 			case pix_state is
 		 				when Y1 => 
