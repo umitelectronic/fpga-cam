@@ -2,7 +2,7 @@
 <BODY TEXT='#000000' BGCOLOR='#FFFFFF' LINK='#0000EE' VLINK='#551A8B' ALINK='#FF0000'>
 <TABLE BORDER CELLSPACING=0 CELLPADDING=3 WIDTH='100%'>
 <TR ALIGN=CENTER BGCOLOR='#99CCFF'>
-<TD ALIGN=CENTER COLSPAN='4'><B>spartcam Project Status (02/29/2012 - 06:29:46)</B></TD></TR>
+<TD ALIGN=CENTER COLSPAN='4'><B>spartcam Project Status (03/02/2012 - 02:04:42)</B></TD></TR>
 <TR ALIGN=LEFT>
 <TD BGCOLOR='#FFFF99'><B>Project File:</B></TD>
 <TD>SPARTCAM.xise</TD>
@@ -13,7 +13,7 @@
 <TD BGCOLOR='#FFFF99'><B>Module Name:</B></TD>
 <TD>spartcam</TD>
 <TD BGCOLOR='#FFFF99'><B>Implementation State:</B></TD>
-<TD>Placed and Routed</TD>
+<TD>Programming File Generated</TD>
 </TR>
 <TR ALIGN=LEFT>
 <TD BGCOLOR='#FFFF99'><B>Target Device:</B></TD>
@@ -25,7 +25,7 @@ No Errors</TD>
 <TR ALIGN=LEFT>
 <TD BGCOLOR='#FFFF99'><B>Product Version:</B></TD><TD>ISE 13.4</TD>
 <TD BGCOLOR='#FFFF99'><UL><LI><B>Warnings:</B></LI></UL></TD>
-<TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/*.xmsgs?&DataKey=Warning'>77 Warnings (2 new)</A></TD>
+<TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/*.xmsgs?&DataKey=Warning'>80 Warnings (0 new)</A></TD>
 </TR>
 <TR ALIGN=LEFT>
 <TD BGCOLOR='#FFFF99'><B>Design Goal:</B></dif></TD>
@@ -60,49 +60,49 @@ System Settings</A>
 <TD ALIGN=LEFT><B>Logic Utilization</B></TD><TD><B>Used</B></TD><TD><B>Available</B></TD><TD><B>Utilization</B></TD><TD COLSPAN='2'><B>Note(s)</B></TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>Number of Slice Flip Flops</TD>
-<TD ALIGN=RIGHT>174</TD>
+<TD ALIGN=RIGHT>215</TD>
 <TD ALIGN=RIGHT>4,896</TD>
-<TD ALIGN=RIGHT>3%</TD>
+<TD ALIGN=RIGHT>4%</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>Number of 4 input LUTs</TD>
-<TD ALIGN=RIGHT>403</TD>
+<TD ALIGN=RIGHT>459</TD>
 <TD ALIGN=RIGHT>4,896</TD>
-<TD ALIGN=RIGHT>8%</TD>
-<TD COLSPAN='2'>&nbsp;</TD>
-</TR>
-<TR ALIGN=RIGHT><TD ALIGN=LEFT>Number of occupied Slices</TD>
-<TD ALIGN=RIGHT>232</TD>
-<TD ALIGN=RIGHT>2,448</TD>
 <TD ALIGN=RIGHT>9%</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
+<TR ALIGN=RIGHT><TD ALIGN=LEFT>Number of occupied Slices</TD>
+<TD ALIGN=RIGHT>268</TD>
+<TD ALIGN=RIGHT>2,448</TD>
+<TD ALIGN=RIGHT>10%</TD>
+<TD COLSPAN='2'>&nbsp;</TD>
+</TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;Number of Slices containing only related logic</TD>
-<TD ALIGN=RIGHT>232</TD>
-<TD ALIGN=RIGHT>232</TD>
+<TD ALIGN=RIGHT>268</TD>
+<TD ALIGN=RIGHT>268</TD>
 <TD ALIGN=RIGHT>100%</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;Number of Slices containing unrelated logic</TD>
 <TD ALIGN=RIGHT>0</TD>
-<TD ALIGN=RIGHT>232</TD>
+<TD ALIGN=RIGHT>268</TD>
 <TD ALIGN=RIGHT>0%</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>Total Number of 4 input LUTs</TD>
-<TD ALIGN=RIGHT>424</TD>
+<TD ALIGN=RIGHT>479</TD>
 <TD ALIGN=RIGHT>4,896</TD>
-<TD ALIGN=RIGHT>8%</TD>
+<TD ALIGN=RIGHT>9%</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;Number used as logic</TD>
-<TD ALIGN=RIGHT>394</TD>
+<TD ALIGN=RIGHT>450</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>&nbsp;&nbsp;&nbsp;&nbsp;Number used as a route-thru</TD>
-<TD ALIGN=RIGHT>21</TD>
+<TD ALIGN=RIGHT>20</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
@@ -120,9 +120,9 @@ System Settings</A>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>Number of RAMB16s</TD>
-<TD ALIGN=RIGHT>2</TD>
+<TD ALIGN=RIGHT>3</TD>
 <TD ALIGN=RIGHT>12</TD>
-<TD ALIGN=RIGHT>16%</TD>
+<TD ALIGN=RIGHT>25%</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>Number of BUFGMUXs</TD>
@@ -138,7 +138,7 @@ System Settings</A>
 <TD COLSPAN='2'>&nbsp;</TD>
 </TR>
 <TR ALIGN=RIGHT><TD ALIGN=LEFT>Average Fanout of Non-Clock Nets</TD>
-<TD ALIGN=RIGHT>3.63</TD>
+<TD ALIGN=RIGHT>3.60</TD>
 <TD>&nbsp;</TD>
 <TD>&nbsp;</TD>
 <TD COLSPAN='2'>&nbsp;</TD>
@@ -175,22 +175,22 @@ System Settings</A>
 <TR ALIGN=CENTER BGCOLOR='#99CCFF'><TD ALIGN=CENTER COLSPAN='6'><B>Detailed Reports</B></TD><TD ALIGN=RIGHT WIDTH='10%'COLSPAN=1> <A HREF_DISABLED="?&ExpandedTable=DetailedReports"><B>[-]</B></a></TD></TR>
 <TR BGCOLOR='#FFFF99'><TD><B>Report Name</B></TD><TD><B>Status</B></TD><TD><B>Generated</B></TD>
 <TD ALIGN=LEFT><B>Errors</B></TD><TD ALIGN=LEFT><B>Warnings</B></TD><TD ALIGN=LEFT COLSPAN='2'><B>Infos</B></TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.syr'>Synthesis Report</A></TD><TD>Current</TD><TD>mer. 29. févr. 06:29:00 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/xst.xmsgs?&DataKey=Warning'>70 Warnings (2 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/xst.xmsgs?&DataKey=Info'>5 Infos (1 new)</A></TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.bld'>Translation Report</A></TD><TD>Current</TD><TD>mer. 29. févr. 06:29:11 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/ngdbuild.xmsgs?&DataKey=Info'>1 Info (0 new)</A></TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam_map.mrp'>Map Report</A></TD><TD>Current</TD><TD>mer. 29. févr. 06:29:19 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/map.xmsgs?&DataKey=Warning'>5 Warnings (0 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/map.xmsgs?&DataKey=Info'>4 Infos (0 new)</A></TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.par'>Place and Route Report</A></TD><TD>Current</TD><TD>mer. 29. févr. 06:29:37 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/par.xmsgs?&DataKey=Warning'>2 Warnings (0 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'>0</TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.syr'>Synthesis Report</A></TD><TD>Current</TD><TD>ven. 2. mars 02:02:17 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/xst.xmsgs?&DataKey=Warning'>69 Warnings (0 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/xst.xmsgs?&DataKey=Info'>6 Infos (0 new)</A></TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.bld'>Translation Report</A></TD><TD>Current</TD><TD>ven. 2. mars 02:02:28 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/ngdbuild.xmsgs?&DataKey=Info'>1 Info (0 new)</A></TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam_map.mrp'>Map Report</A></TD><TD>Current</TD><TD>ven. 2. mars 02:02:38 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/map.xmsgs?&DataKey=Warning'>5 Warnings (0 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/map.xmsgs?&DataKey=Info'>4 Infos (0 new)</A></TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.par'>Place and Route Report</A></TD><TD>Current</TD><TD>ven. 2. mars 02:02:57 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/par.xmsgs?&DataKey=Warning'>2 Warnings (0 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'>0</TD></TR>
 <TR ALIGN=LEFT><TD>Power Report</TD><TD>&nbsp;</TD><TD>&nbsp;</TD><TD>&nbsp;</TD><TD>&nbsp;</TD><TD COLSPAN='2'>&nbsp;</TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.twr'>Post-PAR Static Timing Report</A></TD><TD>Current</TD><TD>mer. 29. févr. 06:29:44 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/trce.xmsgs?&DataKey=Info'>5 Infos (0 new)</A></TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.bgn'>Bitgen Report</A></TD><TD>Out of Date</TD><TD>mer. 29. févr. 00:49:02 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/bitgen.xmsgs?&DataKey=Warning'>4 Warnings (0 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/bitgen.xmsgs?&DataKey=Info'>1 Info (0 new)</A></TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.twr'>Post-PAR Static Timing Report</A></TD><TD>Current</TD><TD>ven. 2. mars 02:03:04 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/trce.xmsgs?&DataKey=Info'>5 Infos (0 new)</A></TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\spartcam.bgn'>Bitgen Report</A></TD><TD>Current</TD><TD>ven. 2. mars 02:04:28 2012</TD><TD ALIGN=LEFT>0</TD><TD ALIGN=LEFT><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/bitgen.xmsgs?&DataKey=Warning'>4 Warnings (0 new)</A></TD><TD ALIGN=LEFT COLSPAN='2'><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\_xmsgs/bitgen.xmsgs?&DataKey=Info'>1 Info (0 new)</A></TD></TR>
 </TABLE>
 &nbsp;<BR><TABLE BORDER CELLSPACING=0 CELLPADDING=3 WIDTH='100%'>
 <TR ALIGN=CENTER BGCOLOR='#99CCFF'><TD ALIGN=CENTER COLSPAN='3'><B>Secondary Reports</B></TD><TD ALIGN=RIGHT WIDTH='10%'COLSPAN=1> <A HREF_DISABLED="?&ExpandedTable=SecondaryReports"><B>[-]</B></a></TD></TR>
 <TR BGCOLOR='#FFFF99'><TD><B>Report Name</B></TD><TD><B>Status</B></TD><TD COLSPAN='2'><B>Generated</B></TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\isim.log'>ISIM Simulator Log</A></TD><TD>Out of Date</TD><TD COLSPAN='2'>mar. 28. févr. 23:28:15 2012</TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\usage_statistics_webtalk.html'>WebTalk Report</A></TD><TD>Out of Date</TD><TD COLSPAN='2'>mer. 29. févr. 00:49:03 2012</TD></TR>
-<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\webtalk.log'>WebTalk Log File</A></TD><TD>Out of Date</TD><TD COLSPAN='2'>mer. 29. févr. 00:49:17 2012</TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\isim.log'>ISIM Simulator Log</A></TD><TD>Out of Date</TD><TD COLSPAN='2'>ven. 2. mars 01:56:59 2012</TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\usage_statistics_webtalk.html'>WebTalk Report</A></TD><TD>Current</TD><TD COLSPAN='2'>ven. 2. mars 02:04:29 2012</TD></TR>
+<TR ALIGN=LEFT><TD><A HREF_DISABLED='C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\webtalk.log'>WebTalk Log File</A></TD><TD>Current</TD><TD COLSPAN='2'>ven. 2. mars 02:04:41 2012</TD></TR>
 </TABLE>
 
 
-<br><center><b>Date Generated:</b> 02/29/2012 - 06:29:46</center>
+<br><center><b>Date Generated:</b> 03/02/2012 - 02:04:42</center>
 </BODY></HTML>

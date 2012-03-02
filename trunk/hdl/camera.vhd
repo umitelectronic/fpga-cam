@@ -81,9 +81,9 @@ component ram_8x64 is
 	port(
  		clk : in std_logic; 
  		we, en : in std_logic; 
- 		data_out : out std_logic_vector(7 downto 0 ); 
- 		data_in : in std_logic_vector(7 downto 0 ); 
- 		addr : in std_logic_vector(5 downto 0 )
+ 		do : out std_logic_vector(7 downto 0 ); 
+ 		di : in std_logic_vector(7 downto 0 ); 
+ 		addr : in std_logic_vector(6 downto 0 )
 	); 
 end component;
 

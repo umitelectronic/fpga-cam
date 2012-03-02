@@ -58,7 +58,7 @@ architecture systemc of down_scaler is
 		 					line_ram_en <= '0' ;
 		 					line_ram_we <= '0' ;
 							vsync_out <= '1' ;
-							if  vsync = '1'  and hsync = '1' then
+							if  vsync = '1' and hsync = '1' then
 								nb_line_accumulated <= (others => '0') ;
 		 					   nb_pix_accumulated <= (others => '0') ;
 								nb_line_output <= (others => '0') ; 

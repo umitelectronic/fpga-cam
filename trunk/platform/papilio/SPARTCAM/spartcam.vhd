@@ -122,12 +122,12 @@ architecture Structural of spartcam is
 	--CAM_PCLK_OUT <= CAM_PCLK;
 	--CAM_HREF_OUT <= CAM_HREF;
 	--CAM_VSYNC_OUT <= CAM_VSYNC;
-	--CAM_PCLK_OUT <= pxclk_from_interface;
-	--CAM_HREF_OUT <= href_from_interface;
-	--CAM_VSYNC_OUT <= vsync_from_interface;
-	CAM_PCLK_OUT <= pxclk_from_ds;
-	CAM_HREF_OUT <= href_from_ds;
-	CAM_VSYNC_OUT <= vsync_from_ds;
+	CAM_PCLK_OUT <= pxclk_from_interface;
+	CAM_HREF_OUT <= href_from_interface;
+	CAM_VSYNC_OUT <= vsync_from_interface;
+	--CAM_PCLK_OUT <= pxclk_from_ds;
+	--CAM_HREF_OUT <= href_from_ds;
+	--CAM_VSYNC_OUT <= vsync_from_ds;
 
 	Inst_dcm96: dcm96 PORT MAP(
 		CLKIN_IN => clk,
@@ -181,7 +181,7 @@ architecture Structural of spartcam is
                  en_16_x_baud => clk_48,
                  serial_out => TXD,
                  clk => clk_96,
-					  buffer_full => tx_buffer_full);
+					  buffer_half_full => tx_buffer_full);
 
 
 
