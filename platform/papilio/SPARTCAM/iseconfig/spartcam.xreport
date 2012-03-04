@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <report-views version="2.0" >
  <header>
-  <DateModified>2012-03-02T20:55:35</DateModified>
+  <DateModified>2012-03-04T01:05:21</DateModified>
   <ModuleName>spartcam</ModuleName>
-  <SummaryTimeStamp>2012-03-02T02:04:42</SummaryTimeStamp>
+  <SummaryTimeStamp>2012-03-04T01:04:22</SummaryTimeStamp>
   <SavedFilePath>C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM/iseconfig/spartcam.xreport</SavedFilePath>
   <ImplementationReportsDirectory>C:/Users/jpiat/Documents/Recherche-LAAS/development/fpga-cam/platform/papilio/SPARTCAM\</ImplementationReportsDirectory>
   <DateInitialized>2012-02-19T18:10:13</DateInitialized>
