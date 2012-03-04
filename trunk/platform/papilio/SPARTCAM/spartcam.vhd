@@ -78,8 +78,8 @@ architecture Structural of spartcam is
 
 	signal clk_24, clk_96, clk_48 : std_logic ;
 	signal baud_count, arazb_delayed, clk0 : std_logic ;
-	constant arazb_delay : integer := 1024 ;
-	signal arazb_time : integer range 0 to 1024 := arazb_delay ;
+	constant arazb_delay : integer := 1000000 ;
+	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
@@ -87,6 +87,7 @@ architecture Structural of spartcam is
 	signal send_signal, tx_buffer_full	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
+	signal i2c_scl, i2c_sda : std_logic;
 	begin
 
 	process(clk0, arazb) -- reset process
@@ -116,18 +117,25 @@ architecture Structural of spartcam is
 	end if;
 	end process;
 
-	CAM_RESET <= arazb_delayed ;
+	CAM_RESET <= arazb ;
 	CAM_PWEN <= '0';
 	CAM_XCLK <= clk_24 ;
 	--CAM_PCLK_OUT <= CAM_PCLK;
 	--CAM_HREF_OUT <= CAM_HREF;
 	--CAM_VSYNC_OUT <= CAM_VSYNC;
-	CAM_PCLK_OUT <= pxclk_from_interface;
-	CAM_HREF_OUT <= href_from_interface;
-	CAM_VSYNC_OUT <= vsync_from_interface;
+	--CAM_PCLK_OUT <= pxclk_from_interface;
+	--CAM_HREF_OUT <= href_from_interface;
+	--CAM_VSYNC_OUT <= vsync_from_interface;
 	--CAM_PCLK_OUT <= pxclk_from_ds;
 	--CAM_HREF_OUT <= href_from_ds;
 	--CAM_VSYNC_OUT <= vsync_from_ds;
+	
+	CAM_HREF_OUT <= i2c_scl;
+	CAM_VSYNC_OUT <= i2c_sda;
+	CAM_PCLK_OUT <= 'Z';
+	
+	CAM_SIOC <= i2c_scl ;
+	CAM_SIOD <= i2c_sda ;
 
 	Inst_dcm96: dcm96 PORT MAP(
 		CLKIN_IN => clk,
@@ -142,12 +150,12 @@ architecture Structural of spartcam is
 	);
 	
 	
-	camera0: camera_interface
+	camera0: yuv_camera_interface
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
-		scl => CAM_SIOC ,
-		sda => CAM_SIOD ,
+		scl => i2c_scl ,
+		sda => i2c_sda ,
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		new_pix => pxclk_from_interface, new_line => href_from_interface, new_frame => vsync_from_interface,
