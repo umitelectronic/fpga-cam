@@ -224,9 +224,7 @@ architecture systemc of i2c_master is
 						sda <= 'Z' ;
 						dispo <= '1' ;
 						ack_byte <= '0' ;
-						if  send = '0'  AND  rcv = '0'  then
-							state <= idle ;
-						end if;
+						state <= idle ;
 		 			end if ;
 		 	end case ;
 			end if;

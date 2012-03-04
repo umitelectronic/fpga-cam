@@ -40,7 +40,8 @@ ARCHITECTURE behavior OF fifo_test_bench IS
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT fifo_64x8
+    COMPONENT fifo_Nx8
+	 GENERIC(N : natural := 64);
     PORT(
          clk : IN  std_logic;
          arazb : IN  std_logic;
@@ -77,7 +78,9 @@ ARCHITECTURE behavior OF fifo_test_bench IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: fifo_64x8 PORT MAP (
+   uut: fifo_Nx8 
+			GENERIC MAP(N => 64)
+			PORT MAP (
           clk => clk,
           arazb => arazb,
           wr => wr,

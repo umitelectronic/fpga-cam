@@ -4,26 +4,26 @@ library IEEE;
 library work;
         use work.camera.all ;
 
-entity camera_interface is
+entity rgb565_camera_interface is
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
  		arazb : in std_logic; 
  		pixel_data : in std_logic_vector(7 downto 0 ); 
- 		y_data : out std_logic_vector(7 downto 0 ); 
- 		u_data : out std_logic_vector(7 downto 0 ); 
- 		v_data : out std_logic_vector(7 downto 0 ); 
+ 		r_data : out std_logic_vector(7 downto 0 ); 
+ 		g_data : out std_logic_vector(7 downto 0 ); 
+ 		b_data : out std_logic_vector(7 downto 0 ); 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
  		new_pix, new_line, new_frame : out std_logic; 
  		pxclk, href, vsync : in std_logic
 	); 
-end camera_interface;
+end rgb565_camera_interface;
 
-architecture systemc of camera_interface is
+architecture systemc of rgb565_camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "1000010"; 
-	TYPE pixel_state IS (Y1, U1, Y2, V1, DUMMY1, DUMMY2) ; 
+	TYPE pixel_state IS (RG, GB) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
@@ -38,7 +38,7 @@ architecture systemc of camera_interface is
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
 	begin
 	
-	register_rom0 : register_rom --rom containg sensor configuration
+	register_rom0 : rgb565_register_rom --rom containg sensor configuration
 		port map (
 		   clk => clock,
 			en => '1',
@@ -115,33 +115,31 @@ architecture systemc of camera_interface is
 	process(clock, arazb)
 		 begin
 		 	if arazb = '0'  then
-		 		pix_state <= Y1 ;
+		 		pix_state <= RG ;
 		 	elsif  clock'event and clock = '1'  then
 				new_line <= NOT href ; -- changing href into hsync
 				new_frame <= vsync ;
 		 		if  pxclk = '1'  AND  href = '1'  AND  NOT vsync = '1'  then
-		 			case pix_state is
-		 				when Y1 => 
-		 					y_data <= pixel_data ;
-		 					new_pix <= '0' ;
-		 					next_state <= U1 ;
-		 				when U1 => 
-		 					u_data <= pixel_data ;
-		 					new_pix <= '1' ;
-		 					next_state <= Y2 ;
-		 				when Y2 => 
-		 					y_data <= pixel_data ;
-		 					new_pix <= '0' ;
-		 					next_state <= V1 ;
-		 				when V1 => 
-		 					v_data <= pixel_data ;
-		 					new_pix <= '1' ;
-							next_state <= Y1 ;
+		 			new_pix <= '0' ;
+					case pix_state is	
+						when RG => 
+		 					r_data <= pixel_data(7 downto 3) & "000" ;
+							g_data(7 downto 5) <= pixel_data(2 downto 0);
+		 					next_state <= G ;
+		 				when GB => 
+		 					g_data(4 downto 0) <= pixel_data(7 downto 5) & "00" ;
+							b_data(7 downto 3) <= pixel_data(4 downto 0) & "000" ;
+		 					next_state <= RG ;
 		 				when others => 
-		 					next_state <= Y1 ;
+		 					next_state <= RG ;
 		 			end case ;
 		 		elsif ( NOT pxclk = '1' ) AND  href = '1'  AND  NOT vsync = '1'  then
 		 			pix_state <= next_state ; -- state evolution
+					if(pix_state = GB AND next_state = RG) then -- pixel received rising clock
+						new_pix <= '1' ;
+					else
+						new_pix <= '0' ;
+					end if;
 				else
 					new_pix <= '0' ;
 		 		end if ;
