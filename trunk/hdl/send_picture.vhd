@@ -27,7 +27,8 @@ architecture systemc of send_picture is
 	signal fifo_empty, fifo_full, fifo_rd, fifo_wr : std_logic ;
 	signal fifo_data_in : std_logic_vector(7 downto 0);
 	begin
-	fifo_64x8_0 : fifo_64x8
+	fifo_64x8_0 : fifo_Nx8 -- output fifo
+		generic map(N => 128)
 		port map(
  		clk => clk, 
 		arazb => arazb, 
@@ -45,22 +46,22 @@ architecture systemc of send_picture is
 		 		state <= wait_pixel ;
 		 	elsif  clk'event and clk = '1'  then
 		 		case state is
-		 			when wait_pixel => 
-		 				if  pixel_clock = '1'  then
-		 					select_end <= (others => '0') ; 
+		 			when wait_pixel =>  
+		 				if  pixel_clock = '1'  then --send pixel value
+		 					select_end <= (others => '0') ; --end signal is pxclk falling edge
 							fifo_data_in <= pixel_data_in(7 downto 1) & (pixel_data_in(0) AND (NOT isControlChar));
-		 					state <= write_data ;
+		 					state <= write_data ; -- least significant bit can be modified if pixel value equals hsync or vsync char
 		 				elsif  vsync = '1'  then
 		 					fifo_data_in <= VSYNC_CHAR ; 
-		 					select_end <= "01" ; 
+		 					select_end <= "01" ; --end signal is pxclk vsync edge
 		 					state <= write_data ;
 		 				elsif  hsync = '1'  then
-		 					fifo_data_in <= HSYNC_CHAR ; 
+		 					fifo_data_in <= HSYNC_CHAR ; --end signal is hsync falling edge
 		 					select_end <= "10" ; 
 		 					state <= write_data ;
 		 				end if ;
 		 			when write_data => 
-		 				state <= wait_sync ;
+		 				state <= wait_sync ; -- one dummy cycle to ensure data is written (could be removed but work this way)
 		 			when wait_sync => 
 		 				if  end_sig = '1'  then
 		 					state <= wait_pixel ;
@@ -102,5 +103,5 @@ isControlChar <= '1' when (pixel_data_in = "01010101") else -- equals VSYNC
 					  '0';
 	
 fifo_rd <= '1' when output_ready = '1' and fifo_empty = '0' else
-			  '0' ;
+			  '0' ; --fifo is read when receiver is ready and when fifo is not empty
 end systemc ;

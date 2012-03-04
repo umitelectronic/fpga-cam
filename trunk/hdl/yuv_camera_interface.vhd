@@ -4,7 +4,7 @@ library IEEE;
 library work;
         use work.camera.all ;
 
-entity camera_interface is
+entity yuv_camera_interface is
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
@@ -18,12 +18,12 @@ entity camera_interface is
  		new_pix, new_line, new_frame : out std_logic; 
  		pxclk, href, vsync : in std_logic
 	); 
-end camera_interface;
+end yuv_camera_interface;
 
-architecture systemc of camera_interface is
+architecture systemc of yuv_camera_interface is
 	constant NB_REGS : integer := 255; 
-	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "1000010"; 
-	TYPE pixel_state IS (Y1, U1, Y2, V1, DUMMY1, DUMMY2) ; 
+	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "0100001"; 
+	TYPE pixel_state IS (Y1, U1, Y2, V1) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
@@ -38,7 +38,7 @@ architecture systemc of camera_interface is
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
 	begin
 	
-	register_rom0 : register_rom --rom containg sensor configuration
+	register_rom0 : yuv_register_rom --rom containg sensor configuration
 		port map (
 		   clk => clock,
 			en => '1',
@@ -65,6 +65,7 @@ architecture systemc of camera_interface is
 		 	i2c_addr <= OV7670_I2C_ADDR ; -- sensor address
 		 	if  arazb = '0'  then
 		 		reg_state <= init ;
+				reg_addr <= (others => '0');
 		 	elsif clock'event and clock = '1' then
 		 		case reg_state is
 		 			when init => 

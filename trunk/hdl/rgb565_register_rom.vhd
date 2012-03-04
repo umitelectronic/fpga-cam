@@ -4,20 +4,20 @@ library IEEE;
 library work;
         use work.all ;
 
-entity register_rom is
+entity rgb565_register_rom is
 	port(
 	   clk, en	:	in std_logic ;
  		data : out std_logic_vector(15 downto 0 ); 
  		addr : in std_logic_vector(7 downto 0 )
 	); 
-end register_rom;
+end rgb565_register_rom;
 
-architecture systemc of register_rom is
+architecture systemc of rgb565_register_rom is
  
-	type array_160 is array (0 to 159) of std_logic_vector(15 downto 0 ); 
+	type array_171 is array (0 to 170) of std_logic_vector(15 downto 0 ); 
 	
 	-- CONFIGURATION TAKEN FROM OV7670.c IN LINUX KERNEL DRIVERS
-	signal rom : array_160 :=( 
+	signal rom : array_171 :=( 
 	(X"12" & X"80"),
 	(X"11" & X"01"), -- OV: clock scale (30 fps)
 	(X"3a" & X"04"), -- OV
@@ -178,19 +178,19 @@ architecture systemc of register_rom is
 	(X"79" & X"26"),
 	(X"04" & X"00"), -- COM1
 	(X"40" & X"C0"), -- COM15
-	
--- UNCOMMENT NEXT SECTION AND INCREASE ROM SIZE BY 11 FOR RGB565 MODE	
---	( X"12" & X"04" ), -- Selects RGB mode 
---	( X"8c" & X"00" ),      -- No RGB444 please 
---	( X"04" & X"00" ),      -- CCIR601 
---	( X"40" & X"10" ),
---	( X"4f" & X"b3" ),         -- "matrix coefficient 1" 
---	( X"50" & X"b3" ),         -- "matrix coefficient 2" 
---	( X"51" & X"00" ),         -- vb 
---	( X"52" & X"3d" ),         -- "matrix coefficient 4" 
---	( X"53" & X"a7" ),         -- "matrix coefficient 5" 
---	( X"54" & X"e4" ),         -- "matrix coefficient 6" 
---	( X"3d" & (X"80" OR X"40") ),
+		
+	-- RGB565 REGISTER
+	( X"12" & X"04" ), -- Selects RGB mode 
+	( X"8c" & X"00" ),      -- No RGB444 please 
+	( X"04" & X"00" ),      -- CCIR601 
+	( X"40" & X"10" ),
+	( X"4f" & X"b3" ),         -- "matrix coefficient 1" 
+	( X"50" & X"b3" ),         -- "matrix coefficient 2" 
+	( X"51" & X"00" ),         -- vb 
+	( X"52" & X"3d" ),         -- "matrix coefficient 4" 
+	( X"53" & X"a7" ),         -- "matrix coefficient 5" 
+	( X"54" & X"e4" ),         -- "matrix coefficient 6" 
+	( X"3d" & (X"80" OR X"40") ),
 	
 	
 	
