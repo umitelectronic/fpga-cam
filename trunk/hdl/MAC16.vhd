@@ -19,7 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.STD_LOGIC_SIGNED.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity MAC16 is
 port(clk, sraz : in std_logic;
-	  add_subb	:	in 	std_logic;
+	  add_subb	:	in std_logic;
 	  A, B	:	in std_logic_vector(15 downto 0);
 	  RES	:	out std_logic_vector(15 downto 0)  
 );
@@ -48,11 +48,11 @@ begin
                 accum <= (others => '0');
                 mult <= (others => '0');
             else
-                if (add_sub = '1') then
-                    accum <= accum + mult;
-                else
-                    accum <= accum - mult;
-                end if;
+					 if add_subb = '1' then
+						accum <= accum + mult;
+					 else
+						accum <= accum - mult;
+					 end if;
                 mult <= A * B;
             end if;
         end if;
