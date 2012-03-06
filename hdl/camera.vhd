@@ -168,4 +168,12 @@ component fifo_Nx8 is
 	); 
 end component;
 
+component MAC16 is
+port(clk, sraz : in std_logic;
+	  add_subb	:	in std_logic;
+	  A, B	:	in std_logic_vector(15 downto 0);
+	  RES	:	out std_logic_vector(15 downto 0)  
+);
+end component;
+
 END camera;
