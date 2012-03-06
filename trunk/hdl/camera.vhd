@@ -54,7 +54,7 @@ component camera_interface is
  		v_data : out std_logic_vector(7 downto 0 ); 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
- 		new_pix, new_line, new_frame : out std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pxclk, href, vsync : in std_logic
 	); 
 end component;
@@ -70,7 +70,7 @@ component yuv_camera_interface is
  		v_data : out std_logic_vector(7 downto 0 ); 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
- 		new_pix, new_line, new_frame : out std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pxclk, href, vsync : in std_logic
 	); 
 end component;
@@ -86,7 +86,7 @@ component rgb565_camera_interface is
  		b_data : out std_logic_vector(7 downto 0 ); 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
- 		new_pix, new_line, new_frame : out std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pxclk, href, vsync : in std_logic
 	); 
 end component;
