@@ -15,7 +15,7 @@ entity rgb565_camera_interface is
  		b_data : out std_logic_vector(7 downto 0 ); 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
- 		new_pix, new_line, new_frame : out std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pxclk, href, vsync : in std_logic
 	); 
 end rgb565_camera_interface;
@@ -117,31 +117,32 @@ architecture systemc of rgb565_camera_interface is
 		 	if arazb = '0'  then
 		 		pix_state <= RG ;
 		 	elsif  clock'event and clock = '1'  then
-				new_line <= NOT href ; -- changing href into hsync
-				new_frame <= vsync ;
+				hsync_out <= NOT href ; -- changing href into hsync
+				vsync_out <= vsync ;
 		 		if  pxclk = '1'  AND  href = '1'  AND  NOT vsync = '1'  then
-		 			new_pix <= '0' ;
+		 			pixel_clock_out <= '0' ;
 					case pix_state is	
 						when RG => 
 		 					r_data <= pixel_data(7 downto 3) & "000" ;
 							g_data(7 downto 5) <= pixel_data(2 downto 0);
 		 					next_state <= G ;
+							pixel_clock_out <= '0' ;
 		 				when GB => 
 		 					g_data(4 downto 0) <= pixel_data(7 downto 5) & "00" ;
 							b_data(7 downto 3) <= pixel_data(4 downto 0) & "000" ;
+							pixel_clock_out <= '1' ;
 		 					next_state <= RG ;
 		 				when others => 
 		 					next_state <= RG ;
 		 			end case ;
-		 		elsif ( NOT pxclk = '1' ) AND  href = '1'  AND  NOT vsync = '1'  then
-		 			pix_state <= next_state ; -- state evolution
-					if(pix_state = GB AND next_state = RG) then -- pixel received rising clock
-						new_pix <= '1' ;
-					else
-						new_pix <= '0' ;
+		 		elsif pxclk = '0'  then
+					if href = '1'  AND  NOT vsync = '1'  then
+						pix_state <= next_state ; -- state evolution
+					else 
+						pixel_clock_out <= '0' ;
 					end if;
 				else
-					new_pix <= '0' ;
+					pixel_clock_out <= '0' ;
 		 		end if ;
 		 	end if ;
 		 end process;  
