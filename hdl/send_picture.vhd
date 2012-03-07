@@ -31,7 +31,8 @@ architecture systemc of send_picture is
 		generic map(N => 128)
 		port map(
  		clk => clk, 
-		arazb => arazb, 
+		arazb => arazb,
+		sraz => '0',
  		wr => fifo_wr , 
 		rd => fifo_rd, 
 		empty => fifo_empty , full => fifo_full, data_rdy => send,

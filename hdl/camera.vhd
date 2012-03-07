@@ -1,7 +1,9 @@
 library IEEE;
         use IEEE.std_logic_1164.all;
+		  use IEEE.std_logic_signed.all;
 		  use ieee.math_real.log2;
 		  use ieee.math_real.ceil;
+		  use ieee.numeric_std.all;
 
 PACKAGE camera IS
 component i2c_master is
@@ -126,26 +128,6 @@ component send_picture is
 	); 
 end component;
 
-component ram_8x64 is
-	port(
- 		clk : in std_logic; 
- 		we, en : in std_logic; 
- 		do : out std_logic_vector(7 downto 0 ); 
- 		di : in std_logic_vector(7 downto 0 ); 
- 		addr : in std_logic_vector(6 downto 0 )
-	); 
-end component;
-
-component fifo_64x8 is
-	port(
- 		clk, arazb : in std_logic; 
- 		wr, rd : in std_logic; 
-		empty, full, data_rdy : out std_logic ;
- 		data_out : out std_logic_vector(7 downto 0 ); 
- 		data_in : in std_logic_vector(7 downto 0 )
-	); 
-end component;
-
 component ram_Nx8 is
 	generic(N : natural := 64; A : natural := 6);
 	port(
@@ -160,7 +142,7 @@ end component;
 component fifo_Nx8 is
 	generic(N : natural := 64);
 	port(
- 		clk, arazb : in std_logic; 
+ 		clk, arazb, sraz : in std_logic; 
  		wr, rd : in std_logic; 
 		empty, full, data_rdy : out std_logic ;
  		data_out : out std_logic_vector(7 downto 0 ); 
@@ -171,15 +153,38 @@ end component;
 component MAC16 is
 port(clk, sraz : in std_logic;
 	  add_subb	:	in std_logic;
-	  A, B	:	in std_logic_vector(15 downto 0);
-	  RES	:	out std_logic_vector(15 downto 0)  
+	  A, B	:	in signed(15 downto 0);
+	  RES	:	out signed(31 downto 0) 
 );
 end component;
 
-type row3 is array (0 to 2) of signed(15 downto 0);
+
+
+type row3 is array (0 to 2) of signed(8 downto 0);
 type mat3 is array (0 to 2) of row3;
 
-type duplet is array (0 to 1) of unsigned(2 downto 0);
+type irow3 is array (0 to 2) of integer range -256 to 255;
+type imat3 is array (0 to 2) of irow3;
+
+
+type duplet is array (0 to 1) of integer range 0 to 3;
 type index_array is array (0 to 8) of duplet ;
+
+
+component conv3x3 is --default is sobel
+generic(KERNEL : imat3 := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
+		  NON_ZERO	: index_array := ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3) ) -- (3, 3) indicate end  of non zero values
+		  );
+port(
+ 		clk : in std_logic; 
+ 		arazb : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+ 		abs_res : out std_logic_vector(7 downto 0 );
+		raw_res : out signed(15 downto 0 )
+
+);
+end component;
 
 END camera;
