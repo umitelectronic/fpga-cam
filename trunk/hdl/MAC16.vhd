@@ -19,7 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_SIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -33,13 +33,13 @@ use IEEE.STD_LOGIC_SIGNED.ALL;
 entity MAC16 is
 port(clk, sraz : in std_logic;
 	  add_subb	:	in std_logic;
-	  A, B	:	in std_logic_vector(15 downto 0);
-	  RES	:	out std_logic_vector(15 downto 0)  
+	  A, B	:	in signed(15 downto 0);
+	  RES	:	out signed(15 downto 0)  
 );
 end MAC16;
 
 architecture Behavioral of MAC16 is
- signal mult, accum: std_logic_vector(p_width*2-1 downto 0);
+ signal mult, accum: signed(31 downto 0);
 begin
     process (clk)
     begin
