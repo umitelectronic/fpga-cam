@@ -135,7 +135,7 @@ architecture systemc of down_scaler is
 		 						state <= wait_pixel ;
 		 					end if ;
 		 				when others => 
-
+								state <= wait_frame ;
 		 			end case ;
 		 	end if ;
 		 end process;  

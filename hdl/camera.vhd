@@ -176,4 +176,10 @@ port(clk, sraz : in std_logic;
 );
 end component;
 
+type row3 is array (0 to 2) of signed(15 downto 0);
+type mat3 is array (0 to 2) of row3;
+
+type duplet is array (0 to 1) of unsigned(2 downto 0);
+type index_array is array (0 to 8) of duplet ;
+
 END camera;
