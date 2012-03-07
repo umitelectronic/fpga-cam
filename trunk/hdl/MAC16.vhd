@@ -34,7 +34,7 @@ entity MAC16 is
 port(clk, sraz : in std_logic;
 	  add_subb	:	in std_logic;
 	  A, B	:	in signed(15 downto 0);
-	  RES	:	out signed(15 downto 0)  
+	  RES	:	out signed(31 downto 0)  
 );
 end MAC16;
 
@@ -44,7 +44,7 @@ begin
     process (clk)
     begin
         if (clk'event and clk='1') then
-            if (reset = '1') then
+            if (sraz  = '1') then
                 accum <= (others => '0');
                 mult <= (others => '0');
             else
@@ -57,6 +57,9 @@ begin
             end if;
         end if;
     end process;
-    RES <= accum;
+	 
+    RES <= accum ;
+			  
+			  
 end Behavioral;
 

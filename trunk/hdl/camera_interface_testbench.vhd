@@ -44,7 +44,7 @@ architecture test of camera_interface_testbench is
  		i2c_clk => clk,
  		arazb => arazb_delayed,
  		pxclk => pxclk_from_camera, href => href_from_camera, vsync => vsync_from_camera,
- 		new_pix => pxclk_from_interface, new_line => href_from_interface, new_frame => vsync_from_interface,
+ 		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
  		y_data => pixel_from_interface
 		);
 		

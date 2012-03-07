@@ -11,7 +11,7 @@ library work;
 entity fifo_Nx8 is
 	generic(N : natural := 128);
 	port(
- 		clk, arazb : in std_logic; 
+ 		clk, arazb, sraz : in std_logic; 
  		wr, rd : in std_logic; 
 		empty, full, data_rdy : out std_logic ;
  		data_out : out std_logic_vector(7 downto 0 ); 
@@ -23,13 +23,15 @@ architecture behavioral of fifo_Nx8 is
 	 constant NBIT : integer := integer(ceil(log2(real(N)))); -- number of bits for addresses
 	signal wr_addr, rd_addr, byte_count, ram_addr : std_logic_vector((NBIT - 1) downto 0) ;
 	signal wr_data : std_logic_vector(7 downto 0) ;
-	signal fullt, emptyt, ready, wri, eni : std_logic ;
+	signal fullt, emptyt, ready, wri, nclk : std_logic ;
 	begin
+	
+	nclk <= NOT clk ; --shifted clock
 	
 	ram_8_0 : ram_Nx8
 		generic map(N => N, A => NBIT)
 		port map ( 
-			clk => NOT clk, --ram samples data on falling edge of clock
+			clk => nclk, --ram samples data on falling edge of clock
 			addr => ram_addr, 
 			di => wr_data, 
 			do => data_out, 
@@ -46,16 +48,31 @@ architecture behavioral of fifo_Nx8 is
 				byte_count <= (others => '0');
 				ready <= '0' ;
 		 	elsif  clk'event and clk = '1' then
-				if  wr = '1'  and fullt = '0' then
+				if sraz = '1' then
+					wr_addr <= (others => '0');
+					rd_addr <= (others => '0');
+					byte_count <= (others => '0');
+					wri<='0';
+					ready <= '0' ;
+				elsif  wr = '1'  and fullt = '0' then
 					ram_addr <= wr_addr ; -- registering address
-					wr_addr <= wr_addr + 1 ; -- inscreasing pointer
+					if wr_addr < (N - 1) then
+						wr_addr <= wr_addr + 1 ; -- inscreasing pointer
+					else
+						wr_addr <= (others => '0') ;
+					end if;
 					wr_data <= data_in ; 
 					byte_count <= byte_count + 1 ;
 					wri<='1';
 					ready <= '0' ;
 				elsif rd = '1' and wr = '0' and emptyt = '0' then -- write is prioritized aginst read
+					wri<='0';
 					ram_addr <= rd_addr ; 
-					rd_addr <= rd_addr + 1 ;
+					if rd_addr < (N - 1) then
+						rd_addr <= rd_addr + 1 ;
+					else
+						rd_addr <= (others => '0') ;
+					end if;
 					byte_count <= byte_count - 1 ;
 					ready <='1';
 				else 
