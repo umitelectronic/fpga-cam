@@ -2,50 +2,43 @@
 
   LIBRARY ieee;
   USE ieee.std_logic_1164.ALL;
-  USE ieee.std_logic_unsigned.ALL;
   USE ieee.numeric_std.ALL;
+  USE ieee.std_logic_unsigned.ALL;
   
-  LIBRARY WORK;
-  USE WORK.CAMERA.ALL;
+  LIBRARY work ;
+  use work.camera.all ;
 
-  ENTITY conv3x3_tb IS
-  END conv3x3_tb;
+  ENTITY testbench IS
+  END testbench;
 
-  ARCHITECTURE behavior OF conv3x3_tb IS 
-
-
+  ARCHITECTURE behavior OF testbench IS 
 
   -- Component Declaration
-          component conv3x3 is
-				generic(KERNEL : imat3 := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
-						  NON_ZERO	: index_array := ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3)  ) -- (3, 3) indicate end  of non zero values
-						  );
+          component sobel3x3 is
 				port(
-						clk : in std_logic; 
-						arazb : in std_logic; 
-						pixel_clock, hsync, vsync : in std_logic; 
-						pixel_clock_out, hsync_out, vsync_out : out std_logic; 
-						pixel_data_in : in std_logic_vector(7 downto 0 ); 
-						abs_res : out unsigned(7 downto 0 );
-						raw_res : out signed(15 downto 0 )
+					clk : in std_logic; 
+					arazb : in std_logic; 
+					pixel_clock, hsync, vsync : in std_logic; 
+					pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+					pixel_data_in : in std_logic_vector(7 downto 0 ); 
+					pixel_data_out : out std_logic_vector(7 downto 0 )
+					);
+			end component;
 
-				);
-			end component ;
-			
-			constant clk_period : time := 5 ns ;
+         constant clk_period : time := 5 ns ;
 			constant pclk_period : time := 40 ns ;
 			
 			signal clk, arazb : std_logic ;
 			signal pxclk, hsync, vsync : std_logic ;
 			signal pxclk_out, hsync_out, vsync_out : std_logic ;
 			signal pixel : std_logic_vector(7 downto 0 ) := (others => '0');
-			signal abs_val : unsigned(7 downto 0 );
+			signal abs_val : std_logic_vector(7 downto 0 );
 			signal raw_val : signed(15 downto 0 ) ;	
-         
+
   BEGIN
 
-  -- Component Instantiation
-         conv3x3_0 :  conv3x3 
+    -- Component Instantiation
+         sobel3x3_0 :  sobel3x3 
 				port map(
 						clk => clk, 
 						arazb => arazb, 
@@ -56,9 +49,7 @@
 						hsync_out => hsync_out, 
 						vsync_out => vsync_out,
 						pixel_data_in => pixel, 
-						abs_res => abs_val,
-						raw_res => raw_val
-
+						pixel_data_out => abs_val
 				);
 
 	process
@@ -107,8 +98,6 @@ process
 		wait for pclk_period;
 
 	end process;
-  
-  
   
 
   END;
