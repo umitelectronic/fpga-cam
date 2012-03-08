@@ -46,7 +46,7 @@ entity block3X3 is
 end block3X3;
 
 architecture Behavioral of block3X3 is
-type read_pixel_state is (WAIT_PIXEL, LOAD_VALUES1, LOAD_VALUES2, END_PIXEL);
+type read_pixel_state is (LOAD_VALUES1, LOAD_VALUES2, WAIT_PIXEL, END_PIXEL);
 type hsync_state is	(WAIT_HSYNC, END_HSYNC);
 
 signal pixel_state : read_pixel_state ;
@@ -115,9 +115,37 @@ if arazb = '0' then
 	FIFO1_rd <= '0' ;
 	k02 <= (others => '0') ;
 	k12 <= (others => '0') ;
-	pixel_state <= WAIT_PIXEL ;
+	pixel_state <= LOAD_VALUES1 ;
 elsif clk'event and clk = '1' then
 	case pixel_state is
+		when LOAD_VALUES1 => -- load value from fifos into buffer
+			new_block <= '0' ;
+			FIFO2_wr <= '0' ;
+			FIFO1_wr <= '0' ;
+			FIFO2_rd <= '0' ;
+			FIFO1_rd <= '0' ;
+			if nb_line > 0 then
+				FIFO2_rd <= '1' ;
+				FIFO1_rd <= '1' ;
+			end if;
+			pixel_state <= LOAD_VALUES2 ;
+		when LOAD_VALUES2  =>
+			new_block <= '0' ;
+			FIFO2_wr <= '0' ;
+			FIFO1_wr <= '0' ;
+			FIFO2_rd <= '0' ;
+			FIFO1_rd <= '0' ;
+			if nb_line > 0 then
+				if fifo2_rdy =  '1' and fifo1_rdy =  '1' then -- just hope two fifo are synchronize (should be ...)
+					k12 <= signed('0' & FIFO2_OUTPUT) ;
+					k02 <= signed('0' & FIFO1_OUTPUT) ;
+					pixel_state <= END_PIXEL ;
+				end if ;
+			else 
+				k12 <= (others => '0') ;
+				k02 <= (others => '0') ;
+				pixel_state <= END_PIXEL ; -- need to clean this messy description
+			end if;
 		when WAIT_PIXEL =>
 			new_block <= '0' ;
 			FIFO2_wr <= '0' ;
@@ -137,9 +165,9 @@ elsif clk'event and clk = '1' then
 				block3x3(2)(1) <= block3x3(2)(2) ;
 				block3x3(2)(0) <= block3x3(2)(1) ;
 				
-				FIFO1_input <= std_logic_vector(block3x3(1)(0)(7 downto 0)) ; -- shifting pixel to upper line fifo
+				FIFO1_input <= std_logic_vector(block3x3(1)(2)(7 downto 0)) ; -- shifting pixel to upper line fifo
 				FIFO1_wr <= '1' ;
-				FIFO2_input <= std_logic_vector(block3x3(2)(0)(7 downto 0)) ; -- shifting pixel to upper line fifo
+				FIFO2_input <= pixel_data_in ; -- shifting pixel to upper line fifo
 				FIFO2_wr <= '1' ;
 				
 				new_block <= '1' ;
@@ -157,41 +185,13 @@ elsif clk'event and clk = '1' then
 				block3x3(2)(1) <= (others => '0') ;
 				block3x3(2)(2) <= (others => '0') ;
 			end if;
-		when LOAD_VALUES1 => -- load value from fifos into buffer
-			new_block <= '0' ;
-			FIFO2_wr <= '0' ;
-			FIFO1_wr <= '0' ;
-			FIFO2_rd <= '0' ;
-			FIFO1_rd <= '0' ;
-			if nb_line > 1 then
-				FIFO2_rd <= '1' ;
-				FIFO1_rd <= '1' ;
-			end if;
-			pixel_state <= LOAD_VALUES2 ;
-		when LOAD_VALUES2  =>
-			new_block <= '0' ;
-			FIFO2_wr <= '0' ;
-			FIFO1_wr <= '0' ;
-			FIFO2_rd <= '0' ;
-			FIFO1_rd <= '0' ;
-			if nb_line > 1 then
-				if fifo2_rdy =  '1' and fifo1_rdy =  '1' then -- just hope two fifo are synchronize (should be ...)
-					k12 <= signed('0' & FIFO2_OUTPUT) ;
-					k02 <= signed('0' & FIFO1_OUTPUT) ;
-					pixel_state <= END_PIXEL ;
-				end if ;
-			else 
-				k12 <= (others => '0') ;
-				k02 <= (others => '0') ;
-				pixel_state <= END_PIXEL ; -- need to clean this messy description
-			end if;
 		when END_PIXEL => -- waiting for end of pixel
 			new_block <= '0' ;
 			FIFO2_wr <= '0' ;
 			FIFO1_wr <= '0' ;
 			FIFO2_rd <= '0' ;
 			FIFO1_rd <= '0' ;
-			if pixel_clock = '0' then
+			if pixel_clock = '0' AND hsync = '0' then
 				pixel_state <= WAIT_PIXEL ;
 			end if;
 		when others =>
@@ -211,6 +211,9 @@ elsif clk'event and clk = '1'  then
 		when WAIT_HSYNC =>
 			sraz_fifo <= '0' ;
 			if hsync = '1' then
+				if nb_line < 3 then
+					nb_line <= nb_line + 1 ;
+				end if;
 				hsync_state0 <= END_HSYNC ;
 			end if ;
 		when END_HSYNC =>
@@ -220,9 +223,6 @@ elsif clk'event and clk = '1'  then
 			else
 				sraz_fifo <= '0' ;
 				if hsync = '0' then
-					if nb_line < 3 then
-						nb_line <= nb_line + 1 ;
-					end if;
 					hsync_state0 <= WAIT_HSYNC ;
 				end if ;
 			end if;
