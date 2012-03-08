@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library work;
 use work.camera.all ;
@@ -83,10 +84,16 @@ architecture Structural of spartcam is
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
+	
+	signal pixel_from_conv : std_logic_vector(7 downto 0);
+
+	
 	signal data_to_send : std_logic_vector(7 downto 0);
 	signal send_signal, tx_buffer_full	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
+	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
+	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
 
@@ -158,16 +165,31 @@ architecture Structural of spartcam is
 		sda => i2c_sda ,
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
- 		new_pix => pxclk_from_interface, new_line => href_from_interface, new_frame => vsync_from_interface,
+ 		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
  		y_data => pixel_from_interface
 		);
+		
+		
+
+		sobel0: sobel3x3
+		port map(
+			clk => clk_96 ,
+			arazb => arazb ,
+			pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync =>  vsync_from_interface,
+			pixel_clock_out => pxclk_from_conv, hsync_out => href_from_conv, vsync_out => vsync_from_conv, 
+			pixel_data_in => pixel_from_interface,  
+			pixel_data_out => pixel_from_conv
+
+		);
+		
+		
 		
 		down_scaler0: down_scaler
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+		  pixel_clock => pxclk_from_conv, hsync => href_from_conv, vsync => vsync_from_conv,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_interface,
+		  pixel_data_in => pixel_from_conv,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
