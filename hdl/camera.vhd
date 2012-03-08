@@ -158,6 +158,13 @@ port(clk, sraz : in std_logic;
 );
 end component;
 
+component SAC16 is
+port(clk, sraz : in std_logic;
+	  A, B	:	in signed(15 downto 0);
+	  RES	:	out signed(31 downto 0)  
+);
+end component;
+
 
 
 type row3 is array (0 to 2) of signed(8 downto 0);
@@ -171,18 +178,41 @@ type duplet is array (0 to 1) of integer range 0 to 3;
 type index_array is array (0 to 8) of duplet ;
 
 
-component conv3x3 is --default is sobel
+component block3X3 is
+		generic(LINE_SIZE : natural := 640);
+		port(
+			clk : in std_logic; 
+			arazb : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic; 
+			pixel_data_in : in std_logic_vector(7 downto 0 ); 
+			new_block : out std_logic ;
+			block_out : out mat3);
+end component;
+
+component conv3x3 is
 generic(KERNEL : imat3 := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
-		  NON_ZERO	: index_array := ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3) ) -- (3, 3) indicate end  of non zero values
+		  NON_ZERO	: index_array := ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3) ); -- (3, 3) indicate end  of non zero values
+		  IS_POWER_OF_TWO : natural := 0 -- (3, 3) indicate end  of non zero values
 		  );
+port(
+ 		clk : in std_logic; 
+ 		arazb : in std_logic; 
+ 		new_block : in std_logic ;
+		block3x3 : in mat3;
+		new_conv : out std_logic ;
+ 		abs_res : out std_logic_vector(7 downto 0 );
+		raw_res : out signed(15 downto 0 )
+);
+end component;
+
+component sobel3x3 is
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
- 		abs_res : out std_logic_vector(7 downto 0 );
-		raw_res : out signed(15 downto 0 )
+ 		pixel_data_out : out std_logic_vector(7 downto 0 )
 
 );
 end component;

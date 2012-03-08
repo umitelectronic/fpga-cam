@@ -29,7 +29,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity sobelx is
+entity sobel3x3 is
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -39,21 +39,10 @@ port(
  		pixel_data_out : out std_logic_vector(7 downto 0 )
 
 );
-end sobelx;
+end sobel3x3;
 
-architecture Behavioral of sobelx is
-type row3 is array (0 to 3) of std_logic_vector(15 downto 0);
-type read_pixel_state is (WAIT_PIXEL, READ_FIFO,STORE_PIXEL);
-type read_hsync_state is (WAIT_HSYNC, END_HSYNC);
-type read_vsync_state is (WAIT_VSYNC, END_VSYNC);
-constant sobel_elts : row3 := (1, 2, 1);
-signal kcol : row3 := (0, 0, 0);
-signal pixel_state : read_pixel_state ;
-signal sraz_mac, fifo_wr, fifo_rd, fifo_empty, fifo_full, data_rdy, new_pixel, new_mac : std_logic ;
-signal MAC_A, MAC_B, MAC_RES	:	std_logic_vector(15 downto 0);
-signal FIFO_INPUT, FIFO_OUTPUT, FIFO_BUFF : std_logic(7 downto 0);
-signal index, nb_line : std_logic_vector(1 downto 0);
-signal half_pixel_count : std_logic_vector(5 downto 0);
+architecture Behavioral of sobel3x3 is
+
 begin
 
 FIFO_INPUT <= X"FF" when MAC_RES > 255 else
