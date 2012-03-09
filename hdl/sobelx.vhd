@@ -19,6 +19,10 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+library WORK ;
+USE WORK.CAMERA.ALL ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -41,129 +45,106 @@ port(
 );
 end sobel3x3;
 
+
+
 architecture Behavioral of sobel3x3 is
-
+	type clock_state is (LOW, HIGH);
+	signal pclk_state : clock_state ;
+	signal pxclk_from_conv1, hsync_from_conv1, vsync_from_conv1 : std_logic ;
+	signal pxclk_from_conv2, hsync_from_conv2, vsync_from_conv2 : std_logic ;
+	signal new_conv1, new_conv2, new_conv : std_logic;
+	signal pixel_from_conv1, pixel_from_conv2, pixel_from_conv : std_logic_vector(7 downto 0);
+	signal block3x3_sig : mat3 ;
+	signal new_block : std_logic ;
+	signal pixel_count : integer range 0 to 1024 := 0 ;
 begin
 
-FIFO_INPUT <= X"FF" when MAC_RES > 255 else
-				  MAC_RES(8 downto 1); -- a bit of scalling to save on memory, true scaling should be shifted by 4 ...
-											  -- but wait and see !
-pixel_data_out <= FIFO_BUFF - MAC_RES ;
-
-
-pixel_clock_out <= new_mac when nb_line > 2 else
-						 '0' ;
-
-hsync_out <= hsync when new_pixel = '0' and new_mac = '0' else -- output href only when all pixel are discarded
-				 '0' ;
-				 
-vsync_out <= vsync when nb_line = 0 else -- output href only when all lines are discarded
-				 '0';
-
-linex2fifo : fifo_Nx8 -- output fifo
-	generic map(N => 1280)
-	port map(
-	clk => clk, 
-	arazb => arazb, 
-	wr => fifo_wr , 
-	rd => fifo_rd, 
-	empty => fifo_empty , full => fifo_full, data_rdy => send,
-	data_out => FIFO_OUTPUT,  
-	data_in => FIFO_INPUT
-); 
-
-mac0: MAC16
-port map(clk => NOT clk, sraz => sraz_mac, -- using pahse shifted clock
-	  add_subb	=> '1' ,
-	  A => MAC_A, B => MAC_B,
-	  RES => MAC_RES 
-);
-
-
---store pixel in line
-process(clk)
-begin
-if arazb = '0' then 
-	pixel_state <= WAIT_PIXEL ;
-	kcol(0) <= (others => '0');
-	kcol(1) <= (others => '0');
-	kcol(2) <= (others => '0');
-elsif clk'event and clk = '1' then
-	case pixel_state is
-		when WAIT_PIXEL =>
-			if pixel_clock = '1' then
-				kcol(0) <= kcol(1);
-				kcol(1) <= kcol(2);
-				kcol(2) <= X"00" & pixel_data_in ;
-				half_pixel_count <= (others => '0') ;
-				if nb_line > 2 then
-					fifo_rd <= '1' ;
-					pixel_state <= READ_FIFO ;
-				else
-					new_pixel <= '1' ;
-					FIFO_BUFF <= X"00" ;
-					pixel_state <= STORE_PIXEL ;
-				end if;
-			end if ;
-		when READ_FIFO =>
-			half_pixel_count <= half_pixel_count + 1 ;
-			if  data_rdy = '1' then
-				FIFO_BUFF <= FIFO_OUTPUT ;
-				fifo_rd <= '0' ;
-				pixel_state <= STORE_PIXEL ;
-			elsif fifo_empty = '1' then
-				FIFO_BUFF <= X"00" ;
-				fifo_rd <= '0' ;
-				pixel_state <= STORE_PIXEL ;
-			end if ;
-		when STORE_PIXEL =>
-			fifo_rd <= '0' ;
-			half_pixel_count <= half_pixel_count + 1 ;
-			if pixel_clock = '0' then
-				pixel_state <= WAIT_PIXEL ;
-			end if ;
-	end case ;
-end if;
-end process;
-
-
---compute line convolution with positive sobel
-process(clk)
-begin
-if arazb = '0' then 
-	sraz_mac <= '1' ;
-	index <= '0' ;
-elsif clk'event and clk = '1' then
-	if new_pixel = '1' then
-		new_mac <= '0' ;
-		sraz_mac <= '0' ;
-		MAC_A <= kcol(conv_integer(index)) ;
-		MAC_B <= sobel_elts(conv_integer(index)) ;
-		index <= index + 1;
-		if index = 2 then
-			--write fifo 
-			fifo_wr <= '1' ;
-			--reset mac
-			sraz_mac <= '1' ;
-			index <= '0' ;
-			new_pixel <= '0' ;
-		end if ;
-	else 
-		sraz_mac <= '1' ;
-		index <= '0' ;
-	end if ;
-end if;
-end process;
-
-
-process(clk)
-begin
-if arazb = '0' then 
-	sraz_mac <= '1' ;
-	index <= '0' ;
-elsif clk'event and clk = '1' then
-end if;
-end process;
+		block0:  block3X3 
+		generic map(LINE_SIZE =>  640)
+		port map(
+			clk => clk ,
+			arazb => arazb , 
+			pixel_clock => pixel_clock , hsync => hsync , vsync => vsync,
+			pixel_data_in => pixel_data_in ,
+			new_block => new_block,
+			block_out => block3x3_sig);
+		
+		
+		conv3x3_0 :  conv3x3 
+		generic map(KERNEL =>((1, 2, 1),(0, 0, 0),(-1, -2, -1)),
+		  NON_ZERO	=> ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3) ), -- (3, 3) indicate end  of non zero values
+		  IS_POWER_OF_TWO => 0
+		  )
+		port map(
+				clk => clk,
+				arazb => arazb, 
+				new_block => new_block,
+				block3x3 => block3x3_sig,
+				new_conv => new_conv1,
+				abs_res => pixel_from_conv1
+		);
+		
+		conv3x3_1 :  conv3x3 
+		generic map(KERNEL =>((1, 0, -1),(2, 0, -2),(1, 0, -1)),
+		  NON_ZERO	=> ((0, 0), (0, 2), (1, 0), (1, 2), (2, 0), (2, 2), (3, 3), (3, 3), (3, 3) ), -- (3, 3) indicate end  of non zero values
+		  IS_POWER_OF_TWO => 0
+		  )
+		port map(
+				clk => clk,
+				arazb => arazb, 
+				new_block => new_block,
+				block3x3 => block3x3_sig,
+				new_conv => new_conv2,
+				abs_res => pixel_from_conv2
+		);
+		
+		process(clk, arazb)
+		begin
+			if arazb = '0' then
+				pixel_count <= 0 ;
+				pclk_state <= LOW ;
+			elsif clk'event and clk = '1' then
+				case pclk_state is
+					when LOW =>
+						if new_conv = '1' then
+							pixel_count <= pixel_count - 1;
+						end if ;
+						if pixel_clock = '1' then
+							if hsync = '0' then
+								pixel_count <= pixel_count + 1;
+							end if;
+							pclk_state <= HIGH ; 
+						end if ;
+					when HIGH =>
+						if new_conv = '1' then
+							pixel_count <= pixel_count - 1;
+						end if ;
+						if pixel_clock = '0' then
+							pclk_state <= LOW ; 
+						end if ;
+					when others =>
+						pclk_state <= LOW ;
+				end case;
+			end if;
+		end process ;
+		
+		process(clk, arazb)
+		begin
+			if arazb = '0' then 
+			nb_line <= (others => '0') ;
+			hsync_state0 <= WAIT_HSYNC ;
+			elsif clk'event and clk = '0'  then
+			
+			end if;
+	
+		
+		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
+		
+		new_conv <= (new_conv1 AND new_conv2) ;
+		
+		pixel_clock_out <= new_conv ;
+		
+		hsync_out	<= hsync when pixel_count = 0 ;
+		vsync_out <= vsync when pixel_count = 0 ;
 
 end Behavioral;
-

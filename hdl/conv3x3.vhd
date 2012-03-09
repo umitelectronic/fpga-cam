@@ -106,6 +106,7 @@ elsif clk'event and clk = '1'  then
 	case convolution_state is
 		when WAIT_PIXEL =>
 			sraz_mac <= '1' ;
+			new_conv <= '0' ;
 			index <= (others => '0') ;
 			if new_block = '1'  then
 				new_conv <= '0' ;
