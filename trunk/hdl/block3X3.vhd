@@ -46,8 +46,9 @@ entity block3X3 is
 end block3X3;
 
 architecture Behavioral of block3X3 is
-type read_pixel_state is (LOAD_VALUES1, LOAD_VALUES2, WAIT_PIXEL, END_PIXEL);
+type read_pixel_state is (LOAD_VALUES1, LOAD_VALUES2, WAIT_PIXEL, END_PIXEL, END_HSYNC);
 type hsync_state is	(WAIT_HSYNC, END_HSYNC);
+
 
 signal pixel_state : read_pixel_state ;
 signal hsync_state0 : hsync_state ;
@@ -139,12 +140,20 @@ elsif clk'event and clk = '1' then
 				if fifo2_rdy =  '1' and fifo1_rdy =  '1' then -- just hope two fifo are synchronize (should be ...)
 					k12 <= signed('0' & FIFO2_OUTPUT) ;
 					k02 <= signed('0' & FIFO1_OUTPUT) ;
-					pixel_state <= END_PIXEL ;
+					if hsync = '1' then
+						pixel_state <= END_HSYNC ;
+					else
+						pixel_state <= END_PIXEL ;
+					end if ;
 				end if ;
 			else 
 				k12 <= (others => '0') ;
 				k02 <= (others => '0') ;
-				pixel_state <= END_PIXEL ; -- need to clean this messy description
+				if hsync = '1' then
+						pixel_state <= END_HSYNC ;
+				else
+					pixel_state <= END_PIXEL ;
+				end if ;
 			end if;
 		when WAIT_PIXEL =>
 			new_block <= '0' ;
@@ -172,6 +181,8 @@ elsif clk'event and clk = '1' then
 				
 				new_block <= '1' ;
 				pixel_state <= LOAD_VALUES1 ;
+			elsif  hsync = '1' then
+				pixel_state <= LOAD_VALUES1 ;
 			elsif vsync = '1' then
 				block3x3(0)(0) <= (others => '0') ;
 				block3x3(0)(1) <= (others => '0') ; -- zeroing matrix
@@ -191,7 +202,18 @@ elsif clk'event and clk = '1' then
 			FIFO1_wr <= '0' ;
 			FIFO2_rd <= '0' ;
 			FIFO1_rd <= '0' ;
-			if pixel_clock = '0' AND hsync = '0' then
+			if pixel_clock = '0' then
+				pixel_state <= WAIT_PIXEL ;
+			elsif  hsync = '1' then
+				pixel_state <= LOAD_VALUES1 ;
+			end if;
+		when END_HSYNC => -- waiting for end of pixel
+			new_block <= '0' ;
+			FIFO2_wr <= '0' ;
+			FIFO1_wr <= '0' ;
+			FIFO2_rd <= '0' ;
+			FIFO1_rd <= '0' ;
+			if hsync = '0' then
 				pixel_state <= WAIT_PIXEL ;
 			end if;
 		when others =>
@@ -232,6 +254,7 @@ elsif clk'event and clk = '1'  then
 	end case ;
 end if;
 end process;
+
 
 block_out <= block3x3 ;
 

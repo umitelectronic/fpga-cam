@@ -17,10 +17,12 @@ architecture test of camera_interface_testbench is
 	signal clk, arazb_delayed : std_logic ;
 	signal pixel_from_camera : std_logic_vector(7 downto 0);
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
+	signal pixel_from_conv : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
 	signal data_to_send : std_logic_vector(7 downto 0);
 	signal pxclk_from_camera, href_from_camera, vsync_from_camera : std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
+	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal send_data : std_logic ;
 	begin
@@ -48,10 +50,21 @@ architecture test of camera_interface_testbench is
  		y_data => pixel_from_interface
 		);
 		
+		sobel0: sobel3x3
+		port map(
+			clk => clk ,
+			arazb => arazb_delayed ,
+			pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync =>  vsync_from_interface,
+			pixel_clock_out => pxclk_from_conv, hsync_out => href_from_conv, vsync_out => vsync_from_conv, 
+			pixel_data_in => pixel_from_interface,  
+			pixel_data_out => pixel_from_conv
+
+		);
+		
 		down_scaler0: down_scaler
 		port map(clk => clk,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+		  pixel_clock => pxclk_from_conv, hsync => href_from_conv, vsync => vsync_from_conv,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
 		  pixel_data_in => pixel_from_interface,
 		  pixel_data_out => pixel_from_ds 

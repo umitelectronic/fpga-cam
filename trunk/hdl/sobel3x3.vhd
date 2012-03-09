@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library WORK ;
@@ -49,14 +50,16 @@ end sobel3x3;
 
 architecture Behavioral of sobel3x3 is
 	type clock_state is (LOW, HIGH);
-	signal pclk_state : clock_state ;
+	constant clock_stretch_cycle : integer range 0 to 4 := 2 ;
+	signal clock_stretch : integer range 0 to 4 := 0 ;
+	signal conv_state : clock_state ;
 	signal pxclk_from_conv1, hsync_from_conv1, vsync_from_conv1 : std_logic ;
 	signal pxclk_from_conv2, hsync_from_conv2, vsync_from_conv2 : std_logic ;
 	signal new_conv1, new_conv2, new_conv : std_logic;
 	signal pixel_from_conv1, pixel_from_conv2, pixel_from_conv : std_logic_vector(7 downto 0);
 	signal block3x3_sig : mat3 ;
 	signal new_block : std_logic ;
-	signal pixel_count : integer range 0 to 1024 := 0 ;
+	signal pixel_count : unsigned(7 downto 0) := (others => '0') ;
 begin
 
 		block0:  block3X3 
@@ -73,7 +76,7 @@ begin
 		conv3x3_0 :  conv3x3 
 		generic map(KERNEL =>((1, 2, 1),(0, 0, 0),(-1, -2, -1)),
 		  NON_ZERO	=> ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3) ), -- (3, 3) indicate end  of non zero values
-		  IS_POWER_OF_TWO => 1
+		  IS_POWER_OF_TWO => 0
 		  )
 		port map(
 				clk => clk,
@@ -87,7 +90,7 @@ begin
 		conv3x3_1 :  conv3x3 
 		generic map(KERNEL =>((1, 0, -1),(2, 0, -2),(1, 0, -1)),
 		  NON_ZERO	=> ((0, 0), (0, 2), (1, 0), (1, 2), (2, 0), (2, 2), (3, 3), (3, 3), (3, 3) ), -- (3, 3) indicate end  of non zero values
-		  IS_POWER_OF_TWO => 1
+		  IS_POWER_OF_TWO => 0
 		  )
 		port map(
 				clk => clk,
@@ -101,42 +104,44 @@ begin
 		process(clk, arazb)
 		begin
 			if arazb = '0' then
-				pixel_count <= 0 ;
-				pclk_state <= LOW ;
+				clock_stretch <= 0 ;
+				conv_state <= LOW ;
 			elsif clk'event and clk = '1' then
-				case pclk_state is
+				case conv_state is
 					when LOW =>
-						if new_conv = '1' then
-							pixel_count <= pixel_count - 1;
+						if clock_stretch > 0 then
+							pixel_clock_out <= '1' ;
+							clock_stretch <= clock_stretch - 1 ;
+						else
+							pixel_clock_out <= '0' ;
 						end if ;
-						if pixel_clock = '1' then
-							if hsync = '0' then
-								pixel_count <= pixel_count + 1;
-							end if;
-							pclk_state <= HIGH ; 
+						if new_conv = '1' then
+							clock_stretch <= clock_stretch_cycle ;
+							pixel_clock_out <= '1' ;
+							conv_state <= HIGH ; 
 						end if ;
 					when HIGH =>
-						if new_conv = '1' then
-							pixel_count <= pixel_count - 1;
-						end if ;
-						if pixel_clock = '0' then
-							pclk_state <= LOW ; 
+						pixel_clock_out <= '1' ;
+						if new_conv = '0' then
+							conv_state <= LOW ; 
 						end if ;
 					when others =>
-						pclk_state <= LOW ;
+						conv_state <= LOW ;
 				end case;
 			end if;
 		end process ;
 	
+		new_conv <= (new_conv1 AND new_conv2) ;
+	
 		
 		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
-		
-		new_conv <= (new_conv1 AND new_conv2) ;
-		
-		pixel_clock_out <= new_conv ;
-		
-		hsync_out	<= hsync when pixel_count = 0 ;
-		vsync_out <= vsync when pixel_count = 0 ;
+		--pixel_data_out <= pixel_data_in ;
+		--hsync_out	<= hsync ;
+		--vsync_out <= vsync ;
+		hsync_out	<= hsync when (clock_stretch = 0) else --need to get this clean
+							'0' ;
+		vsync_out <= vsync when clock_stretch = 0 else
+						 '0' ;
 
 end Behavioral;
 
