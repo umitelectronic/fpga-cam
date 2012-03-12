@@ -77,8 +77,7 @@ begin
     end process;
 			
 
-	 absB <= -B when B < 0 else
-				B ;
+	 absB <= abs(B);
 				
 	 sel	<= "00" when absB = 1 else -- selecting shift
 				"01" when absB = 2 else
