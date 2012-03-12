@@ -35,6 +35,7 @@ USE WORK.CAMERA.ALL ;
 --use UNISIM.VComponents.all;
 
 entity erode3x3 is
+generic(INVERT : natural := 0; VALUE : std_logic_vector(7 downto 0) := X"FF");
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -68,15 +69,22 @@ begin
 			new_block => new_block,
 			block_out => block3x3_sig);
 		
-		one_value <= '1' when ((block3x3_sig(0)(1) = "011111111")AND (block3x3_sig(1)(0) = "011111111") 
-						AND (block3x3_sig(1)(1) = "011111111") 
-						AND (block3x3_sig(1)(2) = "011111111")  
-						AND (block3x3_sig(2)(1) = "011111111")) else
-						'0';
+		inv0 : IF INVERT = 0 generate 
+			pixel_data_out <= VALUE when ((block3x3_sig(0)(1) = "011111111")AND (block3x3_sig(1)(0) = "011111111") 
+							AND (block3x3_sig(1)(1) = "011111111") 
+							AND (block3x3_sig(1)(2) = "011111111")  
+							AND (block3x3_sig(2)(1) = "011111111")) else
+							(others => '0');
+		end generate inv0 ;
 		
+		ninv0 : IF INVERT = 1 generate 
+			pixel_data_out <= (others => '0') when ((block3x3_sig(0)(1) = "011111111")AND (block3x3_sig(1)(0) = "011111111") 
+							AND (block3x3_sig(1)(1) = "011111111") 
+							AND (block3x3_sig(1)(2) = "011111111")  
+							AND (block3x3_sig(2)(1) = "011111111")) else
+							VALUE ;
+		end generate ninv0 ;
 		
-		pixel_data_out <= X"FF" when one_value = '1' else
-								X"00" ;
 		
 		process(clk, arazb)
 		begin
