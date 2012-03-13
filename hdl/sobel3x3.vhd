@@ -150,9 +150,9 @@ begin
 	
 		
 		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
-		hsync_out	<= hsync when (pixel_count = 0 and clock_stretch = 0) else --need to get this clean
+		hsync_out	<= hsync when (clock_stretch = 0) else --need to get this clean
 							'0' ;
-		vsync_out <= vsync when (pixel_count = 0 and clock_stretch = 0) else
+		vsync_out <= vsync when (clock_stretch = 0) else
 						 '0' ;
 
 end Behavioral;
