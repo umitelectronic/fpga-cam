@@ -71,7 +71,7 @@ architecture systemc of yuv_register_rom is
 	(X"A8" & X"f0"), -- HAECC5
 	(X"A9" & X"90"), -- HAECC6
 	(X"AA" & X"94"), -- HAECC7
-	(X"13" & (X"80" OR X"40" OR X"20" OR X"04"OR X"01")), -- COM8
+	(X"13" & (X"80" OR X"40" OR X"20" OR X"04"OR X"01")),
 	(X"0E" & X"61"), -- COM5
 	(X"0F" & X"4b"), -- COM6
 	(X"16" & X"02"),
@@ -121,7 +121,11 @@ architecture systemc of yuv_register_rom is
 	(X"6a" & X"40"), 
 	(X"01" & X"40"), -- REG BLUE
 	(X"02" & X"60"), -- REG_RED
-	(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01" OR X"02")), -- COM8
+	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01" OR X"02")), -- COM8 AWB AGC AEC
+	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01")), -- COM8 AGC AEC
+	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04")), -- COM8 AGC
+	--(X"13" & (X"80" OR X"40" OR X"20" )), -- COM8
+	(X"13" & (X"80" OR X"40" OR X"20" OR X"01" )), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
 	(X"4f" & X"80"), --"matrix coefficient 1" 
 	(X"50" & X"80"), -- "matrix coefficient 2" 
 	(X"51" & X"00"), -- vb 
