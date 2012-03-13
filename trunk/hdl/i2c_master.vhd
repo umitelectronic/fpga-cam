@@ -15,7 +15,7 @@ entity i2c_master is
  		rcv : in std_logic; 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
- 		dispo, ack_byte : out std_logic
+ 		dispo, ack_byte, nack_byte : out std_logic
 	); 
 end i2c_master;
 
@@ -49,6 +49,7 @@ architecture systemc of i2c_master is
 		 			sda <= 'Z' ;
 		 			dispo <= '1' ;
 		 			ack_byte <= '0' ;
+					nack_byte <= '0' ;
 		 			if  send = '1'  OR  rcv = '1'  then
 		 				slave_addr_i <= (slave_addr & rcv) ; 
 		 				send_rvcb <= send ; 
@@ -59,6 +60,7 @@ architecture systemc of i2c_master is
 		 		when i2c_start => 
 		 			dispo <= '0' ;
 		 			ack_byte <= '0' ;
+					nack_byte <= '0' ;
 		 			if  tick_count < QUARTER_BIT  then
 		 				scl <= 'Z' ; 
 		 				sda <= 'Z' ; 
@@ -75,6 +77,7 @@ architecture systemc of i2c_master is
 		 		when tx_addr => 
 		 			dispo <= '0' ;
 		 			ack_byte <= '0' ;
+					nack_byte <= '0' ;
 		 			if  bit_count < 8  then
 		 				if  tick_count < HALF_BIT  then
 		 					scl <= '0' ; 
@@ -116,6 +119,7 @@ architecture systemc of i2c_master is
 		 			else
 		 				tick_count <= (others => '0') ; 
 		 				if  sda = '0'  then
+							nack_byte <= '0' ;
 		 					if  send_rvcb = '1'  then
 		 						data_i <= data_in ; 
 		 						state <= tx_byte ;
@@ -124,12 +128,14 @@ architecture systemc of i2c_master is
 		 						state <= rx_byte ;
 		 					end if ;
 		 				else
+							nack_byte <= '1' ;
 		 					state <= i2c_stop ;
 		 				end if ;
 		 			end if ;
 		 		when tx_byte => 
 		 			dispo <= '0' ;
 		 			ack_byte <= '0' ;
+					nack_byte <= '0' ;
 		 			if  bit_count < 8  then
 		 				if  tick_count < HALF_BIT  then
 		 					scl <= '0' ; 
@@ -160,6 +166,7 @@ architecture systemc of i2c_master is
 		 		when rx_byte => 
 		 			dispo <= '0' ;
 		 			ack_byte <= '0' ;
+					nack_byte <= '0' ;
 		 			if  bit_count < 8  then
 		 				if  tick_count < HALF_BIT  then
 		 					scl <= '0' ; 
@@ -201,6 +208,7 @@ architecture systemc of i2c_master is
 		 						state <= rx_byte ;
 		 					end if ;
 		 				else
+							nack_byte <= '1' ;
 		 					state <= i2c_stop ;
 		 				end if ;
 		 			end if ;
@@ -224,6 +232,7 @@ architecture systemc of i2c_master is
 						sda <= 'Z' ;
 						dispo <= '1' ;
 						ack_byte <= '0' ;
+						nack_byte <= '0' ;
 						state <= idle ;
 		 			end if ;
 		 	end case ;

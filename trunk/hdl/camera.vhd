@@ -17,7 +17,7 @@ component i2c_master is
  		rcv : in std_logic; 
  		scl : inout std_logic; 
  		sda : inout std_logic; 
- 		dispo, ack_byte : out std_logic
+ 		dispo, ack_byte, nack_byte : out std_logic
 	); 
 end component;
 
