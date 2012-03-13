@@ -181,8 +181,6 @@ architecture Structural of spartcam_sobel is
 			pixel_data_out => pixel_from_conv
 		);
 		
-		
-		
 		down_scaler0: down_scaler
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
