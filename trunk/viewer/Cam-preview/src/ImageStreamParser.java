@@ -25,11 +25,13 @@ public class ImageStreamParser implements Runnable {
 		this.in = in;
 		imageBuffer = new byte[160 * 120];
 		this.display = display ;
+		setDefaultImage();
 	}
 	
 	public ImageStreamParser(PreviewPanel display) {
 		imageBuffer = new byte[160 * 120];
 		this.display = display ;
+		setDefaultImage();
 	}
 	
 	public void setInputStream(InputStream in){
@@ -38,6 +40,8 @@ public class ImageStreamParser implements Runnable {
 	
 	public void setDisplay( PreviewPanel display){
 		this.display = display ;
+		setDefaultImage();
+			
 	}
 
 	public void run() {
@@ -54,7 +58,7 @@ public class ImageStreamParser implements Runnable {
 						lineIndex = -1;
 						pixelIndex = 0;
 					} else if (buffer[i] == NEW_LINE) {
-						System.out.println("Pixel in line "+ pixelIndex);
+						//System.out.println("Pixel in line "+ pixelIndex);
 						lineIndex += 1;
 						pixelIndex = 0;
 					} else {
@@ -73,6 +77,32 @@ public class ImageStreamParser implements Runnable {
 		}
 	}
 
+	private void setDefaultImage() {
+		byte[] imageData = new byte[160 * 120];
+		int pixelValue = 0 ;
+		 for(int lineIndex = 0 ; lineIndex < 60 ;  lineIndex ++) {
+			 for(int pixelIndex = 0 ; pixelIndex < 80 ;  pixelIndex ++) {
+				 imageData[lineIndex*2 * 160 + pixelIndex*2] = (byte) pixelValue;
+				 imageData[lineIndex*2 * 160 + (pixelIndex*2 + 1)] = (byte) pixelValue;
+				 imageData[((lineIndex*2)+1) * 160 + pixelIndex*2] = (byte) pixelValue;
+				 imageData[((lineIndex*2)+1) * 160 + (pixelIndex*2 + 1)] = (byte) pixelValue;
+				 pixelValue ++ ;
+			 }
+		}
+		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+		int[] nBits = { 8 };
+		ColorModel cm = new ComponentColorModel(cs, nBits, false, true,
+				Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
+		SampleModel sm = cm.createCompatibleSampleModel(160, 120);
+		DataBufferByte db = new DataBufferByte(imageData, 160 * 120);
+		WritableRaster raster = Raster.createWritableRaster(sm, db, null);
+		BufferedImage result = new BufferedImage(cm, raster, false, null);
+		if(display != null){
+			display.setImage(result);
+		}
+		newFrame = true ;
+	}
+	
 	private void setImage() {
 		byte[] imageData = new byte[160 * 120];
 		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
