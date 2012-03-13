@@ -1,3 +1,5 @@
+
+
 import gnu.io.CommPortIdentifier;
 
 import java.awt.BorderLayout;
@@ -18,7 +20,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 
@@ -30,25 +31,25 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 	private static final int PORT = 9745;
 
 	PreviewPanel panel;
-	JComboBox<String> comPortField;
+	JComboBox comPortField;
 	JButton connectButton;
 	SerialChannel serialChannel;
 	String comPort;
 	ImageStreamParser parser;
-	List<String> ports ; 
+	List<String> ports;
 
 	public CamPreviewGUI() {
 		this.setPreferredSize(new Dimension(180, 190));
 		panel = new PreviewPanel();
 		panel.setSize(160, 120);
 		panel.setImage(Toolkit.getDefaultToolkit().getImage("jojo.jpeg"));
-		Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier
+				.getPortIdentifiers();
 		ports = new ArrayList<String>();
-		 while ( portEnum.hasMoreElements() ) 
-	        {
-			 CommPortIdentifier portIdentifier = portEnum.nextElement();
-			 ports.add(portIdentifier.getName());
-	        }
+		while (portEnum.hasMoreElements()) {
+			CommPortIdentifier portIdentifier = portEnum.nextElement();
+			ports.add(portIdentifier.getName());
+		}
 		comPortField = new JComboBox(ports.toArray());
 		comPortField.setSize(320, 12);
 		connectButton = new JButton("connect");
@@ -118,7 +119,8 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 			if (connectButton.getText().equals("connect")) {
 				if (serialChannel == null) {
 					try {
-						this.listenSerialPort((String) comPortField.getSelectedItem());
+						this.listenSerialPort((String) comPortField
+								.getSelectedItem());
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
