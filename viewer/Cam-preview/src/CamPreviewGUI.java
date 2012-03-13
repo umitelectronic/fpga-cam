@@ -1,3 +1,5 @@
+import gnu.io.CommPortIdentifier;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,8 +10,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -24,18 +30,26 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 	private static final int PORT = 9745;
 
 	PreviewPanel panel;
-	JTextField comPortField;
+	JComboBox<String> comPortField;
 	JButton connectButton;
 	SerialChannel serialChannel;
 	String comPort;
 	ImageStreamParser parser;
+	List<String> ports ; 
 
 	public CamPreviewGUI() {
 		this.setPreferredSize(new Dimension(180, 190));
 		panel = new PreviewPanel();
 		panel.setSize(160, 120);
 		panel.setImage(Toolkit.getDefaultToolkit().getImage("jojo.jpeg"));
-		comPortField = new JTextField();
+		Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
+		ports = new ArrayList<String>();
+		 while ( portEnum.hasMoreElements() ) 
+	        {
+			 CommPortIdentifier portIdentifier = portEnum.nextElement();
+			 ports.add(portIdentifier.getName());
+	        }
+		comPortField = new JComboBox(ports.toArray());
 		comPortField.setSize(320, 12);
 		connectButton = new JButton("connect");
 		connectButton.addActionListener(this);
@@ -49,12 +63,12 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 		this.add("South", inputPanel);
 		this.pack();
 		this.setVisible(true);
+		parser = new ImageStreamParser(this.panel);
 		this.repaint();
 	}
 
 	public boolean listenSerialPort(String comPortName) throws Exception {
 		serialChannel = new SerialChannel();
-		parser = new ImageStreamParser(this.panel);
 		serialChannel.connect(comPortName, parser);
 		return true;
 	}
@@ -104,7 +118,7 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 			if (connectButton.getText().equals("connect")) {
 				if (serialChannel == null) {
 					try {
-						this.listenSerialPort(comPortField.getText());
+						this.listenSerialPort((String) comPortField.getSelectedItem());
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

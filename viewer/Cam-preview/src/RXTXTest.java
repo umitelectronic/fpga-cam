@@ -6,6 +6,7 @@ public class RXTXTest {
 	
     static void listPorts()
     {
+    	 System.out.println(RXTXVersion.getVersion());
         java.util.Enumeration<CommPortIdentifier> portEnum = CommPortIdentifier.getPortIdentifiers();
         while ( portEnum.hasMoreElements() ) 
         {
