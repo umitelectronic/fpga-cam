@@ -56,7 +56,6 @@ architecture Behavioral of erode3x3 is
 	signal conv_state : clock_state ;
 	signal block3x3_sig : mat3 ;
 	signal new_block, pxclk_state, one_value : std_logic ;
-	signal pixel_count : unsigned(7 downto 0) := (others => '0') ;
 begin
 
 		block0:  block3X3 
@@ -70,7 +69,7 @@ begin
 			block_out => block3x3_sig);
 		
 		inv0 : IF INVERT = 0 generate 
-			pixel_data_out <= VALUE when ((block3x3_sig(0)(1) = "011111111")AND (block3x3_sig(1)(0) = "011111111") 
+			pixel_data_out <= VALUE when ((block3x3_sig(0)(1) = (others => '0') )AND (block3x3_sig(1)(0) = "011111111") 
 							AND (block3x3_sig(1)(1) = "011111111") 
 							AND (block3x3_sig(1)(2) = "011111111")  
 							AND (block3x3_sig(2)(1) = "011111111")) else
@@ -84,22 +83,6 @@ begin
 							AND (block3x3_sig(2)(1) = "011111111")) else
 							VALUE ;
 		end generate ninv0 ;
-		
-		
-		process(clk, arazb)
-		begin
-			if arazb = '0' then
-					pixel_count <= (others => '0') ;
-					pxclk_state <= '0' ;
-			elsif clk'event and clk = '1' then
-				if (pxclk_state /= pixel_clock)  AND pixel_clock = '1' AND hsync = '0' then
-					pixel_count <= pixel_count + 1 ;
-				elsif new_block = '1' then
-					pixel_count <= pixel_count - 1 ;
-				end if ;
-				pxclk_state <= pixel_clock ;
-			end if;
-		end process;
 		
 		process(clk, arazb)
 		begin
@@ -131,10 +114,10 @@ begin
 			end if;
 		end process ;
 	
-		hsync_out	<= hsync when (pixel_count = 0 and clock_stretch = 0) else --need to get this clean
-							'0' ;
-		vsync_out <= vsync when (pixel_count = 0 and clock_stretch = 0) else
-						 '0' ;
+		hsync_out	<= hsync ;--when (clock_stretch = 0) else --need to get this clean
+							--'0' ;
+		vsync_out <= vsync ; --when (clock_stretch = 0) else
+						 --'0' ;
 
 end Behavioral;
 

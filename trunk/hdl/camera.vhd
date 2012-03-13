@@ -241,4 +241,18 @@ port(
 );
 end component;
 
+
+component dilate3x3 is
+generic(INVERT : natural := 0; VALUE : std_logic_vector(7 downto 0) := X"FF");
+port(
+ 		clk : in std_logic; 
+ 		arazb : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+ 		pixel_data_out : out std_logic_vector(7 downto 0 )
+
+);
+end component;
+
 END camera;

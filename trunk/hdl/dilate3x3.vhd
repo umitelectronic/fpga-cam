@@ -78,10 +78,10 @@ begin
 		end generate inv0 ;
 		
 		ninv0 : IF INVERT = 1 generate 
-			pixel_data_out <= (others => '0') when ((block3x3_sig(0)(1) = "011111111")AND (block3x3_sig(1)(0) = "011111111") 
-							AND (block3x3_sig(1)(1) = "011111111") 
-							AND (block3x3_sig(1)(2) = "011111111")  
-							AND (block3x3_sig(2)(1) = "011111111")) else
+			pixel_data_out <= (others => '0') when ((block3x3_sig(0)(1) = "011111111") OR (block3x3_sig(1)(0) = "011111111") 
+							OR (block3x3_sig(1)(1) = "011111111") 
+							OR (block3x3_sig(1)(2) = "011111111")  
+							OR (block3x3_sig(2)(1) = "011111111")) else
 							VALUE ;
 		end generate ninv0 ;
 		
@@ -131,9 +131,9 @@ begin
 			end if;
 		end process ;
 	
-		hsync_out	<= hsync when (pixel_count = 0 and clock_stretch = 0) else --need to get this clean
+		hsync_out	<= hsync when (clock_stretch = 0) else --need to get this clean
 							'0' ;
-		vsync_out <= vsync when (pixel_count = 0 and clock_stretch = 0) else
+		vsync_out <= vsync when (clock_stretch = 0) else
 						 '0' ;
 
 end Behavioral;
