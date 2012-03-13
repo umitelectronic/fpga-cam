@@ -24,14 +24,14 @@ architecture systemc of camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "1000010"; 
 	TYPE pixel_state IS (Y1, U1, Y2, V1, DUMMY1, DUMMY2) ; 
-	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
+	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, WAIT_NACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
 	signal i2c_addr : std_logic_vector(6 downto 0 ) ; 
 	signal send : std_logic ; 
 	signal rcv : std_logic ; 
 	signal dispo : std_logic ; 
-	signal ack_byte : std_logic ; 
+	signal ack_byte, nack_byte : std_logic ; 
 	signal pix_state : pixel_state ; 
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
@@ -56,7 +56,8 @@ architecture systemc of camera_interface is
 			send => send, 
 			rcv => rcv, 
 			dispo => dispo, 
-			ack_byte => ack_byte
+			ack_byte => ack_byte,
+			nack_byte => nack_byte
 		); 
 	
 	-- sccb_interface
@@ -64,6 +65,7 @@ architecture systemc of camera_interface is
 		 begin
 		 	i2c_addr <= OV7670_I2C_ADDR ; -- sensor address
 		 	if  arazb = '0'  then
+				reg_addr <= (others => '0') ;
 		 		reg_state <= init ;
 		 	elsif clock'event and clock = '1' then
 		 		case reg_state is
@@ -74,13 +76,24 @@ architecture systemc of camera_interface is
 		 					reg_state <= send_addr ;
 		 				end if ;
 		 			when send_addr => --send register address
-		 				if  ack_byte = '1'  then
+		 				if nack_byte = '1' then
+							send <= '0' ;
+							reg_state <= wait_nack0 ;
+					   elsif  ack_byte = '1'  then
 		 					send <= '1' ; 
 		 					i2c_data <= reg_data(7 downto 0) ; 
 		 					reg_state <= wait_ack0 ;
 		 				end if ;
+					when wait_nack0 => -- falling edge of nack 
+					  send <= '0' ;
+					  if  nack_byte = '0'  then
+		 					reg_state <= next_reg ;
+		 				end if ;
 		 			when wait_ack0 => -- falling edge of ack 
-		 			  if  ack_byte = '0'  then
+		 			   if nack_byte = '1' then
+								send <= '0' ;
+								reg_state <= wait_nack0 ;
+					   elsif  ack_byte = '0'  then
 		 					reg_state <= send_data ;
 		 				end if ;
 		 			when send_data => --send register value
@@ -89,13 +102,17 @@ architecture systemc of camera_interface is
 		 					reg_state <= wait_ack1 ; 
 		 					reg_addr <= (reg_addr + 1) ;
 		 				end if ;
-		 			when wait_ack1 => -- wait for ack
-		 			  if  ack_byte = '0'  then
-		 					reg_state <= next_reg ;
-		 				end if ;
+					when wait_ack1 => -- wait for nack
+							if nack_byte = '1' then
+								send <= '0' ;
+								reg_addr <= (reg_addr - 1) ;
+								reg_state <= wait_nack0 ;
+							elsif  ack_byte = '0'  then
+								reg_state <= next_reg ;
+							end if ;
 		 			when next_reg => -- switching to next register
 		 				send <= '0' ;
-		 				if ( NOT ack_byte = '1' ) AND  reg_data /= X"FFFF"  AND  dispo = '1'  AND  conv_integer(reg_addr) < 255  then
+		 				if ( NOT ack_byte = '1' ) AND ( NOT nack_byte = '1' ) AND  reg_data /= X"FFFF"  AND  dispo = '1'  AND  conv_integer(reg_addr) < 255  then
 		 					reg_state <= send_addr ; 
 		 					i2c_data <= reg_data(15 downto 8) ; 
 		 					send <= '1' ;

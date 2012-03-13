@@ -117,7 +117,7 @@ architecture systemc of yuv_register_rom is
 	(X"6c" & X"0a"), 
 	(X"6d" & X"55"), 
 	(X"6e" & X"11"), 
-	(X"6f" & X"9F"), -- 9E FOR ADVANCE AWB
+	(X"6f" & X"9E"), -- 9E FOR ADVANCE AWB
 	(X"6a" & X"40"), 
 	(X"01" & X"40"), -- REG BLUE
 	(X"02" & X"60"), -- REG_RED

@@ -24,7 +24,7 @@ architecture test of camera_interface_testbench is
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
-	signal send_data : std_logic ;
+	signal send_data, scl, sda : std_logic ;
 	begin
 	
 	process(clk) -- reset process
@@ -47,7 +47,9 @@ architecture test of camera_interface_testbench is
  		arazb => arazb_delayed,
  		pxclk => pxclk_from_camera, href => href_from_camera, vsync => vsync_from_camera,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_from_interface
+ 		y_data => pixel_from_interface, 
+		scl => scl,
+		sda => sda
 		);
 		
 		sobel0: sobel3x3
