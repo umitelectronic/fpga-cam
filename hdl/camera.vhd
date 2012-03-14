@@ -179,6 +179,7 @@ type imat3 is array (0 to 2) of irow3;
 type duplet is array (0 to 1) of integer range 0 to 3;
 type index_array is array (0 to 8) of duplet ;
 
+type FRAME_FORMAT is(VGA, QVGA);
 
 component block3X3 is
 		generic(LINE_SIZE : natural := 640);
@@ -263,6 +264,17 @@ port(
  		pixel_data_out : out std_logic_vector(7 downto 0 )
 
 );
+end component;
+
+component ram_NxN is
+	generic(SIZE : natural := 64 ; NBIT : natural := 8; ADDR_WIDTH : natural := 6);
+	port(
+ 		clk : in std_logic; 
+ 		we, en : in std_logic; 
+ 		do : out std_logic_vector(NBIT-1 downto 0 ); 
+ 		di : in std_logic_vector(NBIT-1 downto 0 ); 
+ 		addr : in std_logic_vector((A - 1) downto 0 )
+	); 
 end component;
 
 END camera;

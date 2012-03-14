@@ -95,7 +95,9 @@ begin
 					pixel_count <= (others => '0') ;
 					pxclk_state <= '0' ;
 			elsif clk'event and clk = '1' then
-				if (pxclk_state /= pixel_clock)  AND pixel_clock = '1' AND hsync = '0' then
+				if hsync = '1' OR vsync = '1' then
+					pixel_count <= (others => '0') ;
+				elsif (pxclk_state /= pixel_clock)  AND pixel_clock = '1' then
 					pixel_count <= pixel_count + 1 ;
 				elsif new_block = '1' then
 					pixel_count <= pixel_count - 1 ;
