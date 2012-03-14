@@ -5,19 +5,20 @@ library work;
         use work.all ;
 
 entity line_ram is
+	generic(LINE_SIZE : natural := 640; ADDR_SIZE : natural := 10);
 	port(
  		clk : in std_logic; 
  		we, en : in std_logic; 
  		data_out : out std_logic_vector(15 downto 0 ); 
  		data_in : in std_logic_vector(15 downto 0 ); 
- 		addr : in std_logic_vector(6 downto 0 )
+ 		addr : in std_logic_vector(ADDR_SIZE - 1 downto 0 )
 	); 
 end line_ram;
 
 architecture systemc of line_ram is
  
-	type array_80 is array (0 to 80) of std_logic_vector(15 downto 0 ); 
-	signal ram : array_80 ;
+	type array_line is array (0 to LINE_SIZE) of std_logic_vector(15 downto 0 ); 
+	signal ram : array_line ;
 	begin
 	
 	

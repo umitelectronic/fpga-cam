@@ -35,6 +35,8 @@ USE WORK.CAMERA.ALL ;
 --use UNISIM.VComponents.all;
 
 entity sobel3x3 is
+generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -63,7 +65,7 @@ architecture Behavioral of sobel3x3 is
 begin
 
 		block0:  block3X3 
-		generic map(LINE_SIZE =>  640)
+		generic map(LINE_SIZE =>  WIDTH)
 		port map(
 			clk => clk ,
 			arazb => arazb , 

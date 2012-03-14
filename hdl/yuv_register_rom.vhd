@@ -71,7 +71,7 @@ architecture systemc of yuv_register_rom is
 	(X"A8" & X"f0"), -- HAECC5
 	(X"A9" & X"90"), -- HAECC6
 	(X"AA" & X"94"), -- HAECC7
-	(X"13" & (X"80" OR X"40" OR X"20" OR X"04"OR X"01")),
+	(X"13" & (X"80" OR X"40" OR X"20" OR X"04"OR X"01")), --COM8
 	(X"0E" & X"61"), -- COM5
 	(X"0F" & X"4b"), -- COM6
 	(X"16" & X"02"),
