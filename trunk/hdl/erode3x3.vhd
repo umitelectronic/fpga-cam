@@ -35,7 +35,10 @@ USE WORK.CAMERA.ALL ;
 --use UNISIM.VComponents.all;
 
 entity erode3x3 is
-generic(INVERT : natural := 0; VALUE : std_logic_vector(7 downto 0) := X"FF");
+generic(INVERT : natural := 0; 
+		  VALUE : std_logic_vector(7 downto 0) := X"FF";
+		  WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -60,7 +63,7 @@ architecture Behavioral of erode3x3 is
 begin
 
 		block0:  block3X3 
-		generic map(LINE_SIZE =>  640)
+		generic map(LINE_SIZE =>  WIDTH)
 		port map(
 			clk => clk ,
 			arazb => arazb , 

@@ -94,6 +94,7 @@ component rgb565_camera_interface is
 end component;
 
 component down_scaler is
+	generic(SCALING_FACTOR : natural := 8; INPUT_WIDTH : natural := 640; INPUT_HEIGHT : natural := 480 );
 	port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -106,6 +107,7 @@ end component;
 
 
 component line_ram is
+	generic(LINE_SIZE : natural := 640; ADDR_SIZE : natural := 10);
 	port(
  		clk : in std_logic; 
  		we, en : in std_logic; 
@@ -206,6 +208,8 @@ port(
 end component;
 
 component sobel3x3 is
+generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -229,7 +233,10 @@ port(
 end component;
 
 component erode3x3 is
-generic(INVERT : natural := 0; VALUE : std_logic_vector(7 downto 0) := X"FF");
+generic(INVERT : natural := 0; 
+		  VALUE : std_logic_vector(7 downto 0) := X"FF";
+		  WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -243,7 +250,10 @@ end component;
 
 
 component dilate3x3 is
-generic(INVERT : natural := 0; VALUE : std_logic_vector(7 downto 0) := X"FF");
+generic(INVERT : natural := 0; 
+		  VALUE : std_logic_vector(7 downto 0) := X"FF";
+		  WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
  		arazb : in std_logic; 

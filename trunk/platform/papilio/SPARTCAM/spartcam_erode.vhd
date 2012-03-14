@@ -47,6 +47,7 @@ port( CLK : in std_logic;
 );
 end spartcam_erode;
 
+
 architecture Structural of spartcam_erode is
 
 	COMPONENT dcm24

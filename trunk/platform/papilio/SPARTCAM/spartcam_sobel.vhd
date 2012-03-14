@@ -84,7 +84,6 @@ architecture Structural of spartcam_sobel is
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
-	
 	signal pixel_from_conv : std_logic_vector(7 downto 0);
 
 	
@@ -180,6 +179,8 @@ architecture Structural of spartcam_sobel is
 			pixel_data_in => pixel_from_interface,  
 			pixel_data_out => pixel_from_conv
 		);
+		
+
 		
 		down_scaler0: down_scaler
 		port map(clk => clk_96,

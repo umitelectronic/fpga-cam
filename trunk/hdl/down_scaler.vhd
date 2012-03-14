@@ -1,10 +1,14 @@
 library IEEE;
         use IEEE.std_logic_1164.all;
         use IEEE.std_logic_unsigned.all;
+		  use ieee.math_real.log2;
+		  use ieee.math_real.ceil;
 library work;
         use work.camera.all ;
+		  
 --down scale with factor 8 incoming frame
 entity down_scaler is
+	generic(SCALING_FACTOR : natural := 8; INPUT_WIDTH : natural := 640; INPUT_HEIGHT : natural := 480 );
 	port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
@@ -16,9 +20,10 @@ entity down_scaler is
 end down_scaler;
 
 architecture systemc of down_scaler is
- 
+	constant NBIT : integer := integer(ceil(log2(real(INPUT_WIDTH/SCALING_FACTOR)))); -- number of bits for addresses
+	constant SHIFT_LENGTH : integer := integer(ceil(log2(real(SCALING_FACTOR))));
 	TYPE scaler_state IS (WAIT_FRAME, WAIT_LINE, WAIT_PIXEL, WRITE_PIXEL) ; 
-	signal line_ram_addr : std_logic_vector(6 downto 0 ) ; 
+	signal line_ram_addr : std_logic_vector(NBIT-1 downto 0 ) ; 
 	signal line_ram_data_in, line_ram_data_out : std_logic_vector(15 downto 0 ) ; 
 	signal line_ram_en, line_ram_we : std_logic ; 
 	signal add_result : std_logic_vector(15 downto 0 ) ; 
@@ -30,6 +35,7 @@ architecture systemc of down_scaler is
 	begin
 	
 	line_ram0 : line_ram --line ram to accumulate data
+		generic map(LINE_SIZE => INPUT_WIDTH/SCALING_FACTOR, ADDR_SIZE => NBIT)
 		port map ( 
 			clk => clk, 
 			addr => line_ram_addr, 
@@ -39,7 +45,7 @@ architecture systemc of down_scaler is
 			we => line_ram_we
 		); 
 	
-	pixel_data_out <= line_ram_data_out(10 downto 3) ; --output data is shifted by 3 for division by 8
+	pixel_data_out <= line_ram_data_out((SHIFT_LENGTH + 7) downto SHIFT_LENGTH) ; --output data is shifted by 3 for division by 8
 	add_temp <= (add_result + ("00000000" & pixel_data_in)) ; -- pixel are accumulated into a register
 
 	-- down_scaler_process
@@ -75,7 +81,7 @@ architecture systemc of down_scaler is
 		 					if hsync = '1'  then
 								line_ram_addr <= (others => '0') ; 
 		 						nb_pix_accumulated <= (others => '0') ; 
-		 						if  nb_line_accumulated = 7  then -- 8 lines were accumulated
+		 						if  nb_line_accumulated = (SCALING_FACTOR -1)  then -- 8 lines were accumulated
 		 							nb_line_accumulated <= (others => '0') ; 
 		 							add_result <= (others => '0') ; 
 									nb_line_output <= (nb_line_output + 1) ;
@@ -91,19 +97,19 @@ architecture systemc of down_scaler is
 							vsync_out <= '0' ;
 		 					line_ram_en <= '0' ;
 		 					line_ram_we <= '0' ;
-							if nb_line_output = 60 then --all line were output
+							if nb_line_output = (INPUT_HEIGHT/SCALING_FACTOR) then --all line were output
 								state <= wait_frame ;
-							elsif line_ram_addr = 80 then --all pixels were averaged
+							elsif line_ram_addr = (INPUT_WIDTH/SCALING_FACTOR) then --all pixels were averaged
 								state <= wait_line ;
 		 					elsif  pixel_clock = '1'  then
 		 						pixel_clock_out <= '0' ;  
 		 						if  nb_pix_accumulated = 0  then
 		 							add_result <= "00000000" & pixel_data_in ; --first pixel of block
-		 						elsif  nb_pix_accumulated = 7  then -- 8 pixels were summed
+		 						elsif  nb_pix_accumulated = (SCALING_FACTOR -1)  then -- 8 pixels were summed
 		 							if  nb_line_accumulated = 0  then -- first line
-		 								line_ram_data_in <= "00000000" & add_temp(10 downto 3) ; --writing pixels average to ram
+		 								line_ram_data_in <= "00000000" & add_temp((SHIFT_LENGTH + 7) downto SHIFT_LENGTH) ; --writing pixels average to ram
 		 							else
-		 								line_ram_data_in <= (("00000000" & add_temp(10 downto 3)) + line_ram_data_out) ; --ading pixels average to previously averaged pixels
+		 								line_ram_data_in <= (("00000000" & add_temp((SHIFT_LENGTH + 7) downto SHIFT_LENGTH)) + line_ram_data_out) ; --ading pixels average to previously averaged pixels
 		 							end if ; 
 		 							line_ram_we <= '1' ; 
 		 							line_ram_en <= '1' ;
@@ -118,12 +124,12 @@ architecture systemc of down_scaler is
 		 					line_ram_we <= '0' ;
 		 					line_ram_en <= '0' ;
 		 					if pixel_clock = '0'  then -- waiting for falling edge of pxclk
-		 						if  nb_line_accumulated = 7  AND  nb_pix_accumulated = 7  then
+		 						if  nb_line_accumulated = (SCALING_FACTOR -1)  AND  nb_pix_accumulated = (SCALING_FACTOR -1)  then
 		 							pixel_clock_out <= '1' ;
 		 						else
 		 							pixel_clock_out <= '0' ;
 		 						end if ; 
-		 						if  nb_pix_accumulated = 7  then
+		 						if  nb_pix_accumulated = (SCALING_FACTOR -1)  then
 		 							line_ram_addr <= line_ram_addr + 1 ; 
 		 							nb_pix_accumulated <= (others => '0') ;
 		 						else

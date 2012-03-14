@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 13.4
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : dcm96.vhd
--- /___/   /\     Timestamp : 03/04/2012 01:05:29
+-- /___/   /\     Timestamp : 03/13/2012 19:31:22
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
