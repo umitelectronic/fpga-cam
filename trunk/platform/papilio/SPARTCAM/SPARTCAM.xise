@@ -129,6 +129,18 @@
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="19"/>
     </file>
+    <file xil_pn:name="blob_detection.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="171"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="../../../hdl/blobs.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="173"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="173"/>
+    </file>
+    <file xil_pn:name="../../../hdl/ram_NxN.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="174"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="174"/>
+    </file>
   </files>
 
   <properties>
