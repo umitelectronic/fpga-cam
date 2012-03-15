@@ -11,7 +11,7 @@ entity ram_NxN is
  		we, en : in std_logic; 
  		do : out std_logic_vector(NBIT-1 downto 0 ); 
  		di : in std_logic_vector(NBIT-1 downto 0 ); 
- 		addr : in std_logic_vector((A - 1) downto 0 )
+ 		addr : in std_logic_vector((ADDR_WIDTH - 1) downto 0 )
 	); 
 end ram_NxN;
 
