@@ -273,8 +273,35 @@ component ram_NxN is
  		we, en : in std_logic; 
  		do : out std_logic_vector(NBIT-1 downto 0 ); 
  		di : in std_logic_vector(NBIT-1 downto 0 ); 
- 		addr : in std_logic_vector((A - 1) downto 0 )
+ 		addr : in std_logic_vector((ADDR_WIDTH - 1) downto 0 )
 	); 
+end component;
+ 
+type pix_neighbours is array (0 to 3) of unsigned(7 downto 0);
+
+component neighbours is
+		generic(LINE_SIZE : natural := 640);
+		port(
+			clk : in std_logic; 
+			arazb, sraz : in std_logic; 
+			add_neighbour, next_line : in std_logic; 
+			neighbour_in : in unsigned(7 downto 0 );
+			neighbours : out pix_neighbours);
+end component;
+
+component blobs is
+	generic(NB_BLOB : natural := 16);
+	port(
+		clk, arazb, sraz : in std_logic ;
+		blob_index : in unsigned(7 downto 0);
+		blob_index_to_merge : in unsigned(7 downto 0);
+		add_pixel : in std_logic ;
+		get_blob	:	in std_logic ;
+		merge_blob : in std_logic ;
+		pixel_posx, pixel_posy : in unsigned(9 downto 0);
+		xmin, xmax, ymin, ymax : out unsigned(9 downto 0)
+	);
+ 
 end component;
 
 END camera;
