@@ -41,7 +41,9 @@ port(
  		clk : in std_logic; 
  		arazb: in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
- 		pixel_data_in : in std_logic_vector(7 downto 0 ));
+ 		pixel_data_in : in std_logic_vector(7 downto 0 );
+		big_blob_posx, big_blob_posy : out unsigned(9 downto 0)
+		);
 end blob_detection;
 
 architecture Behavioral of blob_detection is
@@ -58,6 +60,7 @@ signal neighbours0 : pix_neighbours;
 signal new_line, add_neighbour, add_pixel : std_logic ;
 signal current_pixel : std_logic_vector(7 downto 0) ;
 signal current_blob : unsigned(7 downto 0) ;
+signal big_blob_posx_tp, big_blob_posy_tp :unsigned(9 downto 0) ;
 
 begin
 
@@ -71,7 +74,8 @@ blobs0 : blobs
 		get_blob => '0' ,
 		merge_blob => '0',
 		add_pixel => add_pixel,
-		pixel_posx => pixel_x, pixel_posy => pixel_y
+		pixel_posx => pixel_x, pixel_posy => pixel_y,
+		max_blob_centerx => big_blob_posx_tp, max_blob_centery => big_blob_posy_tp
 	);
 
 update_neighbours : neighbours
@@ -106,7 +110,11 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
-			if hsync = '0' then
+			if vsync = '1' then
+				big_blob_posx <= big_blob_posx_tp ;
+				big_blob_posy <= big_blob_posy_tp ;
+				blob_state0 <= WAIT_VSYNC ;
+			elsif hsync = '0' then
 				blob_state0 <= WAIT_PIXEL ;
 			end if;
 		when WAIT_PIXEL =>
@@ -127,6 +135,8 @@ elsif clk'event and clk = '1' then
 				new_line <= '1' ;
 				blob_state0 <= WAIT_HSYNC ;
 			elsif vsync = '1' then
+				big_blob_posx <= big_blob_posx_tp ;
+				big_blob_posy <= big_blob_posy_tp ;
 				blob_state0 <= WAIT_VSYNC ;
 			end if;
 		when COMPARE_PIXEL =>
