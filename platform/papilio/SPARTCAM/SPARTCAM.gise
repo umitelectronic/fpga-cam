@@ -22,6 +22,7 @@
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="SPARTCAM.xise"/>
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
+    <file xil_pn:fileType="FILE_LSO" xil_pn:name=".lso"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/bitgen.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
@@ -29,12 +30,28 @@
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection.prj"/>
+    <file xil_pn:fileType="FILE_XST_STX" xil_pn:name="blob_detection.stx"/>
+    <file xil_pn:fileType="FILE_XST" xil_pn:name="blob_detection.xst"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_tb_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="blob_detection_tb_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="blob_detection_tb_isim_beh.wdb"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_tb_stx_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="blobs_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blobs_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="block3X3_stx_beh.prj"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="dcm24.vhd"/>
     <file xil_pn:fileType="FILE_UCF" xil_pn:name="dcm24_arwz.ucf" xil_pn:origination="imported"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="dcm96.vhd"/>
     <file xil_pn:fileType="FILE_UCF" xil_pn:name="dcm96_arwz.ucf" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="draw_square_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
     <file xil_pn:fileType="FILE_VHDL" xil_pn:name="ipcore_dir/dcm24.vhd" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_VHDL" xil_pn:name="ipcore_dir/dcm96.vhd" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_CMD" xil_pn:name="isim.cmd"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="neighbours_stx_beh.prj"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spartcam_erode.bgn" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="spartcam_erode.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="spartcam_erode.bld"/>
@@ -79,11 +96,132 @@
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="xaw2vhdl.log"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_INI" xil_pn:name="xilinxsim.ini"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
+    <transform xil_pn:end_ts="1331822843" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1331822843">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1331914711" xil_pn:in_ck="4069598702717966632" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1331914711">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="../../../hdl/MAC16.vhd"/>
+      <outfile xil_pn:name="../../../hdl/bbfifo_16x8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/binarization.vhd"/>
+      <outfile xil_pn:name="../../../hdl/blob_detection.vhd"/>
+      <outfile xil_pn:name="../../../hdl/blobs.vhd"/>
+      <outfile xil_pn:name="../../../hdl/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/camera.vhd"/>
+      <outfile xil_pn:name="../../../hdl/camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hdl/conv3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/dilate3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/down_scaler.vhd"/>
+      <outfile xil_pn:name="../../../hdl/draw_square.vhd"/>
+      <outfile xil_pn:name="../../../hdl/erode3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/fifo_Nx8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/i2c_master.vhd"/>
+      <outfile xil_pn:name="../../../hdl/kcuart_tx.vhd"/>
+      <outfile xil_pn:name="../../../hdl/line_ram.vhd"/>
+      <outfile xil_pn:name="../../../hdl/neighbours.vhd"/>
+      <outfile xil_pn:name="../../../hdl/ram_Nx8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/ram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hdl/register_rom.vhd"/>
+      <outfile xil_pn:name="../../../hdl/rgb565_camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hdl/rgb565_register_rom.vhd"/>
+      <outfile xil_pn:name="../../../hdl/send_picture.vhd"/>
+      <outfile xil_pn:name="../../../hdl/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/test_benches/sobel3x3_tb.vhd"/>
+      <outfile xil_pn:name="../../../hdl/uart_tx.vhd"/>
+      <outfile xil_pn:name="../../../hdl/yuv_camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hdl/yuv_register_rom.vhd"/>
+      <outfile xil_pn:name="blob_detection_tb.vhd"/>
+      <outfile xil_pn:name="spartcam_erode.vhd"/>
+      <outfile xil_pn:name="spartcam_sobel.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1331895735" xil_pn:in_ck="7141863822930202743" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="9038420105678284648" xil_pn:start_ts="1331895735">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+    </transform>
+    <transform xil_pn:end_ts="1331895735" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-6191262252376214" xil_pn:start_ts="1331895735">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+    </transform>
+    <transform xil_pn:end_ts="1331825390" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="-4597896714799993784" xil_pn:start_ts="1331825390">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1331913170" xil_pn:in_ck="3267749741062929490" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1331913170">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputAdded"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hdl/MAC16.vhd"/>
+      <outfile xil_pn:name="../../../hdl/bbfifo_16x8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/binarization.vhd"/>
+      <outfile xil_pn:name="../../../hdl/blob_detection.vhd"/>
+      <outfile xil_pn:name="../../../hdl/blobs.vhd"/>
+      <outfile xil_pn:name="../../../hdl/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/camera.vhd"/>
+      <outfile xil_pn:name="../../../hdl/camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hdl/conv3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/dilate3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/down_scaler.vhd"/>
+      <outfile xil_pn:name="../../../hdl/erode3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/fifo_Nx8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/i2c_master.vhd"/>
+      <outfile xil_pn:name="../../../hdl/kcuart_tx.vhd"/>
+      <outfile xil_pn:name="../../../hdl/line_ram.vhd"/>
+      <outfile xil_pn:name="../../../hdl/neighbours.vhd"/>
+      <outfile xil_pn:name="../../../hdl/ram_Nx8.vhd"/>
+      <outfile xil_pn:name="../../../hdl/ram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hdl/register_rom.vhd"/>
+      <outfile xil_pn:name="../../../hdl/rgb565_camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hdl/rgb565_register_rom.vhd"/>
+      <outfile xil_pn:name="../../../hdl/send_picture.vhd"/>
+      <outfile xil_pn:name="../../../hdl/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hdl/test_benches/sobel3x3_tb.vhd"/>
+      <outfile xil_pn:name="../../../hdl/uart_tx.vhd"/>
+      <outfile xil_pn:name="../../../hdl/yuv_camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hdl/yuv_register_rom.vhd"/>
+      <outfile xil_pn:name="blob_detection_tb.vhd"/>
+      <outfile xil_pn:name="spartcam_erode.vhd"/>
+      <outfile xil_pn:name="spartcam_sobel.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1331913177" xil_pn:in_ck="3267749741062929490" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-5359900127849794894" xil_pn:start_ts="1331913170">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="blob_detection_tb_beh.prj"/>
+      <outfile xil_pn:name="blob_detection_tb_isim_beh.exe"/>
+      <outfile xil_pn:name="fuse.log"/>
+      <outfile xil_pn:name="isim"/>
+      <outfile xil_pn:name="xilinxsim.ini"/>
+    </transform>
+    <transform xil_pn:end_ts="1331913177" xil_pn:in_ck="-6237933535127357598" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="8070899791956112031" xil_pn:start_ts="1331913177">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="blob_detection_tb_isim_beh.wdb"/>
+      <outfile xil_pn:name="isim.cmd"/>
+    </transform>
     <transform xil_pn:end_ts="1331720918" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="9083180003169918026" xil_pn:start_ts="1331720918">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -118,18 +256,9 @@
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputAdded"/>
       <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="InputRemoved"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
-      <outfile xil_pn:name="spartcam_erode.lso"/>
-      <outfile xil_pn:name="spartcam_erode.ngc"/>
-      <outfile xil_pn:name="spartcam_erode.ngr"/>
-      <outfile xil_pn:name="spartcam_erode.prj"/>
-      <outfile xil_pn:name="spartcam_erode.stx"/>
-      <outfile xil_pn:name="spartcam_erode.syr"/>
-      <outfile xil_pn:name="spartcam_erode.xst"/>
-      <outfile xil_pn:name="spartcam_erode_xst.xrpt"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
-      <outfile xil_pn:name="xst"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1331720939" xil_pn:in_ck="-4373178928791618405" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-7298495481163241667" xil_pn:start_ts="1331720938">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -138,43 +267,31 @@
     <transform xil_pn:end_ts="1331722866" xil_pn:in_ck="-1691746380493429142" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="7677054854818252021" xil_pn:start_ts="1331722861">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
-      <outfile xil_pn:name="_ngo"/>
-      <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
-      <outfile xil_pn:name="spartcam_erode.bld"/>
-      <outfile xil_pn:name="spartcam_erode.ngd"/>
-      <outfile xil_pn:name="spartcam_erode_ngdbuild.xrpt"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1331722871" xil_pn:in_ck="-1691746380493429141" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="-8535960543883491901" xil_pn:start_ts="1331722866">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
-      <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
-      <outfile xil_pn:name="spartcam_erode.pcf"/>
-      <outfile xil_pn:name="spartcam_erode_map.map"/>
-      <outfile xil_pn:name="spartcam_erode_map.mrp"/>
-      <outfile xil_pn:name="spartcam_erode_map.ncd"/>
-      <outfile xil_pn:name="spartcam_erode_map.ngm"/>
-      <outfile xil_pn:name="spartcam_erode_map.xrpt"/>
-      <outfile xil_pn:name="spartcam_erode_summary.xml"/>
-      <outfile xil_pn:name="spartcam_erode_usage.xml"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1331722889" xil_pn:in_ck="8772901663356416772" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1331722871">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
-      <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
-      <outfile xil_pn:name="spartcam_erode.ncd"/>
-      <outfile xil_pn:name="spartcam_erode.pad"/>
-      <outfile xil_pn:name="spartcam_erode.par"/>
-      <outfile xil_pn:name="spartcam_erode.ptwx"/>
-      <outfile xil_pn:name="spartcam_erode.unroutes"/>
-      <outfile xil_pn:name="spartcam_erode.xpi"/>
-      <outfile xil_pn:name="spartcam_erode_pad.csv"/>
-      <outfile xil_pn:name="spartcam_erode_pad.txt"/>
-      <outfile xil_pn:name="spartcam_erode_par.xrpt"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1331721032" xil_pn:in_ck="-4283767668880113524" xil_pn:name="TRANEXT_bitFile_spartan3e" xil_pn:prop_ck="287829442711806529" xil_pn:start_ts="1331721025">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -184,23 +301,18 @@
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="InputRemoved"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
-      <outfile xil_pn:name="spartcam_erode.bgn"/>
-      <outfile xil_pn:name="spartcam_erode.bit"/>
-      <outfile xil_pn:name="spartcam_erode.drc"/>
-      <outfile xil_pn:name="spartcam_erode.ut"/>
-      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
-      <outfile xil_pn:name="webtalk.log"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1331722889" xil_pn:in_ck="-1691746380493429273" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1331722886">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
-      <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
-      <outfile xil_pn:name="spartcam_erode.twr"/>
-      <outfile xil_pn:name="spartcam_erode.twx"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
   </transforms>
 
