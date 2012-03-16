@@ -45,6 +45,7 @@ entity blobs is
 		get_blob	:	in std_logic ;
 		merge_blob : in std_logic ;
 		pixel_posx, pixel_posy : in unsigned(9 downto 0);
+		max_blob_centerx, max_blob_centery	:	out unsigned(9 downto 0);
 		xmin, xmax, ymin, ymax : out unsigned(9 downto 0)
 	);
  
@@ -61,6 +62,9 @@ signal ram_addr : std_logic_vector((NBIT -1) downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
 signal index_in : unsigned(NBIT - 1 downto 0);
+signal max_blob_centerx_tmp, max_blob_center_y_tmp, current_blob_centerx, current_blob_centery : unsigned(9 downto 0) := (others => '0') ;
+signal addx, addy, subx, suby : unsigned(10 downto 0) := (others => '0');
+signal max_blob_height, max_blob_width : unsigned(10 downto 0) := (others => '0');
 signal nclk : std_logic ;
 begin 
 
@@ -71,6 +75,22 @@ blobxmax <= unsigned(ram0_out(25 downto 16)) ; -- top right coordinate
 
 blobymin <= unsigned(ram1_out(9 downto 0)) ; -- bottom left coordinate
 blobymax <= unsigned(ram1_out(25 downto 16)) ; -- bottom right coordinate
+ 
+ 
+ 
+
+addx <=  ('0' &  newxmin) + ('0' &  newxmax) ;
+addy <=  ('0' &  newymin) + ('0' &  newymax) ;
+
+subx <=   ('0' &  newxmax) - ('0' &  newxmin);
+suby <=  ('0' &  newymax) - ('0' &  newymin) ;
+
+current_blob_centerx <=  addx(10 downto 1) ;
+current_blob_centery <=  addy(10 downto 1) ;
+
+
+
+
  
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB,
@@ -122,6 +142,9 @@ yy_pixel_ram0: ram_NxN
 					ram1_in <= X"000003FF";
 					blob_index_init <= blob_index_init + 1 ;
 					index_in <= index_in + 1 ;
+					ram_wr <= '1' ;
+					ram_en <= '1' ;
+					index_wr <= '1' ;
 					if blob_index_init = (NB_BLOB - 1) then
 						blob_index_init <= (others => '0');
 						index_in <= (others => '0');
@@ -130,6 +153,7 @@ yy_pixel_ram0: ram_NxN
 				when WAIT_PIXEL =>
 					ram_wr <= '0' ;
 					ram_en <= '0' ;
+					index_wr <= '0' ;
 					if add_pixel = '1' then
 						ram_en <= '1' ;
 						pixel_state <= READ_BLOB ;
@@ -137,10 +161,12 @@ yy_pixel_ram0: ram_NxN
 				when READ_BLOB =>
 					ram_wr <= '0' ;
 					ram_en <= '1' ;
+					index_wr <= '0' ;
 					pixel_state <= COMPARE_BLOB ;
 				when COMPARE_BLOB =>
 					ram_en <= '1' ;
 					ram_wr <= '0' ;
+					index_wr <= '0' ;
 					if pixel_posx < blobxmin then
 						newxmin <= pixel_posx ;
 					else
@@ -169,6 +195,13 @@ yy_pixel_ram0: ram_NxN
 					ram1_in(25 downto 16) <= std_logic_vector(newymax) ;
 					ram_en <= '1' ;
 					ram_wr <= '1' ;
+					index_wr <= '0' ;
+					if subx >= max_blob_width and suby >= max_blob_height then
+						max_blob_width <= subx ;
+						max_blob_height <= suby ;
+						max_blob_centerx <= current_blob_centerx ;
+						max_blob_centery <= current_blob_centery ;
+					end if;
 					if add_pixel = '0' then
 						pixel_state <= WAIT_PIXEL ;
 					end if;

@@ -144,7 +144,7 @@ elsif clk'event and clk = '1' then
 			elsif neighbours0 (3) /= X"00" then
 				current_blob <= neighbours0 (3) ;
 			else
-				current_blob <= nb_blob ;
+				current_blob <= nb_blob + 1;
 				nb_blob <= nb_blob + 1 ;
 			end if ;
 			blob_state0 <= ADD_TO_BLOB ;
@@ -191,7 +191,7 @@ begin
 		elsif hsync = '1' and last_hsync /= hsync then
 			pixel_x <= (others => '0');
 			pixel_y <= pixel_y + 1 ;
-		elsif last_pxclk /= pixel_clock and hsync = '0' then
+		elsif last_pxclk /= pixel_clock and pixel_clock = '0' and hsync = '0' then --increasing on falling edge of clock
 			pixel_x <= pixel_x + 1;
 		end if;
 		last_hsync <= hsync ;
