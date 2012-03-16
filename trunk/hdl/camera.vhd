@@ -299,6 +299,7 @@ component blobs is
 		get_blob	:	in std_logic ;
 		merge_blob : in std_logic ;
 		pixel_posx, pixel_posy : in unsigned(9 downto 0);
+		max_blob_centerx, max_blob_centery	:	out unsigned(9 downto 0);
 		xmin, xmax, ymin, ymax : out unsigned(9 downto 0)
 	);
  
