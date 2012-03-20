@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use ieee.math_real.log2;
 use ieee.math_real.ceil;
@@ -54,27 +55,27 @@ end blobs;
 
 architecture Behavioral of blobs is
 constant NBIT : integer := integer(ceil(log2(real(NB_BLOB)))); -- number of bits for addresses
-type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, UPDATE_BLOB);
+type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, MERGE_BLOB1, MERGE_BLOB2, UPDATE_BLOB);
 signal pixel_state : PIXEL_ADD_MAE ;
-signal ram0_out, ram1_out, ram0_in, ram1_in : std_logic_vector(31 downto 0);
+signal ram0_out, ram0_in : std_logic_vector(47 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
-signal ram_addr : std_logic_vector((NBIT -1) downto 0);
+signal ram_addr, blob_merge_addr : std_logic_vector((NBIT -1) downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
 signal index_in : unsigned(NBIT - 1 downto 0);
-signal max_blob_centerx_tmp, max_blob_center_y_tmp, current_blob_centerx, current_blob_centery : unsigned(9 downto 0) := (others => '0') ;
+signal current_blob_centerx, current_blob_centery : unsigned(9 downto 0) := (others => '0') ;
 signal addx, addy, subx, suby : unsigned(10 downto 0) := (others => '0');
 signal max_blob_height, max_blob_width : unsigned(10 downto 0) := (others => '0');
-signal nclk : std_logic ;
+signal nclk, to_merge : std_logic ;
 begin 
 
 nclk <= NOT clk ;
 
 blobxmin <= unsigned(ram0_out(9 downto 0)) ; -- top left coordinate
-blobxmax <= unsigned(ram0_out(25 downto 16)) ; -- top right coordinate
+blobxmax <= unsigned(ram0_out(19 downto 10)) ; -- top right coordinate
 
-blobymin <= unsigned(ram1_out(9 downto 0)) ; -- bottom left coordinate
-blobymax <= unsigned(ram1_out(25 downto 16)) ; -- bottom right coordinate
+blobymin <= unsigned(ram0_out(29 downto 20)) ; -- bottom left coordinate
+blobymax <= unsigned(ram0_out(39 downto 30)) ; -- bottom right coordinate
  
  
  
@@ -94,7 +95,10 @@ current_blob_centery <=  addy(10 downto 1) ;
  
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB,
-						  blob_index when others ;
+						  (blob_index_to_merge - 1) when MERGE_BLOB1  ,
+						  (blob_index_to_merge - 1) when MERGE_BLOB2  ,
+						  (blob_index) when others ;
+
 
 blob_index_ram :ram_NxN
 	generic map(SIZE => NB_BLOB , NBIT => NBIT, ADDR_WIDTH => 8)
@@ -103,26 +107,16 @@ blob_index_ram :ram_NxN
  		we => index_wr, en => '1',
  		do => ram_addr ,
  		di => std_logic_vector(index_in),  
- 		addr => std_logic_vector(blob_index_tp) -- blobs index starts at 1 but address at zero
+ 		addr => std_logic_vector(blob_index_tp)
 	); 
 
 xx_pixel_ram0: ram_NxN
-	generic map(SIZE => NB_BLOB , NBIT => 32, ADDR_WIDTH => NBIT)
+	generic map(SIZE => NB_BLOB , NBIT => 48, ADDR_WIDTH => NBIT)
 	port map(
  		clk => clk, 
  		we => ram_wr, en => ram_en,
  		do => ram0_out ,
  		di => ram0_in,  
- 		addr => ram_addr
-	); 
-
-yy_pixel_ram0: ram_NxN
-	generic map(SIZE => NB_BLOB , NBIT => 32, ADDR_WIDTH => NBIT)
-	port map(
- 		clk => clk, 
- 		we => ram_wr, en => ram_en,
- 		do => ram1_out ,
- 		di => ram1_in,  
  		addr => ram_addr
 	); 
 	 --blob_add
@@ -131,20 +125,25 @@ yy_pixel_ram0: ram_NxN
 	if arazb = '0' then
 		blob_index_init <= (others => '0');
 		index_in <= (others => '0');
+		to_merge <= '0' ;
 		pixel_state <= INIT_BLOB ;
 	elsif clk'event and clk = '1' then
 		if sraz = '1' then
+			to_merge <= '0' ;
+			max_blob_width <= (others => '0');
+			max_blob_height <= (others => '0');
 			pixel_state <= INIT_BLOB ;
 		else
 			case pixel_state is
 				when INIT_BLOB =>
-					ram0_in <= X"000003FF";
-					ram1_in <= X"000003FF";
+					ram0_in <= X"00003FF003FF";
+					--ram0_in <= X"000000000000";
 					blob_index_init <= blob_index_init + 1 ;
 					index_in <= index_in + 1 ;
 					ram_wr <= '1' ;
 					ram_en <= '1' ;
 					index_wr <= '1' ;
+					to_merge <= '0' ;
 					if blob_index_init = (NB_BLOB - 1) then
 						blob_index_init <= (others => '0');
 						index_in <= (others => '0');
@@ -154,15 +153,21 @@ yy_pixel_ram0: ram_NxN
 					ram_wr <= '0' ;
 					ram_en <= '0' ;
 					index_wr <= '0' ;
+					to_merge <= '0' ;
 					if add_pixel = '1' then
+						--if merge_blob = '1' then
+						--	to_merge <= '1' ;
+						--else
+							to_merge <= '0' ;
+						--end if ;
 						ram_en <= '1' ;
-						pixel_state <= READ_BLOB ;
+						pixel_state <= COMPARE_BLOB ;
 					end if ;
-				when READ_BLOB =>
-					ram_wr <= '0' ;
-					ram_en <= '1' ;
-					index_wr <= '0' ;
-					pixel_state <= COMPARE_BLOB ;
+			--	when READ_BLOB =>
+			--		ram_wr <= '0' ;
+			--		ram_en <= '1' ;
+			--		index_wr <= '0' ;
+			--		pixel_state <= COMPARE_BLOB ;
 				when COMPARE_BLOB =>
 					ram_en <= '1' ;
 					ram_wr <= '0' ;
@@ -187,12 +192,42 @@ yy_pixel_ram0: ram_NxN
 					else
 						newymax <= blobymax ;
 					end if;
+					if to_merge = '1' then
+						pixel_state <= MERGE_BLOB1 ;
+						blob_merge_addr <= ram_addr ;
+					else
+						pixel_state <= UPDATE_BLOB ;
+					end if ;
+				when MERGE_BLOB1 =>
+					ram_en <= '1' ;
+					ram_wr <= '0' ;
+					index_wr <= '0' ;
+					to_merge <= '0' ;
+					if pixel_posx < newxmin then
+						newxmin <= pixel_posx ;
+					end if;
+					if pixel_posx > newxmax then
+						newxmax <= pixel_posx ;
+					end if;
+					if pixel_posy < newymin then
+						newymin <= pixel_posy ;
+					end if; 
+					if pixel_posy > newymax then
+						newymax <= pixel_posy ;
+					end if;
+					pixel_state <= MERGE_BLOB2 ;
+					index_in <= unsigned(blob_merge_addr) ; -- erasing old blob reference
+					index_wr <= '1' ;
+				when MERGE_BLOB2 =>
+					ram_en <= '1' ;
+					ram_wr <= '0' ;
+					index_wr <= '0' ;
 					pixel_state <= UPDATE_BLOB ;
 				when UPDATE_BLOB =>
 					ram0_in(9 downto 0) <= std_logic_vector(newxmin) ;
-					ram0_in(25 downto 16) <= std_logic_vector(newxmax) ;
-					ram1_in(9 downto 0) <= std_logic_vector(newymin) ;
-					ram1_in(25 downto 16) <= std_logic_vector(newymax) ;
+					ram0_in(19 downto 10) <= std_logic_vector(newxmax) ;
+					ram0_in(29 downto 20) <= std_logic_vector(newymin) ;
+					ram0_in(39 downto 30) <= std_logic_vector(newymax) ;
 					ram_en <= '1' ;
 					ram_wr <= '1' ;
 					index_wr <= '0' ;

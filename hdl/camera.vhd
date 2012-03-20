@@ -305,4 +305,29 @@ component blobs is
  
 end component;
 
+
+component blob_detection is
+generic(LINE_SIZE : natural := 640; MAX_BLOB : natural := 8);
+port(
+ 		clk : in std_logic; 
+ 		arazb: in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 );
+		big_blob_posx, big_blob_posy : out unsigned(9 downto 0)
+		);
+end component;
+
+component draw_square is
+port(
+ 		clk : in std_logic; 
+ 		arazb : in std_logic; 
+		posx, posy, width, height : in unsigned(9 downto 0);
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+ 		pixel_data_out : out std_logic_vector(7 downto 0 )
+	);
+end component;
+
+
 END camera;

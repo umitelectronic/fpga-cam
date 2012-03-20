@@ -40,7 +40,7 @@ generic(LINE_SIZE : natural := 640; MAX_BLOB : natural := 8);
 port(
  		clk : in std_logic; 
  		arazb: in std_logic; 
- 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
 		big_blob_posx, big_blob_posy : out unsigned(9 downto 0)
 		);
@@ -57,9 +57,9 @@ signal nb_blob : unsigned(7 downto 0) := (others => '0');
 signal last_hsync, last_pxclk : std_logic := '0';
 signal sraz_neighbours, sraz_blobs : std_logic ;
 signal neighbours0 : pix_neighbours;
-signal new_line, add_neighbour, add_pixel : std_logic ;
+signal new_line, add_neighbour, add_pixel, merge_blob : std_logic ;
 signal current_pixel : std_logic_vector(7 downto 0) ;
-signal current_blob : unsigned(7 downto 0) ;
+signal current_blob, blob_index_to_merge : unsigned(7 downto 0) ;
 signal big_blob_posx_tp, big_blob_posy_tp :unsigned(9 downto 0) ;
 
 begin
@@ -70,9 +70,9 @@ blobs0 : blobs
 	port map(
 		clk => clk, arazb => arazb, sraz => sraz_blobs,
 		blob_index => current_blob,
-		blob_index_to_merge => (others => '0') ,
+		blob_index_to_merge => blob_index_to_merge ,
 		get_blob => '0' ,
-		merge_blob => '0',
+		merge_blob => merge_blob,
 		add_pixel => add_pixel,
 		pixel_posx => pixel_x, pixel_posy => pixel_y,
 		max_blob_centerx => big_blob_posx_tp, max_blob_centery => big_blob_posy_tp
@@ -93,6 +93,8 @@ begin
 if arazb = '0' then
 	nb_blob <= (others => '0');
 	blob_state0 <= WAIT_VSYNC ;
+	big_blob_posx <= (others => '0');
+	big_blob_posy <= (others => '0');
 elsif clk'event and clk = '1' then
 	case blob_state0 is
 		when WAIT_VSYNC =>
@@ -100,19 +102,21 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
-			if vsync = '0' then
-				sraz_blobs <= '1' ;
+			new_line <= '0' ;
+			if vsync = '0' and  hsync = '0' then
 				nb_blob <= (others => '0');
-				blob_state0 <= WAIT_HSYNC ;
+				blob_state0 <= WAIT_PIXEL ;
 			end if;
 		when WAIT_HSYNC =>
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
+			new_line <= '1' ;
 			if vsync = '1' then
 				big_blob_posx <= big_blob_posx_tp ;
 				big_blob_posy <= big_blob_posy_tp ;
+				sraz_blobs <= '1' ;
 				blob_state0 <= WAIT_VSYNC ;
 			elsif hsync = '0' then
 				blob_state0 <= WAIT_PIXEL ;
@@ -135,6 +139,7 @@ elsif clk'event and clk = '1' then
 				new_line <= '1' ;
 				blob_state0 <= WAIT_HSYNC ;
 			elsif vsync = '1' then
+				sraz_blobs <= '1' ;
 				big_blob_posx <= big_blob_posx_tp ;
 				big_blob_posy <= big_blob_posy_tp ;
 				blob_state0 <= WAIT_VSYNC ;
@@ -145,14 +150,14 @@ elsif clk'event and clk = '1' then
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
 			new_line <= '0' ;
-			if neighbours0 (0) /= X"00" then
+			if neighbours0 (3) /= X"00" then
+				current_blob <= neighbours0 (3) ;
+			elsif neighbours0 (0) /= X"00" then
 				current_blob <= neighbours0 (0) ;
 			elsif neighbours0 (1) /= X"00" then
 				current_blob <= neighbours0 (1) ;
 			elsif neighbours0 (2) /= X"00" then
 				current_blob <= neighbours0 (2) ;
-			elsif neighbours0 (3) /= X"00" then
-				current_blob <= neighbours0 (3) ;
 			else
 				current_blob <= nb_blob + 1;
 				nb_blob <= nb_blob + 1 ;
@@ -163,8 +168,11 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '1' ;
 			new_line <= '0' ;
-			if current_blob /= X"00" then
+			if current_blob /= X"00" and pixel_x > 10 and pixel_y > 5 then
 				add_pixel <= '1';
+				if neighbours0(3) /= neighbours0(2) then -- left pixel and upper right pixel are different, merge
+					blob_index_to_merge <= neighbours0(2) ;
+				end if ;
 			else
 				add_pixel <= '0';
 			end if;
