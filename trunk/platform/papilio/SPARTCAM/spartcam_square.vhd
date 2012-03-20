@@ -172,9 +172,9 @@ architecture Structural of spartcam_square is
 		
 		square0: draw_square 
 port map(
- 		clk => clk, 
- 		arazb => arazb,
-		posx => "0010100000", posy => "0011110000", width => "0000010000", height =>  "0000010000",
+ 		clk => clk_96, 
+ 		arazb => arazb_delayed,
+		posx => "0101000000", posy => "0011110000", width => "0000010000", height =>  "0000010000",
  		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
  		pixel_clock_out => pxclk_from_square, hsync_out => href_from_square, vsync_out => vsync_from_square, 
  		pixel_data_in => pixel_from_interface, 
@@ -186,9 +186,9 @@ port map(
 		down_scaler0: down_scaler
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+		  pixel_clock => pxclk_from_square, hsync => href_from_square, vsync => vsync_from_square,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_interface,
+		  pixel_data_in => pixel_from_square,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
