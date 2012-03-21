@@ -105,6 +105,7 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
+			merge_blob <= '0' ;
 			new_line <= '0' ;
 			if vsync = '0' and  hsync = '0' then
 				nb_blob <= (others => '0');
@@ -116,6 +117,7 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
+			merge_blob <= '0' ;
 			new_line <= '1' ;
 			if vsync = '1' then
 				big_blob_posx <= big_blob_posx_tp ;
@@ -131,6 +133,7 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
+			merge_blob <= '0' ;
 			new_line <= '0' ;
 			if pixel_clock =  '1' and hsync = '0' and vsync = '0' then
 				if pixel_data_in /= X"00" then
@@ -155,6 +158,7 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
+			merge_blob <= '0' ;
 			new_line <= '0' ;
 			if neighbours0 (3) /= X"00" then
 				current_blob <= neighbours0 (3) ;
@@ -180,9 +184,11 @@ elsif clk'event and clk = '1' then
 				add_pixel <= '1';
 				if neighbours0(3) /= neighbours0(2) then -- left pixel and upper right pixel are different, merge
 					blob_index_to_merge <= neighbours0(2) ;
+					merge_blob <= '1' ;
 				end if ;
 			else
 				add_pixel <= '0';
+				merge_blob <= '0' ;
 			end if;
 			blob_state0 <= END_PIXEL ;
 		when END_PIXEL =>
@@ -191,11 +197,13 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
 			add_pixel <= '0';
+			merge_blob <= '0' ;
 			new_line <= '0' ;
 			if pixel_clock =  '0' then
 				blob_state0 <= WAIT_PIXEL ;
 			end if;
 		when others => 
+			merge_blob <= '0' ;
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
