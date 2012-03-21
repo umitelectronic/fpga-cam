@@ -65,7 +65,7 @@ signal fifo1_wr, fifo1_rd, fifo1_empty, fifo1_rdy, fifo2_wr, fifo2_rd, fifo2_emp
 
 signal FIFO1_INPUT, FIFO1_OUTPUT, FIFO2_INPUT, FIFO2_OUTPUT : std_logic_vector(7 downto 0) := X"00";
 signal final_res : signed(31 downto 0);
-signal nb_line : std_logic_vector(3 downto 0) := (others => '0');
+signal nb_line, nb_pixel : std_logic_vector(3 downto 0) := (others => '0');
 begin
 
 linefifo1 : fifo_Nx8
@@ -116,6 +116,7 @@ if arazb = '0' then
 	FIFO1_rd <= '0' ;
 	k02 <= (others => '0') ;
 	k12 <= (others => '0') ;
+	nb_pixel <= (others => '0') ;
 	pixel_state <= LOAD_VALUES1 ;
 elsif clk'event and clk = '1' then
 	case pixel_state is
@@ -180,10 +181,15 @@ elsif clk'event and clk = '1' then
 				FIFO2_wr <= '1' ;
 				
 				new_block <= '1' ;
+				if nb_pixel < 3 then
+					nb_pixel <= nb_pixel + 1 ;
+				end if ;
 				pixel_state <= LOAD_VALUES1 ;
 			elsif  hsync = '1' then
+				nb_pixel <= (others => '0') ;
 				pixel_state <= LOAD_VALUES1 ;
 			elsif vsync = '1' then
+				nb_pixel <= (others => '0') ;
 				block3x3(0)(0) <= (others => '0') ;
 				block3x3(0)(1) <= (others => '0') ; -- zeroing matrix
 				block3x3(0)(2) <= (others => '0') ;
@@ -256,7 +262,17 @@ end if;
 end process;
 
 
-block_out <= block3x3 ;
+block_out(0)(2) <= block3x3(0)(2) ;
+block_out(1)(2) <= block3x3(1)(2) ;
+block_out(2)(2) <= block3x3(2)(2) ;
+
+block_out(0)(1) <= block3x3(0)(1) when nb_pixel > 2 else (others => '0'); -- edges
+block_out(1)(1) <= block3x3(1)(1) when nb_pixel > 2 else (others => '0'); -- edges
+block_out(2)(1) <= block3x3(2)(1) when nb_pixel > 2 else (others => '0'); -- edges
+
+block_out(0)(0) <= block3x3(0)(0) when nb_pixel > 2 else (others => '0'); -- edges
+block_out(1)(0) <= block3x3(1)(0) when nb_pixel > 2 else (others => '0'); -- edges
+block_out(2)(0) <= block3x3(2)(0) when nb_pixel > 2 else (others => '0'); -- edges
 
 end Behavioral;
 

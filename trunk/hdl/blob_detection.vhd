@@ -36,12 +36,14 @@ use work.camera.all ;
 --use UNISIM.VComponents.all;
 
 entity blob_detection is
-generic(LINE_SIZE : natural := 640; MAX_BLOB : natural := 8);
+generic(LINE_SIZE : natural := 640);
 port(
  		clk : in std_logic; 
  		arazb: in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic;
+		pixel_clock_out, hsync_out, vsync_out : out std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
+		pixel_data_out : out std_logic_vector(7 downto 0 );
 		big_blob_posx, big_blob_posy : out unsigned(9 downto 0)
 		);
 end blob_detection;
@@ -59,18 +61,18 @@ signal sraz_neighbours, sraz_blobs : std_logic ;
 signal neighbours0 : pix_neighbours;
 signal new_line, add_neighbour, add_pixel, merge_blob : std_logic ;
 signal current_pixel : std_logic_vector(7 downto 0) ;
-signal current_blob, blob_index_to_merge : unsigned(7 downto 0) ;
+signal current_blob, blob_index_to_merge, true_blob_index : unsigned(7 downto 0) ;
 signal big_blob_posx_tp, big_blob_posy_tp :unsigned(9 downto 0) ;
 
 begin
 
 
 blobs0 : blobs
-	generic map(NB_BLOB => MAX_BLOB)
 	port map(
 		clk => clk, arazb => arazb, sraz => sraz_blobs,
 		blob_index => current_blob,
 		blob_index_to_merge => blob_index_to_merge ,
+		true_blob_index => true_blob_index,
 		get_blob => '0' ,
 		merge_blob => merge_blob,
 		add_pixel => add_pixel,
@@ -98,6 +100,7 @@ if arazb = '0' then
 elsif clk'event and clk = '1' then
 	case blob_state0 is
 		when WAIT_VSYNC =>
+			pixel_clock_out <= '0' ;
 			sraz_neighbours <= '1' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
@@ -108,6 +111,7 @@ elsif clk'event and clk = '1' then
 				blob_state0 <= WAIT_PIXEL ;
 			end if;
 		when WAIT_HSYNC =>
+			pixel_clock_out <= '0' ;
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
@@ -122,6 +126,7 @@ elsif clk'event and clk = '1' then
 				blob_state0 <= WAIT_PIXEL ;
 			end if;
 		when WAIT_PIXEL =>
+			pixel_clock_out <= '0' ;
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
@@ -145,6 +150,7 @@ elsif clk'event and clk = '1' then
 				blob_state0 <= WAIT_VSYNC ;
 			end if;
 		when COMPARE_PIXEL =>
+			pixel_clock_out <= '0' ;
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
@@ -161,9 +167,11 @@ elsif clk'event and clk = '1' then
 			else
 				current_blob <= nb_blob + 1;
 				nb_blob <= nb_blob + 1 ;
-			end if ;
+			end if ; 
 			blob_state0 <= ADD_TO_BLOB ;
-		when ADD_TO_BLOB => 
+		when ADD_TO_BLOB =>
+			pixel_data_out(7 downto 4) <= std_logic_vector(true_blob_index(3 downto 0));
+			pixel_clock_out <= '1' ;
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '1' ;
@@ -178,6 +186,7 @@ elsif clk'event and clk = '1' then
 			end if;
 			blob_state0 <= END_PIXEL ;
 		when END_PIXEL =>
+			pixel_clock_out <= '1' ;
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '0' ;
@@ -217,8 +226,9 @@ begin
 	end if;
 end process ;
 
-
-
+hsync_out <= hsync ;
+vsync_out <= vsync ;
+pixel_data_out(3 downto 0) <= (others => '0');
 
 end Behavioral;
 

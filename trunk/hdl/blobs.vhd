@@ -37,11 +37,11 @@ use work.camera.all ;
 --use UNISIM.VComponents.all;
 
 entity blobs is
-	generic(NB_BLOB : natural := 16);
 	port(
 		clk, arazb, sraz : in std_logic ;
 		blob_index : in unsigned(7 downto 0);
 		blob_index_to_merge : in unsigned(7 downto 0);
+		true_blob_index : out unsigned(7 downto 0);
 		add_pixel : in std_logic ;
 		get_blob	:	in std_logic ;
 		merge_blob : in std_logic ;
@@ -54,15 +54,14 @@ end blobs;
 
 
 architecture Behavioral of blobs is
-constant NBIT : integer := integer(ceil(log2(real(NB_BLOB)))); -- number of bits for addresses
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, MERGE_BLOB1, MERGE_BLOB2, UPDATE_BLOB);
 signal pixel_state : PIXEL_ADD_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(47 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
-signal ram_addr, blob_merge_addr : std_logic_vector((NBIT -1) downto 0);
+signal ram_addr, blob_merge_addr : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
-signal index_in : unsigned(NBIT - 1 downto 0);
+signal index_in : unsigned(7 downto 0);
 signal current_blob_centerx, current_blob_centery : unsigned(9 downto 0) := (others => '0') ;
 signal addx, addy, subx, suby : unsigned(10 downto 0) := (others => '0');
 signal max_blob_height, max_blob_width : unsigned(10 downto 0) := (others => '0');
@@ -99,9 +98,11 @@ with pixel_state select
 						  (blob_index_to_merge - 1) when MERGE_BLOB2  ,
 						  (blob_index) when others ;
 
+true_blob_index <= unsigned(ram_addr) ; 
+
 
 blob_index_ram :ram_NxN
-	generic map(SIZE => NB_BLOB , NBIT => NBIT, ADDR_WIDTH => 8)
+	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
  		clk => nclk, 
  		we => index_wr, en => '1',
@@ -111,7 +112,7 @@ blob_index_ram :ram_NxN
 	); 
 
 xx_pixel_ram0: ram_NxN
-	generic map(SIZE => NB_BLOB , NBIT => 48, ADDR_WIDTH => NBIT)
+	generic map(SIZE => 256 , NBIT => 48, ADDR_WIDTH => 8)
 	port map(
  		clk => clk, 
  		we => ram_wr, en => ram_en,
@@ -144,7 +145,7 @@ xx_pixel_ram0: ram_NxN
 					ram_en <= '1' ;
 					index_wr <= '1' ;
 					to_merge <= '0' ;
-					if blob_index_init = (NB_BLOB - 1) then
+					if blob_index_init = 255 then
 						blob_index_init <= (others => '0');
 						index_in <= (others => '0');
 						pixel_state <= WAIT_PIXEL ;
@@ -155,11 +156,11 @@ xx_pixel_ram0: ram_NxN
 					index_wr <= '0' ;
 					to_merge <= '0' ;
 					if add_pixel = '1' then
-						--if merge_blob = '1' then
-						--	to_merge <= '1' ;
-						--else
+						if merge_blob = '1' then
+							to_merge <= '1' ;
+						else
 							to_merge <= '0' ;
-						--end if ;
+						end if ;
 						ram_en <= '1' ;
 						pixel_state <= COMPARE_BLOB ;
 					end if ;
