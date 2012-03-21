@@ -92,6 +92,7 @@ architecture Structural of spartcam_blob is
 	signal pixel_from_erode : std_logic_vector(7 downto 0);
 	signal pixel_from_dilate : std_logic_vector(7 downto 0);
 	signal pixel_from_square: std_logic_vector(7 downto 0);
+	signal pixel_from_blob: std_logic_vector(7 downto 0);
 	
 	signal data_to_send : std_logic_vector(7 downto 0);
 	signal send_signal, tx_buffer_full	:	std_logic ;
@@ -100,6 +101,7 @@ architecture Structural of spartcam_blob is
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	signal pxclk_from_erode, href_from_erode, vsync_from_erode : std_logic ;
 	signal pxclk_from_dilate, href_from_dilate, vsync_from_dilate : std_logic ;
+	signal pxclk_from_blob, href_from_blob, vsync_from_blob : std_logic ;
 	signal pxclk_from_square, href_from_square, vsync_from_square : std_logic ;
 	signal blobx, bloby : unsigned(9 downto 0);
 	
@@ -214,7 +216,9 @@ architecture Structural of spartcam_blob is
  		clk => clk_96, 
  		arazb => arazb_delayed,
  		pixel_clock => pxclk_from_dilate, hsync => href_from_dilate, vsync => vsync_from_dilate,
- 		pixel_data_in => pixel_from_dilate,
+ 		pixel_clock_out => pxclk_from_blob, hsync_out => href_from_blob, vsync_out => vsync_from_blob, 
+		pixel_data_in => pixel_from_dilate,
+		pixel_data_out => pixel_from_blob,
 		big_blob_posx => blobx, big_blob_posy => bloby
 		);
 		
@@ -223,9 +227,9 @@ architecture Structural of spartcam_blob is
  		clk => clk_96, 
  		arazb => arazb_delayed,
 		posx => blobx, posy => bloby, width => "0000010000", height =>  "0000010000",
- 		pixel_clock => pxclk_from_dilate, hsync => href_from_dilate, vsync => vsync_from_dilate,
+ 		pixel_clock => pxclk_from_blob, hsync => href_from_blob, vsync => vsync_from_blob,
  		pixel_clock_out => pxclk_from_square, hsync_out => href_from_square, vsync_out => vsync_from_square, 
- 		pixel_data_in => pixel_from_dilate, 
+ 		pixel_data_in => pixel_from_blob, 
  		pixel_data_out => pixel_from_square
 		);
 		
