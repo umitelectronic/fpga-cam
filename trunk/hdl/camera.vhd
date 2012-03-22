@@ -192,6 +192,17 @@ component block3X3 is
 			block_out : out mat3);
 end component;
 
+component block3X3v2 is
+		generic(LINE_SIZE : natural := 640);
+		port(
+			clk : in std_logic; 
+			arazb : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic; 
+			pixel_data_in : in std_logic_vector(7 downto 0 ); 
+			new_block : out std_logic ;
+			block_out : out mat3);
+end component;
+
 component conv3x3 is
 generic(KERNEL : imat3 := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
 		  NON_ZERO	: index_array := ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3) ); -- (3, 3) indicate end  of non zero values
@@ -330,6 +341,7 @@ port(
  		pixel_data_out : out std_logic_vector(7 downto 0 )
 	);
 end component;
+
 
 
 END camera;

@@ -62,7 +62,7 @@ architecture Behavioral of dilate3x3 is
 	signal pixel_count : unsigned(7 downto 0) := (others => '0') ;
 begin
 
-		block0:  block3X3 
+		block0:  block3X3v2 
 		generic map(LINE_SIZE =>  WIDTH)
 		port map(
 			clk => clk ,
