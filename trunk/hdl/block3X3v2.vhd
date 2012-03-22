@@ -46,12 +46,10 @@ entity block3X3v2 is
 end block3X3v2;
 
 architecture Behavioral of block3X3v2 is
-type read_pixel_state is (LOAD_VALUES1, LOAD_VALUES2, WAIT_PIXEL, END_PIXEL, END_HSYNC);
-type hsync_state is	(WAIT_HSYNC, END_HSYNC);
+type read_pixel_state is (LOAD_VALUES2, WAIT_PIXEL, LOAD_VALUES1, END_PIXEL, END_HSYNC);
 
 
 signal pixel_state : read_pixel_state ;
-signal hsync_state0 : hsync_state ;
 
 signal block3x3 : mat3 := (((others => '0'), (others => '0'), (others => '0')), 
 									((others => '0'), (others => '0'), (others => '0')), 
@@ -65,8 +63,10 @@ signal line_wr, nclk: std_logic ;
 
 signal LINE1_INPUT, LINE1_OUTPUT, LINE2_INPUT, LINE2_OUTPUT : std_logic_vector(7 downto 0) := X"00";
 signal final_res : signed(31 downto 0);
-signal nb_line : std_logic_vector(3 downto 0) := (others => '0');
-signal pixel_counter : std_logic_vector(9 downto 0) ;
+
+signal hsync_old, pixel_clock_old : std_logic ;
+signal nb_line : std_logic_vector(9 downto 0) := (others => '0');
+signal pixel_counter : std_logic_vector(9 downto 0) := (others => '0');
 begin
 
 nclk <= NOT clk ;
@@ -110,14 +110,12 @@ if arazb = '0' then
 	line_wr <= '0' ;
 	k02 <= (others => '0') ;
 	k12 <= (others => '0') ;
-	pixel_counter <= (others => '0') ;
 	pixel_state <= LOAD_VALUES2 ;
 elsif clk'event and clk = '1' then
 	case pixel_state is
 		when LOAD_VALUES1 => -- load value from fifos into buffer
 			new_block <= '0' ;
 			line_wr <= '0' ;
-			pixel_counter <= (pixel_counter + 1) ;
 			pixel_state <= LOAD_VALUES2 ;
 		when LOAD_VALUES2  =>
 			new_block <= '0' ;
@@ -162,10 +160,19 @@ elsif clk'event and clk = '1' then
 				new_block <= '1' ;
 				pixel_state <= LOAD_VALUES1 ;
 			elsif  hsync = '1' then
-				pixel_counter <= (others => '0') ;
+				block3x3(0)(0) <= (others => '0') ;
+				block3x3(0)(1) <= (others => '0') ; -- zeroing matrix
+				block3x3(0)(2) <= (others => '0') ;
+	
+				block3x3(1)(0) <= (others => '0') ;
+				block3x3(1)(1) <= (others => '0') ;
+				block3x3(1)(2) <= (others => '0') ;
+	
+				block3x3(2)(0) <= (others => '0') ;
+				block3x3(2)(1) <= (others => '0') ;
+				block3x3(2)(2) <= (others => '0') ;
 				pixel_state <= LOAD_VALUES2 ;
 			elsif vsync = '1' then
-				pixel_counter <= (others => '0') ;
 				block3x3(0)(0) <= (others => '0') ;
 				block3x3(0)(1) <= (others => '0') ; -- zeroing matrix
 				block3x3(0)(2) <= (others => '0') ;
@@ -202,42 +209,47 @@ end process;
 process(clk, arazb)
 begin
 if arazb = '0' then 
-	nb_line <= (others => '0') ;
-	hsync_state0 <= WAIT_HSYNC ;
+	pixel_counter <= (others => '0') ;
 elsif clk'event and clk = '1'  then
-	case hsync_state0 is
-		when WAIT_HSYNC =>
-			if hsync = '1' then
-				if nb_line < 3 then
-					nb_line <= nb_line + 1 ;
-				end if;
-				hsync_state0 <= END_HSYNC ;
-			end if ;
-		when END_HSYNC =>
-			if vsync = '1' then
-				nb_line <= (others => '0') ;
-			elsif hsync = '0' then
-				hsync_state0 <= WAIT_HSYNC ;
-			end if;
-		when others =>
+		if hsync = '1' then
+			pixel_counter <= (others => '0') ;
+		elsif pixel_clock /= pixel_clock_old and pixel_clock = '0' then
+			pixel_counter <= pixel_counter + 1 ;
+		end if ;
+		pixel_clock_old <= pixel_clock ;
+end if ;
+end process ;
+
+-- count lines on rising edge of hsync
+process(clk, arazb)
+begin
+if arazb = '0' then 
+	nb_line <= (others => '0') ;
+elsif clk'event and clk = '1'  then
+		if vsync = '1' then
 			nb_line <= (others => '0') ;
-			hsync_state0 <= WAIT_HSYNC ;
-	end case ;
-end if;
-end process;
+		elsif hsync /= hsync_old and hsync = '1' then
+			nb_line <= nb_line + 1 ;
+		end if ;
+		hsync_old <= hsync ;
+end if ;
+end process ;
 
 
-block_out(0)(2) <= block3x3(0)(2) ;
-block_out(1)(2) <= block3x3(1)(2) ;
-block_out(2)(2) <= block3x3(2)(2) ;
 
-block_out(0)(1) <= block3x3(0)(1) when pixel_counter > 1 else (others => '0'); -- edges
-block_out(1)(1) <= block3x3(1)(1) when pixel_counter > 1 else (others => '0'); -- edges
-block_out(2)(1) <= block3x3(2)(1) when pixel_counter > 1 else (others => '0'); -- edges
+block_out <= block3x3 ;
 
-block_out(0)(0) <= block3x3(0)(0) when pixel_counter > 2 else (others => '0'); -- edges
-block_out(1)(0) <= block3x3(1)(0) when pixel_counter > 2 else (others => '0'); -- edges
-block_out(2)(0) <= block3x3(2)(0) when pixel_counter > 2 else (others => '0'); -- edges
+--block_out(0)(2) <= block3x3(0)(2) ;
+--block_out(1)(2) <= block3x3(1)(2) ;
+--block_out(2)(2) <= block3x3(2)(2) ;
+
+--block_out(0)(1) <= block3x3(0)(1) when pixel_counter > 1 else (others => '0'); -- edges
+--block_out(1)(1) <= block3x3(1)(1) when pixel_counter > 1 else (others => '0'); -- edges
+--block_out(2)(1) <= block3x3(2)(1) when pixel_counter > 1 else (others => '0'); -- edges
+
+--block_out(0)(0) <= block3x3(0)(0) when pixel_counter > 2 else (others => '0'); -- edges
+--block_out(1)(0) <= block3x3(1)(0) when pixel_counter > 2 else (others => '0'); -- edges
+--block_out(2)(0) <= block3x3(2)(0) when pixel_counter > 2 else (others => '0'); -- edges
 
 end Behavioral;
 

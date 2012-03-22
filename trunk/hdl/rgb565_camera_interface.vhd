@@ -125,7 +125,7 @@ architecture systemc of rgb565_camera_interface is
 						when RG => 
 		 					r_data <= pixel_data(7 downto 3) & "000" ;
 							g_data(7 downto 5) <= pixel_data(2 downto 0);
-		 					next_state <= G ;
+		 					next_state <= GB ;
 							pixel_clock_out <= '0' ;
 		 				when GB => 
 		 					g_data(4 downto 0) <= pixel_data(7 downto 5) & "00" ;

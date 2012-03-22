@@ -56,7 +56,7 @@ type blob_states is (WAIT_VSYNC, WAIT_HSYNC, WAIT_PIXEL, COMPARE_PIXEL, ADD_TO_B
 signal blob_state0 : blob_states ;
 signal pixel_x, pixel_y : unsigned(9 downto 0);
 signal nb_blob : unsigned(7 downto 0) := (others => '0');
-signal last_hsync, last_pxclk : std_logic := '0';
+signal hsync_old, pixel_clock_old : std_logic := '0';
 signal sraz_neighbours, sraz_blobs : std_logic ;
 signal neighbours0 : pix_neighbours;
 signal new_line, add_neighbour, add_pixel, merge_blob : std_logic ;
@@ -180,7 +180,7 @@ elsif clk'event and clk = '1' then
 			sraz_blobs <= '0' ;
 			add_neighbour <= '1' ;
 			new_line <= '0' ;
-			if current_blob /= X"00" and pixel_x > 10 and pixel_y > 5 then
+			if current_blob /= X"00" and pixel_x > 3 and pixel_y > 3 and  pixel_x < LINE_SIZE - 3 and pixel_y < 480 - 3 then
 				add_pixel <= '1';
 				if neighbours0(3) /= neighbours0(2) then -- left pixel and upper right pixel are different, merge
 					blob_index_to_merge <= neighbours0(2) ;
@@ -214,25 +214,36 @@ elsif clk'event and clk = '1' then
 end if;
 end process;
 
+
 process(clk, arazb)
 begin
-	if arazb = '0' then
-		pixel_x <= (others => '0');
-		pixel_y <= (others => '0');
-	elsif clk'event and clk = '1' then
-		if vsync = '1' then
-			pixel_x <= (others => '0');
-			pixel_y <= (others => '0');
-		elsif hsync = '1' and last_hsync /= hsync then
-			pixel_x <= (others => '0');
-			pixel_y <= pixel_y + 1 ;
-		elsif last_pxclk /= pixel_clock and pixel_clock = '0' and hsync = '0' then --increasing on falling edge of clock
-			pixel_x <= pixel_x + 1;
-		end if;
-		last_hsync <= hsync ;
-		last_pxclk <= pixel_clock ;
-	end if;
+if arazb = '0' then 
+	pixel_x <= (others => '0') ;
+elsif clk'event and clk = '1'  then
+		if hsync = '1' then
+			pixel_x <= (others => '0') ;
+		elsif pixel_clock /= pixel_clock_old and pixel_clock = '0' then
+			pixel_x <= pixel_x + 1 ;
+		end if ;
+		pixel_clock_old <= pixel_clock ;
+end if ;
 end process ;
+
+
+process(clk, arazb) --count lines on rising edge of hsync
+begin
+if arazb = '0' then 
+	pixel_y <= (others => '0') ;
+elsif clk'event and clk = '1'  then
+		if vsync = '1' then
+			pixel_y <= (others => '0') ;
+		elsif hsync /= hsync_old and hsync = '1' then
+			pixel_y <= pixel_y + 1 ;
+		end if ;
+		hsync_old <= hsync ;
+end if ;
+end process ;
+
 
 hsync_out <= hsync ;
 vsync_out <= vsync ;
