@@ -174,19 +174,21 @@ elsif clk'event and clk = '1' then
 			end if ; 
 			blob_state0 <= ADD_TO_BLOB ;
 		when ADD_TO_BLOB =>
-			pixel_data_out(7 downto 4) <= std_logic_vector(true_blob_index(3 downto 0));
+			
 			pixel_clock_out <= '1' ;
 			sraz_neighbours <= '0' ;
 			sraz_blobs <= '0' ;
 			add_neighbour <= '1' ;
 			new_line <= '0' ;
 			if current_blob /= X"00" and pixel_x > 3 and pixel_y > 3 and  pixel_x < LINE_SIZE - 3 and pixel_y < 480 - 3 then
+				pixel_data_out(7 downto 4) <= std_logic_vector(true_blob_index(3 downto 0));
 				add_pixel <= '1';
 				if neighbours0(3) /= neighbours0(2) then -- left pixel and upper right pixel are different, merge
 					blob_index_to_merge <= neighbours0(2) ;
 					merge_blob <= '1' ;
 				end if ;
 			else
+				pixel_data_out(7 downto 4) <= (others => '0') ;
 				add_pixel <= '0';
 				merge_blob <= '0' ;
 			end if;
