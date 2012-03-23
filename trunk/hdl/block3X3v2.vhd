@@ -64,7 +64,6 @@ signal line_wr, nclk: std_logic ;
 signal LINE1_INPUT, LINE1_OUTPUT, LINE2_INPUT, LINE2_OUTPUT : std_logic_vector(7 downto 0) := X"00";
 signal final_res : signed(31 downto 0);
 
-signal hsync_old, pixel_clock_old : std_logic ;
 signal nb_line : std_logic_vector(9 downto 0) := (others => '0');
 signal pixel_counter : std_logic_vector(9 downto 0) := (others => '0');
 begin
@@ -91,6 +90,22 @@ line2: ram_Nx8
  		addr => pixel_counter
 	); 
 
+
+pixel_counter0: pixel_counter
+		port map(
+			clk => clk,
+			arazb => arazb, 
+			pixel_clock => pixel_clock, hsync => hsync,
+			pixel_count => pixel_counter
+			);
+			
+line_counter0: line_counter
+		port map(
+			clk => clk,
+			arazb => arazb, 
+			hsync => hsync, vsync => vsync, 
+			line_count => nb_line
+			);
 
 -- actualize matrix with values
 process(clk, arazb)
@@ -206,50 +221,10 @@ end if;
 end process;
 
 
-process(clk, arazb)
-begin
-if arazb = '0' then 
-	pixel_counter <= (others => '0') ;
-elsif clk'event and clk = '1'  then
-		if hsync = '1' then
-			pixel_counter <= (others => '0') ;
-		elsif pixel_clock /= pixel_clock_old and pixel_clock = '0' then
-			pixel_counter <= pixel_counter + 1 ;
-		end if ;
-		pixel_clock_old <= pixel_clock ;
-end if ;
-end process ;
-
--- count lines on rising edge of hsync
-process(clk, arazb)
-begin
-if arazb = '0' then 
-	nb_line <= (others => '0') ;
-elsif clk'event and clk = '1'  then
-		if vsync = '1' then
-			nb_line <= (others => '0') ;
-		elsif hsync /= hsync_old and hsync = '1' then
-			nb_line <= nb_line + 1 ;
-		end if ;
-		hsync_old <= hsync ;
-end if ;
-end process ;
-
 
 
 block_out <= block3x3 ;
 
---block_out(0)(2) <= block3x3(0)(2) ;
---block_out(1)(2) <= block3x3(1)(2) ;
---block_out(2)(2) <= block3x3(2)(2) ;
-
---block_out(0)(1) <= block3x3(0)(1) when pixel_counter > 1 else (others => '0'); -- edges
---block_out(1)(1) <= block3x3(1)(1) when pixel_counter > 1 else (others => '0'); -- edges
---block_out(2)(1) <= block3x3(2)(1) when pixel_counter > 1 else (others => '0'); -- edges
-
---block_out(0)(0) <= block3x3(0)(0) when pixel_counter > 2 else (others => '0'); -- edges
---block_out(1)(0) <= block3x3(1)(0) when pixel_counter > 2 else (others => '0'); -- edges
---block_out(2)(0) <= block3x3(2)(0) when pixel_counter > 2 else (others => '0'); -- edges
 
 end Behavioral;
 

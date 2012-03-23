@@ -52,7 +52,8 @@ signal pixel_state : read_neighbour_state ;
 
 signal neighbours0 : pix_neighbours := ((others => '0'), (others => '0'), (others => '0'), (others => '0')); 
 signal nl :	unsigned(7 downto 0) := (others => '0');
-signal pixel_count : unsigned(9 downto 0) := (others => '0');
+signal pixel_count : std_logic_vector(9 downto 0) := (others => '0');
+signal line_count : std_logic_vector(9 downto 0) := (others => '0');
 
 signal fifo_wr, fifo_rd, fifo_empty, fifo_rdy, sraz_fifo: std_logic ;
 
@@ -74,6 +75,7 @@ linefifo0 : fifo_Nx8
 	data_in => FIFO_INPUT
 ); 
 
+			
 
 -- actualize matrix with values
 process(clk, arazb)

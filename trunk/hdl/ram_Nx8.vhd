@@ -28,8 +28,10 @@ architecture behavioral of ram_Nx8 is
 		 	if  clk'event and clk = '1'  then
 		 		if  en = '1'  then
 		 			if  we = '1'  then
-		 				ram(conv_integer(addr)) <= di ; 
-		 			end if ;
+		 				ram(conv_integer(addr)) <= di ; -- might think about changing this ...
+		 			--else does not show written data on output
+					--	do <= ram(conv_integer(addr))
+					end if ;									  -- would be better to latch output on read
 		 			do <= ram(conv_integer(addr)) ;
 		 		end if ;
 		 	end if ;
