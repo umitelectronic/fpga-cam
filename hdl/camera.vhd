@@ -304,9 +304,11 @@ component blobs is
 	port(
 		clk, arazb, sraz : in std_logic ;
 		blob_index : in unsigned(7 downto 0);
+		next_blob_index : out unsigned(7 downto 0);
 		blob_index_to_merge : in unsigned(7 downto 0);
 		true_blob_index : out unsigned(7 downto 0);
 		add_pixel : in std_logic ;
+		new_blob : in std_logic ;
 		get_blob	:	in std_logic ;
 		merge_blob : in std_logic ;
 		pixel_posx, pixel_posy : in unsigned(9 downto 0);
@@ -342,6 +344,23 @@ port(
 	);
 end component;
 
+component pixel_counter is
+		port(
+			clk : in std_logic; 
+			arazb : in std_logic; 
+			pixel_clock, hsync : in std_logic; 
+			pixel_count : out std_logic_vector(9 downto 0 )
+			);
+end component;
+
+component line_counter is
+		port(
+			clk : in std_logic; 
+			arazb : in std_logic; 
+			hsync, vsync : in std_logic; 
+			line_count : out std_logic_vector(9 downto 0 )
+			);
+end component;
 
 
 END camera;
