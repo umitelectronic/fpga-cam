@@ -101,9 +101,9 @@ pos_index <= blob_index when blob_index = X"00" else
 				 blob_index - 1 ;
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB,
-						  (blob_index_to_merge) when MERGE_BLOB1  ,
-						  (blob_index_to_merge) when MERGE_BLOB2  ,
-						  (next_blob_index_tp + nb_free_index) when MERGE_BLOB3  ,
+						  (blob_index_to_merge - 1) when MERGE_BLOB1  ,
+						  (blob_index_to_merge - 1) when MERGE_BLOB2  ,
+						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
 						  (pos_index) when others;
 
 true_blob_index <= unsigned(ram_addr) ; 
@@ -142,24 +142,29 @@ xy_pixel_ram0: ram_NxN
 			to_merge <= '0' ;
 			max_blob_width <= (others => '0');
 			max_blob_height <= (others => '0');
-			blob_index_init <= (others => '0');
+			
+			
+			blob_index_init <= (others => '0'); -- initializing index ram 
 			index_in <= (others => '0');
+			index_wr <= '1' ;
+			to_merge <= '0' ;
+			ram_wr <= '0' ;
+			ram_en <= '0' ;
+			
 			pixel_state <= INIT_BLOB ;
 		else
 			case pixel_state is
 				when INIT_BLOB =>
-					ram0_in <= X"00003FF003FF";
-					blob_index_init <= blob_index_init + 1 ;
 					index_in <= index_in + 1 ;
-					ram_wr <= '1' ;
-					ram_en <= '1' ;
+					blob_index_init <= blob_index_init + 1 ;
+					ram_wr <= '0' ;
+					ram_en <= '0' ;
 					index_wr <= '1' ;
 					to_merge <= '0' ;
-					if blob_index_init = 32 then
-						blob_index_init <= (others => '0');
+					if index_in = 31 then
 						index_in <= (others => '0');
 						next_blob_index_tp <= X"01" ; -- index starts at 1
-						nb_free_index <= blob_index_init ;
+						nb_free_index <= to_unsigned(32, 8); -- all index are free to use
 						pixel_state <= WAIT_PIXEL ;
 					end if;
 				when WAIT_PIXEL =>
@@ -228,19 +233,26 @@ xy_pixel_ram0: ram_NxN
 						newymax <= pixel_posy ;
 					end if;
 					free_addr <= ram_addr ;
-					pixel_state <= MERGE_BLOB2 ;
-					index_in <= unsigned(blob_merge_addr) ; -- erasing old blob reference
-					index_wr <= '1' ;
+					if blob_merge_addr /= ram_addr then
+						index_in <= unsigned(blob_merge_addr) ; -- index now point to new memory location
+						free_addr <= ram_addr ;
+						index_wr <= '1' ;
+						pixel_state <= MERGE_BLOB2 ;
+					else
+						index_wr <= '0' ;
+						pixel_state <= UPDATE_BLOB ;
+					end if;
 				when MERGE_BLOB2 =>
 					ram_en <= '1' ;
 					ram_wr <= '0' ;
 					index_wr <= '1' ;
-					index_in <= unsigned(ram_addr) ; -- writing free addr to index table
+					index_in <= unsigned(free_addr) ; -- writing free addr to index table
 					pixel_state <= MERGE_BLOB3 ;
 				when MERGE_BLOB3 =>
 					ram_en <= '1' ;
 					ram_wr <= '0' ;
 					index_wr <= '0' ;
+					nb_free_index <= nb_free_index + 1 ;
 					pixel_state <= UPDATE_BLOB ;
 				when NEW_BLOB1 =>
 					newxmin <= pixel_posx ;
