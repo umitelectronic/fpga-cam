@@ -345,6 +345,7 @@ port(
 end component;
 
 component pixel_counter is
+		generic(POL : std_logic := '0');
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 

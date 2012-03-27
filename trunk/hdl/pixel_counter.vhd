@@ -31,6 +31,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity pixel_counter is
+		generic(POL : std_logic := '0');
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
@@ -50,7 +51,7 @@ if arazb = '0' then
 elsif clk'event and clk = '1'  then
 		if hsync = '1' then
 			pixel_count_temp <= (others => '0') ;
-		elsif pixel_clock /= pixel_clock_old and pixel_clock = '0' then
+		elsif pixel_clock /= pixel_clock_old and pixel_clock = POL then
 			pixel_count_temp <= pixel_count_temp + 1 ;
 		end if ;
 		pixel_clock_old <= pixel_clock ;
