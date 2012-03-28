@@ -180,7 +180,7 @@ elsif clk'event and clk = '1' then
 		when ADD_TO_BLOB =>
 			add_neighbour <= '1' ;
 			if current_blob /= X"00" then
-				pixel_data_out <= std_logic_vector(true_blob_index(4 downto 0)) & "111";
+				pixel_data_out <= std_logic_vector(true_blob_index(5 downto 0)) & "11";
 				add_pixel <= '1';
 				if neighbours0(3)/=X"00" and neighbours0(3) /= current_blob then -- left pixel and upper right pixel are different, merge
 					blob_index_to_merge <= neighbours0(3) ;
@@ -195,7 +195,7 @@ elsif clk'event and clk = '1' then
 		when ADD_NEW_BLOB =>
 			add_neighbour <= '1' ;
 			merge_blob <= '0' ;
-			pixel_data_out <= std_logic_vector(true_blob_index(4 downto 0)) & "111";
+			pixel_data_out <= std_logic_vector(true_blob_index(5 downto 0)) & "11";
 			add_pixel <= '1';
 			new_blob <= '1' ;
 			blob_state0 <= END_PIXEL ;

@@ -70,6 +70,7 @@ signal max_blob_height, max_blob_width : unsigned(10 downto 0) := (others => '0'
 signal nclk, to_merge : std_logic ;
 signal nb_free_index : unsigned (7 downto 0);
 signal next_blob_index_tp : unsigned (7 downto 0);
+signal blob_area, blob_max_area : unsigned(20 downto 0);
 signal pos_index : unsigned(7 downto 0);
 begin 
 
@@ -82,7 +83,7 @@ blobymin <= unsigned(ram0_out(29 downto 20)) ; -- bottom left coordinate
 blobymax <= unsigned(ram0_out(39 downto 30)) ; -- bottom right coordinate
  
  
- 
+blob_area <=  subx * suby ;
 
 addx <=  ('0' &  newxmin) + ('0' &  newxmax) ;
 addy <=  ('0' &  newymin) + ('0' &  newymax) ;
@@ -151,10 +152,13 @@ xy_pixel_ram0: ram_NxN
 			ram_wr <= '0' ;
 			ram_en <= '0' ;
 			
+			blob_max_area <= (others => '0');
+			
 			pixel_state <= INIT_BLOB ;
 		else
 			case pixel_state is
 				when INIT_BLOB =>
+					blob_max_area <= (others => '0');
 					index_in <= index_in + 1 ;
 					blob_index_init <= blob_index_init + 1 ;
 					ram_wr <= '0' ;
@@ -220,17 +224,17 @@ xy_pixel_ram0: ram_NxN
 					ram_wr <= '0' ;
 					index_wr <= '0' ;
 					to_merge <= '0' ;
-					if pixel_posx < newxmin then
-						newxmin <= pixel_posx ;
+					if blobxmin < newxmin then
+						newxmin <= blobxmin ;
 					end if;
-					if pixel_posx > newxmax then
-						newxmax <= pixel_posx ;
+					if blobxmax > newxmax then
+						newxmax <= blobxmax ;
 					end if;
-					if pixel_posy < newymin then
-						newymin <= pixel_posy ;
+					if blobymin < newymin then
+						newymin <= blobymin ;
 					end if; 
-					if pixel_posy > newymax then
-						newymax <= pixel_posy ;
+					if blobymax > newymax then
+						newymax <= blobymax ;
 					end if;
 					free_addr <= ram_addr ;
 					if blob_merge_addr /= ram_addr then
@@ -275,7 +279,8 @@ xy_pixel_ram0: ram_NxN
 					ram_en <= '1' ;
 					ram_wr <= '1' ;
 					index_wr <= '0' ;
-					if subx >= max_blob_width and suby >= max_blob_height then
+					--if subx >= max_blob_width and suby >= max_blob_height then
+					if blob_area > blob_max_area then
 						max_blob_width <= subx ;
 						max_blob_height <= suby ;
 						max_blob_centerx <= current_blob_centerx ;
