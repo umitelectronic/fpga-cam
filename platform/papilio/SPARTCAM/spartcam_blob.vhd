@@ -183,7 +183,7 @@ architecture Structural of spartcam_blob is
 		bin0 : binarization
 		port map( 
 				pixel_data_in => pixel_from_interface,
-				upper_bound	=> X"30",
+				upper_bound	=> X"25",
 				lower_bound	=> X"00",
 				pixel_data_out => binarized_pixel 
 		);
@@ -215,9 +215,9 @@ architecture Structural of spartcam_blob is
 		port map(
  		clk => clk_96, 
  		arazb => arazb_delayed,
- 		pixel_clock => pxclk_from_dilate, hsync => href_from_dilate, vsync => vsync_from_dilate,
+ 		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
  		pixel_clock_out => pxclk_from_blob, hsync_out => href_from_blob, vsync_out => vsync_from_blob, 
-		pixel_data_in => pixel_from_dilate,
+		pixel_data_in => pixel_from_erode,
 		pixel_data_out => pixel_from_blob,
 		big_blob_posx => blobx, big_blob_posy => bloby
 		);
