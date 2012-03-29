@@ -14,15 +14,16 @@ end rgb565_register_rom;
 
 architecture systemc of rgb565_register_rom is
  
-	type array_171 is array (0 to 170) of std_logic_vector(15 downto 0 ); 
+	type array_171 is array (0 to 160) of std_logic_vector(15 downto 0 ); 
 	
 	-- CONFIGURATION TAKEN FROM OV7670.c IN LINUX KERNEL DRIVERS
 	signal rom : array_171 :=( 
-	(X"12" & X"80"),
+	( X"12" & X"04" ), -- Selects RGB mode 
 	(X"11" & X"01"), -- OV: clock scale (30 fps)
 	(X"3a" & X"04"), -- OV
 	(X"12" & X"00"), -- VGA
-	(X"8C" & X"00"), -- 
+	( X"8c" & X"00" ),      -- No RGB444 please 
+	( X"04" & X"00" ),      -- CCIR601 COM1
 	(X"17" & X"13"), -- HSTART
 	(X"18" & X"01"), -- HSTOP
 	(X"32" & X"b6"), -- HREF
@@ -123,12 +124,12 @@ architecture systemc of rgb565_register_rom is
 	(X"02" & X"60"), -- REG_RED
 	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01" OR X"02")), -- COM8
 	(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01" )), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
-	(X"4f" & X"80"), --"matrix coefficient 1" 
-	(X"50" & X"80"), -- "matrix coefficient 2" 
-	(X"51" & X"00"), -- vb 
-	(X"52" & X"22"), -- "matrix coefficient 4" 
-	(X"53" & X"5e"), -- "matrix coefficient 5" 
-	(X"54" & X"80"), -- "matrix coefficient 6" 
+	( X"4f" & X"b3" ),         -- "matrix coefficient 1" 
+	( X"50" & X"b3" ),         -- "matrix coefficient 2" 
+	( X"51" & X"00" ),         -- vb 
+	( X"52" & X"3d" ),         -- "matrix coefficient 4" 
+	( X"53" & X"a7" ),         -- "matrix coefficient 5" 
+	( X"54" & X"e4" ),         -- "matrix coefficient 6" 
 	(X"58" & X"9e"),
 	(X"41" & X"08"), -- COM16
 	(X"3F" & X"00"), -- EDGE
@@ -136,7 +137,7 @@ architecture systemc of rgb565_register_rom is
 	(X"76" & X"e1"), 
 	(X"4c" & X"00"), 
 	(X"77" & X"01"), 
-	(X"3D" & (X"80"OR X"40" OR X"03")), --COM13 
+	(X"3d" & (X"80"OR X"40")), --COM13 
 	(X"c9" & X"60"), 
 	(X"41" & X"38"), -- COM16
 	(X"56" & X"40"),
@@ -177,23 +178,12 @@ architecture systemc of rgb565_register_rom is
 	(X"79" & X"05"), 
 	(X"c8" & X"30"), 
 	(X"79" & X"26"),
-	(X"04" & X"00"), -- COM1
-	(X"40" & X"C0"), -- COM15
+	( X"40" & X"10" ), -- COM15
 		
-	-- RGB565 REGISTER
-	( X"12" & X"04" ), -- Selects RGB mode 
-	( X"8c" & X"00" ),      -- No RGB444 please 
-	( X"04" & X"00" ),      -- CCIR601 
-	( X"40" & X"10" ),
-	( X"4f" & X"b3" ),         -- "matrix coefficient 1" 
-	( X"50" & X"b3" ),         -- "matrix coefficient 2" 
-	( X"51" & X"00" ),         -- vb 
-	( X"52" & X"3d" ),         -- "matrix coefficient 4" 
-	( X"53" & X"a7" ),         -- "matrix coefficient 5" 
-	( X"54" & X"e4" ),         -- "matrix coefficient 6" 
-	( X"3d" & (X"80" OR X"40") ),
 	
 	
+	(X"11" & X"01"), -- must rewrite clkcrc or image looks poor
+
 	
 	
 	
