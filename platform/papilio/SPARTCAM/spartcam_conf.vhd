@@ -34,7 +34,7 @@ use work.camera.all ;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity spartcam_blob is
+entity spartcam_conf is
 port( CLK : in std_logic;
 		ARAZB	:	in std_logic;
 		CAM_XCLK	:	out std_logic;
@@ -47,10 +47,10 @@ port( CLK : in std_logic;
 		CAM_RESET	:	out std_logic ;
 		CAM_PWEN		:	out std_logic
 );
-end spartcam_blob;
+end spartcam_conf;
 
 
-architecture Structural of spartcam_blob is
+architecture Structural of spartcam_conf is
 
 	COMPONENT dcm24
 	PORT(
@@ -199,7 +199,7 @@ architecture Structural of spartcam_blob is
 		v_data => pixel_v_from_interface
 		);
 		
-		biny : binarization
+				biny : binarization
 		port map( 
 				pixel_data_in => pixel_y_from_interface,
 				upper_bound	=> configuration_registers(0),
@@ -224,7 +224,7 @@ architecture Structural of spartcam_blob is
 		);
 		
 		
-		binarized_pixel <= binarized_pixel_y and binarized_pixel_u AND binarized_pixel_V;
+		binarized_pixel <= binarized_pixel_y AND binarized_pixel_u AND binarized_pixel_v;
 		
 		erode0 : erode3x3
 		port map(
@@ -237,46 +237,13 @@ architecture Structural of spartcam_blob is
 
 		);  
 		
-		dilate0 : dilate3x3
-		port map(
-				clk => clk_96,  
-				arazb => arazb_delayed ,  
-				pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
-				pixel_clock_out => pxclk_from_dilate, hsync_out => href_from_dilate, vsync_out => vsync_from_dilate, 
-				pixel_data_in => pixel_from_erode, 
-				pixel_data_out => pixel_from_dilate
-
-		); 
-		
-		blob_detection0:  blob_detection
-		port map(
- 		clk => clk_96, 
- 		arazb => arazb_delayed,
- 		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
- 		pixel_clock_out => pxclk_from_blob, hsync_out => href_from_blob, vsync_out => vsync_from_blob, 
-		pixel_data_in => pixel_from_erode,
-		pixel_data_out => pixel_from_blob,
-		big_blob_posx => blobx, big_blob_posy => bloby
-		);
-		
-		square0: draw_square 
-		port map(
- 		clk => clk_96, 
- 		arazb => arazb_delayed,
-		posx => blobx, posy => bloby, width => "0000010000", height =>  "0000010000",
- 		pixel_clock => pxclk_from_blob, hsync => href_from_blob, vsync => vsync_from_blob,
- 		pixel_clock_out => pxclk_from_square, hsync_out => href_from_square, vsync_out => vsync_from_square, 
- 		pixel_data_in => pixel_from_blob, 
- 		pixel_data_out => pixel_from_square
-		);
-		
 		
 		down_scaler0: down_scaler
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_square, hsync => href_from_square, vsync => vsync_from_square,
+		  pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_square,
+		  pixel_data_in => pixel_from_erode,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
