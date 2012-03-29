@@ -59,12 +59,13 @@ architecture systemc of rgb565_camera_interface is
 			ack_byte => ack_byte
 		); 
 	
-	-- sccb_interface
+-- sccb_interface
 	process(clock, arazb)
 		 begin
 		 	i2c_addr <= OV7670_I2C_ADDR ; -- sensor address
 		 	if  arazb = '0'  then
 		 		reg_state <= init ;
+				reg_addr <= (others => '0');
 		 	elsif clock'event and clock = '1' then
 		 		case reg_state is
 		 			when init => 
@@ -111,6 +112,7 @@ architecture systemc of rgb565_camera_interface is
 		 	end if ;
 		 end process;  
 
+
 	-- pixel_interface
 	process(clock, arazb)
 		 begin
@@ -119,30 +121,31 @@ architecture systemc of rgb565_camera_interface is
 		 	elsif  clock'event and clock = '1'  then
 				hsync_out <= NOT href ; -- changing href into hsync
 				vsync_out <= vsync ;
-		 		if  pxclk = '1'  AND  href = '1'  AND  NOT vsync = '1'  then
-		 			pixel_clock_out <= '0' ;
-					case pix_state is	
-						when RG => 
-		 					r_data <= pixel_data(7 downto 3) & "000" ;
-							g_data(7 downto 5) <= pixel_data(2 downto 0);
-		 					next_state <= GB ;
-							pixel_clock_out <= '0' ;
-		 				when GB => 
-		 					g_data(4 downto 0) <= pixel_data(7 downto 5) & "00" ;
-							b_data(7 downto 3) <= pixel_data(4 downto 0) & "000" ;
-							pixel_clock_out <= '1' ;
-		 					next_state <= RG ;
-		 				when others => 
-		 					next_state <= RG ;
-		 			end case ;
-		 		elsif pxclk = '0'  then
-					if href = '1'  AND  NOT vsync = '1'  then
+		 		if  href = '1'  AND  NOT vsync = '1'  then
+					if pxclk = '1' then
+						case pix_state is	
+							when RG => 
+								r_data <= pixel_data(7 downto 3) & "000" ;
+								g_data(7 downto 5) <= pixel_data(2 downto 0);
+								next_state <= GB ;
+								pixel_clock_out <= '0' ;
+							when GB => 
+								g_data(4 downto 0) <= pixel_data(7 downto 5) & "00" ;
+								b_data(7 downto 0) <= pixel_data(4 downto 0) & "000" ;
+								pixel_clock_out <= '1' ;
+								next_state <= RG ;
+							when others => 
+								next_state <= RG ;
+						end case ;
+					else
 						pix_state <= next_state ; -- state evolution
-					else 
+					end if ;
+		 		elsif href = '0'  OR  vsync = '1' then
 						pixel_clock_out <= '0' ;
-					end if;
-				else
-					pixel_clock_out <= '0' ;
+						pix_state <= RG ;
+		 		else
+						pixel_clock_out <= '0' ;
+						pix_state <= RG ;
 		 		end if ;
 		 	end if ;
 		 end process;  
