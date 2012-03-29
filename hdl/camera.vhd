@@ -119,14 +119,18 @@ end component;
 
 
 component send_picture is
+	generic(NB_RAW_DATA : natural := 0);
 	port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+		raw_data_in : in std_logic_vector(7 downto 0 );
+		raw_data_available : in std_logic ;
+		read_raw_data : out std_logic ;
  		data_out : out std_logic_vector(7 downto 0 ); 
- 		send : out std_logic; 
-		output_ready : in std_logic
+		output_ready : in std_logic;
+ 		send : out std_logic
 	); 
 end component;
 
@@ -168,6 +172,8 @@ port(clk, sraz : in std_logic;
 end component;
 
 
+
+type register_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
 type row3 is array (0 to 2) of signed(8 downto 0);
 type mat3 is array (0 to 2) of row3;
@@ -361,6 +367,18 @@ component line_counter is
 			hsync, vsync : in std_logic; 
 			line_count : out std_logic_vector(9 downto 0 )
 			);
+end component;
+
+component configuration_module is
+generic(NB_REGISTERS : natural := 6);
+port(
+	clk, arazb : in std_logic ;
+	input_data	:	in std_logic_vector(7 downto 0) ;
+	read_data	:	out std_logic ;
+	data_present	:	in std_logic ;
+	vsync	:	in std_logic ;
+	registers	: out register_array(0 to (NB_REGISTERS - 1))
+);
 end component;
 
 
