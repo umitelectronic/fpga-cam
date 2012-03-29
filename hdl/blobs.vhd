@@ -279,7 +279,6 @@ xy_pixel_ram0: ram_NxN
 					ram_en <= '1' ;
 					ram_wr <= '1' ;
 					index_wr <= '0' ;
-					--if subx >= max_blob_width and suby >= max_blob_height then
 					if blob_area > blob_max_area then
 						max_blob_width <= subx ;
 						max_blob_height <= suby ;
