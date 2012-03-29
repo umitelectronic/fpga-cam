@@ -8,7 +8,10 @@ import java.io.OutputStream;
 
 public class SerialChannel {
 
-
+	private InputStream serialIn ;
+	private OutputStream serialOut ;
+	
+	
 	public SerialChannel() {
 		super();
 	}
@@ -26,11 +29,10 @@ public class SerialChannel {
 				SerialPort serialPort = (SerialPort) commPort;
 				serialPort.setSerialPortParams(3000000, SerialPort.DATABITS_8,
 						SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-				InputStream in = serialPort.getInputStream();
-				OutputStream out = serialPort.getOutputStream();
-				parser.setInputStream(in);
+				serialIn = serialPort.getInputStream();
+				serialOut = serialPort.getOutputStream();
+				parser.setInputStream(serialIn);
 				(new Thread(parser)).start();
-				(new Thread(new SerialWriter(out))).start();
 
 			} else {
 				System.out
@@ -38,25 +40,10 @@ public class SerialChannel {
 			}
 		}
 	}
-
-	/** */
-	public static class SerialWriter implements Runnable {
-		OutputStream out;
-
-		public SerialWriter(OutputStream out) {
-			this.out = out;
-		}
-
-		public void run() {
-			try {
-				int c = 0;
-				while ((c = System.in.read()) > -1) {
-					this.out.write(c);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+	
+	public void writeDate(byte[] input, int length) throws IOException{
+		serialOut.write(input, 0, length);
 	}
+
 
 }
