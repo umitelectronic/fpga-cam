@@ -120,33 +120,37 @@ architecture systemc of yuv_camera_interface is
 		 	elsif  clock'event and clock = '1'  then
 				hsync_out <= NOT href ; -- changing href into hsync
 				vsync_out <= vsync ;
-		 		if  pxclk = '1'  AND  href = '1'  AND  NOT vsync = '1'  then
-		 			case pix_state is
-		 				when Y1 => 
-		 					y_data <= pixel_data ;
-		 					pixel_clock_out <= '0' ;
-		 					next_state <= U1 ;
-		 				when U1 => 
-		 					u_data <= pixel_data ;
-		 					pixel_clock_out <= '1' ;
-		 					next_state <= Y2 ;
-		 				when Y2 => 
-		 					y_data <= pixel_data ;
-		 					pixel_clock_out <= '0' ;
-		 					next_state <= V1 ;
-		 				when V1 => 
-		 					v_data <= pixel_data ;
-		 					pixel_clock_out <= '1' ;
-							next_state <= Y1 ;
-		 				when others => 
-		 					next_state <= Y1 ;
-		 			end case ;
-		 		elsif  pxclk = '0' then
-					if href = '1'  AND  NOT vsync = '1'  then
-						pix_state <= next_state ; -- state evolution
+		 		if  href = '1'  AND  NOT vsync = '1'  then
+		 			if pxclk = '1' then 
+						case pix_state is
+							when Y1 => 
+								y_data <= pixel_data ;
+								pixel_clock_out <= '0' ;
+								next_state <= U1 ;
+							when U1 => 
+								u_data <= pixel_data ;
+								pixel_clock_out <= '1' ;
+								next_state <= Y2 ;
+							when Y2 => 
+								y_data <= pixel_data ;
+								pixel_clock_out <= '0' ;
+								next_state <= V1 ;
+							when V1 => 
+								v_data <= pixel_data ;
+								pixel_clock_out <= '1' ;
+								next_state <= Y1 ;
+							when others => 
+								next_state <= Y1 ;
+						end case ;
 					else
+						pix_state <= next_state ; -- state evolution
+					end if ;
+				elsif href = '0'  OR  vsync = '1' then
 						pixel_clock_out <= '0' ;
-					end if;
+						pix_state <= Y1 ;
+		 		else
+						pixel_clock_out <= '0' ;
+						pix_state <= Y1 ;
 		 		end if ;
 		 	end if ;
 		 end process;  
