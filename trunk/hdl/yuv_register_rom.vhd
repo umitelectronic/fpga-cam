@@ -139,7 +139,8 @@ architecture systemc of yuv_register_rom is
 	(X"76" & X"e1"), 
 	(X"4c" & X"00"), 
 	(X"77" & X"01"), 
-	(X"3D" & (X"80"OR X"40" OR X"03")), --COM13 
+--	(X"3D" & (X"80"OR X"40" OR X"03")), --COM13 
+	(X"3D" & (X"80"OR X"40")),
 	(X"c9" & X"60"), 
 	(X"41" & X"38"), -- COM16
 	(X"56" & X"40"),
