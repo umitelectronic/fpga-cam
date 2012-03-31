@@ -224,7 +224,7 @@ architecture Structural of spartcam_blob is
 		);
 		
 		
-		binarized_pixel <= binarized_pixel_y and binarized_pixel_u AND binarized_pixel_V;
+		binarized_pixel <= binarized_pixel_y and binarized_pixel_u AND binarized_pixel_v;
 		
 		erode0 : erode3x3
 		port map(
@@ -266,7 +266,7 @@ architecture Structural of spartcam_blob is
 		posx => blobx, posy => bloby, width => "0000010000", height =>  "0000010000",
  		pixel_clock => pxclk_from_blob, hsync => href_from_blob, vsync => vsync_from_blob,
  		pixel_clock_out => pxclk_from_square, hsync_out => href_from_square, vsync_out => vsync_from_square, 
- 		pixel_data_in => pixel_from_blob, 
+ 		pixel_data_in => pixel_from_erode, 
  		pixel_data_out => pixel_from_square
 		);
 		
