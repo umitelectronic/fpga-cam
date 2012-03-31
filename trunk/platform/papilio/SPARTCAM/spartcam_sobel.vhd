@@ -38,6 +38,7 @@ port( CLK : in std_logic;
 		ARAZB	:	in std_logic;
 		CAM_XCLK	:	out std_logic;
 		TXD	:	out std_logic;
+		RXD	:	in std_logic;
 		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
 		CAM_DATA	:	in std_logic_vector(7 downto 0);
 		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;

@@ -98,11 +98,11 @@ architecture Structural of spartcam_conf is
 	constant arazb_delay : integer := 1000000 ;
 	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
 
-	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
+	signal pixel_r_from_interface, pixel_g_from_interface, pixel_b_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
 	
 	signal pixel_from_conv : std_logic_vector(7 downto 0);
-	signal binarized_pixel , binarized_pixel_y , binarized_pixel_u , binarized_pixel_v  : std_logic_vector(7 downto 0);
+	signal binarized_pixel , binarized_pixel_r , binarized_pixel_g , binarized_pixel_b  : std_logic_vector(7 downto 0);
 	signal pixel_from_erode : std_logic_vector(7 downto 0);
 	signal pixel_from_dilate : std_logic_vector(7 downto 0);
 	signal pixel_from_square: std_logic_vector(7 downto 0);
@@ -185,7 +185,7 @@ architecture Structural of spartcam_conf is
 	);
 	
 	
-	camera0: yuv_camera_interface
+	camera0: rgb565_camera_interface
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
@@ -194,39 +194,42 @@ architecture Structural of spartcam_conf is
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_y_from_interface,
-		u_data => pixel_u_from_interface,
-		v_data => pixel_v_from_interface
+ 		r_data => pixel_r_from_interface,
+		g_data => pixel_g_from_interface,
+		b_data => pixel_b_from_interface
 		);
 		
-				biny : binarization
+		binr : binarization
 		port map( 
-				pixel_data_in => pixel_y_from_interface,
+				pixel_data_in => pixel_r_from_interface,
 				upper_bound	=> configuration_registers(0),
 				lower_bound	=> configuration_registers(1),
-				pixel_data_out => binarized_pixel_y
+				pixel_data_out => binarized_pixel_r
 		);
 		
-		binu : binarization
+		bing : binarization
 		port map( 
-				pixel_data_in => pixel_u_from_interface,
+				pixel_data_in => pixel_g_from_interface,
 				upper_bound	=> configuration_registers(2),
 				lower_bound	=> configuration_registers(3),
-				pixel_data_out => binarized_pixel_u 
+				pixel_data_out => binarized_pixel_g 
 		);
 		
-		binv : binarization
+		binb : binarization
 		port map( 
-				pixel_data_in => pixel_v_from_interface,
+				pixel_data_in => pixel_b_from_interface,
 				upper_bound	=> configuration_registers(4),
 				lower_bound	=> configuration_registers(5),
-				pixel_data_out => binarized_pixel_v 
+				pixel_data_out => binarized_pixel_b 
 		);
 		
 		
-		binarized_pixel <= binarized_pixel_y AND binarized_pixel_u AND binarized_pixel_v;
+		binarized_pixel <= binarized_pixel_r AND binarized_pixel_g AND binarized_pixel_b;
 		
 		erode0 : erode3x3
+		generic map(
+		  WIDTH => 320,
+		  HEIGHT => 240)
 		port map(
 				clk => clk_96,  
 				arazb => arazb_delayed ,  
@@ -239,11 +242,12 @@ architecture Structural of spartcam_conf is
 		
 		
 		down_scaler0: down_scaler
+		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
+		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_erode,
+		  pixel_data_in => pixel_b_from_interface,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
