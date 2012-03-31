@@ -36,6 +36,7 @@ architecture systemc of rgb565_camera_interface is
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
+	signal g_temp : std_logic_vector(2 downto 0);
 	begin
 	
 	register_rom0 : rgb565_register_rom --rom containg sensor configuration
@@ -45,6 +46,8 @@ architecture systemc of rgb565_camera_interface is
 			addr => reg_addr, 
 			data => reg_data
 		); 
+		
+		
 	i2c_master0 : i2c_master -- i2c master to send sensor configuration, no proof its working
 		port map ( 
 			clock => i2c_clk, 
@@ -125,13 +128,13 @@ architecture systemc of rgb565_camera_interface is
 					if pxclk = '1' then
 						case pix_state is	
 							when RG => 
-								r_data <= pixel_data(7 downto 3) & "000" ;
-								g_data(7 downto 5) <= pixel_data(2 downto 0);
+								r_data(7 downto 0) <=   "0" & pixel_data(7 downto 3) & "00" ;
+								g_temp <= pixel_data(2 downto 0);
 								next_state <= GB ;
 								pixel_clock_out <= '0' ;
 							when GB => 
-								g_data(4 downto 0) <= pixel_data(7 downto 5) & "00" ;
-								b_data(7 downto 0) <= pixel_data(4 downto 0) & "000" ;
+								g_data(7 downto 0) <=  "0" & g_temp & pixel_data(7 downto 5) & "0"  ;
+								b_data(7 downto 0) <=  "0" & pixel_data(4 downto 0) & "00" ;
 								pixel_clock_out <= '1' ;
 								next_state <= RG ;
 							when others => 

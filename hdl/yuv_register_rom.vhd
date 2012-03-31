@@ -21,7 +21,8 @@ architecture systemc of yuv_register_rom is
 	(X"12" & X"80"),
 	(X"11" & X"01"), -- OV: clock scale (30 fps)
 	(X"3a" & X"04"), -- OV
-	(X"12" & X"00"), -- VGA
+	--(X"12" & X"00"), -- VGA
+	(X"12" & X"10"), -- QVGA
 	(X"8C" & X"00"), -- 
 	(X"17" & X"13"), -- HSTART
 	(X"18" & X"01"), -- HSTOP
@@ -122,10 +123,10 @@ architecture systemc of yuv_register_rom is
 	(X"01" & X"40"), -- REG BLUE
 	(X"02" & X"60"), -- REG_RED
 	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01" OR X"02")), -- COM8 AWB AGC AEC
-	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01")), -- COM8 AGC AEC
+	(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01")), -- COM8 AGC AEC
 	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04")), -- COM8 AGC
 	--(X"13" & (X"80" OR X"40" OR X"20" )), -- COM8
-	(X"13" & (X"80" OR X"40" OR X"20" OR X"01" )), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
+	--(X"13" & (X"80" OR X"40" OR X"20" OR X"01" )), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
 	(X"4f" & X"80"), --"matrix coefficient 1" 
 	(X"50" & X"80"), -- "matrix coefficient 2" 
 	(X"51" & X"00"), -- vb 

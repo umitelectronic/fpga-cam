@@ -45,6 +45,14 @@ component rgb565_register_rom is
 	); 
 end component;
 
+component rgb565_register_romv2 is
+	port(
+		clk,en : in std_logic;
+ 		data : out std_logic_vector(15 downto 0 ); 
+ 		addr : in std_logic_vector(7 downto 0 )
+	); 
+end component;
+
 component camera_interface is
 	port(
  		clock : in std_logic; 
@@ -246,6 +254,15 @@ port(
  		pixel_data_in : in std_logic_vector(7 downto 0) ;
 		upper_bound	:	in std_logic_vector(7 downto 0);
 		lower_bound	:	in std_logic_vector(7 downto 0);
+		pixel_data_out : out std_logic_vector(7 downto 0) 
+);
+end component;
+
+component threshold is
+generic(INVERT : natural := 0; VALUE : std_logic_vector(7 downto 0) := X"FF");
+port( 
+ 		pixel_data_in : in std_logic_vector(7 downto 0) ;
+		threshold	:	in std_logic_vector(7 downto 0);
 		pixel_data_out : out std_logic_vector(7 downto 0) 
 );
 end component;
