@@ -31,7 +31,7 @@ architecture systemc of yuv_camera_interface is
 	signal send : std_logic ; 
 	signal rcv : std_logic ; 
 	signal dispo : std_logic ; 
-	signal ack_byte : std_logic ; 
+	signal ack_byte, nack_byte : std_logic ; 
 	signal pix_state : pixel_state ; 
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
@@ -56,7 +56,8 @@ architecture systemc of yuv_camera_interface is
 			send => send, 
 			rcv => rcv, 
 			dispo => dispo, 
-			ack_byte => ack_byte
+			ack_byte => ack_byte,
+			nack_byte => nack_byte
 		); 
 	
 	-- sccb_interface
@@ -79,6 +80,9 @@ architecture systemc of yuv_camera_interface is
 		 					send <= '1' ; 
 		 					i2c_data <= reg_data(7 downto 0) ; 
 		 					reg_state <= wait_ack0 ;
+						elsif nack_byte = '1' then
+							send <= '0' ; 
+							reg_state <= next_reg ;
 		 				end if ;
 		 			when wait_ack0 => -- falling edge of ack 
 		 			  if  ack_byte = '0'  then
@@ -89,6 +93,9 @@ architecture systemc of yuv_camera_interface is
 		 					send <= '0' ; 
 		 					reg_state <= wait_ack1 ; 
 		 					reg_addr <= (reg_addr + 1) ;
+						elsif nack_byte = '1' then
+							send <= '0' ; 
+							reg_state <= next_reg ;
 		 				end if ;
 		 			when wait_ack1 => -- wait for ack
 		 			  if  ack_byte = '0'  then
