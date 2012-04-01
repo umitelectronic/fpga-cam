@@ -213,8 +213,9 @@ architecture systemc of i2c_master is
 		 				end if ;
 		 			end if ;
 		 		when i2c_stop => 
-		 			dispo <= '1' ;
 		 			ack_byte <= '0' ;
+					nack_byte <= '0' ;
+					dispo <= '0' ;
 					if  tick_count < QUARTER_BIT  then
 						scl <= '0' ; 
 		 				sda <= 'Z' ; 
@@ -230,9 +231,6 @@ architecture systemc of i2c_master is
 					else
 						scl <= 'Z' ;
 						sda <= 'Z' ;
-						dispo <= '1' ;
-						ack_byte <= '0' ;
-						nack_byte <= '0' ;
 						state <= idle ;
 		 			end if ;
 		 	end case ;

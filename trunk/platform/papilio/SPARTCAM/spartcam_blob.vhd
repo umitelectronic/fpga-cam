@@ -274,9 +274,9 @@ architecture Structural of spartcam_blob is
 		down_scaler0: down_scaler
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_square, hsync => href_from_square, vsync => vsync_from_square,
+		  pixel_clock => pxclk_from_dilate, hsync => href_from_dilate, vsync => vsync_from_dilate,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_square,
+		  pixel_data_in => pixel_from_dilate,
 		  pixel_data_out => pixel_from_ds 
 		);
 		

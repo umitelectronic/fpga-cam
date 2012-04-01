@@ -143,7 +143,7 @@ component send_picture is
 end component;
 
 component ram_Nx8 is
-	generic(N : natural := 64; A : natural := 6);
+	generic(N : natural := 645; A : natural := 10);
 	port(
  		clk : in std_logic; 
  		we, en : in std_logic; 
