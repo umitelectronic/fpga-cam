@@ -29,6 +29,13 @@ component register_rom is
 	); 
 end component;
 
+type FRAME_FORMAT is (VGA, QVGA);
+constant QVGA_WIDTH : natural := 320;
+constant VGA_WIDTH : natural := 640;
+constant QVGA_HEIGHT : natural := 240;
+constant VGA_HEIGHT : natural := 480;
+
+
 component yuv_register_rom is
 	port(
 		clk,en : in std_logic;
@@ -45,31 +52,8 @@ component rgb565_register_rom is
 	); 
 end component;
 
-component rgb565_register_romv2 is
-	port(
-		clk,en : in std_logic;
- 		data : out std_logic_vector(15 downto 0 ); 
- 		addr : in std_logic_vector(7 downto 0 )
-	); 
-end component;
-
-component camera_interface is
-	port(
- 		clock : in std_logic; 
- 		i2c_clk : in std_logic; 
- 		arazb : in std_logic; 
- 		pixel_data : in std_logic_vector(7 downto 0 ); 
- 		y_data : out std_logic_vector(7 downto 0 ); 
- 		u_data : out std_logic_vector(7 downto 0 ); 
- 		v_data : out std_logic_vector(7 downto 0 ); 
- 		scl : inout std_logic; 
- 		sda : inout std_logic; 
- 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
- 		pxclk, href, vsync : in std_logic
-	); 
-end component;
-
 component yuv_camera_interface is
+	generic(FORMAT : FRAME_FORMAT := QVGA);
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
@@ -86,6 +70,7 @@ component yuv_camera_interface is
 end component;
 
 component rgb565_camera_interface is
+	generic(FORMAT : FRAME_FORMAT := QVGA);
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
@@ -193,7 +178,6 @@ type imat3 is array (0 to 2) of irow3;
 type duplet is array (0 to 1) of integer range 0 to 3;
 type index_array is array (0 to 8) of duplet ;
 
-type FRAME_FORMAT is(VGA, QVGA);
 
 component block3X3 is
 		generic(LINE_SIZE : natural := 640);
