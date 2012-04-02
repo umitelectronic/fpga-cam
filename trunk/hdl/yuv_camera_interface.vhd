@@ -5,6 +5,7 @@ library work;
         use work.camera.all ;
 
 entity yuv_camera_interface is
+generic(FORMAT : FRAME_FORMAT := QVGA);
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
@@ -38,13 +39,26 @@ architecture systemc of yuv_camera_interface is
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
 	begin
 	
-	register_rom0 : yuv_register_rom --rom containg sensor configuration
+gen_vga : if FORMAT = VGA generate
+	register_rom0 : entity yuv_register_rom(vga) --rom containg sensor configuration
 		port map (
 		   clk => clock,
 			en => '1',
 			addr => reg_addr, 
 			data => reg_data
 		); 
+	 end generate ;
+	 
+gen_qvga : if FORMAT = QVGA generate
+	register_rom0 : entity yuv_register_rom(qvga) --rom containg sensor configuration
+		port map (
+		   clk => clock,
+			en => '1',
+			addr => reg_addr, 
+			data => reg_data
+		); 
+	 end generate ;
+
 	i2c_master0 : i2c_master -- i2c master to send sensor configuration, no proof its working
 		port map ( 
 			clock => i2c_clk, 
