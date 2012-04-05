@@ -47,13 +47,35 @@ signal pixel_x, pixel_y : unsigned(9 downto 0);
 signal last_hsync, last_pxclk : std_logic := '0';
 begin
 
-pixel_clock_out <= pixel_clock ;
-hsync_out <= hsync ;
-vsync_out <= vsync ;
-
 pixel_data_out <= X"00" when pixel_x > posx and pixel_x < (posx + width) and pixel_y > posy and pixel_y < (posy + height)  else
 						pixel_data_in ;
 
+
+
+process(clk, arazb)
+begin
+	if arazb = '0' then
+		pixel_clock_out <= '0' ;
+		hsync_out <= '0' ;
+		vsync_out <= '0' ;
+	elsif clk'event and clk = '1' then
+		if pixel_clock = '1' then
+			pixel_clock_out <= '1' ;
+		else
+			pixel_clock_out <= '0' ;
+		end if;
+		if hsync = '1' then
+			hsync_out <= '1' ;
+		else
+			hsync_out <= '0' ;
+		end if;
+		if vsync = '1' then
+			vsync_out <= '1' ;
+		else
+			vsync_out <= '0' ;
+		end if;
+	end if;
+end process ;
 
 process(clk, arazb)
 begin
