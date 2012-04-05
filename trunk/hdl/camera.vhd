@@ -316,11 +316,12 @@ component blobs is
 		true_blob_index : out unsigned(7 downto 0);
 		add_pixel : in std_logic ;
 		new_blob : in std_logic ;
-		get_blob	:	in std_logic ;
 		merge_blob : in std_logic ;
 		pixel_posx, pixel_posy : in unsigned(9 downto 0);
-		max_blob_centerx, max_blob_centery	:	out unsigned(9 downto 0);
-		xmin, xmax, ymin, ymax : out unsigned(9 downto 0)
+		
+		xmin, xmax, ymin, ymax : out unsigned(9 downto 0);
+		get_blob	:	in std_logic := '0';
+		blob_addr : in std_logic_vector(7 downto 0) := X"00"
 	);
  
 end component;
@@ -334,8 +335,7 @@ port(
  		pixel_clock, hsync, vsync : in std_logic;
 		pixel_clock_out, hsync_out, vsync_out : out std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
-		pixel_data_out : out std_logic_vector(7 downto 0 );
-		big_blob_posx, big_blob_posy : out unsigned(9 downto 0)
+		pixel_data_out : out std_logic_vector(7 downto 0 )
 		);
 end component;
 

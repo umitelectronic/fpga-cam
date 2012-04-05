@@ -45,11 +45,15 @@ entity blobs is
 		true_blob_index : out unsigned(7 downto 0);
 		add_pixel : in std_logic ;
 		new_blob : in std_logic ;
-		get_blob	:	in std_logic ;
+		
 		merge_blob : in std_logic ;
 		pixel_posx, pixel_posy : in unsigned(9 downto 0);
-		max_blob_centerx, max_blob_centery	:	out unsigned(9 downto 0);
-		xmin, xmax, ymin, ymax : out unsigned(9 downto 0)
+		
+		
+		--output interface
+		xmin, xmax, ymin, ymax : out unsigned(9 downto 0);
+		get_blob	:	in std_logic := '0';
+		blob_addr : in std_logic_vector(7 downto 0) := X"00"
 	);
  
 end blobs;
@@ -57,10 +61,12 @@ end blobs;
 
 architecture Behavioral of blobs is
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
+type FRAME_MAE is (FRAME_RUNNING, READ_BLOB, OUTPUT_BLOB, WAIT_NEW_FRAME);
 signal pixel_state : PIXEL_ADD_MAE ;
+signal frame_state : FRAME_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(47 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
-signal ram_addr, free_addr, blob_merge_addr : std_logic_vector(7 downto 0);
+signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
 signal index_in : unsigned(7 downto 0);
@@ -107,12 +113,15 @@ with pixel_state select
 						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
 						  (pos_index) when others;
 
+ram_addr_tp <= ram_addr when get_blob = '0' else
+					blob_addr ;
+
 true_blob_index <= unsigned(ram_addr) ; 
 
 blob_index_ram :ram_NxN
 	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
- 		clk => nclk, 
+ 		clk => nclk, -- was using nclk but caused timing problem ... must check how it works.
  		we => index_wr, en => '1',
  		do => ram_addr ,
  		di => std_logic_vector(index_in),  
@@ -126,7 +135,7 @@ xy_pixel_ram0: ram_NxN
  		we => ram_wr, en => ram_en,
  		do => ram0_out ,
  		di => ram0_in,  
- 		addr => ram_addr
+ 		addr => ram_addr_tp
 	); 
 	 --blob_add
 	process(clk, arazb)
@@ -279,12 +288,6 @@ xy_pixel_ram0: ram_NxN
 					ram_en <= '1' ;
 					ram_wr <= '1' ;
 					index_wr <= '0' ;
-					if blob_area > blob_max_area then
-						max_blob_width <= subx ;
-						max_blob_height <= suby ;
-						max_blob_centerx <= current_blob_centerx ;
-						max_blob_centery <= current_blob_centery ;
-					end if;
 					if add_pixel = '0' then
 						pixel_state <= WAIT_PIXEL ;
 					end if;
@@ -294,6 +297,7 @@ xy_pixel_ram0: ram_NxN
 	end if ;
 	
 	end process;
+
 
 end Behavioral;
 

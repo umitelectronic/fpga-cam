@@ -43,8 +43,7 @@ port(
  		pixel_clock, hsync, vsync : in std_logic;
 		pixel_clock_out, hsync_out, vsync_out : out std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
-		pixel_data_out : out std_logic_vector(7 downto 0 );
-		big_blob_posx, big_blob_posy : out unsigned(9 downto 0)
+		pixel_data_out : out std_logic_vector(7 downto 0 )
 		);
 end blob_detection;
 
@@ -61,7 +60,6 @@ signal neighbours0 : pix_neighbours;
 signal new_line, add_neighbour, add_pixel, merge_blob, new_blob : std_logic ;
 signal current_pixel : std_logic_vector(7 downto 0) ;
 signal new_blob_index, current_blob, blob_index_to_merge, true_blob_index : unsigned(7 downto 0) ;
-signal big_blob_posx_tp, big_blob_posy_tp :unsigned(9 downto 0) ;
 
 begin
 
@@ -73,12 +71,11 @@ blobs0 : blobs
 		next_blob_index => new_blob_index,
 		blob_index_to_merge => blob_index_to_merge ,
 		true_blob_index => true_blob_index,
-		get_blob => '0' ,
 		merge_blob => merge_blob,
 		new_blob => new_blob, 
 		add_pixel => add_pixel,
 		pixel_posx => unsigned(pixel_x), pixel_posy => unsigned(pixel_y),
-		max_blob_centerx => big_blob_posx_tp, max_blob_centery => big_blob_posy_tp
+		get_blob	=> '0'
 	);
 
 update_neighbours : neighbours
@@ -112,8 +109,6 @@ begin
 if arazb = '0' then
 	add_neighbour <= '0' ;
 	blob_state0 <= WAIT_VSYNC ;
-	big_blob_posx <= (others => '0');
-	big_blob_posy <= (others => '0');
 elsif clk'event and clk = '1' then
 	case blob_state0 is
 		when WAIT_VSYNC =>
@@ -130,8 +125,6 @@ elsif clk'event and clk = '1' then
 			merge_blob <= '0' ;
 			new_blob <= '0' ;
 			if vsync = '1' then
-				big_blob_posx <= big_blob_posx_tp ;
-				big_blob_posy <= big_blob_posy_tp ;
 				blob_state0 <= WAIT_VSYNC ;
 			elsif hsync = '0' then
 				blob_state0 <= WAIT_PIXEL ;
@@ -152,8 +145,6 @@ elsif clk'event and clk = '1' then
 			elsif hsync = '1' then
 				blob_state0 <= WAIT_HSYNC ;
 			elsif vsync = '1' then
-				big_blob_posx <= big_blob_posx_tp ;
-				big_blob_posy <= big_blob_posy_tp ;
 				blob_state0 <= WAIT_VSYNC ;
 			end if;
 		when COMPARE_PIXEL =>
