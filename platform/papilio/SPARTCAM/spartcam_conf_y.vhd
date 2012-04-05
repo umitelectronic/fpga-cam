@@ -186,6 +186,7 @@ architecture Structural of spartcam_conf_y is
 	
 	
 	camera0: yuv_camera_interface
+		generic map(FORMAT => QVGA)
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
