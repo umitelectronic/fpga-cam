@@ -77,6 +77,18 @@ architecture Structural of spartcam_sobel is
              buffer_half_full : out std_logic;
                           clk : in std_logic);
     end component;
+	 
+	 component uart_rx is
+    port (            serial_in : in std_logic;
+                       data_out : out std_logic_vector(7 downto 0);
+                    read_buffer : in std_logic;
+                   reset_buffer : in std_logic;
+                   en_16_x_baud : in std_logic;
+            buffer_data_present : out std_logic;
+                    buffer_full : out std_logic;
+               buffer_half_full : out std_logic;
+                            clk : in std_logic);
+    end component;
 
 	signal clk_24, clk_96, clk_48 : std_logic ;
 	signal baud_count, arazb_delayed, clk0 : std_logic ;
@@ -86,13 +98,16 @@ architecture Structural of spartcam_sobel is
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
 	signal pixel_from_conv : std_logic_vector(7 downto 0);
-
+	signal binarized_pixel : std_logic_vector(7 downto 0);
 	
 	signal data_to_send : std_logic_vector(7 downto 0);
-	signal send_signal, tx_buffer_full	:	std_logic ;
+	signal data_to_read : std_logic_vector(7 downto 0);
+	signal send_signal, tx_buffer_full, read_signal, data_present	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
+	
+	signal configuration_registers :  register_array(0 to 1) := (X"FF", X"F0") ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
@@ -158,6 +173,7 @@ architecture Structural of spartcam_sobel is
 	
 	
 	camera0: yuv_camera_interface
+		generic map(FORMAT => QVGA)
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
@@ -172,6 +188,9 @@ architecture Structural of spartcam_sobel is
 		
 
 		sobel0: sobel3x3
+		generic map(
+		  WIDTH => 320,
+		  HEIGHT => 240)
 		port map(
 			clk => clk_96 ,
 			arazb => arazb_delayed ,
@@ -181,9 +200,18 @@ architecture Structural of spartcam_sobel is
 			pixel_data_out => pixel_from_conv
 		);
 		
+		binc : binarization
+		port map( 
+				pixel_data_in => pixel_from_conv,
+				upper_bound	=> configuration_registers(0),
+				lower_bound	=> configuration_registers(1),
+				pixel_data_out => binarized_pixel
+		);
+
 
 		
 		down_scaler0: down_scaler
+		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
 		  pixel_clock => pxclk_from_conv, hsync => href_from_conv, vsync => vsync_from_conv,
@@ -213,6 +241,27 @@ architecture Structural of spartcam_sobel is
 					  buffer_half_full => tx_buffer_full);
 
 
+	uart_rx0 : uart_rx 
+    port map(            serial_in => RXD,
+                       data_out => data_to_read,
+                    read_buffer => read_signal,
+                   reset_buffer => NOT arazb_delayed,
+                   en_16_x_baud => clk_48,
+            buffer_data_present => data_present,
+                            clk => clk_96);
+									 
+									 
+									 
+	configuration_module0 : configuration_module
+	generic map(NB_REGISTERS => 2)
+	port map(
+		clk => clk_96, arazb =>  arazb_delayed,
+		input_data	=> data_to_read,
+		read_data	=> read_signal,
+		data_present => data_present,
+		vsync	=> vsync_from_interface,
+		registers	=> configuration_registers
+	);
 
 end Structural;
 

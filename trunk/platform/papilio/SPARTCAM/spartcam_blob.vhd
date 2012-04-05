@@ -108,6 +108,10 @@ architecture Structural of spartcam_blob is
 	signal pixel_from_square: std_logic_vector(7 downto 0);
 	signal pixel_from_blob: std_logic_vector(7 downto 0);
 	
+	signal raw_data : std_logic_vector(7 downto 0 );
+	signal raw_data_available : std_logic := '0' ;
+	signal read_raw_data : std_logic ;
+	
 	signal data_to_send : std_logic_vector(7 downto 0);
 	signal data_to_read : std_logic_vector(7 downto 0);
 	signal send_signal, tx_buffer_full, read_signal, data_present	:	std_logic ;
@@ -186,6 +190,7 @@ architecture Structural of spartcam_blob is
 	
 	
 	camera0: yuv_camera_interface
+		generic map(FORMAT => QVGA)
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
@@ -224,9 +229,14 @@ architecture Structural of spartcam_blob is
 		);
 		
 		
-		binarized_pixel <= binarized_pixel_y and binarized_pixel_u AND binarized_pixel_v;
+		--binarized_pixel <= binarized_pixel_y and binarized_pixel_u AND binarized_pixel_v;
+		binarized_pixel <= binarized_pixel_y ;
+		
 		
 		erode0 : erode3x3
+		generic map(
+		  WIDTH => 320, 
+		  HEIGHT => 240)
 		port map(
 				clk => clk_96,  
 				arazb => arazb_delayed ,  
@@ -238,6 +248,9 @@ architecture Structural of spartcam_blob is
 		);  
 		
 		dilate0 : dilate3x3
+		generic map(
+		  WIDTH => 320, 
+		  HEIGHT => 240)
 		port map(
 				clk => clk_96,  
 				arazb => arazb_delayed ,  
@@ -249,14 +262,14 @@ architecture Structural of spartcam_blob is
 		); 
 		
 		blob_detection0:  blob_detection
+		generic map(LINE_SIZE => 320)
 		port map(
  		clk => clk_96, 
  		arazb => arazb_delayed,
  		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
  		pixel_clock_out => pxclk_from_blob, hsync_out => href_from_blob, vsync_out => vsync_from_blob, 
 		pixel_data_in => pixel_from_erode,
-		pixel_data_out => pixel_from_blob,
-		big_blob_posx => blobx, big_blob_posy => bloby
+		pixel_data_out => pixel_from_blob
 		);
 		
 		square0: draw_square 
@@ -264,7 +277,7 @@ architecture Structural of spartcam_blob is
  		clk => clk_96, 
  		arazb => arazb_delayed,
 		posx => blobx, posy => bloby, width => "0000010000", height =>  "0000010000",
- 		pixel_clock => pxclk_from_blob, hsync => href_from_blob, vsync => vsync_from_blob,
+ 		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
  		pixel_clock_out => pxclk_from_square, hsync_out => href_from_square, vsync_out => vsync_from_square, 
  		pixel_data_in => pixel_from_erode, 
  		pixel_data_out => pixel_from_square
@@ -272,11 +285,12 @@ architecture Structural of spartcam_blob is
 		
 		
 		down_scaler0: down_scaler
+		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_dilate, hsync => href_from_dilate, vsync => vsync_from_dilate,
+		  pixel_clock => pxclk_from_square, hsync => href_from_square, vsync => vsync_from_square,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_dilate,
+		  pixel_data_in => pixel_from_square,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
@@ -286,6 +300,9 @@ architecture Structural of spartcam_blob is
 			arazb => arazb_delayed,
 			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
 			pixel_data_in => pixel_from_ds,
+			raw_data_in => raw_data,
+			raw_data_available => raw_data_available,
+			read_raw_data => read_raw_data,
 			data_out => data_to_send, 
 			send => send_signal, 
 			output_ready => NOT tx_buffer_full
