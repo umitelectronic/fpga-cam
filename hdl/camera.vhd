@@ -308,6 +308,7 @@ component neighbours is
 end component;
 
 component blobs is
+	generic(NB_BLOB : integer range 1 to 32 := 16);
 	port(
 		clk, arazb, sraz : in std_logic ;
 		blob_index : in unsigned(7 downto 0);
@@ -319,9 +320,9 @@ component blobs is
 		merge_blob : in std_logic ;
 		pixel_posx, pixel_posy : in unsigned(9 downto 0);
 		
-		xmin, xmax, ymin, ymax : out unsigned(9 downto 0);
-		get_blob	:	in std_logic := '0';
-		blob_addr : in std_logic_vector(7 downto 0) := X"00"
+		blob_data : out std_logic_vector(7 downto 0);
+		oe : in std_logic ;
+		send_blob	:	out std_logic 
 	);
  
 end component;
@@ -335,7 +336,9 @@ port(
  		pixel_clock, hsync, vsync : in std_logic;
 		pixel_clock_out, hsync_out, vsync_out : out std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
-		pixel_data_out : out std_logic_vector(7 downto 0 )
+		pixel_data_out : out std_logic_vector(7 downto 0 );
+		blob_data : out std_logic_vector(7 downto 0);
+		send_blob : out std_logic
 		);
 end component;
 
