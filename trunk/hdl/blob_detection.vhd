@@ -43,7 +43,9 @@ port(
  		pixel_clock, hsync, vsync : in std_logic;
 		pixel_clock_out, hsync_out, vsync_out : out std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
-		pixel_data_out : out std_logic_vector(7 downto 0 )
+		pixel_data_out : out std_logic_vector(7 downto 0 );
+		blob_data : out std_logic_vector(7 downto 0);
+		send_blob : out std_logic
 		);
 end blob_detection;
 
@@ -57,7 +59,7 @@ signal pixel_x, pixel_y : std_logic_vector(9 downto 0);
 signal hsync_old, pixel_clock_old : std_logic := '0';
 signal sraz_neighbours, sraz_blobs : std_logic ;
 signal neighbours0 : pix_neighbours;
-signal new_line, add_neighbour, add_pixel, merge_blob, new_blob : std_logic ;
+signal new_line, add_neighbour, add_pixel, merge_blob, new_blob, oe_blob : std_logic ;
 signal current_pixel : std_logic_vector(7 downto 0) ;
 signal new_blob_index, current_blob, blob_index_to_merge, true_blob_index : unsigned(7 downto 0) ;
 
@@ -75,7 +77,10 @@ blobs0 : blobs
 		new_blob => new_blob, 
 		add_pixel => add_pixel,
 		pixel_posx => unsigned(pixel_x), pixel_posy => unsigned(pixel_y),
-		get_blob	=> '0'
+		
+		blob_data => blob_data ,
+		oe => oe_blob ,
+		send_blob => send_blob
 	);
 
 update_neighbours : neighbours
@@ -103,6 +108,9 @@ line_counter0: line_counter
 			line_count => pixel_y
 			);
 
+with blob_state0 select 
+	oe_blob <= '1' when WAIT_VSYNC ,
+				  '0' when others ;
 
 process(clk, arazb)
 begin

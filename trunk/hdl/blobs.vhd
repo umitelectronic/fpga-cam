@@ -37,23 +37,24 @@ use work.camera.all ;
 --use UNISIM.VComponents.all;
 
 entity blobs is
+	generic(NB_BLOB : integer range 1 to 32 := 16);
 	port(
-		clk, arazb, sraz : in std_logic ;
-		blob_index : in unsigned(7 downto 0);
-		next_blob_index : out unsigned(7 downto 0);
-		blob_index_to_merge : in unsigned(7 downto 0);
-		true_blob_index : out unsigned(7 downto 0);
-		add_pixel : in std_logic ;
-		new_blob : in std_logic ;
+		clk, arazb, sraz : in std_logic ; --standard signals
+		blob_index : in unsigned(7 downto 0); -- blob index to madd/merge with
+		next_blob_index : out unsigned(7 downto 0); -- available index
+		blob_index_to_merge : in unsigned(7 downto 0); -- the blob index to merge
+		true_blob_index : out unsigned(7 downto 0); -- blob index after merge
+		add_pixel : in std_logic ; -- add pixel to blob
+		new_blob : in std_logic ; -- getting new blob
 		
-		merge_blob : in std_logic ;
-		pixel_posx, pixel_posy : in unsigned(9 downto 0);
+		merge_blob : in std_logic ; -- merge blob at blob index with blob index
+		pixel_posx, pixel_posy : in unsigned(9 downto 0); -- position of the pixel to add to the blob
 		
 		
 		--output interface
-		xmin, xmax, ymin, ymax : out unsigned(9 downto 0);
-		get_blob	:	in std_logic := '0';
-		blob_addr : in std_logic_vector(7 downto 0) := X"00"
+		blob_data : out std_logic_vector(7 downto 0); -- data of blob
+		oe : in std_logic ;
+		send_blob	:	out std_logic 
 	);
  
 end blobs;
@@ -61,18 +62,15 @@ end blobs;
 
 architecture Behavioral of blobs is
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
-type FRAME_MAE is (FRAME_RUNNING, READ_BLOB, OUTPUT_BLOB, WAIT_NEW_FRAME);
+type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, OUTPUT5);
 signal pixel_state : PIXEL_ADD_MAE ;
 signal frame_state : FRAME_MAE ;
-signal ram0_out, ram0_in : std_logic_vector(47 downto 0);
+signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
-signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr : std_logic_vector(7 downto 0);
+signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
 signal index_in : unsigned(7 downto 0);
-signal current_blob_centerx, current_blob_centery : unsigned(9 downto 0) := (others => '0') ;
-signal addx, addy, subx, suby : unsigned(10 downto 0) := (others => '0');
-signal max_blob_height, max_blob_width : unsigned(10 downto 0) := (others => '0');
 signal nclk, to_merge : std_logic ;
 signal nb_free_index : unsigned (7 downto 0);
 signal next_blob_index_tp : unsigned (7 downto 0);
@@ -89,16 +87,6 @@ blobymin <= unsigned(ram0_out(29 downto 20)) ; -- bottom left coordinate
 blobymax <= unsigned(ram0_out(39 downto 30)) ; -- bottom right coordinate
  
  
-blob_area <=  subx * suby ;
-
-addx <=  ('0' &  newxmin) + ('0' &  newxmax) ;
-addy <=  ('0' &  newymin) + ('0' &  newymax) ;
-
-subx <=   ('0' &  newxmax) - ('0' &  newxmin);
-suby <=  ('0' &  newymax) - ('0' &  newymin) ;
-
-current_blob_centerx <=  addx(10 downto 1) ;
-current_blob_centery <=  addy(10 downto 1) ;
 
 next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more free index ...
 						 X"00";
@@ -112,9 +100,9 @@ with pixel_state select
 						  (blob_index_to_merge - 1) when MERGE_BLOB2  ,
 						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
 						  (pos_index) when others;
-
-ram_addr_tp <= ram_addr when get_blob = '0' else
-					blob_addr ;
+with frame_state select
+	ram_addr_tp <= ram_addr when ACTIVE_FRAME ,
+						blob_addr when others;
 
 true_blob_index <= unsigned(ram_addr) ; 
 
@@ -129,7 +117,7 @@ blob_index_ram :ram_NxN
 	); 
 
 xy_pixel_ram0: ram_NxN
-	generic map(SIZE => 32 , NBIT => 48, ADDR_WIDTH => 8)
+	generic map(SIZE => NB_BLOB , NBIT => 40, ADDR_WIDTH => 8)
 	port map(
  		clk => clk, 
  		we => ram_wr, en => ram_en,
@@ -150,8 +138,6 @@ xy_pixel_ram0: ram_NxN
 	elsif clk'event and clk = '1' then
 		if sraz = '1' then
 			to_merge <= '0' ;
-			max_blob_width <= (others => '0');
-			max_blob_height <= (others => '0');
 			
 			
 			blob_index_init <= (others => '0'); -- initializing index ram 
@@ -297,6 +283,56 @@ xy_pixel_ram0: ram_NxN
 	end if ;
 	
 	end process;
+	
+	process(clk, arazb)
+	begin
+	if arazb = '0' then
+		frame_state <= WAIT_NEW_FRAME ;
+	elsif clk'event and clk = '1' then
+		case frame_state is
+			when ACTIVE_FRAME =>
+				blob_addr <= X"00" ;
+				send_blob <= '0' ;
+				if oe = '1' then
+					send_blob <= '1' ;
+					frame_state <= OUTPUT1 ;
+				end if ;
+			when WAIT_NEW_FRAME => 
+				send_blob <= '0' ;
+				blob_addr <= X"00" ;
+				if oe = '0' then
+					frame_state <= ACTIVE_FRAME ;
+				end if ;
+			when OUTPUT1 =>
+					send_blob <= '1' ;
+					blob_data <= (ram0_out(7 downto 0));
+					frame_state <= OUTPUT2 ;
+			when OUTPUT2 =>
+					send_blob <= '1' ;
+					blob_data <= (ram0_out(15 downto 8));
+					frame_state <= OUTPUT3 ;
+			when OUTPUT3 =>
+					send_blob <= '1' ;
+					blob_data <= (ram0_out(23 downto 16));
+					frame_state <= OUTPUT4 ;
+			when OUTPUT4 =>
+				send_blob <= '1' ;
+				blob_data <= (ram0_out(31 downto 24));
+				frame_state <= OUTPUT5 ;
+			when OUTPUT5 =>
+					send_blob <= '1' ;
+					blob_addr <= blob_addr + 1 ;
+					blob_data <= (ram0_out(39 downto 32));
+					if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
+						send_blob <= '0' ;
+						frame_state <= WAIT_NEW_FRAME ;
+					else
+						frame_state <= OUTPUT1 ;
+					end if ;
+			when others => frame_state <= WAIT_NEW_FRAME ;
+		end case ;
+	end if ;
+	end process ;
 
 
 end Behavioral;
