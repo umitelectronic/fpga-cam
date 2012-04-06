@@ -38,7 +38,7 @@ entity spartcam_blob is
 port( CLK : in std_logic;
 		ARAZB	:	in std_logic;
 		CAM_XCLK	:	out std_logic;
-		TXD	:	out std_logic;
+		TXD, TXD2	:	out std_logic;
 		RXD	:	in std_logic;
 		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
 		CAM_DATA	:	in std_logic_vector(7 downto 0);
@@ -93,10 +93,11 @@ architecture Structural of spartcam_blob is
                             clk : in std_logic);
     end component;
 
-	signal clk_24, clk_96, clk_48 : std_logic ;
+	signal clk_24, clk_96, clk_48, clk_1_8 : std_logic ;
 	signal baud_count, arazb_delayed, clk0 : std_logic ;
 	constant arazb_delay : integer := 1000000 ;
 	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
+	signal baud_rate_divider : integer range 0 to 52 := 0 ;
 
 	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
@@ -126,6 +127,9 @@ architecture Structural of spartcam_blob is
 	
 	signal configuration_registers :  register_array(0 to 5) ;
 	
+	signal fifo_empty, fifo_wr, send_data, tx1_buffer_full : std_logic ;
+	signal fifo_input, fifo_output : std_logic_vector(7 downto 0);
+	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
 
@@ -143,7 +147,7 @@ architecture Structural of spartcam_blob is
 		end if;
 	end process;
 	
-	process(clk_96) -- clk div for uart process
+	process(clk_96) -- clk div for uart 3Mb process
 	begin
 	if clk_96'event and clk_96 = '1' then
 		if baud_count = '1' then
@@ -153,6 +157,22 @@ architecture Structural of spartcam_blob is
 			baud_count <= '1';
 			clk_48 <= '0';
 		end if;
+	end if;
+	end process;
+	
+	process(clk_96) -- clk div for uart 3Mb process
+	begin
+	if clk_96'event and clk_96 = '1' then
+		if baud_rate_divider < 26 then
+			clk_1_8 <= '1';
+		else
+			clk_1_8 <= '0';
+		end if;
+		if baud_rate_divider < 51 then
+			baud_rate_divider <= baud_rate_divider + 1;
+		else
+			baud_rate_divider <= 0;
+		end if ;
 	end if;
 	end process;
 
@@ -209,28 +229,8 @@ architecture Structural of spartcam_blob is
 				pixel_data_in => pixel_y_from_interface,
 				upper_bound	=> configuration_registers(0),
 				lower_bound	=> configuration_registers(1),
-				pixel_data_out => binarized_pixel_y
+				pixel_data_out => binarized_pixel
 		);
-		
-		binu : binarization
-		port map( 
-				pixel_data_in => pixel_u_from_interface,
-				upper_bound	=> configuration_registers(2),
-				lower_bound	=> configuration_registers(3),
-				pixel_data_out => binarized_pixel_u 
-		);
-		
-		binv : binarization
-		port map( 
-				pixel_data_in => pixel_v_from_interface,
-				upper_bound	=> configuration_registers(4),
-				lower_bound	=> configuration_registers(5),
-				pixel_data_out => binarized_pixel_v 
-		);
-		
-		
-		--binarized_pixel <= binarized_pixel_y and binarized_pixel_u AND binarized_pixel_v;
-		binarized_pixel <= binarized_pixel_y ;
 		
 		
 		erode0 : erode3x3
@@ -247,19 +247,7 @@ architecture Structural of spartcam_blob is
 
 		);  
 		
-		dilate0 : dilate3x3
-		generic map(
-		  WIDTH => 320, 
-		  HEIGHT => 240)
-		port map(
-				clk => clk_96,  
-				arazb => arazb_delayed ,  
-				pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
-				pixel_clock_out => pxclk_from_dilate, hsync_out => href_from_dilate, vsync_out => vsync_from_dilate, 
-				pixel_data_in => pixel_from_erode, 
-				pixel_data_out => pixel_from_dilate
-
-		); 
+		
 		
 		blob_detection0:  blob_detection
 		generic map(LINE_SIZE => 320)
@@ -269,28 +257,41 @@ architecture Structural of spartcam_blob is
  		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
  		pixel_clock_out => pxclk_from_blob, hsync_out => href_from_blob, vsync_out => vsync_from_blob, 
 		pixel_data_in => pixel_from_erode,
-		pixel_data_out => pixel_from_blob
+		pixel_data_out => pixel_from_blob,
+		blob_data => fifo_input,
+		send_blob => fifo_wr
 		);
 		
-		square0: draw_square 
-		port map(
- 		clk => clk_96, 
- 		arazb => arazb_delayed,
-		posx => blobx, posy => bloby, width => "0000010000", height =>  "0000010000",
- 		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
- 		pixel_clock_out => pxclk_from_square, hsync_out => href_from_square, vsync_out => vsync_from_square, 
- 		pixel_data_in => pixel_from_erode, 
- 		pixel_data_out => pixel_from_square
-		);
+		fifo_128x8_0 : fifo_Nx8 -- blob data fifo
+			generic map(N =>128)
+			port map(
+			clk => clk_96, 
+			arazb => arazb,
+			sraz => '0',
+			wr => fifo_wr , 
+			rd => NOT tx1_buffer_full, 
+			data_rdy => send_data,
+			data_out => fifo_output,  
+			data_in => fifo_input
+		); 
+		
+		uart_tx1 : uart_tx 
+		port map ( data_in => fifo_output, 
+                 write_buffer => send_data,
+                 reset_buffer => NOT arazb_delayed, 
+                 en_16_x_baud => clk_1_8,
+                 serial_out => TXD2,
+                 clk => clk_96,
+					  buffer_half_full => tx1_buffer_full);
 		
 		
 		down_scaler0: down_scaler
 		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_square, hsync => href_from_square, vsync => vsync_from_square,
+		  pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_square,
+		  pixel_data_in => pixel_from_erode,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
