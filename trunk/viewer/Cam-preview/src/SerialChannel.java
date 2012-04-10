@@ -16,7 +16,7 @@ public class SerialChannel {
 		super();
 	}
 
-	void connect(String portName, ImageStreamParser parser) throws Exception {
+	void connect(String portName, AbstractSerialParser parser) throws Exception {
 		CommPortIdentifier portIdentifier = CommPortIdentifier
 				.getPortIdentifier(portName);
 		if (portIdentifier.isCurrentlyOwned()) {
