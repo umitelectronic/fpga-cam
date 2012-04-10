@@ -296,6 +296,7 @@ xy_pixel_ram0: ram_NxN
 				send_blob <= '0' ;
 				if oe = '1' then
 					send_blob <= '1' ;
+					blob_data <= X"01";
 					frame_state <= OUTPUT1 ;
 				end if ;
 			when WAIT_NEW_FRAME => 
