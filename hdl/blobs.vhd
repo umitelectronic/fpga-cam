@@ -62,11 +62,11 @@ end blobs;
 
 architecture Behavioral of blobs is
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
-type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, OUTPUT5);
+type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, NEXT_BLOB);
 signal pixel_state : PIXEL_ADD_MAE ;
 signal frame_state : FRAME_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
-signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
+signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax, width, height : unsigned(9 downto 0);
 signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
@@ -86,7 +86,8 @@ blobxmax <= unsigned(ram0_out(19 downto 10)) ; -- top right coordinate
 blobymin <= unsigned(ram0_out(29 downto 20)) ; -- bottom left coordinate
 blobymax <= unsigned(ram0_out(39 downto 30)) ; -- bottom right coordinate
  
- 
+width  <= blobxmax - blobxmin ;
+height <= blobymax - blobymin ;
 
 next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more free index ...
 						 X"00";
@@ -305,24 +306,23 @@ xy_pixel_ram0: ram_NxN
 				end if ;
 			when OUTPUT1 =>
 					send_blob <= '1' ;
-					blob_data <= (ram0_out(7 downto 0));
+					blob_data <= std_logic_vector(blobxmin(8 downto 1));
 					frame_state <= OUTPUT2 ;
 			when OUTPUT2 =>
 					send_blob <= '1' ;
-					blob_data <= (ram0_out(15 downto 8));
+					blob_data <= std_logic_vector(blobymin(8 downto 1));
 					frame_state <= OUTPUT3 ;
 			when OUTPUT3 =>
 					send_blob <= '1' ;
-					blob_data <= (ram0_out(23 downto 16));
+					blob_data <= std_logic_vector(width(8 downto 1));
 					frame_state <= OUTPUT4 ;
 			when OUTPUT4 =>
 				send_blob <= '1' ;
-				blob_data <= (ram0_out(31 downto 24));
-				frame_state <= OUTPUT5 ;
-			when OUTPUT5 =>
-					send_blob <= '1' ;
+				blob_data <= std_logic_vector(height(8 downto 1));
+				frame_state <= NEXT_BLOB ;
+			when NEXT_BLOB =>
+					send_blob <= '0' ;
 					blob_addr <= blob_addr + 1 ;
-					blob_data <= (ram0_out(39 downto 32));
 					if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
 						send_blob <= '0' ;
 						frame_state <= WAIT_NEW_FRAME ;
