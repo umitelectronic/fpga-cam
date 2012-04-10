@@ -11,18 +11,18 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ImageStreamParser implements Runnable {
+public class ImageStreamParser extends AbstractSerialParser implements Runnable {
 	private final static byte NEW_FRAME = 0x55;
 	private final static byte NEW_LINE = (byte) 0xa9;
 
-	InputStream in;
+	
 	PreviewPanel display;
 	byte[] imageBuffer;
 	
 	boolean newFrame ;
 
 	public ImageStreamParser(InputStream in, PreviewPanel display) {
-		this.in = in;
+		this.in = in ;
 		imageBuffer = new byte[160 * 120];
 		this.display = display ;
 		setDefaultImage();
@@ -34,14 +34,15 @@ public class ImageStreamParser implements Runnable {
 		setDefaultImage();
 	}
 	
-	public void setInputStream(InputStream in){
-		this.in = in;
-	}
 	
 	public void setDisplay( PreviewPanel display){
 		this.display = display ;
 		setDefaultImage();
 			
+	}
+	
+	public PreviewPanel getDisplay(){
+		return this.display;
 	}
 
 	public void run() {
@@ -117,6 +118,7 @@ public class ImageStreamParser implements Runnable {
 		if(result != null && display != null){
 			display.setImage(result);
 		}
+		this.notifyObservers();
 		newFrame = true ;
 	}
 
