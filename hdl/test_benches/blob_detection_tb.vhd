@@ -41,13 +41,16 @@ ARCHITECTURE behavior OF blob_detection_tb IS
     -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT blob_detection
+	 GENERIC(LINE_SIZE : natural := 640);
     PORT(
          clk : IN  std_logic;
          arazb : IN  std_logic;
          pixel_clock : IN  std_logic;
          hsync : IN  std_logic;
          vsync : IN  std_logic;
-         pixel_data_in : IN  std_logic_vector(7 downto 0)
+         pixel_data_in : IN  std_logic_vector(7 downto 0);
+			blob_data : out std_logic_vector(7 downto 0);
+			send_blob : out std_logic
         );
     END COMPONENT;
     
@@ -55,20 +58,24 @@ ARCHITECTURE behavior OF blob_detection_tb IS
 	constant pclk_period : time := 40 ns ;
 	
 	signal clk, arazb : std_logic ;
-	signal pxclk, hsync, vsync : std_logic ;
-	signal pixel : std_logic_vector(7 downto 0 ) := (others => '0');
+	signal pxclk, hsync, vsync, send_blob : std_logic ;
+	signal pixel, blob_data : std_logic_vector(7 downto 0 ) := (others => '0');
 	signal px_count, line_count, byte_count : integer := 0 ;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: blob_detection PORT MAP (
+   uut: blob_detection
+		generic map(LINE_SIZE => 320)
+		PORT MAP (
           clk => clk,
           arazb => arazb,
           pixel_clock => pxclk,
           hsync => hsync,
           vsync => vsync,
-          pixel_data_in => pixel
+          pixel_data_in => pixel,
+			 blob_data => blob_data,
+			 send_blob => send_blob
         );
 
 	process
@@ -87,7 +94,7 @@ BEGIN
 process
 	begin
 		pxclk <= '0';
-		if px_count < 640 and line_count >= 20 and line_count < 497 then
+		if px_count < 320 and line_count >= 20 and line_count < 257 then
 				hsync <= '0' ;
 		else
 				hsync <= '1' ;
@@ -101,9 +108,9 @@ process
 		wait for pclk_period;
 		
 		pxclk <= '1';
-		if (px_count = 784 ) then
+		if (px_count = 460 ) then
 			px_count <= 0 ;
-			if (line_count > 510) then
+			if (line_count > 270) then
 			   line_count <= 0;
 		  else
 		    line_count <= line_count + 1 ;
@@ -122,8 +129,7 @@ process
 --pixel <= X"FF" when px_count < 100 and line_count < 240 else
 --			X"00" ;
 
-pixel <= X"FF" when line_count < 100  and  px_count  >= 400 else
-			X"FF" when line_count >= 100	and  px_count  <= 400 else
+pixel <= X"FF" when line_count < 100  and  px_count  >= 250 else
 			X"00" ;
 
 
