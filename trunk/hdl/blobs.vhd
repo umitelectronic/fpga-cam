@@ -62,7 +62,7 @@ end blobs;
 
 architecture Behavioral of blobs is
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
-type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, NEXT_BLOB);
+type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, ERASE_BLOB, NEXT_BLOB);
 signal pixel_state : PIXEL_ADD_MAE ;
 signal frame_state : FRAME_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
@@ -126,6 +126,8 @@ xy_pixel_ram0: ram_NxN
  		di => ram0_in,  
  		addr => ram_addr_tp
 	); 
+	
+	ram_en <= '1' ;
 	 --blob_add
 	process(clk, arazb)
 	begin
@@ -145,8 +147,6 @@ xy_pixel_ram0: ram_NxN
 			index_in <= (others => '0');
 			index_wr <= '1' ;
 			to_merge <= '0' ;
-			ram_wr <= '0' ;
-			ram_en <= '0' ;
 			
 			blob_max_area <= (others => '0');
 			
@@ -157,8 +157,6 @@ xy_pixel_ram0: ram_NxN
 					blob_max_area <= (others => '0');
 					index_in <= index_in + 1 ;
 					blob_index_init <= blob_index_init + 1 ;
-					ram_wr <= '0' ;
-					ram_en <= '0' ;
 					index_wr <= '1' ;
 					to_merge <= '0' ;
 					if index_in = 31 then
@@ -168,8 +166,6 @@ xy_pixel_ram0: ram_NxN
 						pixel_state <= WAIT_PIXEL ;
 					end if;
 				when WAIT_PIXEL =>
-					ram_wr <= '0' ;
-					ram_en <= '0' ;
 					index_wr <= '0' ;
 					to_merge <= '0' ;
 					if add_pixel = '1' then
@@ -181,13 +177,11 @@ xy_pixel_ram0: ram_NxN
 							else
 								to_merge <= '0' ;
 							end if ;
-							ram_en <= '1' ;
+							
 							pixel_state <= COMPARE_BLOB ;
 						end if ;
 					end if ;
 				when COMPARE_BLOB =>
-					ram_en <= '1' ;
-					ram_wr <= '0' ;
 					index_wr <= '0' ;
 					if pixel_posx < blobxmin then
 						newxmin <= pixel_posx ;
@@ -216,8 +210,6 @@ xy_pixel_ram0: ram_NxN
 						pixel_state <= UPDATE_BLOB ;
 					end if ;
 				when MERGE_BLOB1 =>
-					ram_en <= '1' ;
-					ram_wr <= '0' ;
 					index_wr <= '0' ;
 					to_merge <= '0' ;
 					if blobxmin < newxmin then
@@ -243,14 +235,10 @@ xy_pixel_ram0: ram_NxN
 						pixel_state <= UPDATE_BLOB ;
 					end if;
 				when MERGE_BLOB2 =>
-					ram_en <= '1' ;
-					ram_wr <= '0' ;
 					index_wr <= '1' ;
 					index_in <= unsigned(free_addr) ; -- writing free addr to index table
 					pixel_state <= MERGE_BLOB3 ;
 				when MERGE_BLOB3 =>
-					ram_en <= '1' ;
-					ram_wr <= '0' ;
 					index_wr <= '0' ;
 					nb_free_index <= nb_free_index + 1 ;
 					pixel_state <= UPDATE_BLOB ;
@@ -259,8 +247,6 @@ xy_pixel_ram0: ram_NxN
 					newxmax <= pixel_posx ;
 					newymin <= pixel_posy ;
 					newymax <= pixel_posy ;
-					ram_en <= '0' ;
-					ram_wr <= '0' ;
 					index_wr <= '0' ;
 					if nb_free_index > 0 then
 						nb_free_index <= nb_free_index - 1 ;
@@ -268,12 +254,10 @@ xy_pixel_ram0: ram_NxN
 					end if ;
 					pixel_state <= UPDATE_BLOB ;
 				when UPDATE_BLOB =>
-					ram0_in(9 downto 0) <= std_logic_vector(newxmin) ;
-					ram0_in(19 downto 10) <= std_logic_vector(newxmax) ;
-					ram0_in(29 downto 20) <= std_logic_vector(newymin) ;
-					ram0_in(39 downto 30) <= std_logic_vector(newymax) ;
-					ram_en <= '1' ;
-					ram_wr <= '1' ;
+					--ram0_in(9 downto 0) <= std_logic_vector(newxmin) ;
+					--ram0_in(19 downto 10) <= std_logic_vector(newxmax) ;
+					--ram0_in(29 downto 20) <= std_logic_vector(newymin) ;
+					--ram0_in(39 downto 30) <= std_logic_vector(newymax) ;
 					index_wr <= '0' ;
 					if add_pixel = '0' then
 						pixel_state <= WAIT_PIXEL ;
@@ -285,6 +269,7 @@ xy_pixel_ram0: ram_NxN
 	
 	end process;
 	
+	
 	process(clk, arazb)
 	begin
 	if arazb = '0' then
@@ -293,48 +278,53 @@ xy_pixel_ram0: ram_NxN
 		case frame_state is
 			when ACTIVE_FRAME =>
 				blob_addr <= X"00" ;
-				send_blob <= '0' ;
 				if oe = '1' then
-					send_blob <= '1' ;
 					blob_data <= X"01";
 					frame_state <= OUTPUT1 ;
 				end if ;
 			when WAIT_NEW_FRAME => 
-				send_blob <= '0' ;
 				blob_addr <= X"00" ;
 				if oe = '0' then
 					frame_state <= ACTIVE_FRAME ;
 				end if ;
 			when OUTPUT1 =>
-					send_blob <= '1' ;
 					blob_data <= std_logic_vector(blobxmin(8 downto 1));
 					frame_state <= OUTPUT2 ;
 			when OUTPUT2 =>
-					send_blob <= '1' ;
 					blob_data <= std_logic_vector(blobymin(8 downto 1));
 					frame_state <= OUTPUT3 ;
 			when OUTPUT3 =>
-					send_blob <= '1' ;
 					blob_data <= std_logic_vector(width(8 downto 1));
 					frame_state <= OUTPUT4 ;
 			when OUTPUT4 =>
-				send_blob <= '1' ;
-				blob_data <= std_logic_vector(height(8 downto 1));
-				frame_state <= NEXT_BLOB ;
-			when NEXT_BLOB =>
-					send_blob <= '0' ;
+					blob_data <= std_logic_vector(height(8 downto 1));
+					frame_state <= ERASE_BLOB ;
+			when ERASE_BLOB =>
+				if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
+					blob_addr <= (others => '0') ;
+					frame_state <= WAIT_NEW_FRAME ;
+				else
 					blob_addr <= blob_addr + 1 ;
-					if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
-						send_blob <= '0' ;
-						frame_state <= WAIT_NEW_FRAME ;
-					else
-						frame_state <= OUTPUT1 ;
-					end if ;
+					frame_state <= NEXT_BLOB ;
+				end if ;
+			when NEXT_BLOB =>
+					frame_state <= OUTPUT1 ;
 			when others => frame_state <= WAIT_NEW_FRAME ;
 		end case ;
 	end if ;
 	end process ;
 
+	ram0_in <= std_logic_vector(newxmin) & std_logic_vector(newxmax) & std_logic_vector(newymin) & std_logic_vector(newymax) when pixel_state = UPDATE_BLOB else
+				  (others => '0') ;
+				  
+	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
+				 '1' when frame_state = ERASE_BLOB else
+				 '0' ;
+	with frame_state select
+		send_blob <= '0' when NEXT_BLOB ,
+						 '0' when ACTIVE_FRAME  ,
+						 '0' when WAIT_NEW_FRAME ,
+						 '1' when others ;
 
 end Behavioral;
 
