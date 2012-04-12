@@ -16,7 +16,7 @@ public class SerialChannel {
 		super();
 	}
 
-	void connect(String portName, AbstractSerialParser parser) throws Exception {
+	void connect(String portName, AbstractSerialParser parser, int baudrate) throws Exception {
 		CommPortIdentifier portIdentifier = CommPortIdentifier
 				.getPortIdentifier(portName);
 		if (portIdentifier.isCurrentlyOwned()) {
@@ -27,7 +27,7 @@ public class SerialChannel {
 
 			if (commPort instanceof SerialPort) {
 				SerialPort serialPort = (SerialPort) commPort;
-				serialPort.setSerialPortParams(3000000, SerialPort.DATABITS_8,
+				serialPort.setSerialPortParams(baudrate, SerialPort.DATABITS_8,
 						SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 				serialIn = serialPort.getInputStream();
 				serialOut = serialPort.getOutputStream();
