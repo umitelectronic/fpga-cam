@@ -142,13 +142,14 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 
 	public boolean listenImageSerialPort(String comPortName) throws Exception {
 		serialChannelImage = new SerialChannel();
-		serialChannelImage.connect(comPortName, imageParser);
+		serialChannelImage.connect(comPortName, imageParser, 3000000);
 		return true;
 	}
 	
 	public boolean listenDataSerialPort(String comPortName) throws Exception {
+		dataParser = new DataStreamParser();
 		serialChannelData = new SerialChannel();
-		serialChannelData.connect(comPortName, dataParser);
+		serialChannelData.connect(comPortName, dataParser, 115200);
 		imageParser.addObserver(dataParser);
 		return true;
 	}
@@ -210,18 +211,14 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 			}
 			this.repaint();
 		}if (e.getSource() == connectDataButton) {
-			if (connectDataButton.getText().equals("connect")) {
-				if (serialChannelData == null) {
-					try {
-						this.listenDataSerialPort((String) dataComPortField
-								.getSelectedItem());
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					connectImageButton.setText("disconnect");
-				}
+			try {
+				this.listenDataSerialPort((String) dataComPortField
+						.getSelectedItem());
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
+			connectDataButton.setText("disconnect");
 			this.repaint();
 		}else if (e.getSource() == sendConf) {
 			if (serialChannelImage != null) {
