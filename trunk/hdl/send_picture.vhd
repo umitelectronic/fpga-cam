@@ -33,7 +33,7 @@ architecture systemc of send_picture is
 	signal raw_data_counter : std_logic_vector(7 downto 0);
 	begin
 	fifo_64x8_0 : fifo_Nx8 -- output fifo
-		generic map(N => 64)
+		generic map(N => 128)
 		port map(
  		clk => clk, 
 		arazb => arazb,

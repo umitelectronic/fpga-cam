@@ -63,10 +63,13 @@ end blobs;
 architecture Behavioral of blobs is
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
 type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, ERASE_BLOB, NEXT_BLOB);
+
+constant NEW_PACKET	: std_logic_vector(7 downto 0) := X"55" ;
 signal pixel_state : PIXEL_ADD_MAE ;
 signal frame_state : FRAME_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax, width, height : unsigned(9 downto 0);
+signal blobdatax, blobdatay, blobdataw, blobdatah : std_logic_vector(7 downto 0);
 signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
@@ -159,10 +162,10 @@ xy_pixel_ram0: ram_NxN
 					blob_index_init <= blob_index_init + 1 ;
 					index_wr <= '1' ;
 					to_merge <= '0' ;
-					if index_in = 31 then
+					if index_in = NB_BLOB - 1 then
 						index_in <= (others => '0');
 						next_blob_index_tp <= X"01" ; -- index starts at 1
-						nb_free_index <= to_unsigned(32, 8); -- all index are free to use
+						nb_free_index <= to_unsigned(NB_BLOB, 8); -- all index are free to use
 						pixel_state <= WAIT_PIXEL ;
 					end if;
 				when WAIT_PIXEL =>
@@ -279,7 +282,7 @@ xy_pixel_ram0: ram_NxN
 			when ACTIVE_FRAME =>
 				blob_addr <= X"00" ;
 				if oe = '1' then
-					blob_data <= X"01";
+					blob_data <= NEW_PACKET;
 					frame_state <= OUTPUT1 ;
 				end if ;
 			when WAIT_NEW_FRAME => 
@@ -288,16 +291,20 @@ xy_pixel_ram0: ram_NxN
 					frame_state <= ACTIVE_FRAME ;
 				end if ;
 			when OUTPUT1 =>
-					blob_data <= std_logic_vector(blobxmin(8 downto 1));
+					blob_data <= blobdatax;
+					--blob_data <= X"01";
 					frame_state <= OUTPUT2 ;
 			when OUTPUT2 =>
-					blob_data <= std_logic_vector(blobymin(8 downto 1));
+					blob_data <= blobdatay;
+					--blob_data <= X"02";
 					frame_state <= OUTPUT3 ;
 			when OUTPUT3 =>
-					blob_data <= std_logic_vector(width(8 downto 1));
+					blob_data <= blobdataw;
+					--blob_data <= X"03";
 					frame_state <= OUTPUT4 ;
 			when OUTPUT4 =>
-					blob_data <= std_logic_vector(height(8 downto 1));
+					blob_data <= blobdatah;
+					--blob_data <= X"04";
 					frame_state <= ERASE_BLOB ;
 			when ERASE_BLOB =>
 				if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
@@ -326,5 +333,17 @@ xy_pixel_ram0: ram_NxN
 						 '0' when WAIT_NEW_FRAME ,
 						 '1' when others ;
 
+
+	blobdatax <= std_logic_vector(blobxmin(8 downto 1)) when (std_logic_vector(blobxmin(8 downto 1)) /= NEW_PACKET) else 
+					 std_logic_vector(blobxmin(8 downto 1) - 1)	; 
+	blobdatay <= std_logic_vector(blobymin(8 downto 1)) when std_logic_vector(blobymin(8 downto 1)) /= NEW_PACKET else
+					 std_logic_vector(blobymin(8 downto 1) - 1)	; 
+
+	blobdataw <= std_logic_vector(width(8 downto 1)) when std_logic_vector(width(8 downto 1)) /= NEW_PACKET else	
+					 std_logic_vector(width(8 downto 1) - 1) ; -- bottom left coordinate
+	blobdatah <= std_logic_vector(height(8 downto 1)) when std_logic_vector(height(8 downto 1)) /= NEW_PACKET else
+					 std_logic_vector(height(8 downto 1) - 1) ; -- bottom right coordinate
+	
+	
 end Behavioral;
 
