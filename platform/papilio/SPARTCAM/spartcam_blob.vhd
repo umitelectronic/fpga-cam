@@ -96,7 +96,7 @@ architecture Structural of spartcam_blob is
 	signal baud_count, arazb_delayed, clk0 : std_logic ;
 	constant arazb_delay : integer := 1000000 ;
 	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
-	signal baud_rate_divider : integer range 0 to 52 := 0 ;
+	signal baud_rate_divider : integer range 0 to 53 := 0 ;
 
 	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
@@ -146,7 +146,7 @@ architecture Structural of spartcam_blob is
 		end if;
 	end process;
 	
-	process(clk_96) -- clk div for uart 3Mb process
+	process(clk_96) -- clk div for uart 3Mbs process
 	begin
 	if clk_96'event and clk_96 = '1' then
 		if baud_count = '1' then
@@ -159,20 +159,18 @@ architecture Structural of spartcam_blob is
 	end if;
 	end process;
 	
-	process(clk_96) -- clk div for uart 3Mb process
-	begin
-	if clk_96'event and clk_96 = '1' then
-		if baud_rate_divider < 26 then
-			clk_1_8 <= '1';
-		else
-			clk_1_8 <= '0';
-		end if;
-		if baud_rate_divider < 51 then
-			baud_rate_divider <= baud_rate_divider + 1;
-		else
-			baud_rate_divider <= 0;
-		end if ;
-	end if;
+	
+	process(clk_96)
+			begin
+			if clk_96'event and clk_96='1' then
+				if baud_rate_divider=52 then
+					baud_rate_divider <= 0;
+					clk_1_8 <= '1';
+				else
+					baud_rate_divider <= baud_rate_divider + 1;
+					clk_1_8 <= '0';
+				end if;
+			end if;
 	end process;
 
 	CAM_RESET <= arazb ;
