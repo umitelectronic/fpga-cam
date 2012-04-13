@@ -5,15 +5,11 @@ library work;
         use work.camera.all ;
 
 entity send_picture is
-	generic(NB_RAW_DATA : natural := 0);
 	port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
-		raw_data_in : in std_logic_vector(7 downto 0 );
-		raw_data_available : in std_logic ;
-		read_raw_data : out std_logic ;
  		data_out : out std_logic_vector(7 downto 0 ); 
 		output_ready : in std_logic;
  		send : out std_logic
@@ -49,7 +45,6 @@ architecture systemc of send_picture is
 	process(clk, arazb)
 		 begin
 		 	if  NOT arazb = '1'  then
-				raw_data_counter <= (others => '0');
 		 		state <= wait_pixel ;
 		 	elsif  clk'event and clk = '1'  then
 		 		case state is
@@ -73,7 +68,6 @@ architecture systemc of send_picture is
 --							state <= write_data ;
 							state <= wait_sync ;
 						else
-							read_raw_data <= '0' ;
 							fifo_wr <= '0' ;
 		 				end if ;
 --		 			when write_data => 
@@ -81,23 +75,7 @@ architecture systemc of send_picture is
 --						fifo_wr <= '0' ;
 --		 				state <= wait_sync ; -- one dummy cycle to ensure data is written (could be removed but work this way)
 		 			when wait_sync => 
-						read_raw_data <= '0' ;
 						fifo_wr <= '0' ;
-						if vsync = '1' and raw_data_counter < NB_RAW_DATA then
-							if raw_data_available = '1' then
-								read_raw_data <= '1' ;
-								fifo_data_in <= raw_data_in ;
-							else
-								read_raw_data <= '0' ;
-								fifo_data_in <= (others => '0') ;
-							end if ;
-							--must set fifo write signal some way
-							raw_data_counter <= raw_data_counter + 1 ;
-							fifo_wr <= '1' ;
-						else
-							read_raw_data <= '0' ;
-							fifo_wr <= '0' ;
-						end if;
 		 				if  end_sig = '1'  then
 							raw_data_counter <= (others => '0');
 		 					state <= wait_pixel ;
