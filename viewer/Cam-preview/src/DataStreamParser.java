@@ -39,17 +39,7 @@ public class DataStreamParser extends AbstractSerialParser implements Runnable,
 			while ((len = in.read(buffer)) > -1) {
 				for (int i = 0; i < len; i++) {
 					
-					if (nb_byte == BYTE_PER_BLOCK) {
-						int x, y, w, h;
-						x = unsignedByteToInt(blockData[0])*2;
-						y = unsignedByteToInt(blockData[1])*2;
-						w = unsignedByteToInt(blockData[2])*2;
-						h = unsignedByteToInt(blockData[3])*2;
-						System.out.println("new Block : x=" + x + ", y=" + y
-								+ ", w=" + w + ", h=" + h);
-						blocks.add(new Block(x, y, w, h));
-						nb_byte = 0  ;
-					}
+					
 					if (buffer[i] == NEW_FRAME) {
 						System.out.println("New Frame \n \n \n");
 						blocks = new ArrayList<Block>();
@@ -58,6 +48,17 @@ public class DataStreamParser extends AbstractSerialParser implements Runnable,
 						System.out.println("Adding data "+buffer[i]+" to block at index "+ nb_byte);
 						blockData[nb_byte] = buffer[i];
 						nb_byte ++ ;
+						if (nb_byte == BYTE_PER_BLOCK) {
+							int x, y, w, h;
+							x = unsignedByteToInt(blockData[0])*2;
+							y = unsignedByteToInt(blockData[1])*2;
+							w = unsignedByteToInt(blockData[2])*2;
+							h = unsignedByteToInt(blockData[3])*2;
+							System.out.println("new Block : x=" + x + ", y=" + y
+									+ ", w=" + w + ", h=" + h);
+							blocks.add(new Block(x, y, w, h));
+							nb_byte = 0  ;
+						}
 					}
 				}
 				Thread.currentThread().sleep(10);
