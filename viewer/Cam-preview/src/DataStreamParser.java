@@ -38,7 +38,7 @@ public class DataStreamParser extends AbstractSerialParser implements Runnable,
 		try {
 			while ((len = in.read(buffer)) > -1) {
 				for (int i = 0; i < len; i++) {
-					System.out.println("Byte received :"+buffer[i]);
+					
 					if (nb_byte == BYTE_PER_BLOCK) {
 						int x, y, w, h;
 						x = unsignedByteToInt(blockData[0])*2;
@@ -55,6 +55,7 @@ public class DataStreamParser extends AbstractSerialParser implements Runnable,
 						blocks = new ArrayList<Block>();
 						nb_byte = 0;
 					}else if(nb_byte < BYTE_PER_BLOCK) {
+						System.out.println("Adding data "+buffer[i]+" to block at index "+ nb_byte);
 						blockData[nb_byte] = buffer[i];
 						nb_byte ++ ;
 					}

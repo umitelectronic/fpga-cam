@@ -50,6 +50,8 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 		int lineIndex = 0;
 		int pixelIndex = 0;
 		byte[] buffer = new byte[(160*120)+61];
+		long start_time = System.currentTimeMillis();
+		int nb_frame  = 0;
 		try {
 			while ((len = this.in.read(buffer)) > -1) {
 				for (int i = 0; i < len; i++) {
@@ -57,6 +59,7 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 						setImage();
 						//System.out.println("Lines in frame "+ lineIndex);
 						lineIndex = -1;
+						nb_frame ++ ;
 						pixelIndex = 0;
 					} else if (buffer[i] == NEW_LINE) {
 						//System.out.println("Pixel in line "+ pixelIndex);
@@ -70,6 +73,12 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 							imageBuffer[((lineIndex*2)+1) * 160 + (pixelIndex*2 + 1)] = buffer[i];
 							pixelIndex ++ ;
 						}
+					}
+					
+					if(System.currentTimeMillis() - start_time >= 1000){
+						System.out.println("Frame rate is "+nb_frame+"ps");
+						start_time  = System.currentTimeMillis() ;
+						nb_frame  = 0 ;
 					}
 				}
 				Thread.currentThread().sleep(5);
