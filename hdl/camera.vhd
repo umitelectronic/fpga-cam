@@ -112,15 +112,11 @@ end component;
 
 
 component send_picture is
-	generic(NB_RAW_DATA : natural := 0);
 	port(
  		clk : in std_logic; 
  		arazb : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
-		raw_data_in : in std_logic_vector(7 downto 0 );
-		raw_data_available : in std_logic ;
-		read_raw_data : out std_logic ;
  		data_out : out std_logic_vector(7 downto 0 ); 
 		output_ready : in std_logic;
  		send : out std_logic
