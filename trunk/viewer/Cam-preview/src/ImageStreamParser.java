@@ -49,7 +49,7 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 		int len;
 		int lineIndex = 0;
 		int pixelIndex = 0;
-		byte[] buffer = new byte[1024];
+		byte[] buffer = new byte[(160*120)+61];
 		try {
 			while ((len = this.in.read(buffer)) > -1) {
 				for (int i = 0; i < len; i++) {
@@ -72,8 +72,12 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 						}
 					}
 				}
+				Thread.currentThread().sleep(5);
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

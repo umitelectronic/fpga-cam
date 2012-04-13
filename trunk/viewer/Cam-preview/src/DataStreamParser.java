@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class DataStreamParser extends AbstractSerialParser implements Runnable,
 	public void run() {
 		int len = 0;
 		int nb_byte = 0;
-		byte[] buffer = new byte[1024];
+		byte[] buffer = new byte[4096];
 		byte[] blockData = new byte[BYTE_PER_BLOCK];
 		System.out.println("Running data parser");
 		try {
@@ -58,8 +59,12 @@ public class DataStreamParser extends AbstractSerialParser implements Runnable,
 						nb_byte ++ ;
 					}
 				}
+				Thread.currentThread().sleep(10);
 			}
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -70,6 +75,7 @@ public class DataStreamParser extends AbstractSerialParser implements Runnable,
 		if(o instanceof ImageStreamParser){
 			ImageStreamParser imageParser = (ImageStreamParser) o ;
 			for(Block b : blocks){
+				imageParser.getDisplay().image.getGraphics().setColor(Color.green);
 				imageParser.getDisplay().image.getGraphics().drawRect(b.x/4, b.y/4, b.w/4, b.h/4) ;
 			}
 			imageParser.getDisplay().repaint();
