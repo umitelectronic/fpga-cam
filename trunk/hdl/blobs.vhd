@@ -307,6 +307,7 @@ xy_pixel_ram0: ram_NxN
 					--blob_data <= X"04";
 					frame_state <= ERASE_BLOB ;
 			when ERASE_BLOB =>
+				blob_data <= X"05";
 				if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
 					blob_addr <= (others => '0') ;
 					frame_state <= WAIT_NEW_FRAME ;
@@ -315,6 +316,7 @@ xy_pixel_ram0: ram_NxN
 					frame_state <= NEXT_BLOB ;
 				end if ;
 			when NEXT_BLOB =>
+					blob_data <= X"06";
 					frame_state <= OUTPUT1 ;
 			when others => frame_state <= WAIT_NEW_FRAME ;
 		end case ;
@@ -328,10 +330,11 @@ xy_pixel_ram0: ram_NxN
 				 '1' when frame_state = ERASE_BLOB else
 				 '0' ;
 	with frame_state select
-		send_blob <= '0' when NEXT_BLOB ,
-						 '0' when ACTIVE_FRAME  ,
-						 '0' when WAIT_NEW_FRAME ,
-						 '1' when others ;
+		send_blob <= '1' when OUTPUT2 ,
+						 '1' when OUTPUT3  ,
+						 '1' when OUTPUT4 ,
+						 '1' when ERASE_BLOB ,
+						 '0' when others ;
 
 
 	blobdatax <= std_logic_vector(blobxmin(8 downto 1)) when (std_logic_vector(blobxmin(8 downto 1)) /= NEW_PACKET) else 
