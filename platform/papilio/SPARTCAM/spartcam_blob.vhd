@@ -293,9 +293,6 @@ architecture Structural of spartcam_blob is
 			arazb => arazb_delayed,
 			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
 			pixel_data_in => pixel_from_ds,
-			raw_data_in => raw_data,
-			raw_data_available => raw_data_available,
-			read_raw_data => read_raw_data,
 			data_out => data_to_send, 
 			send => send_signal, 
 			output_ready => NOT tx_buffer_full
