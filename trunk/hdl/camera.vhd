@@ -123,27 +123,6 @@ component send_picture is
 	); 
 end component;
 
-component ram_Nx8 is
-	generic(N : natural := 645; A : natural := 10);
-	port(
- 		clk : in std_logic; 
- 		we, en : in std_logic; 
- 		do : out std_logic_vector(7 downto 0 ); 
- 		di : in std_logic_vector(7 downto 0 ); 
- 		addr : in std_logic_vector( (A - 1) downto 0 )
-	); 
-end component;
-
-component fifo_Nx8 is
-	generic(N : natural := 64);
-	port(
- 		clk, arazb, sraz : in std_logic; 
- 		wr, rd : in std_logic; 
-		empty, full, data_rdy : out std_logic ;
- 		data_out : out std_logic_vector(7 downto 0 ); 
- 		data_in : in std_logic_vector(7 downto 0 )
-	); 
-end component;
 
 component MAC16 is
 port(clk, sraz : in std_logic;
@@ -280,16 +259,6 @@ port(
 );
 end component;
 
-component ram_NxN is
-	generic(SIZE : natural := 64 ; NBIT : natural := 8; ADDR_WIDTH : natural := 6);
-	port(
- 		clk : in std_logic; 
- 		we, en : in std_logic; 
- 		do : out std_logic_vector(NBIT-1 downto 0 ); 
- 		di : in std_logic_vector(NBIT-1 downto 0 ); 
- 		addr : in std_logic_vector((ADDR_WIDTH - 1) downto 0 )
-	); 
-end component;
  
 type pix_neighbours is array (0 to 3) of unsigned(7 downto 0);
 
@@ -304,7 +273,7 @@ component neighbours is
 end component;
 
 component blobs is
-	generic(NB_BLOB : integer range 1 to 32 := 16);
+	generic(NB_BLOB : positive:= 16);
 	port(
 		clk, arazb, sraz : in std_logic ;
 		blob_index : in unsigned(7 downto 0);

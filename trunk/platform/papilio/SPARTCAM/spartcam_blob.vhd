@@ -24,6 +24,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library work;
 use work.camera.all ;
+use WORK.GENERIC_COMPONENTS.ALL ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
