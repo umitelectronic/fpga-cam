@@ -3,6 +3,7 @@ library IEEE;
         use IEEE.std_logic_unsigned.all;
 library work;
         use work.camera.all ;
+		  use WORK.GENERIC_COMPONENTS.ALL ;
 
 entity send_picture is
 	port(

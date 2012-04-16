@@ -5,7 +5,7 @@ library IEEE;
 		  use ieee.math_real.ceil;
 		  
 library work;
-        use work.camera.ram_Nx8 ;
+        use work.generic_components.all ;
 
 
 entity fifo_Nx8 is

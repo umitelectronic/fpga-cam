@@ -152,7 +152,7 @@ architecture Structural of spartcam_conf_y is
 	end if;
 	end process;
 
-	CAM_RESET <= arazb ;
+	CAM_RESET <= '1' ;
 	CAM_PWEN <= '0';
 	CAM_XCLK <= clk_24 ;
 	--CAM_PCLK_OUT <= CAM_PCLK;

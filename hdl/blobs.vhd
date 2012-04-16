@@ -26,6 +26,7 @@ use ieee.math_real.ceil;
 
 library work ;
 use work.camera.all ;
+use work.generic_components.all ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -37,7 +38,7 @@ use work.camera.all ;
 --use UNISIM.VComponents.all;
 
 entity blobs is
-	generic(NB_BLOB : integer range 1 to 32 := 16);
+	generic(NB_BLOB : positive := 16);
 	port(
 		clk, arazb, sraz : in std_logic ; --standard signals
 		blob_index : in unsigned(7 downto 0); -- blob index to madd/merge with
@@ -62,11 +63,11 @@ end blobs;
 
 architecture Behavioral of blobs is
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
-type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, ERASE_BLOB, NEXT_BLOB);
+type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, SEND_DATA, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, ERASE_BLOB, NEXT_BLOB);
 
 constant NEW_PACKET	: std_logic_vector(7 downto 0) := X"55" ;
 signal pixel_state : PIXEL_ADD_MAE ;
-signal frame_state : FRAME_MAE ;
+signal frame_state, next_frame_state : FRAME_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax, width, height : unsigned(9 downto 0);
 signal blobdatax, blobdatay, blobdataw, blobdatah : std_logic_vector(7 downto 0);
@@ -79,6 +80,7 @@ signal nb_free_index : unsigned (7 downto 0);
 signal next_blob_index_tp : unsigned (7 downto 0);
 signal blob_area, blob_max_area : unsigned(20 downto 0);
 signal pos_index : unsigned(7 downto 0);
+signal sraz_blob_addr, en_blob_addr : std_logic ;
 begin 
 
 nclk <= NOT clk ;
@@ -257,10 +259,6 @@ xy_pixel_ram0: ram_NxN
 					end if ;
 					pixel_state <= UPDATE_BLOB ;
 				when UPDATE_BLOB =>
-					--ram0_in(9 downto 0) <= std_logic_vector(newxmin) ;
-					--ram0_in(19 downto 10) <= std_logic_vector(newxmax) ;
-					--ram0_in(29 downto 20) <= std_logic_vector(newymin) ;
-					--ram0_in(39 downto 30) <= std_logic_vector(newymax) ;
 					index_wr <= '0' ;
 					if add_pixel = '0' then
 						pixel_state <= WAIT_PIXEL ;
@@ -278,63 +276,83 @@ xy_pixel_ram0: ram_NxN
 	if arazb = '0' then
 		frame_state <= WAIT_NEW_FRAME ;
 	elsif clk'event and clk = '1' then
+		frame_state <= next_frame_state ;
+	end if;
+	end process ;
+	
+	process(frame_state, oe)
+	begin
 		case frame_state is
 			when ACTIVE_FRAME =>
-				blob_addr <= X"00" ;
 				if oe = '1' then
-					blob_data <= NEW_PACKET;
-					frame_state <= OUTPUT1 ;
+					next_frame_state <= SEND_DATA ;
 				end if ;
 			when WAIT_NEW_FRAME => 
-				blob_addr <= X"00" ;
 				if oe = '0' then
-					frame_state <= ACTIVE_FRAME ;
+					next_frame_state <= ACTIVE_FRAME ;
 				end if ;
+			when SEND_DATA =>
+				next_frame_state <= OUTPUT1 ;
 			when OUTPUT1 =>
-					blob_data <= blobdatax;
-					--blob_data <= X"01";
-					frame_state <= OUTPUT2 ;
+					next_frame_state <= OUTPUT2 ;
 			when OUTPUT2 =>
-					blob_data <= blobdatay;
-					--blob_data <= X"02";
-					frame_state <= OUTPUT3 ;
+					next_frame_state <= OUTPUT3 ;
 			when OUTPUT3 =>
-					blob_data <= blobdataw;
-					--blob_data <= X"03";
-					frame_state <= OUTPUT4 ;
+					next_frame_state <= OUTPUT4 ;
 			when OUTPUT4 =>
-					blob_data <= blobdatah;
-					--blob_data <= X"04";
-					frame_state <= ERASE_BLOB ;
+					next_frame_state <= ERASE_BLOB ;
 			when ERASE_BLOB =>
-				blob_data <= X"05";
 				if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
-					blob_addr <= (others => '0') ;
-					frame_state <= WAIT_NEW_FRAME ;
+					next_frame_state <= WAIT_NEW_FRAME ;
 				else
-					blob_addr <= blob_addr + 1 ;
-					frame_state <= NEXT_BLOB ;
+					next_frame_state <= NEXT_BLOB ;
 				end if ;
 			when NEXT_BLOB =>
-					blob_data <= X"06";
-					frame_state <= OUTPUT1 ;
-			when others => frame_state <= WAIT_NEW_FRAME ;
+					next_frame_state <= OUTPUT1 ;
+			when others => next_frame_state <= WAIT_NEW_FRAME ;
 		end case ;
-	end if ;
 	end process ;
+	
+	
+	addr_counter0 :  simple_counter
+	 generic map(MODULO => NB_BLOB , NBIT => 8)
+    port map( clk => clk,
+           arazb => arazb,
+           sraz => sraz_blob_addr,
+           en => en_blob_addr,
+           Q => blob_addr
+			  );
 
-	ram0_in <= std_logic_vector(newxmin) & std_logic_vector(newxmax) & std_logic_vector(newymin) & std_logic_vector(newymax) when pixel_state = UPDATE_BLOB else
+
+	ram0_in <= std_logic_vector(newymax) & std_logic_vector(newymin) & std_logic_vector(newxmax) & std_logic_vector(newxmin) when pixel_state = UPDATE_BLOB else
 				  (others => '0') ;
 				  
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
 				 '1' when frame_state = ERASE_BLOB else
 				 '0' ;
 	with frame_state select
-		send_blob <= '1' when OUTPUT2 ,
+		send_blob <= '1' when SEND_DATA,
+						 '1' when OUTPUT1 ,
+						 '1' when OUTPUT2 ,
 						 '1' when OUTPUT3  ,
 						 '1' when OUTPUT4 ,
-						 '1' when ERASE_BLOB ,
 						 '0' when others ;
+						 
+	with frame_state select
+	blob_data <= NEW_PACKET when SEND_DATA,
+					 blobdatax when OUTPUT1 ,
+					 blobdatay when OUTPUT2 ,
+					 blobdataw when OUTPUT3  ,
+					 blobdatah when OUTPUT4 ,
+					 (others => '0') when others ;
+					 
+	with frame_state select
+	en_blob_addr <= '1' when NEXT_BLOB,
+					 '0' when others ;
+	with frame_state select
+	sraz_blob_addr <= '1' when ACTIVE_FRAME,
+					  '1' when WAIT_NEW_FRAME,
+					 '0' when others ;
 
 
 	blobdatax <= std_logic_vector(blobxmin(8 downto 1)) when (std_logic_vector(blobxmin(8 downto 1)) /= NEW_PACKET) else 
