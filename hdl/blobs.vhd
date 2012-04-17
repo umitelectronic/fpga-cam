@@ -38,7 +38,7 @@ use work.generic_components.all ;
 --use UNISIM.VComponents.all;
 
 entity blobs is
-	generic(NB_BLOB : positive := 16);
+	generic(NB_BLOB : positive := 32);
 	port(
 		clk, arazb, sraz : in std_logic ; --standard signals
 		blob_index : in unsigned(7 downto 0); -- blob index to madd/merge with
@@ -282,6 +282,7 @@ xy_pixel_ram0: ram_NxN
 	
 	process(frame_state, oe)
 	begin
+		next_frame_state  <= frame_state ;
 		case frame_state is
 			when ACTIVE_FRAME =>
 				if oe = '1' then
@@ -334,20 +335,24 @@ xy_pixel_ram0: ram_NxN
 		send_blob <= '1' when SEND_DATA,
 						 '1' when OUTPUT1 ,
 						 '1' when OUTPUT2 ,
-						 '1' when OUTPUT3  ,
+						 '1' when OUTPUT3 ,
 						 '1' when OUTPUT4 ,
 						 '0' when others ;
 						 
 	with frame_state select
 	blob_data <= NEW_PACKET when SEND_DATA,
+					 --X"01" when OUTPUT1 ,
+					 --X"02" when OUTPUT2 ,
+					 --X"03" when OUTPUT3  ,
+					 --X"04" when OUTPUT4 ,
 					 blobdatax when OUTPUT1 ,
 					 blobdatay when OUTPUT2 ,
 					 blobdataw when OUTPUT3  ,
 					 blobdatah when OUTPUT4 ,
-					 (others => '0') when others ;
+					 X"05" when others ;
 					 
 	with frame_state select
-	en_blob_addr <= '1' when NEXT_BLOB,
+	en_blob_addr <= '1' when ERASE_BLOB,
 					 '0' when others ;
 	with frame_state select
 	sraz_blob_addr <= '1' when ACTIVE_FRAME,
