@@ -147,10 +147,9 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 	}
 	
 	public boolean listenDataSerialPort(String comPortName) throws Exception {
-		dataParser = new DataStreamParser();
+		dataParser = new DataStreamParser(this.panel);
 		serialChannelData = new SerialChannel();
 		serialChannelData.connect(comPortName, dataParser, 115200);
-		imageParser.addObserver(dataParser);
 		return true;
 	}
 

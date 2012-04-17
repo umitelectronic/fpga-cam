@@ -1,3 +1,5 @@
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -5,6 +7,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -15,6 +18,10 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 	private final static byte NEW_FRAME = 0x55;
 	private final static byte NEW_LINE = (byte) 0xa9;
 
+	private final static int WIDTH = 160;
+	private final static int HEIGHT = 120;
+	private final static int NBYTES = 3;
+	private final static int IMAGE_SIZE = WIDTH * HEIGHT * NBYTES ;
 	
 	PreviewPanel display;
 	byte[] imageBuffer;
@@ -23,13 +30,13 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 
 	public ImageStreamParser(InputStream in, PreviewPanel display) {
 		this.in = in ;
-		imageBuffer = new byte[160 * 120];
+		imageBuffer = new byte[IMAGE_SIZE];
 		this.display = display ;
 		setDefaultImage();
 	}
 	
 	public ImageStreamParser(PreviewPanel display) {
-		imageBuffer = new byte[160 * 120];
+		imageBuffer = new byte[IMAGE_SIZE];
 		this.display = display ;
 		setDefaultImage();
 	}
@@ -49,7 +56,7 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 		int len;
 		int lineIndex = 0;
 		int pixelIndex = 0;
-		byte[] buffer = new byte[(160*120)+61];
+		byte[] buffer = new byte[IMAGE_SIZE + 100];
 		long start_time = System.currentTimeMillis();
 		int nb_frame  = 0;
 		try {
@@ -67,10 +74,7 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 						pixelIndex = 0;
 					} else {
 						if ( lineIndex > 0 && pixelIndex < 80 && lineIndex < 60) {
-							imageBuffer[lineIndex*2 * 160 + pixelIndex*2] = buffer[i];
-							imageBuffer[lineIndex*2 * 160 + (pixelIndex*2 + 1)] = buffer[i];
-							imageBuffer[((lineIndex*2)+1) * 160 + pixelIndex*2] = buffer[i];
-							imageBuffer[((lineIndex*2)+1) * 160 + (pixelIndex*2 + 1)] = buffer[i];
+							setValueOfPixel(imageBuffer, buffer[i], buffer[i], buffer[i], pixelIndex,  lineIndex);
 							pixelIndex ++ ;
 						}
 					}
@@ -90,51 +94,107 @@ public class ImageStreamParser extends AbstractSerialParser implements Runnable 
 			e.printStackTrace();
 		}
 	}
+	
+	void setValueOfPixel(byte[] imageBuffer, byte r, byte g, byte b, int pixelPos, int linePos){
+		imageBuffer[linePos*2 * WIDTH*NBYTES + (pixelPos*6) ] = r ;
+		imageBuffer[linePos*2 * WIDTH*NBYTES + (pixelPos*6) + 1] = g ;
+		imageBuffer[linePos*2 * WIDTH*NBYTES + (pixelPos*6) + 2] = b ;
+		imageBuffer[((linePos*2) + 1)* WIDTH*NBYTES + (pixelPos*6) + 3] = r ;
+		imageBuffer[((linePos*2) + 1) * WIDTH*NBYTES + (pixelPos*6) + 4] = g ;
+		imageBuffer[((linePos*2) + 1) * WIDTH*NBYTES + (pixelPos*6) + 5] = b ;
+	}
+
 
 	private void setDefaultImage() {
-		byte[] imageData = new byte[160 * 120];
+		byte[] imageData = new byte[IMAGE_SIZE];
 		int pixelValue = 0 ;
 		 for(int lineIndex = 0 ; lineIndex < 60 ;  lineIndex ++) {
 			 for(int pixelIndex = 0 ; pixelIndex < 80 ;  pixelIndex ++) {
-				 imageData[lineIndex*2 * 160 + pixelIndex*2] = (byte) pixelValue;
-				 imageData[lineIndex*2 * 160 + (pixelIndex*2 + 1)] = (byte) pixelValue;
-				 imageData[((lineIndex*2)+1) * 160 + pixelIndex*2] = (byte) pixelValue;
-				 imageData[((lineIndex*2)+1) * 160 + (pixelIndex*2 + 1)] = (byte) pixelValue;
+				 setValueOfPixel(imageData, (byte) pixelValue, (byte) 0, (byte) 0, pixelIndex , lineIndex);
 				 pixelValue ++ ;
 			 }
 		}
-		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-		int[] nBits = { 8 };
+		/*ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+		int[] nBits = { 8,8,8 };
 		ColorModel cm = new ComponentColorModel(cs, nBits, false, true,
 				Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
-		SampleModel sm = cm.createCompatibleSampleModel(160, 120);
-		DataBufferByte db = new DataBufferByte(imageData, 160 * 120);
+		SampleModel sm = cm.createCompatibleSampleModel(WIDTH, HEIGHT);
+		DataBufferByte db = new DataBufferByte(imageData, IMAGE_SIZE);
 		WritableRaster raster = Raster.createWritableRaster(sm, db, null);
 		BufferedImage result = new BufferedImage(cm, raster, false, null);
-		if(display != null){
-			display.setImage(result);
+		*/
+		BufferedImage result;
+		try {
+			result = loadImage(imageData, WIDTH, HEIGHT);
+			if(display != null){
+				display.setImage(result);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 		newFrame = true ;
 	}
 	
 	private void setImage() {
-		byte[] imageData = new byte[160 * 120];
-		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-		int[] nBits = { 8 };
+		
+		  
+		byte[] imageData = new byte[IMAGE_SIZE];
+		/*ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+		int[] nBits = { 8, 8, 8 };
 		ColorModel cm = new ComponentColorModel(cs, nBits, false, true,
 				Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
-		SampleModel sm = cm.createCompatibleSampleModel(160, 120);
-		System.arraycopy(imageBuffer, 0, imageData, 0, 160 * 120);
-		DataBufferByte db = new DataBufferByte(imageData, 160 * 120);
+		SampleModel sm = cm.createCompatibleSampleModel(WIDTH, HEIGHT);
+		*/
+		System.arraycopy(imageBuffer, 0, imageData, 0, IMAGE_SIZE);
+		/*DataBufferByte db = new DataBufferByte(imageData, IMAGE_SIZE);
 		WritableRaster raster = Raster.createWritableRaster(sm, db, null);
-		BufferedImage result = new BufferedImage(cm, raster, false, null);
-		if(result != null && display != null){
-			display.setImage(result);
+		BufferedImage result = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		result.setData(raster);
+		//BufferedImage result = new BufferedImage(cm, raster, false, null);
+		 * */
+		BufferedImage result;
+		try {
+			result = loadImage(imageData, WIDTH, HEIGHT);
+			if(result != null && display != null){
+				display.setImage(result);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		this.notifyObservers();
 		newFrame = true ;
 	}
 
+	
+    private BufferedImage loadImage(byte [] buffer, int width, int height) throws IOException
+    {
+        int sizeBytes = width * height * 3;
+
+	    GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+	    BufferedImage image = gc.createCompatibleImage(width, height, Transparency.TRANSLUCENT);
+	    WritableRaster raster = image.getRaster();
+	    DataBufferInt dataBuffer = (DataBufferInt) raster.getDataBuffer();
+	
+	    addAlphaChannel(buffer, sizeBytes, dataBuffer.getData());
+	
+	    return image;
+
+
+    }
+    
+    private void addAlphaChannel(byte[] rgbBytes, int bytesLen, int[] argbInts)
+    {
+        for(int i=0, j=0; i<bytesLen; i+=3, j++)
+        {
+            argbInts[j] = ((byte) 0xff) << 24 |                 // Alpha
+                        (rgbBytes[i] << 16) & (0xff0000) |      // Red
+                        (rgbBytes[i+1] << 8) & (0xff00) |       // Green
+                        (rgbBytes[i+2]) & (0xff);               // Blue
+        }
+    }
 	
 	public boolean newFrame(){
 		if(newFrame){
