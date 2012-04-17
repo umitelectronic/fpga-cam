@@ -19,7 +19,7 @@ public class PreviewPanel extends JComponent {
 	public PreviewPanel(){
 		super();
 		setSize(new Dimension(160, 120));
-		bi = new BufferedImage(160, 120, BufferedImage.TYPE_USHORT_GRAY);
+		bi = new BufferedImage(160, 120, BufferedImage.TYPE_4BYTE_ABGR);
 		g2 = bi.createGraphics();
 	}
 	
