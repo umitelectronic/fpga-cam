@@ -3543,6 +3543,8 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <part name="P+10" library="SparkFun" deviceset="3.3V" device=""/>
 <part name="LOGO1" library="Papilio" deviceset="BUTTERFLY_LOGO" device=""/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
+<part name="GND8" library="supply1" deviceset="GND" device=""/>
+<part name="GND9" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -3586,7 +3588,7 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <instance part="GND6" gate="1" x="104.14" y="78.74" rot="R90"/>
 <instance part="JP2" gate="G$1" x="116.84" y="43.18"/>
 <instance part="JP5" gate="G$1" x="124.46" y="38.1"/>
-<instance part="FIFO_INTERFACE" gate="A" x="48.26" y="53.34"/>
+<instance part="FIFO_INTERFACE" gate="A" x="50.8" y="53.34"/>
 <instance part="P+9" gate="G$1" x="33.02" y="60.96"/>
 <instance part="GND11" gate="1" x="63.5" y="60.96" rot="R90"/>
 <instance part="LCD_INTERFACE" gate="A" x="48.26" y="17.78"/>
@@ -3594,6 +3596,8 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <instance part="P+10" gate="G$1" x="30.48" y="30.48"/>
 <instance part="LOGO1" gate="G$1" x="142.24" y="60.96"/>
 <instance part="GND7" gate="1" x="101.6" y="50.8"/>
+<instance part="GND8" gate="1" x="33.02" y="0"/>
+<instance part="GND9" gate="1" x="33.02" y="40.64"/>
 </instances>
 <busses>
 </busses>
@@ -3651,7 +3655,7 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <segment>
 <pinref part="FIFO_INTERFACE" gate="A" pin="2"/>
 <pinref part="GND11" gate="1" pin="GND"/>
-<wire x1="53.34" y1="60.96" x2="60.96" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="60.96" x2="60.96" y2="60.96" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="LCD_INTERFACE" gate="A" pin="2"/>
@@ -3666,6 +3670,16 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <wire x1="96.52" y1="55.88" x2="101.6" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="55.88" x2="101.6" y2="53.34" width="0.1524" layer="91"/>
 <junction x="96.52" y="55.88"/>
+</segment>
+<segment>
+<pinref part="LCD_INTERFACE" gate="A" pin="23"/>
+<pinref part="GND8" gate="1" pin="GND"/>
+<wire x1="33.02" y1="2.54" x2="45.72" y2="2.54" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="FIFO_INTERFACE" gate="A" pin="15"/>
+<pinref part="GND9" gate="1" pin="GND"/>
+<wire x1="33.02" y1="43.18" x2="48.26" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="5V" class="0">
@@ -3749,7 +3763,7 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <segment>
 <pinref part="P+9" gate="G$1" pin="3.3V"/>
 <pinref part="FIFO_INTERFACE" gate="A" pin="1"/>
-<wire x1="33.02" y1="60.96" x2="45.72" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="60.96" x2="48.26" y2="60.96" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="P+10" gate="G$1" pin="3.3V"/>
@@ -3806,19 +3820,19 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <junction x="127" y="86.36"/>
 </segment>
 <segment>
-<pinref part="FIFO_INTERFACE" gate="A" pin="3"/>
-<wire x1="45.72" y1="58.42" x2="35.56" y2="58.42" width="0.1524" layer="91"/>
-<label x="33.02" y="58.42" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="LCD_INTERFACE" gate="A" pin="3"/>
-<wire x1="45.72" y1="27.94" x2="33.02" y2="27.94" width="0.1524" layer="91"/>
-<label x="30.48" y="27.94" size="1.778" layer="95"/>
-</segment>
-<segment>
 <wire x1="180.34" y1="38.1" x2="180.34" y2="25.4" width="0.1524" layer="91"/>
 <pinref part="U$1" gate="C_IO" pin="A1"/>
 <label x="177.8" y="33.02" size="1.778" layer="95" rot="R270"/>
+</segment>
+<segment>
+<pinref part="LCD_INTERFACE" gate="A" pin="24"/>
+<wire x1="53.34" y1="2.54" x2="66.04" y2="2.54" width="0.1524" layer="91"/>
+<label x="60.96" y="2.54" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="FIFO_INTERFACE" gate="A" pin="16"/>
+<wire x1="55.88" y1="43.18" x2="71.12" y2="43.18" width="0.1524" layer="91"/>
+<label x="63.5" y="43.18" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VCAM" class="0">
@@ -4017,7 +4031,7 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <net name="FIFO_WR" class="0">
 <segment>
 <pinref part="FIFO_INTERFACE" gate="A" pin="4"/>
-<wire x1="53.34" y1="58.42" x2="63.5" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="58.42" x2="63.5" y2="58.42" width="0.1524" layer="91"/>
 <label x="63.5" y="58.42" size="1.778" layer="95"/>
 </segment>
 <segment>
@@ -4028,21 +4042,21 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 </net>
 <net name="FIFO_RD" class="0">
 <segment>
-<pinref part="FIFO_INTERFACE" gate="A" pin="5"/>
-<wire x1="45.72" y1="55.88" x2="33.02" y2="55.88" width="0.1524" layer="91"/>
-<label x="33.02" y="55.88" size="1.778" layer="95"/>
-</segment>
-<segment>
 <wire x1="-27.94" y1="-2.54" x2="-17.78" y2="-2.54" width="0.1524" layer="91"/>
 <label x="-15.24" y="-2.54" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="A6"/>
+</segment>
+<segment>
+<wire x1="48.26" y1="58.42" x2="33.02" y2="58.42" width="0.1524" layer="91"/>
+<label x="33.02" y="58.42" size="1.778" layer="95"/>
+<pinref part="FIFO_INTERFACE" gate="A" pin="3"/>
 </segment>
 </net>
 <net name="FIFO_CS" class="0">
 <segment>
 <label x="63.5" y="55.88" size="1.778" layer="95"/>
 <pinref part="FIFO_INTERFACE" gate="A" pin="6"/>
-<wire x1="53.34" y1="55.88" x2="63.5" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="55.88" x2="63.5" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="-27.94" y1="0" x2="-17.78" y2="0" width="0.1524" layer="91"/>
@@ -4052,68 +4066,68 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 </net>
 <net name="A0" class="0">
 <segment>
-<pinref part="FIFO_INTERFACE" gate="A" pin="7"/>
-<wire x1="45.72" y1="53.34" x2="33.02" y2="53.34" width="0.1524" layer="91"/>
-<label x="33.02" y="53.34" size="1.778" layer="95"/>
-</segment>
-<segment>
 <wire x1="-27.94" y1="2.54" x2="-17.78" y2="2.54" width="0.1524" layer="91"/>
 <label x="-15.24" y="2.54" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="A8"/>
 </segment>
+<segment>
+<wire x1="48.26" y1="55.88" x2="33.02" y2="55.88" width="0.1524" layer="91"/>
+<label x="33.02" y="55.88" size="1.778" layer="95"/>
+<pinref part="FIFO_INTERFACE" gate="A" pin="5"/>
+</segment>
 </net>
 <net name="FIFO_D6" class="0">
-<segment>
-<pinref part="FIFO_INTERFACE" gate="A" pin="9"/>
-<wire x1="45.72" y1="50.8" x2="33.02" y2="50.8" width="0.1524" layer="91"/>
-<label x="33.02" y="50.8" size="1.778" layer="95"/>
-</segment>
 <segment>
 <wire x1="-27.94" y1="7.62" x2="-17.78" y2="7.62" width="0.1524" layer="91"/>
 <label x="-15.24" y="7.62" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="A10"/>
 </segment>
+<segment>
+<wire x1="48.26" y1="53.34" x2="33.02" y2="53.34" width="0.1524" layer="91"/>
+<label x="33.02" y="53.34" size="1.778" layer="95"/>
+<pinref part="FIFO_INTERFACE" gate="A" pin="7"/>
+</segment>
 </net>
 <net name="FIFO_D4" class="0">
-<segment>
-<pinref part="FIFO_INTERFACE" gate="A" pin="11"/>
-<wire x1="45.72" y1="48.26" x2="33.02" y2="48.26" width="0.1524" layer="91"/>
-<label x="33.02" y="48.26" size="1.778" layer="95"/>
-</segment>
 <segment>
 <wire x1="-27.94" y1="12.7" x2="-17.78" y2="12.7" width="0.1524" layer="91"/>
 <label x="-15.24" y="12.7" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="A12"/>
 </segment>
+<segment>
+<wire x1="48.26" y1="50.8" x2="33.02" y2="50.8" width="0.1524" layer="91"/>
+<label x="33.02" y="50.8" size="1.778" layer="95"/>
+<pinref part="FIFO_INTERFACE" gate="A" pin="9"/>
+</segment>
 </net>
 <net name="FIFO_D2" class="0">
-<segment>
-<pinref part="FIFO_INTERFACE" gate="A" pin="13"/>
-<wire x1="45.72" y1="45.72" x2="33.02" y2="45.72" width="0.1524" layer="91"/>
-<label x="33.02" y="45.72" size="1.778" layer="95"/>
-</segment>
 <segment>
 <wire x1="-27.94" y1="17.78" x2="-17.78" y2="17.78" width="0.1524" layer="91"/>
 <label x="-15.24" y="17.78" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="A14"/>
 </segment>
+<segment>
+<wire x1="48.26" y1="48.26" x2="33.02" y2="48.26" width="0.1524" layer="91"/>
+<label x="33.02" y="48.26" size="1.778" layer="95"/>
+<pinref part="FIFO_INTERFACE" gate="A" pin="11"/>
+</segment>
 </net>
 <net name="FIFO_D0" class="0">
-<segment>
-<pinref part="FIFO_INTERFACE" gate="A" pin="15"/>
-<wire x1="45.72" y1="43.18" x2="33.02" y2="43.18" width="0.1524" layer="91"/>
-<label x="33.02" y="43.18" size="1.778" layer="95"/>
-</segment>
 <segment>
 <wire x1="-27.94" y1="22.86" x2="-17.78" y2="22.86" width="0.1524" layer="91"/>
 <label x="-15.24" y="22.86" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="A16"/>
 </segment>
+<segment>
+<wire x1="48.26" y1="45.72" x2="33.02" y2="45.72" width="0.1524" layer="91"/>
+<label x="33.02" y="45.72" size="1.778" layer="95"/>
+<pinref part="FIFO_INTERFACE" gate="A" pin="13"/>
+</segment>
 </net>
 <net name="FIFO_D7" class="0">
 <segment>
 <pinref part="FIFO_INTERFACE" gate="A" pin="8"/>
-<wire x1="53.34" y1="53.34" x2="63.5" y2="53.34" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="53.34" x2="63.5" y2="53.34" width="0.1524" layer="91"/>
 <label x="63.5" y="53.34" size="1.778" layer="95"/>
 </segment>
 <segment>
@@ -4125,7 +4139,7 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <net name="FIFO_D5" class="0">
 <segment>
 <pinref part="FIFO_INTERFACE" gate="A" pin="10"/>
-<wire x1="53.34" y1="50.8" x2="63.5" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="50.8" x2="63.5" y2="50.8" width="0.1524" layer="91"/>
 <label x="63.5" y="50.8" size="1.778" layer="95"/>
 </segment>
 <segment>
@@ -4137,7 +4151,7 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <net name="FIFO_D3" class="0">
 <segment>
 <pinref part="FIFO_INTERFACE" gate="A" pin="12"/>
-<wire x1="53.34" y1="48.26" x2="63.5" y2="48.26" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="48.26" x2="63.5" y2="48.26" width="0.1524" layer="91"/>
 <label x="63.5" y="48.26" size="1.778" layer="95"/>
 </segment>
 <segment>
@@ -4149,7 +4163,7 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <net name="FIFO_D1" class="0">
 <segment>
 <pinref part="FIFO_INTERFACE" gate="A" pin="14"/>
-<wire x1="53.34" y1="45.72" x2="63.5" y2="45.72" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="45.72" x2="63.5" y2="45.72" width="0.1524" layer="91"/>
 <label x="63.5" y="45.72" size="1.778" layer="95"/>
 </segment>
 <segment>
@@ -4158,144 +4172,244 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <pinref part="U$1" gate="A_B_IO" pin="A15"/>
 </segment>
 </net>
-<net name="N$15" class="0">
+<net name="LCD_WR" class="0">
 <segment>
-<wire x1="-27.94" y1="-15.24" x2="-17.78" y2="-15.24" width="0.1524" layer="91"/>
-<label x="-20.32" y="-15.24" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="A1"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="4"/>
+<wire x1="53.34" y1="27.94" x2="63.5" y2="27.94" width="0.1524" layer="91"/>
+<label x="60.96" y="27.94" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$16" class="0">
-<segment>
-<wire x1="-27.94" y1="-12.7" x2="-17.78" y2="-12.7" width="0.1524" layer="91"/>
-<label x="-20.32" y="-12.7" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="A2"/>
-</segment>
-</net>
-<net name="N$17" class="0">
-<segment>
-<wire x1="-27.94" y1="-10.16" x2="-17.78" y2="-10.16" width="0.1524" layer="91"/>
-<label x="-20.32" y="-10.16" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="A3"/>
-</segment>
-</net>
-<net name="N$18" class="0">
 <segment>
 <wire x1="-27.94" y1="-7.62" x2="-17.78" y2="-7.62" width="0.1524" layer="91"/>
-<label x="-20.32" y="-7.62" size="1.778" layer="95" rot="R180"/>
+<label x="-15.24" y="-7.62" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="A4"/>
 </segment>
 </net>
-<net name="N$19" class="0">
+<net name="LCD_RD" class="0">
+<segment>
+<wire x1="-27.94" y1="-10.16" x2="-17.78" y2="-10.16" width="0.1524" layer="91"/>
+<label x="-15.24" y="-10.16" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="A3"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="27.94" x2="33.02" y2="27.94" width="0.1524" layer="91"/>
+<label x="33.02" y="27.94" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="3"/>
+</segment>
+</net>
+<net name="LCD_RS" class="0">
+<segment>
+<wire x1="-27.94" y1="-15.24" x2="-17.78" y2="-15.24" width="0.1524" layer="91"/>
+<label x="-15.24" y="-15.24" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="A1"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="25.4" x2="33.02" y2="25.4" width="0.1524" layer="91"/>
+<label x="33.02" y="25.4" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="5"/>
+</segment>
+</net>
+<net name="LCD_D14" class="0">
+<segment>
+<wire x1="-50.8" y1="-12.7" x2="-43.18" y2="-12.7" width="0.1524" layer="91"/>
+<label x="-48.26" y="-12.7" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B2"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="22.86" x2="33.02" y2="22.86" width="0.1524" layer="91"/>
+<label x="33.02" y="22.86" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="7"/>
+</segment>
+</net>
+<net name="LCD_D12" class="0">
+<segment>
+<wire x1="-50.8" y1="-7.62" x2="-43.18" y2="-7.62" width="0.1524" layer="91"/>
+<label x="-48.26" y="-7.62" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B4"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="20.32" x2="33.02" y2="20.32" width="0.1524" layer="91"/>
+<label x="33.02" y="20.32" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="9"/>
+</segment>
+</net>
+<net name="LCD_D10" class="0">
+<segment>
+<wire x1="-50.8" y1="-2.54" x2="-43.18" y2="-2.54" width="0.1524" layer="91"/>
+<label x="-48.26" y="-2.54" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B6"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="17.78" x2="33.02" y2="17.78" width="0.1524" layer="91"/>
+<label x="33.02" y="17.78" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="11"/>
+</segment>
+</net>
+<net name="LCD_D08" class="0">
+<segment>
+<wire x1="-50.8" y1="2.54" x2="-43.18" y2="2.54" width="0.1524" layer="91"/>
+<label x="-48.26" y="2.54" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B8"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="15.24" x2="33.02" y2="15.24" width="0.1524" layer="91"/>
+<label x="33.02" y="15.24" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="13"/>
+</segment>
+</net>
+<net name="LCD_D06" class="0">
+<segment>
+<wire x1="-50.8" y1="7.62" x2="-43.18" y2="7.62" width="0.1524" layer="91"/>
+<label x="-48.26" y="7.62" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B10"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="12.7" x2="33.02" y2="12.7" width="0.1524" layer="91"/>
+<label x="33.02" y="12.7" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="15"/>
+</segment>
+</net>
+<net name="LCD_D04" class="0">
+<segment>
+<wire x1="-50.8" y1="12.7" x2="-43.18" y2="12.7" width="0.1524" layer="91"/>
+<label x="-48.26" y="12.7" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B12"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="10.16" x2="33.02" y2="10.16" width="0.1524" layer="91"/>
+<label x="33.02" y="10.16" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="17"/>
+</segment>
+</net>
+<net name="LCD_D02" class="0">
+<segment>
+<wire x1="-50.8" y1="17.78" x2="-43.18" y2="17.78" width="0.1524" layer="91"/>
+<label x="-48.26" y="17.78" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B14"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="7.62" x2="33.02" y2="7.62" width="0.1524" layer="91"/>
+<label x="33.02" y="7.62" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="19"/>
+</segment>
+</net>
+<net name="LCD_D00" class="0">
+<segment>
+<wire x1="-50.8" y1="22.86" x2="-43.18" y2="22.86" width="0.1524" layer="91"/>
+<label x="-48.26" y="22.86" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="B16"/>
+</segment>
+<segment>
+<wire x1="45.72" y1="5.08" x2="33.02" y2="5.08" width="0.1524" layer="91"/>
+<label x="33.02" y="5.08" size="1.778" layer="95"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="21"/>
+</segment>
+</net>
+<net name="LCD_CS" class="0">
+<segment>
+<pinref part="LCD_INTERFACE" gate="A" pin="6"/>
+<wire x1="53.34" y1="25.4" x2="63.5" y2="25.4" width="0.1524" layer="91"/>
+<label x="60.96" y="25.4" size="1.778" layer="95"/>
+</segment>
+<segment>
+<wire x1="-27.94" y1="-12.7" x2="-17.78" y2="-12.7" width="0.1524" layer="91"/>
+<label x="-15.24" y="-12.7" size="1.778" layer="95" rot="R180"/>
+<pinref part="U$1" gate="A_B_IO" pin="A2"/>
+</segment>
+</net>
+<net name="LCD_D15" class="0">
+<segment>
+<pinref part="LCD_INTERFACE" gate="A" pin="8"/>
+<wire x1="53.34" y1="22.86" x2="63.5" y2="22.86" width="0.1524" layer="91"/>
+<label x="60.96" y="22.86" size="1.778" layer="95"/>
+</segment>
 <segment>
 <wire x1="-50.8" y1="-15.24" x2="-43.18" y2="-15.24" width="0.1524" layer="91"/>
 <label x="-48.26" y="-15.24" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B1"/>
 </segment>
 </net>
-<net name="N$20" class="0">
+<net name="LCD_D13" class="0">
 <segment>
-<wire x1="-50.8" y1="-12.7" x2="-43.18" y2="-12.7" width="0.1524" layer="91"/>
-<label x="-48.26" y="-12.7" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B2"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="10"/>
+<wire x1="53.34" y1="20.32" x2="63.5" y2="20.32" width="0.1524" layer="91"/>
+<label x="60.96" y="20.32" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$21" class="0">
 <segment>
 <wire x1="-50.8" y1="-10.16" x2="-43.18" y2="-10.16" width="0.1524" layer="91"/>
 <label x="-48.26" y="-10.16" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B3"/>
 </segment>
 </net>
-<net name="N$22" class="0">
+<net name="LCD_D11" class="0">
 <segment>
-<wire x1="-50.8" y1="-7.62" x2="-43.18" y2="-7.62" width="0.1524" layer="91"/>
-<label x="-48.26" y="-7.62" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B4"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="12"/>
+<wire x1="53.34" y1="17.78" x2="63.5" y2="17.78" width="0.1524" layer="91"/>
+<label x="60.96" y="17.78" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$23" class="0">
 <segment>
 <wire x1="-50.8" y1="-5.08" x2="-43.18" y2="-5.08" width="0.1524" layer="91"/>
 <label x="-48.26" y="-5.08" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B5"/>
 </segment>
 </net>
-<net name="N$24" class="0">
+<net name="LCD_D09" class="0">
 <segment>
-<wire x1="-50.8" y1="-2.54" x2="-43.18" y2="-2.54" width="0.1524" layer="91"/>
-<label x="-48.26" y="-2.54" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B6"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="14"/>
+<wire x1="53.34" y1="15.24" x2="63.5" y2="15.24" width="0.1524" layer="91"/>
+<label x="60.96" y="15.24" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$25" class="0">
 <segment>
 <wire x1="-50.8" y1="0" x2="-43.18" y2="0" width="0.1524" layer="91"/>
 <label x="-48.26" y="0" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B7"/>
 </segment>
 </net>
-<net name="N$26" class="0">
+<net name="LCD_D07" class="0">
 <segment>
-<wire x1="-50.8" y1="2.54" x2="-43.18" y2="2.54" width="0.1524" layer="91"/>
-<label x="-48.26" y="2.54" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B8"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="16"/>
+<wire x1="53.34" y1="12.7" x2="63.5" y2="12.7" width="0.1524" layer="91"/>
+<label x="60.96" y="12.7" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$27" class="0">
 <segment>
 <wire x1="-50.8" y1="5.08" x2="-43.18" y2="5.08" width="0.1524" layer="91"/>
 <label x="-48.26" y="5.08" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B9"/>
 </segment>
 </net>
-<net name="N$28" class="0">
+<net name="LCD_D05" class="0">
 <segment>
-<wire x1="-50.8" y1="7.62" x2="-43.18" y2="7.62" width="0.1524" layer="91"/>
-<label x="-48.26" y="7.62" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B10"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="18"/>
+<wire x1="53.34" y1="10.16" x2="63.5" y2="10.16" width="0.1524" layer="91"/>
+<label x="60.96" y="10.16" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$29" class="0">
 <segment>
 <wire x1="-50.8" y1="10.16" x2="-43.18" y2="10.16" width="0.1524" layer="91"/>
 <label x="-48.26" y="10.16" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B11"/>
 </segment>
 </net>
-<net name="N$30" class="0">
+<net name="LCD_D03" class="0">
 <segment>
-<wire x1="-50.8" y1="12.7" x2="-43.18" y2="12.7" width="0.1524" layer="91"/>
-<label x="-48.26" y="12.7" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B12"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="20"/>
+<wire x1="53.34" y1="7.62" x2="63.5" y2="7.62" width="0.1524" layer="91"/>
+<label x="60.96" y="7.62" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$31" class="0">
 <segment>
 <wire x1="-50.8" y1="15.24" x2="-43.18" y2="15.24" width="0.1524" layer="91"/>
 <label x="-48.26" y="15.24" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B13"/>
 </segment>
 </net>
-<net name="N$32" class="0">
+<net name="LCD_D01" class="0">
 <segment>
-<wire x1="-50.8" y1="17.78" x2="-43.18" y2="17.78" width="0.1524" layer="91"/>
-<label x="-48.26" y="17.78" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B14"/>
+<pinref part="LCD_INTERFACE" gate="A" pin="22"/>
+<wire x1="53.34" y1="5.08" x2="63.5" y2="5.08" width="0.1524" layer="91"/>
+<label x="60.96" y="5.08" size="1.778" layer="95"/>
 </segment>
-</net>
-<net name="N$33" class="0">
 <segment>
 <wire x1="-50.8" y1="20.32" x2="-43.18" y2="20.32" width="0.1524" layer="91"/>
 <label x="-48.26" y="20.32" size="1.778" layer="95" rot="R180"/>
 <pinref part="U$1" gate="A_B_IO" pin="B15"/>
-</segment>
-</net>
-<net name="N$34" class="0">
-<segment>
-<wire x1="-50.8" y1="22.86" x2="-43.18" y2="22.86" width="0.1524" layer="91"/>
-<label x="-48.26" y="22.86" size="1.778" layer="95" rot="R180"/>
-<pinref part="U$1" gate="A_B_IO" pin="B16"/>
 </segment>
 </net>
 </nets>
