@@ -2171,11 +2171,11 @@ chip</description>
 <rectangle x1="1.651" y1="-1.3208" x2="2.5009" y2="1.3292" layer="51"/>
 </package>
 <package name="0805">
-<wire x1="-0.3" y1="0.6" x2="0.3" y2="0.6" width="0.1524" layer="21"/>
-<wire x1="-0.3" y1="-0.6" x2="0.3" y2="-0.6" width="0.1524" layer="21"/>
+<wire x1="-0.2746" y1="0.6" x2="0.2746" y2="0.6" width="0.1524" layer="21"/>
+<wire x1="-0.2746" y1="-0.6" x2="0.2746" y2="-0.6" width="0.1524" layer="21"/>
 <smd name="1" x="-0.9" y="0" dx="0.8" dy="1.2" layer="1"/>
 <smd name="2" x="0.9" y="0" dx="0.8" dy="1.2" layer="1"/>
-<text x="-0.762" y="0.8255" size="0.4064" layer="25">&gt;NAME</text>
+<text x="-0.762" y="0.9017" size="0.4064" layer="25">&gt;NAME</text>
 <text x="-1.016" y="-1.397" size="0.4064" layer="27">&gt;VALUE</text>
 </package>
 <package name="0603-RES">
@@ -2863,9 +2863,9 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <package name="SO08">
 <description>&lt;b&gt;Small Outline Package&lt;/b&gt; Fits JEDEC packages (narrow SOIC-8)</description>
 <wire x1="-2.362" y1="-1.803" x2="2.362" y2="-1.803" width="0.1524" layer="51"/>
-<wire x1="2.362" y1="-1.803" x2="2.362" y2="1.803" width="0.1524" layer="21"/>
+<wire x1="2.4382" y1="-1.803" x2="2.4382" y2="1.803" width="0.1524" layer="21"/>
 <wire x1="2.362" y1="1.803" x2="-2.362" y2="1.803" width="0.1524" layer="51"/>
-<wire x1="-2.362" y1="1.803" x2="-2.362" y2="-1.803" width="0.1524" layer="21"/>
+<wire x1="-2.4128" y1="1.8284" x2="-2.4128" y2="-1.7776" width="0.1524" layer="21"/>
 <circle x="-1.8034" y="-0.9906" radius="0.1436" width="0.2032" layer="21"/>
 <smd name="1" x="-1.905" y="-2.6162" dx="0.6096" dy="2.2098" layer="1"/>
 <smd name="2" x="-0.635" y="-2.6162" dx="0.6096" dy="2.2098" layer="1"/>
@@ -3607,6 +3607,11 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
 <part name="JP7" library="SparkFun" deviceset="STAND-OFF" device=""/>
 <part name="JP2" library="SparkFun" deviceset="STAND-OFF" device=""/>
+<part name="JP3" library="SparkFun" deviceset="STAND-OFF" device=""/>
+<part name="JP4" library="SparkFun" deviceset="M03" device="PTH"/>
+<part name="GND15" library="supply1" deviceset="GND" device=""/>
+<part name="C4" library="SparkFun" deviceset="CAP" device="0805"/>
+<part name="GND16" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -3652,12 +3657,17 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <instance part="R4" gate="G$1" x="177.8" y="81.28" rot="R270"/>
 <instance part="R5" gate="G$1" x="175.26" y="78.74" rot="R270"/>
 <instance part="U$4" gate="G$1" x="43.18" y="88.9"/>
-<instance part="P+2" gate="G$1" x="55.88" y="93.98"/>
+<instance part="P+2" gate="G$1" x="66.04" y="93.98"/>
 <instance part="GND10" gate="1" x="30.48" y="83.82"/>
 <instance part="GND13" gate="1" x="30.48" y="96.52" rot="R180"/>
-<instance part="GND14" gate="1" x="63.5" y="96.52" rot="R180"/>
+<instance part="GND14" gate="1" x="73.66" y="93.98" rot="R180"/>
 <instance part="JP7" gate="G$1" x="119.38" y="55.88"/>
 <instance part="JP2" gate="G$1" x="20.32" y="20.32"/>
+<instance part="JP3" gate="G$1" x="0" y="35.56"/>
+<instance part="JP4" gate="G$1" x="81.28" y="33.02" rot="R90"/>
+<instance part="GND15" gate="1" x="71.12" y="40.64" rot="R270"/>
+<instance part="C4" gate="G$1" x="58.42" y="96.52"/>
+<instance part="GND16" gate="1" x="68.58" y="104.14" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -3727,13 +3737,10 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <wire x1="-15.24" y1="91.44" x2="-7.62" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="CAMERA_PORT" gate="A" pin="19"/>
 <pinref part="CAMERA_PORT" gate="A" pin="20"/>
-<wire x1="88.9" y1="55.88" x2="96.52" y2="55.88" width="0.1524" layer="91"/>
 <pinref part="GND7" gate="1" pin="GND"/>
 <wire x1="96.52" y1="55.88" x2="101.6" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="55.88" x2="101.6" y2="53.34" width="0.1524" layer="91"/>
-<junction x="96.52" y="55.88"/>
 </segment>
 <segment>
 <pinref part="LCD_INTERFACE" gate="A" pin="23"/>
@@ -3762,8 +3769,17 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <segment>
 <pinref part="U$4" gate="G$1" pin="WP"/>
 <pinref part="GND14" gate="1" pin="GND"/>
-<wire x1="55.88" y1="91.44" x2="63.5" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="63.5" y1="91.44" x2="63.5" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="91.44" x2="73.66" y2="91.44" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="JP4" gate="G$1" pin="3"/>
+<pinref part="GND15" gate="1" pin="GND"/>
+<wire x1="73.66" y1="40.64" x2="78.74" y2="40.64" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="C4" gate="G$1" pin="1"/>
+<pinref part="GND16" gate="1" pin="GND"/>
+<wire x1="66.04" y1="104.14" x2="58.42" y2="101.6" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="5V" class="0">
@@ -3809,6 +3825,10 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <segment>
 <pinref part="U$4" gate="G$1" pin="VCC"/>
 <pinref part="P+2" gate="G$1" pin="3.3V"/>
+<wire x1="66.04" y1="93.98" x2="58.42" y2="93.98" width="0.1524" layer="91"/>
+<pinref part="C4" gate="G$1" pin="2"/>
+<wire x1="58.42" y1="93.98" x2="55.88" y2="93.98" width="0.1524" layer="91"/>
+<junction x="58.42" y="93.98"/>
 </segment>
 </net>
 <net name="N$1" class="0">
@@ -4083,9 +4103,13 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <label x="170.18" y="40.64" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="CAMERA_PORT" gate="A" pin="17"/>
-<wire x1="88.9" y1="58.42" x2="78.74" y2="58.42" width="0.1524" layer="91"/>
-<label x="78.74" y="58.42" size="1.778" layer="95"/>
+<pinref part="JP4" gate="G$1" pin="1"/>
+<wire x1="83.82" y1="40.64" x2="101.6" y2="40.64" width="0.1524" layer="91"/>
+<label x="88.9" y="40.64" size="1.778" layer="95"/>
+<pinref part="CAMERA_PORT" gate="A" pin="19"/>
+<wire x1="88.9" y1="55.88" x2="83.82" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="55.88" x2="83.82" y2="40.64" width="0.1524" layer="91"/>
+<junction x="83.82" y="40.64"/>
 </segment>
 </net>
 <net name="FIFO_WR" class="0">
@@ -4470,6 +4494,14 @@ This is the mechanical footprint for a #4 phillips button head screw. Use the ke
 <wire x1="-50.8" y1="0" x2="-43.18" y2="0" width="0.1524" layer="91"/>
 <label x="-48.26" y="0" size="1.778" layer="95" rot="MR0"/>
 <pinref part="U$1" gate="A_B_IO" pin="B7"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="CAMERA_PORT" gate="A" pin="17"/>
+<wire x1="88.9" y1="58.42" x2="81.28" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="58.42" x2="81.28" y2="40.64" width="0.1524" layer="91"/>
+<pinref part="JP4" gate="G$1" pin="2"/>
 </segment>
 </net>
 </nets>
