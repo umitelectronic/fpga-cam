@@ -81,6 +81,7 @@ signal next_blob_index_tp : unsigned (7 downto 0);
 signal blob_area, blob_max_area : unsigned(20 downto 0);
 signal pos_index : unsigned(7 downto 0);
 signal sraz_blob_addr, en_blob_addr : std_logic ;
+
 begin 
 
 nclk <= NOT clk ;
@@ -329,6 +330,7 @@ xy_pixel_ram0: ram_NxN
 				  (others => '0') ;
 				  
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
+				 '1' when pixel_state = MERGE_BLOB2 else -- to be tested, clear blob when its merged
 				 '1' when frame_state = ERASE_BLOB else
 				 '0' ;
 	with frame_state select
