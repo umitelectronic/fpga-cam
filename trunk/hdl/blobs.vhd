@@ -62,6 +62,7 @@ end blobs;
 
 
 architecture Behavioral of blobs is
+
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
 type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, SEND_DATA, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, ERASE_BLOB, NEXT_BLOB);
 
@@ -71,7 +72,7 @@ signal frame_state, next_frame_state : FRAME_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax, width, height : unsigned(9 downto 0);
 signal blobdatax, blobdatay, blobdataw, blobdatah : std_logic_vector(7 downto 0);
-signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr : std_logic_vector(7 downto 0);
+signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr  : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
 signal index_in : unsigned(7 downto 0);
@@ -81,6 +82,7 @@ signal next_blob_index_tp : unsigned (7 downto 0);
 signal blob_area, blob_max_area : unsigned(20 downto 0);
 signal pos_index : unsigned(7 downto 0);
 signal sraz_blob_addr, en_blob_addr : std_logic ;
+
 
 begin 
 
@@ -107,13 +109,16 @@ with pixel_state select
 						  (blob_index_to_merge - 1) when MERGE_BLOB2  ,
 						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
 						  (pos_index) when others;
+						  
+						  
 with frame_state select
 	ram_addr_tp <= ram_addr when ACTIVE_FRAME ,
 						blob_addr when others;
+	
 
 true_blob_index <= unsigned(ram_addr) ; 
 
-blob_index_ram :ram_NxN
+blob_index_ram : ram_NxN -- should use the write first architecture ...
 	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
  		clk => nclk, -- was using nclk but caused timing problem ... must check how it works.
@@ -317,20 +322,21 @@ xy_pixel_ram0: ram_NxN
 	
 	
 	addr_counter0 :  simple_counter
-	 generic map(MODULO => NB_BLOB , NBIT => 8)
+	 generic map(MODULO => NB_BLOB , NBIT => 4)
     port map( clk => clk,
            arazb => arazb,
            sraz => sraz_blob_addr,
            en => en_blob_addr,
-           Q => blob_addr
+           Q => blob_addr(3 downto 0)
 			  );
-
-
+	blob_addr(7 downto 4) <= (others => '0') ;
+	
+	
+	
 	ram0_in <= std_logic_vector(newymax) & std_logic_vector(newymin) & std_logic_vector(newxmax) & std_logic_vector(newxmin) when pixel_state = UPDATE_BLOB else
 				  (others => '0') ;
 				  
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
-				 '1' when pixel_state = MERGE_BLOB2 else -- to be tested, clear blob when its merged
 				 '1' when frame_state = ERASE_BLOB else
 				 '0' ;
 	with frame_state select
@@ -355,7 +361,7 @@ xy_pixel_ram0: ram_NxN
 					 
 	with frame_state select
 	en_blob_addr <= '1' when ERASE_BLOB,
-					 '0' when others ;
+						 '0' when others ;
 	with frame_state select
 	sraz_blob_addr <= '1' when ACTIVE_FRAME,
 					  '1' when WAIT_NEW_FRAME,
