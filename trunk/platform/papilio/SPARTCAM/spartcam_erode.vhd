@@ -37,13 +37,13 @@ entity spartcam_erode is
 port( CLK : in std_logic;
 		ARAZB	:	in std_logic;
 		CAM_XCLK	:	out std_logic;
-		TXD	:	out std_logic;
+		TXD, TXD2	:	out std_logic;
+		RXD, RXD2	:	in std_logic;
 		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
 		CAM_DATA	:	in std_logic_vector(7 downto 0);
 		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;
 		CAM_PCLK_OUT, CAM_HREF_OUT, CAM_VSYNC_OUT	:	out std_logic;
-		CAM_RESET	:	out std_logic ;
-		CAM_PWEN		:	out std_logic
+		CAM_RESET	:	out std_logic 
 );
 end spartcam_erode;
 
@@ -131,8 +131,8 @@ architecture Structural of spartcam_erode is
 	end process;
 
 	CAM_RESET <= arazb ;
-	CAM_PWEN <= '0';
 	CAM_XCLK <= clk_24 ;
+	TXD2 <= 'Z' ;
 	--CAM_PCLK_OUT <= CAM_PCLK;
 	--CAM_HREF_OUT <= CAM_HREF;
 	--CAM_VSYNC_OUT <= CAM_VSYNC;
@@ -142,10 +142,6 @@ architecture Structural of spartcam_erode is
 	--CAM_PCLK_OUT <= pxclk_from_ds;
 	--CAM_HREF_OUT <= href_from_ds;
 	--CAM_VSYNC_OUT <= vsync_from_ds;
-	
-	CAM_HREF_OUT <= i2c_scl;
-	CAM_VSYNC_OUT <= i2c_sda;
-	CAM_PCLK_OUT <= 'Z';
 	
 	CAM_SIOC <= i2c_scl ;
 	CAM_SIOD <= i2c_sda ;
@@ -164,6 +160,7 @@ architecture Structural of spartcam_erode is
 	
 	
 	camera0: yuv_camera_interface
+		generic map(FORMAT => QVGA)
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
@@ -185,6 +182,9 @@ architecture Structural of spartcam_erode is
 		
 		
 		erode0 : erode3x3
+		generic map(
+		  WIDTH => 320, 
+		  HEIGHT => 240)
 		port map(
 				clk => clk_96,  
 				arazb => arazb_delayed ,  
@@ -196,6 +196,9 @@ architecture Structural of spartcam_erode is
 		);  
 		
 		dilate0 : dilate3x3
+		generic map(
+		  WIDTH => 320, 
+		  HEIGHT => 240)
 		port map(
 				clk => clk_96,  
 				arazb => arazb_delayed ,  
@@ -207,6 +210,7 @@ architecture Structural of spartcam_erode is
 		); 
 		
 		down_scaler0: down_scaler
+		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
 		  pixel_clock => pxclk_from_dilate, hsync => href_from_dilate, vsync => vsync_from_dilate,
