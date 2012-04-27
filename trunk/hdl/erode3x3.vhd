@@ -92,6 +92,7 @@ begin
 		end generate ninv0 ;
 		
 		
+		
 		process(clk, arazb)
 		begin
 		if arazb = '0' then 

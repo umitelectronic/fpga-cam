@@ -66,7 +66,7 @@ signal LINE1_INPUT, LINE1_OUTPUT, LINE2_INPUT, LINE2_OUTPUT : std_logic_vector(7
 signal final_res : signed(31 downto 0);
 
 signal nb_line : std_logic_vector(9 downto 0) := (others => '0');
-signal pixel_counter : std_logic_vector(9 downto 0) := (others => '0');
+signal pixel_counterq : std_logic_vector(9 downto 0) := (others => '0');
 begin
 
 nclk <= NOT clk ;
@@ -78,7 +78,7 @@ line1: ram_Nx8
  		we => line_wr, en => '1' ,
  		do => LINE1_OUTPUT,
  		di => LINE1_INPUT,
- 		addr => pixel_counter
+ 		addr => pixel_counterq
 	); 
 
 line2: ram_Nx8
@@ -88,7 +88,7 @@ line2: ram_Nx8
  		we => line_wr, en => '1' ,
  		do => LINE2_OUTPUT,
  		di => LINE2_INPUT,
- 		addr => pixel_counter
+ 		addr => pixel_counterq
 	); 
 
 
@@ -97,7 +97,7 @@ pixel_counter0: pixel_counter
 			clk => clk,
 			arazb => arazb, 
 			pixel_clock => pixel_clock, hsync => hsync,
-			pixel_count => pixel_counter
+			pixel_count => pixel_counterq
 			);
 			
 line_counter0: line_counter

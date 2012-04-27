@@ -15,7 +15,7 @@ entity ram_NxN is
 	); 
 end ram_NxN;
 
-architecture behavioral of ram_NxN is
+architecture read_first of ram_NxN is
  
 	type array_N is array (0 to (SIZE - 1)) of std_logic_vector(NBIT-1 downto 0 ); 
 	signal ram : array_N ;
@@ -35,4 +35,4 @@ architecture behavioral of ram_NxN is
 		 	end if ;
 		 end process;  
 	
-end behavioral ;
+end read_first ;
