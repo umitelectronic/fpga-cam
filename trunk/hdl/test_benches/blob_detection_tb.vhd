@@ -129,7 +129,11 @@ process
 --pixel <= X"FF" when px_count < 100 and line_count < 240 else
 --			X"00" ;
 
+--pixel <= X"FF" when line_count < 100  and  px_count  >= 250 else
+--			X"00" ;
+			
 pixel <= X"FF" when line_count < 100  and  px_count  >= 250 else
+			X"FF" when line_count >= 100  and  px_count  <= 250 else
 			X"00" ;
 
 
