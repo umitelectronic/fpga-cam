@@ -82,9 +82,29 @@ signal next_blob_index_tp : unsigned (7 downto 0);
 signal blob_area, blob_max_area : unsigned(20 downto 0);
 signal pos_index : unsigned(7 downto 0);
 signal sraz_blob_addr, en_blob_addr : std_logic ;
-
+signal blob_index_latched, blob_index_to_merge_latched : std_logic_vector(7 downto 0) ;
 
 begin 
+
+
+blob_index_latch : generic_latch 
+	 generic map(NBIT => 8)
+    port map( clk => clk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => add_pixel ,
+           d => std_logic_vector(blob_index) ,
+           q => blob_index_latched);
+			  
+merge_index_latch : generic_latch 
+	 generic map(NBIT => 8)
+    port map( clk => clk,
+           arazb => arazb,
+           sraz => '0' ,
+           en => merge_blob ,
+           d => std_logic_vector(blob_index_to_merge) ,
+           q => blob_index_to_merge_latched);
+
 
 nclk <= NOT clk ;
 
@@ -101,12 +121,12 @@ next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more fre
 						 X"00";
 						
  
-pos_index <= blob_index when blob_index = X"00" else
-				 blob_index - 1 ;
+pos_index <= unsigned(blob_index_latched) when blob_index = X"00" else
+				 unsigned(blob_index_latched) - 1 ;
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB,
-						  (blob_index_to_merge - 1) when MERGE_BLOB1  ,
-						  (blob_index_to_merge - 1) when MERGE_BLOB2  ,
+						  (unsigned(blob_index_to_merge_latched) - 1) when MERGE_BLOB1  ,
+						  (unsigned(blob_index_to_merge_latched) - 1) when MERGE_BLOB2  ,
 						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
 						  (pos_index) when others;
 						  
