@@ -110,10 +110,10 @@ with pixel_state select
 						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
 						  (pos_index) when others;
 						  
-						  
-with frame_state select
-	ram_addr_tp <= ram_addr when ACTIVE_FRAME ,
-						blob_addr when others;
+
+ram_addr_tp <= blob_addr when frame_state /= ACTIVE_FRAME else
+					free_addr when pixel_state = MERGE_BLOB2 else
+					ram_addr ;
 	
 
 true_blob_index <= unsigned(ram_addr) ; 
@@ -152,15 +152,11 @@ xy_pixel_ram0: ram_NxN
 	elsif clk'event and clk = '1' then
 		if sraz = '1' then
 			to_merge <= '0' ;
-			
-			
 			blob_index_init <= (others => '0'); -- initializing index ram 
 			index_in <= (others => '0');
 			index_wr <= '1' ;
 			to_merge <= '0' ;
-			
 			blob_max_area <= (others => '0');
-			
 			pixel_state <= INIT_BLOB ;
 		else
 			case pixel_state is
@@ -188,7 +184,6 @@ xy_pixel_ram0: ram_NxN
 							else
 								to_merge <= '0' ;
 							end if ;
-							
 							pixel_state <= COMPARE_BLOB ;
 						end if ;
 					end if ;
@@ -337,6 +332,7 @@ xy_pixel_ram0: ram_NxN
 				  (others => '0') ;
 				  
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
+				 '1' when pixel_state = MERGE_BLOB2 else -- to be tested
 				 '1' when frame_state = ERASE_BLOB else
 				 '0' ;
 	with frame_state select

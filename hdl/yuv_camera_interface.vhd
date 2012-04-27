@@ -1,8 +1,10 @@
 library IEEE;
         use IEEE.std_logic_1164.all;
         use IEEE.std_logic_unsigned.all;
+		  
 library work;
         use work.camera.all ;
+		  use work.generic_components.all ;
 
 entity yuv_camera_interface is
 generic(FORMAT : FRAME_FORMAT := QVGA);
@@ -24,7 +26,7 @@ end yuv_camera_interface;
 architecture systemc of yuv_camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "0100001"; 
-	TYPE pixel_state IS (Y1, U1, Y2, V1) ; 
+	TYPE pixel_state IS (WAIT_PIXEL, Y1, U1, Y2, V1) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
@@ -37,10 +39,16 @@ architecture systemc of yuv_camera_interface is
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
+	signal pxclk_old, pxclk_rising_edge, nclk : std_logic ;
+	signal en_ylatch, en_ulatch, en_vlatch : std_logic ;
+	signal hsynct, vsynct  : std_logic ;
+	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
+	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
+	
 	begin
 	
 gen_vga : if FORMAT = VGA generate
-	register_rom0 : entity yuv_register_rom(vga) --rom containg sensor configuration
+	register_rom_vga : yuv_register_rom --rom containg sensor configuration
 		port map (
 		   clk => clock,
 			en => '1',
@@ -50,7 +58,7 @@ gen_vga : if FORMAT = VGA generate
 	 end generate ;
 	 
 gen_qvga : if FORMAT = QVGA generate
-	register_rom0 : entity yuv_register_rom(qvga) --rom containg sensor configuration
+	register_rom_qvga : yuv_register_rom --rom containg sensor configuration
 		port map (
 		   clk => clock,
 			en => '1',
@@ -58,6 +66,34 @@ gen_qvga : if FORMAT = QVGA generate
 			data => reg_data
 		); 
 	 end generate ;
+	
+nclk <= not clock ;	
+y_latch : generic_latch 
+	 generic map( NBIT => 8)
+    port map( clk =>nclk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => en_ylatch ,
+           d => pixel_data , 
+           q => y_data);
+			  
+u_latch : generic_latch 
+	 generic map( NBIT => 8)
+    port map( clk => nclk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => en_ulatch ,
+           d => pixel_data , 
+           q => u_data);
+
+v_latch : generic_latch 
+	 generic map( NBIT => 8)
+    port map( clk => nclk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => en_vlatch ,
+           d => pixel_data , 
+           q => v_data);
 
 	i2c_master0 : i2c_master -- i2c master to send sensor configuration, no proof its working
 		port map ( 
@@ -133,47 +169,102 @@ gen_qvga : if FORMAT = QVGA generate
 		 	end if ;
 		 end process;  
 
-	-- pixel_interface
+
+
+
 	process(clock, arazb)
 		 begin
-		 	if arazb = '0'  then
-		 		pix_state <= Y1 ;
+			if arazb = '0' then
+				hsynct <= '0' ;
+				vsynct <= '0' ;
 		 	elsif  clock'event and clock = '1'  then
-				hsync_out <= NOT href ; -- changing href into hsync
-				vsync_out <= vsync ;
-		 		if  href = '1'  AND  NOT vsync = '1'  then
-		 			if pxclk = '1' then 
-						case pix_state is
-							when Y1 => 
-								y_data <= pixel_data ;
-								pixel_clock_out <= '0' ;
-								next_state <= U1 ;
-							when U1 => 
-								u_data <= pixel_data ;
-								pixel_clock_out <= '1' ;
-								next_state <= Y2 ;
-							when Y2 => 
-								y_data <= pixel_data ;
-								pixel_clock_out <= '0' ;
-								next_state <= V1 ;
-							when V1 => 
-								v_data <= pixel_data ;
-								pixel_clock_out <= '1' ;
-								next_state <= Y1 ;
-							when others => 
-								next_state <= Y1 ;
-						end case ;
-					else
-						pix_state <= next_state ; -- state evolution
-					end if ;
-				elsif href = '0'  OR  vsync = '1' then
-						pixel_clock_out <= '0' ;
-						pix_state <= Y1 ;
-		 		else
-						pixel_clock_out <= '0' ;
-						pix_state <= Y1 ;
-		 		end if ;
-		 	end if ;
-		 end process;  
+				hsynct <= NOT href ; -- changing href into hsync
+				vsynct <= vsync ;
+			end if ;
+	end process ;
 	
+	process(clock, arazb)
+		 begin
+			if arazb = '0' then
+				pxclk_rising_edge <= '0' ;
+				pxclk_old <= '0' ;
+		 	elsif  clock'event and clock = '1' then
+				pxclk_old <= pxclk ;
+				if pxclk /= pxclk_old and pxclk = '1' and hsynct = '0' and vsynct = '0' then
+					pxclk_rising_edge <= '1' ;
+				else
+					pxclk_rising_edge <= '0' ;
+				end if ;
+			end if ;
+	end process ;
+	
+	process(clock, arazb)
+		begin
+		if arazb = '0'  then
+		 		pix_state <= WAIT_PIXEL ;
+		elsif clock'event and clock = '1'  then
+				pix_state <= next_state ;
+		end if ;
+	end process ;
+
+
+	process(hsynct, vsynct, pix_state, pxclk_rising_edge)
+		begin
+			next_state <= pix_state ;
+			case pix_state is
+				when WAIT_PIXEL =>
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= Y1 ;
+					end if ;
+				when Y1 => 
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= U1 ;
+					end if ;
+				when U1 => 
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= Y2 ;
+					end if ;
+				when Y2 => 
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= V1 ;
+					end if ;
+				when V1 => 
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= Y1 ;
+					end if ;
+				when others => 
+					next_state <= WAIT_PIXEL ;
+			end case ;
+	 end process;  
+	 
+	 with pix_state select
+		pixel_clock_out <=  '1' when  U1 ,
+								  '1' when  V1 ,
+								  '0' when others ;
+								  
+	 with pix_state select
+		en_ylatch <=  pxclk_rising_edge when  WAIT_PIXEL ,
+						  pxclk_rising_edge when  U1 ,
+						  pxclk_rising_edge when  V1 ,
+						  '0' when others ;
+	 with pix_state select
+		en_ulatch <=  pxclk_rising_edge when  Y1 ,
+						  '0' when others ;
+	 with pix_state select
+		en_vlatch <=  pxclk_rising_edge when  Y2 ,
+						  '0' when others ;
+	
+    hsync_out <= hsynct ;	
+	 vsync_out <= vsynct ;
+						  
 end systemc ;
