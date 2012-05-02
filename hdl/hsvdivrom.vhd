@@ -16,9 +16,6 @@ architecture final of hsvdivrom is
  
 	type vals is array (0 to 31) of std_logic_vector(15 downto 0 ); 
 	
-	
-	
-	-- CONFIGURATION TAKEN FROM OV7670.c IN LINUX KERNEL DRIVERS
 	signal rom : vals :=( 
 	D"1360",
 	D"680",

@@ -86,10 +86,11 @@ signal blob_index_latched, blob_index_to_merge_latched : std_logic_vector(7 down
 
 begin 
 
+nclk <= NOT clk ;
 
 blob_index_latch : generic_latch 
 	 generic map(NBIT => 8)
-    port map( clk => clk,
+    port map( clk => nclk,
            arazb => arazb ,
            sraz => '0' ,
            en => add_pixel ,
@@ -98,7 +99,7 @@ blob_index_latch : generic_latch
 			  
 merge_index_latch : generic_latch 
 	 generic map(NBIT => 8)
-    port map( clk => clk,
+    port map( clk => nclk,
            arazb => arazb,
            sraz => '0' ,
            en => merge_blob ,
@@ -106,7 +107,7 @@ merge_index_latch : generic_latch
            q => blob_index_to_merge_latched);
 
 
-nclk <= NOT clk ;
+
 
 blobxmin <= unsigned(ram0_out(9 downto 0)) ; -- top left coordinate
 blobxmax <= unsigned(ram0_out(19 downto 10)) ; -- top right coordinate
@@ -141,7 +142,7 @@ true_blob_index <= unsigned(ram_addr) ;
 blob_index_ram : ram_NxN -- should use the write first architecture ...
 	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
- 		clk => nclk, -- was using nclk but caused timing problem ... must check how it works.
+ 		clk => nclk, -- causes timing problem ... must check how it works.
  		we => index_wr, en => '1',
  		do => ram_addr ,
  		di => std_logic_vector(index_in),  
@@ -352,7 +353,7 @@ xy_pixel_ram0: ram_NxN
 				  (others => '0') ;
 				  
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
-				 '1' when pixel_state = MERGE_BLOB2 else -- to be tested
+				 '1' when pixel_state = MERGE_BLOB2 else -- to be tested, clears blob data
 				 '1' when frame_state = ERASE_BLOB else
 				 '0' ;
 	with frame_state select
