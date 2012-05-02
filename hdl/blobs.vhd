@@ -80,7 +80,7 @@ signal nclk, to_merge : std_logic ;
 signal nb_free_index : unsigned (7 downto 0);
 signal next_blob_index_tp : unsigned (7 downto 0);
 signal blob_area, blob_max_area : unsigned(20 downto 0);
-signal pos_index : unsigned(7 downto 0);
+signal pos_blob_index, pos_merge_index : unsigned(7 downto 0);
 signal sraz_blob_addr, en_blob_addr : std_logic ;
 signal blob_index_latched, blob_index_to_merge_latched : std_logic_vector(7 downto 0) ;
 
@@ -88,22 +88,28 @@ begin
 
 nclk <= NOT clk ;
 
+
+pos_blob_index <= unsigned(blob_index) when blob_index = X"00" else
+				 unsigned(blob_index) - 1 ;
 blob_index_latch : generic_latch 
 	 generic map(NBIT => 8)
     port map( clk => nclk,
            arazb => arazb ,
            sraz => '0' ,
            en => add_pixel ,
-           d => std_logic_vector(blob_index) ,
+           d => std_logic_vector(pos_blob_index) ,
            q => blob_index_latched);
-			  
+
+
+pos_merge_index <= unsigned(blob_index_to_merge) when blob_index_to_merge = X"00" else
+						 unsigned(blob_index_to_merge) - 1 ;			  
 merge_index_latch : generic_latch 
 	 generic map(NBIT => 8)
     port map( clk => nclk,
            arazb => arazb,
            sraz => '0' ,
            en => merge_blob ,
-           d => std_logic_vector(blob_index_to_merge) ,
+           d => std_logic_vector(pos_merge_index) ,
            q => blob_index_to_merge_latched);
 
 
@@ -122,14 +128,13 @@ next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more fre
 						 X"00";
 						
  
-pos_index <= unsigned(blob_index_latched) when blob_index = X"00" else
-				 unsigned(blob_index_latched) - 1 ;
+
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB,
-						  (unsigned(blob_index_to_merge_latched) - 1) when MERGE_BLOB1  ,
-						  (unsigned(blob_index_to_merge_latched) - 1) when MERGE_BLOB2  ,
+						  unsigned(blob_index_to_merge_latched) when MERGE_BLOB1  ,
+						  unsigned(blob_index_to_merge_latched) when MERGE_BLOB2  ,
 						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
-						  (pos_index) when others;
+						  unsigned(blob_index_latched) when others;
 						  
 
 ram_addr_tp <= blob_addr when frame_state /= ACTIVE_FRAME else
@@ -139,7 +144,7 @@ ram_addr_tp <= blob_addr when frame_state /= ACTIVE_FRAME else
 
 true_blob_index <= unsigned(ram_addr) ; 
 
-blob_index_ram : ram_NxN -- should use the write first architecture ...
+blob_index_ram : ram_NxN 
 	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
  		clk => nclk, -- causes timing problem ... must check how it works.
@@ -251,14 +256,13 @@ xy_pixel_ram0: ram_NxN
 					if blobymax > newymax then
 						newymax <= blobymax ;
 					end if;
-					free_addr <= ram_addr ;
-					if blob_merge_addr /= ram_addr then
-						index_in <= unsigned(blob_merge_addr) ; -- index now point to new memory location
-						free_addr <= ram_addr ;
+					index_in <= unsigned(blob_merge_addr) ; -- merging addr
+					free_addr <= ram_addr ; -- free ram addr
+					if blob_merge_addr /= ram_addr then -- not already merged, writing merge address and freeing index
 						index_wr <= '1' ;
 						pixel_state <= MERGE_BLOB2 ;
 					else
-						index_wr <= '0' ;
+						index_wr <= '0' ; -- already merged
 						pixel_state <= UPDATE_BLOB ;
 					end if;
 				when MERGE_BLOB2 =>
