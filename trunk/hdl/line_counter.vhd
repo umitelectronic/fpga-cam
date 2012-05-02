@@ -31,6 +31,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity line_counter is
+		generic(POL : std_logic := '1');
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
@@ -53,7 +54,7 @@ if arazb = '0' then
 elsif clk'event and clk = '1'  then
 		if vsync = '1' then
 			line_count_temp <= (others => '0') ;
-		elsif hsync /= hsync_old and hsync = '1' then
+		elsif hsync /= hsync_old and hsync = POL then
 			line_count_temp <= line_count_temp + 1 ;
 		end if ;
 		hsync_old <= hsync ;

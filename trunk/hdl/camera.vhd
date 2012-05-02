@@ -330,6 +330,7 @@ component pixel_counter is
 end component;
 
 component line_counter is
+		generic(POL : std_logic := '1');
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 

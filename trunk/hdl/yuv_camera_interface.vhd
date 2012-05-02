@@ -42,8 +42,8 @@ architecture systemc of yuv_camera_interface is
 	signal pxclk_old, pxclk_rising_edge, nclk : std_logic ;
 	signal en_ylatch, en_ulatch, en_vlatch : std_logic ;
 	signal hsynct, vsynct  : std_logic ;
-	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
-	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
+--	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
+--	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
 	
 	begin
 	

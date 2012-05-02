@@ -3,6 +3,7 @@ library IEEE;
         use IEEE.std_logic_unsigned.all;
 library work;
         use work.camera.all ;
+		  use work.generic_components.all ;
 
 entity rgb565_camera_interface is
 	generic(FORMAT : FRAME_FORMAT := QVGA);
@@ -24,7 +25,7 @@ end rgb565_camera_interface;
 architecture systemc of rgb565_camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "0100001"; 
-	TYPE pixel_state IS (RG, GB) ; 
+	TYPE pixel_state IS (WAIT_PIXEL, RG, GB) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
@@ -37,11 +38,17 @@ architecture systemc of rgb565_camera_interface is
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
-	signal g_temp : std_logic_vector(2 downto 0);
+	
+	signal pxclk_old, pxclk_rising_edge, nclk : std_logic ;
+	signal en_rlatch, en_glatch0, en_glatch1, en_blatch : std_logic ;
+	signal hsynct, vsynct  : std_logic ;
+	for register_rom_vga : rgb565_register_rom use entity rgb565_register_rom(vga) ;
+	for register_rom_qvga : rgb565_register_rom use entity rgb565_register_rom(qvga) ;
+	
 	begin
 	
 gen_vga : if FORMAT = VGA generate
-	register_rom0 : entity rgb565_register_rom(vga) --rom containg sensor configuration
+	register_rom_vga : rgb565_register_rom --rom containg sensor configuration
 		port map (
 		   clk => clock,
 			en => '1',
@@ -51,7 +58,7 @@ gen_vga : if FORMAT = VGA generate
 	 end generate ;
 	 
 gen_qvga : if FORMAT = QVGA generate
-	register_rom0 : entity rgb565_register_rom(qvga) --rom containg sensor configuration
+	register_rom_qvga : rgb565_register_rom --rom containg sensor configuration
 		port map (
 		   clk => clock,
 			en => '1',
@@ -59,7 +66,48 @@ gen_qvga : if FORMAT = QVGA generate
 			data => reg_data
 		); 
 	 end generate ;
-		
+	 
+nclk <= not clock ;	
+r_latch : generic_latch 
+	 generic map( NBIT => 5)
+    port map( clk =>nclk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => en_rlatch ,
+           d => pixel_data(7 downto 3) , 
+           q => r_data(5 downto 1));
+r_data(7 downto 6) <= (others => '0') ; 			  
+r_data(0) <= '0' ;			  
+			  
+g_latch_0 : generic_latch 
+	 generic map( NBIT => 3)
+    port map( clk => nclk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => en_glatch0 ,
+           d => pixel_data(2 downto 0) , 
+           q => g_data(5 downto 3));
+
+g_latch_1 : generic_latch 
+	 generic map( NBIT => 3)
+    port map( clk => nclk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => en_glatch1 ,
+           d => pixel_data(7 downto 5) , 
+           q => g_data(2 downto 0));
+g_data(7 downto 6) <= (others => '0');
+
+b_latch : generic_latch 
+	 generic map( NBIT => 5)
+    port map( clk => nclk,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => en_blatch ,
+           d => pixel_data(4 downto 0) , 
+           q => b_data(5 downto 1));	 
+b_data(7 downto 6) <= (others => '0');	 
+b_data(0) <= '0' ;	
 		
 	i2c_master0 : i2c_master -- i2c master to send sensor configuration, no proof its working
 		port map ( 
@@ -135,42 +183,91 @@ gen_qvga : if FORMAT = QVGA generate
 		 	end if ;
 		 end process;  
 
-
-	-- pixel_interface
 	process(clock, arazb)
 		 begin
-		 	if arazb = '0'  then
-		 		pix_state <= RG ;
+			if arazb = '0' then
+				hsynct <= '0' ;
+				vsynct <= '0' ;
 		 	elsif  clock'event and clock = '1'  then
-				hsync_out <= NOT href ; -- changing href into hsync
-				vsync_out <= vsync ;
-		 		if  href = '1'  AND  NOT vsync = '1'  then
-					if pxclk = '1' then
-						case pix_state is	
-							when RG => 
-								r_data(7 downto 0) <=   "00" & pixel_data(7 downto 3) & "0" ;
-								g_temp <= pixel_data(2 downto 0);
-								next_state <= GB ;
-								pixel_clock_out <= '0' ;
-							when GB => 
-								g_data(7 downto 0) <=  "00" & g_temp & pixel_data(7 downto 5)  ;
-								b_data(7 downto 0) <=  "00" & pixel_data(4 downto 0) & "0" ;
-								pixel_clock_out <= '1' ;
-								next_state <= RG ;
-							when others => 
-								next_state <= RG ;
-						end case ;
-					else
-						pix_state <= next_state ; -- state evolution
+				hsynct <= NOT href ; -- changing href into hsync
+				vsynct <= vsync ;
+			end if ;
+	end process ;
+	
+	process(clock, arazb)
+		 begin
+			if arazb = '0' then
+				pxclk_rising_edge <= '0' ;
+				pxclk_old <= '0' ;
+		 	elsif  clock'event and clock = '1' then
+				pxclk_old <= pxclk ;
+				if pxclk /= pxclk_old and pxclk = '1' and hsynct = '0' and vsynct = '0' then
+					pxclk_rising_edge <= '1' ;
+				else
+					pxclk_rising_edge <= '0' ;
+				end if ;
+			end if ;
+	end process ;
+	
+	process(clock, arazb)
+		begin
+		if arazb = '0'  then
+		 		pix_state <= WAIT_PIXEL ;
+		elsif clock'event and clock = '1'  then
+				pix_state <= next_state ;
+		end if ;
+	end process ;
+
+
+	process(hsynct, vsynct, pix_state, pxclk_rising_edge)
+		begin
+			next_state <= pix_state ;
+			case pix_state is
+				when WAIT_PIXEL =>
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= RG ;
 					end if ;
-		 		elsif href = '0'  OR  vsync = '1' then
-						pixel_clock_out <= '0' ;
-						pix_state <= RG ;
-		 		else
-						pixel_clock_out <= '0' ;
-						pix_state <= RG ;
-		 		end if ;
-		 	end if ;
-		 end process;  
+				when RG => 
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= GB ;
+					end if ;
+				when GB => 
+					if hsynct = '1' or vsynct = '1' then
+						next_state <= WAIT_PIXEL ;
+					elsif pxclk_rising_edge = '1' then
+						next_state <= RG ;
+					end if ;
+				when others => 
+					next_state <= WAIT_PIXEL ;
+			end case ;
+	 end process;  
+	 
+	 with pix_state select
+		pixel_clock_out <=  '1' when GB ,
+								  '0' when others ;
+								  
+	 with pix_state select
+		en_rlatch <=  pxclk_rising_edge when  WAIT_PIXEL ,
+						  pxclk_rising_edge when  GB ,
+						  '0' when others ;
+	 with pix_state select
+		en_glatch0 <=  pxclk_rising_edge when  WAIT_PIXEL ,
+						   pxclk_rising_edge when  GB ,
+						   '0' when others ;
+	 with pix_state select
+		en_glatch1 <=  pxclk_rising_edge when  RG ,
+						  '0' when others ;
+	
+	 with pix_state select
+		en_blatch <=  pxclk_rising_edge when  RG ,
+						  '0' when others ;
+	
+    hsync_out <= hsynct ;	
+	 vsync_out <= vsynct ;
+
 	
 end systemc ;

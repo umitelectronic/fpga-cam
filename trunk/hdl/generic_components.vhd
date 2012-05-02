@@ -79,6 +79,17 @@ component fifo_Nx8 is
 	); 
 end component;
 
+component hold is
+	 generic(HOLD_TIME : positive := 4; HOLD_LEVEL : std_logic := '1');
+    Port ( clk : in  STD_LOGIC;
+           arazb : in  STD_LOGIC;
+           sraz : in  STD_LOGIC;
+           input: in  STD_LOGIC;
+			  output: out  STD_LOGIC;
+			  holding : out std_logic 
+			  );
+end component;
+
 end generic_components;
 
 Package body generic_components is
