@@ -70,7 +70,7 @@ gen_qvga : if FORMAT = QVGA generate
 nclk <= not clock ;	
 y_latch : generic_latch 
 	 generic map( NBIT => 8)
-    port map( clk =>nclk,
+    port map( clk =>clock,
            arazb => arazb ,
            sraz => '0' ,
            en => en_ylatch ,
@@ -79,7 +79,7 @@ y_latch : generic_latch
 			  
 u_latch : generic_latch 
 	 generic map( NBIT => 8)
-    port map( clk => nclk,
+    port map( clk => clock,
            arazb => arazb ,
            sraz => '0' ,
            en => en_ulatch ,
@@ -88,7 +88,7 @@ u_latch : generic_latch
 
 v_latch : generic_latch 
 	 generic map( NBIT => 8)
-    port map( clk => nclk,
+    port map( clk => clock,
            arazb => arazb ,
            sraz => '0' ,
            en => en_vlatch ,
@@ -250,22 +250,35 @@ v_latch : generic_latch
 	 with pix_state select
 		pixel_clock_out_t <= 
 									 --pxclk_rising_edge when  Y1 , -- would allow faster clock output
-									 --pxclk_rising_edge when  Y2 ,
+									 --pxclk_rising_edge when  Y2 , -- but necessitate to sample data using pixel_clock as latch clock
 									 '1' when  U1 ,
 								    '1' when  V1 ,
 								    '0' when others ;
-								  
+	
 	 with pix_state select
-		en_ylatch <=  pxclk_rising_edge when  WAIT_PIXEL ,
-						  pxclk_rising_edge when  U1 ,
-						  pxclk_rising_edge when  V1 ,
+		en_ylatch <=  pxclk when  WAIT_PIXEL ,
+						  pxclk when  U1 ,
+						  pxclk when  V1 ,
 						  '0' when others ;
 	 with pix_state select
-		en_ulatch <=  pxclk_rising_edge when  Y1 ,
+		en_ulatch <=  pxclk when  Y1 ,
 						  '0' when others ;
 	 with pix_state select
-		en_vlatch <=  pxclk_rising_edge when  Y2 ,
+		en_vlatch <=  pxclk when  Y2 ,
 						  '0' when others ;
+
+	
+--	 with pix_state select
+--		en_ylatch <=  pxclk_rising_edge when  WAIT_PIXEL ,
+--						  pxclk_rising_edge when  U1 ,
+--						  pxclk_rising_edge when  V1 ,
+--						  '0' when others ;
+--	 with pix_state select
+--		en_ulatch <=  pxclk_rising_edge when  Y1 ,
+--						  '0' when others ;
+--	 with pix_state select
+--		en_vlatch <=  pxclk_rising_edge when  Y2 ,
+--						  '0' when others ;
 	
     hsync_out <= hsynct AND (NOT pixel_clock_out_t) ;	
 	 vsync_out <= vsynct AND (NOT pixel_clock_out_t);
