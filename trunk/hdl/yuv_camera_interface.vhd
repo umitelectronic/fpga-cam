@@ -41,7 +41,7 @@ architecture systemc of yuv_camera_interface is
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
 	signal pxclk_old, pxclk_rising_edge, nclk : std_logic ;
 	signal en_ylatch, en_ulatch, en_vlatch : std_logic ;
-	signal hsynct, vsynct  : std_logic ;
+	signal hsynct, vsynct, pixel_clock_out_t  : std_logic ;
 --	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
 --	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
 	
@@ -248,9 +248,12 @@ v_latch : generic_latch
 	 end process;  
 	 
 	 with pix_state select
-		pixel_clock_out <=  '1' when  U1 ,
-								  '1' when  V1 ,
-								  '0' when others ;
+		pixel_clock_out_t <= 
+									 --pxclk_rising_edge when  Y1 , -- would allow faster clock output
+									 --pxclk_rising_edge when  Y2 ,
+									 '1' when  U1 ,
+								    '1' when  V1 ,
+								    '0' when others ;
 								  
 	 with pix_state select
 		en_ylatch <=  pxclk_rising_edge when  WAIT_PIXEL ,
@@ -264,7 +267,8 @@ v_latch : generic_latch
 		en_vlatch <=  pxclk_rising_edge when  Y2 ,
 						  '0' when others ;
 	
-    hsync_out <= hsynct ;	
-	 vsync_out <= vsynct ;
+    hsync_out <= hsynct AND (NOT pixel_clock_out_t) ;	
+	 vsync_out <= vsynct AND (NOT pixel_clock_out_t);
+	 pixel_clock_out <= pixel_clock_out_t ;
 						  
 end systemc ;
