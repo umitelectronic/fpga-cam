@@ -75,7 +75,7 @@ signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
 signal index_in : unsigned(7 downto 0);
 signal nclk, to_merge : std_logic ;
 signal nb_free_index : unsigned (7 downto 0);
-signal next_blob_index_tp : unsigned (7 downto 0);
+signal next_blob_index_tp, unused_blob_index : unsigned (7 downto 0);
 signal pos_blob_index, pos_merge_index : unsigned(7 downto 0);
 signal blob_index_latched, blob_index_to_merge_latched : std_logic_vector(7 downto 0) ;
 
@@ -121,13 +121,13 @@ blobymax <= unsigned(ram0_out(39 downto 30)) ; -- bottom right coordinate
 next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more free index ...
 						 X"00";
 						
- 
+unused_blob_index	<=  ((next_blob_index_tp - 1) + nb_free_index) ; -- blob index not associated to ram addr
 
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB,
 						  unsigned(blob_index_to_merge_latched) when MERGE_BLOB1  ,
 						  unsigned(blob_index_to_merge_latched) when MERGE_BLOB2  ,
-						  ((next_blob_index_tp - 1) + nb_free_index) when MERGE_BLOB3  ,
+						  unused_blob_index when MERGE_BLOB3  ,
 						  unsigned(blob_index_latched) when others;
 						  
 
