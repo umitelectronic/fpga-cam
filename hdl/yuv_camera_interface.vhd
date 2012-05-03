@@ -42,8 +42,8 @@ architecture systemc of yuv_camera_interface is
 	signal pxclk_old, pxclk_rising_edge, nclk : std_logic ;
 	signal en_ylatch, en_ulatch, en_vlatch : std_logic ;
 	signal hsynct, vsynct, pixel_clock_out_t  : std_logic ;
---	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
---	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
+	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
+	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
 	
 	begin
 	
@@ -68,7 +68,7 @@ gen_qvga : if FORMAT = QVGA generate
 	 end generate ;
 	
 nclk <= not clock ;	
-y_latch : generic_latch 
+y_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)
     port map( clk =>clock,
            arazb => arazb ,
@@ -77,7 +77,7 @@ y_latch : generic_latch
            d => pixel_data , 
            q => y_data);
 			  
-u_latch : generic_latch 
+u_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)
     port map( clk => clock,
            arazb => arazb ,
@@ -86,7 +86,7 @@ u_latch : generic_latch
            d => pixel_data , 
            q => u_data);
 
-v_latch : generic_latch 
+v_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)
     port map( clk => clock,
            arazb => arazb ,
@@ -249,10 +249,10 @@ v_latch : generic_latch
 	 
 	 with pix_state select
 		pixel_clock_out_t <= 
-									 --pxclk_rising_edge when  Y1 , -- would allow faster clock output
-									 --pxclk_rising_edge when  Y2 , -- but necessitate to sample data using pixel_clock as latch clock
-									 '1' when  U1 ,
-								    '1' when  V1 ,
+									 pxclk_rising_edge when  Y1 , -- would allow faster clock output
+									 pxclk_rising_edge when  Y2 , -- but necessitate to sample data using pixel_clock as latch clock
+									 (NOT pxclk_rising_edge) when  U1 ,
+								    (NOT pxclk_rising_edge) when  V1 ,
 								    '0' when others ;
 	
 	 with pix_state select
