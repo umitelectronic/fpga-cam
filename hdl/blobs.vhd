@@ -64,14 +64,11 @@ end blobs;
 architecture Behavioral of blobs is
 
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
-type FRAME_MAE is (ACTIVE_FRAME, WAIT_NEW_FRAME, SEND_DATA, OUTPUT1, OUTPUT2, OUTPUT3, OUTPUT4, ERASE_BLOB, NEXT_BLOB);
 
 constant NEW_PACKET	: std_logic_vector(7 downto 0) := X"55" ;
 signal pixel_state : PIXEL_ADD_MAE ;
-signal frame_state, next_frame_state : FRAME_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
-signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax, width, height : unsigned(9 downto 0);
-signal blobdatax, blobdatay, blobdataw, blobdatah : std_logic_vector(7 downto 0);
+signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
 signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr  : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
@@ -79,10 +76,11 @@ signal index_in : unsigned(7 downto 0);
 signal nclk, to_merge : std_logic ;
 signal nb_free_index : unsigned (7 downto 0);
 signal next_blob_index_tp : unsigned (7 downto 0);
-signal blob_area, blob_max_area : unsigned(20 downto 0);
 signal pos_blob_index, pos_merge_index : unsigned(7 downto 0);
-signal sraz_blob_addr, en_blob_addr : std_logic ;
 signal blob_index_latched, blob_index_to_merge_latched : std_logic_vector(7 downto 0) ;
+
+
+signal clear_blob, sender_active : std_logic ;
 
 begin 
 
@@ -113,16 +111,12 @@ merge_index_latch : generic_latch
            q => blob_index_to_merge_latched);
 
 
-
-
 blobxmin <= unsigned(ram0_out(9 downto 0)) ; -- top left coordinate
 blobxmax <= unsigned(ram0_out(19 downto 10)) ; -- top right coordinate
 
 blobymin <= unsigned(ram0_out(29 downto 20)) ; -- bottom left coordinate
 blobymax <= unsigned(ram0_out(39 downto 30)) ; -- bottom right coordinate
  
-width  <= blobxmax - blobxmin ;
-height <= blobymax - blobymin ;
 
 next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more free index ...
 						 X"00";
@@ -137,7 +131,7 @@ with pixel_state select
 						  unsigned(blob_index_latched) when others;
 						  
 
-ram_addr_tp <= blob_addr when frame_state /= ACTIVE_FRAME else
+ram_addr_tp <= blob_addr when sender_active = '1' else
 					free_addr when pixel_state = MERGE_BLOB2 else
 					ram_addr ;
 	
@@ -182,12 +176,10 @@ xy_pixel_ram0: ram_NxN
 			index_in <= (others => '0');
 			index_wr <= '1' ;
 			to_merge <= '0' ;
-			blob_max_area <= (others => '0');
 			pixel_state <= INIT_BLOB ;
 		else
 			case pixel_state is
 				when INIT_BLOB =>
-					blob_max_area <= (others => '0');
 					index_in <= index_in + 1 ;
 					blob_index_init <= blob_index_init + 1 ;
 					index_wr <= '1' ;
@@ -296,60 +288,19 @@ xy_pixel_ram0: ram_NxN
 	
 	end process;
 	
-	
-	process(clk, arazb)
-	begin
-	if arazb = '0' then
-		frame_state <= WAIT_NEW_FRAME ;
-	elsif clk'event and clk = '1' then
-		frame_state <= next_frame_state ;
-	end if;
-	end process ;
-	
-	process(frame_state, oe)
-	begin
-		next_frame_state  <= frame_state ;
-		case frame_state is
-			when ACTIVE_FRAME =>
-				if oe = '1' then
-					next_frame_state <= SEND_DATA ;
-				end if ;
-			when WAIT_NEW_FRAME => 
-				if oe = '0' then
-					next_frame_state <= ACTIVE_FRAME ;
-				end if ;
-			when SEND_DATA =>
-				next_frame_state <= OUTPUT1 ;
-			when OUTPUT1 =>
-					next_frame_state <= OUTPUT2 ;
-			when OUTPUT2 =>
-					next_frame_state <= OUTPUT3 ;
-			when OUTPUT3 =>
-					next_frame_state <= OUTPUT4 ;
-			when OUTPUT4 =>
-					next_frame_state <= ERASE_BLOB ;
-			when ERASE_BLOB =>
-				if blob_addr = (NB_BLOB - 1)  OR oe = '0' then
-					next_frame_state <= WAIT_NEW_FRAME ;
-				else
-					next_frame_state <= NEXT_BLOB ;
-				end if ;
-			when NEXT_BLOB =>
-					next_frame_state <= OUTPUT1 ;
-			when others => next_frame_state <= WAIT_NEW_FRAME ;
-		end case ;
-	end process ;
-	
-	
-	addr_counter0 :  simple_counter
-	 generic map(MODULO => NB_BLOB , NBIT => 4)
-    port map( clk => clk,
-           arazb => arazb,
-           sraz => sraz_blob_addr,
-           en => en_blob_addr,
-           Q => blob_addr(3 downto 0)
-			  );
-	blob_addr(7 downto 4) <= (others => '0') ;
+	blob_sender0 : blob_sender 
+	generic map(NB_BLOB => NB_BLOB)
+	port map(
+		clk	=> clk, 
+		arazb	=> arazb,
+		oe => oe,
+		clear_blob => clear_blob, 
+		ram_addr	=> blob_addr ,
+		ram_data_in		=> ram0_out ,
+		blob_data => blob_data ,
+		active => sender_active,
+		send_blob => send_blob
+	);
 	
 	
 	
@@ -358,46 +309,9 @@ xy_pixel_ram0: ram_NxN
 				  
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
 				 '1' when pixel_state = MERGE_BLOB2 else -- to be tested, clears blob data
-				 '1' when frame_state = ERASE_BLOB else
-				 '0' ;
-	with frame_state select
-		send_blob <= '1' when SEND_DATA,
-						 '1' when OUTPUT1 ,
-						 '1' when OUTPUT2 ,
-						 '1' when OUTPUT3 ,
-						 '1' when OUTPUT4 ,
-						 '0' when others ;
-						 
-	with frame_state select
-	blob_data <= NEW_PACKET when SEND_DATA,
-					 --X"01" when OUTPUT1 ,
-					 --X"02" when OUTPUT2 ,
-					 --X"03" when OUTPUT3  ,
-					 --X"04" when OUTPUT4 ,
-					 blobdatax when OUTPUT1 ,
-					 blobdatay when OUTPUT2 ,
-					 blobdataw when OUTPUT3  ,
-					 blobdatah when OUTPUT4 ,
-					 X"05" when others ;
+				 clear_blob ;
 					 
-	with frame_state select
-	en_blob_addr <= '1' when ERASE_BLOB,
-						 '0' when others ;
-	with frame_state select
-	sraz_blob_addr <= '1' when ACTIVE_FRAME,
-					  '1' when WAIT_NEW_FRAME,
-					 '0' when others ;
 
-
-	blobdatax <= std_logic_vector(blobxmin(8 downto 1)) when (std_logic_vector(blobxmin(8 downto 1)) /= NEW_PACKET) else 
-					 std_logic_vector(blobxmin(8 downto 1) - 1)	; 
-	blobdatay <= std_logic_vector(blobymin(8 downto 1)) when std_logic_vector(blobymin(8 downto 1)) /= NEW_PACKET else
-					 std_logic_vector(blobymin(8 downto 1) - 1)	; 
-
-	blobdataw <= std_logic_vector(width(8 downto 1)) when std_logic_vector(width(8 downto 1)) /= NEW_PACKET else	
-					 std_logic_vector(width(8 downto 1) - 1) ; -- bottom left coordinate
-	blobdatah <= std_logic_vector(height(8 downto 1)) when std_logic_vector(height(8 downto 1)) /= NEW_PACKET else
-					 std_logic_vector(height(8 downto 1) - 1) ; -- bottom right coordinate
 	
 	
 end Behavioral;

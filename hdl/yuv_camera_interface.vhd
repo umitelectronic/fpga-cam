@@ -248,12 +248,11 @@ v_latch : edge_triggered_latch
 	 end process;  
 	 
 	 with pix_state select
-		pixel_clock_out_t <= 
-									 pxclk_rising_edge when  Y1 , -- would allow faster clock output
+		pixel_clock_out <= 	 pxclk_rising_edge when  Y1 , -- would allow faster clock output
 									 pxclk_rising_edge when  Y2 , -- but necessitate to sample data using pixel_clock as latch clock
 									 (NOT pxclk_rising_edge) when  U1 ,
-								    (NOT pxclk_rising_edge) when  V1 ,
-								    '0' when others ;
+									 (NOT pxclk_rising_edge) when  V1 ,
+									 '0' when others ;
 	
 	 with pix_state select
 		en_ylatch <=  pxclk when  WAIT_PIXEL ,
@@ -282,6 +281,6 @@ v_latch : edge_triggered_latch
 	
     hsync_out <= hsynct AND (NOT pixel_clock_out_t) ;	
 	 vsync_out <= vsynct AND (NOT pixel_clock_out_t);
-	 pixel_clock_out <= pixel_clock_out_t ;
+	 --pixel_clock_out <= pixel_clock_out_t ;
 						  
 end systemc ;
