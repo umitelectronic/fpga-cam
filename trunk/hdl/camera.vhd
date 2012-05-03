@@ -351,5 +351,20 @@ port(
 );
 end component;
 
+component blob_sender is
+generic(NB_BLOB : positive	:=	16);
+	port(
+		clk	:	in std_logic ;
+		arazb	:	in std_logic ;
+		oe : in std_logic ;
+		clear_blob :	out std_logic ;
+		ram_addr	:	out std_logic_vector(7 downto 0);
+		ram_data_in		: in std_logic_vector(39 downto 0);
+		blob_data : out std_logic_vector(7 downto 0); -- data of blob
+		active	:	out std_logic ;
+		send_blob	:	out std_logic 
+	);
+end component;
+
 
 END camera;
