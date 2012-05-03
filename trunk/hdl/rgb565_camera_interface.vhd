@@ -68,9 +68,9 @@ gen_qvga : if FORMAT = QVGA generate
 	 end generate ;
 	 
 nclk <= not clock ;	
-r_latch : generic_latch 
+r_latch : edge_triggered_latch 
 	 generic map( NBIT => 5)
-    port map( clk =>nclk,
+    port map( clk =>clock,
            arazb => arazb ,
            sraz => '0' ,
            en => en_rlatch ,
@@ -79,18 +79,18 @@ r_latch : generic_latch
 r_data(7 downto 6) <= (others => '0') ; 			  
 r_data(0) <= '0' ;			  
 			  
-g_latch_0 : generic_latch 
+g_latch_0 : edge_triggered_latch 
 	 generic map( NBIT => 3)
-    port map( clk => nclk,
+    port map( clk => clock,
            arazb => arazb ,
            sraz => '0' ,
            en => en_glatch0 ,
            d => pixel_data(2 downto 0) , 
            q => g_data(5 downto 3));
 
-g_latch_1 : generic_latch 
+g_latch_1 : edge_triggered_latch 
 	 generic map( NBIT => 3)
-    port map( clk => nclk,
+    port map( clk => clock,
            arazb => arazb ,
            sraz => '0' ,
            en => en_glatch1 ,
@@ -98,9 +98,9 @@ g_latch_1 : generic_latch
            q => g_data(2 downto 0));
 g_data(7 downto 6) <= (others => '0');
 
-b_latch : generic_latch 
+b_latch : edge_triggered_latch 
 	 generic map( NBIT => 5)
-    port map( clk => nclk,
+    port map( clk => clock,
            arazb => arazb ,
            sraz => '0' ,
            en => en_blatch ,
@@ -247,23 +247,24 @@ b_data(0) <= '0' ;
 	 end process;  
 	 
 	 with pix_state select
-		pixel_clock_out <=  '1' when GB ,
+		pixel_clock_out <=  pxclk_rising_edge when RG ,
+								  (NOT pxclk_rising_edge) when GB ,
 								  '0' when others ;
 								  
 	 with pix_state select
-		en_rlatch <=  pxclk_rising_edge when  WAIT_PIXEL ,
-						  pxclk_rising_edge when  GB ,
+		en_rlatch <=  pxclk when  WAIT_PIXEL ,
+						  pxclk when  GB ,
 						  '0' when others ;
 	 with pix_state select
-		en_glatch0 <=  pxclk_rising_edge when  WAIT_PIXEL ,
-						   pxclk_rising_edge when  GB ,
+		en_glatch0 <=  pxclk when  WAIT_PIXEL ,
+						   pxclk when  GB ,
 						   '0' when others ;
 	 with pix_state select
-		en_glatch1 <=  pxclk_rising_edge when  RG ,
+		en_glatch1 <=  pxclk when  RG ,
 						  '0' when others ;
 	
 	 with pix_state select
-		en_blatch <=  pxclk_rising_edge when  RG ,
+		en_blatch <=  pxclk when  RG ,
 						  '0' when others ;
 	
     hsync_out <= hsynct ;	

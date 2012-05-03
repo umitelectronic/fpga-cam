@@ -45,6 +45,16 @@ component generic_latch is
            q : out  STD_LOGIC_VECTOR((NBIT - 1) downto 0));
 end component;
 
+component edge_triggered_latch is
+	 generic(NBIT : positive := 8; POL : std_logic :='1');
+    Port ( clk : in  STD_LOGIC;
+           arazb : in  STD_LOGIC;
+           sraz : in  STD_LOGIC;
+           en : in  STD_LOGIC;
+           d : in  STD_LOGIC_VECTOR((NBIT - 1) downto 0);
+           q : out  STD_LOGIC_VECTOR((NBIT - 1) downto 0));
+end component;
+
 
 component ram_NxN is
 	generic(SIZE : natural := 64 ; NBIT : natural := 8; ADDR_WIDTH : natural := 6);
