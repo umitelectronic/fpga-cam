@@ -25,7 +25,7 @@ end rgb565_camera_interface;
 architecture systemc of rgb565_camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "0100001"; 
-	TYPE pixel_state IS (WAIT_PIXEL, RG, GB) ; 
+	TYPE pixel_state IS (WAIT_LINE, RG, GB) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
@@ -39,9 +39,9 @@ architecture systemc of rgb565_camera_interface is
 	signal reg_state : registers_state ; 
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
 	
-	signal pxclk_old, pxclk_rising_edge, nclk : std_logic ;
+	signal pxclk_old, pxclk_rising_edge, pxclk_falling_edge, nclk : std_logic ;
 	signal en_rlatch, en_glatch0, en_glatch1, en_blatch : std_logic ;
-	signal hsynct, vsynct  : std_logic ;
+	signal hsynct, vsynct, pxclkt, pixel_clock_out_t  : std_logic ;
 	for register_rom_vga : rgb565_register_rom use entity rgb565_register_rom(vga) ;
 	for register_rom_qvga : rgb565_register_rom use entity rgb565_register_rom(qvga) ;
 	
@@ -75,9 +75,9 @@ r_latch : edge_triggered_latch
            sraz => '0' ,
            en => en_rlatch ,
            d => pixel_data(7 downto 3) , 
-           q => r_data(5 downto 1));
-r_data(7 downto 6) <= (others => '0') ; 			  
-r_data(0) <= '0' ;			  
+           q => r_data(7 downto 3));
+r_data(2 downto 0) <= (others => '0') ; 			  
+			  
 			  
 g_latch_0 : edge_triggered_latch 
 	 generic map( NBIT => 3)
@@ -86,7 +86,7 @@ g_latch_0 : edge_triggered_latch
            sraz => '0' ,
            en => en_glatch0 ,
            d => pixel_data(2 downto 0) , 
-           q => g_data(5 downto 3));
+           q => g_data(7 downto 5));
 
 g_latch_1 : edge_triggered_latch 
 	 generic map( NBIT => 3)
@@ -95,8 +95,8 @@ g_latch_1 : edge_triggered_latch
            sraz => '0' ,
            en => en_glatch1 ,
            d => pixel_data(7 downto 5) , 
-           q => g_data(2 downto 0));
-g_data(7 downto 6) <= (others => '0');
+           q => g_data(4 downto 2));
+g_data(1 downto 0) <= (others => '0');
 
 b_latch : edge_triggered_latch 
 	 generic map( NBIT => 5)
@@ -105,9 +105,9 @@ b_latch : edge_triggered_latch
            sraz => '0' ,
            en => en_blatch ,
            d => pixel_data(4 downto 0) , 
-           q => b_data(5 downto 1));	 
-b_data(7 downto 6) <= (others => '0');	 
-b_data(0) <= '0' ;	
+           q => b_data(7 downto 3));	 
+b_data(2 downto 0) <= (others => '0');	 
+	
 		
 	i2c_master0 : i2c_master -- i2c master to send sensor configuration, no proof its working
 		port map ( 
@@ -188,23 +188,29 @@ b_data(0) <= '0' ;
 			if arazb = '0' then
 				hsynct <= '0' ;
 				vsynct <= '0' ;
+				pxclkt <= '0' ;
 		 	elsif  clock'event and clock = '1'  then
 				hsynct <= NOT href ; -- changing href into hsync
 				vsynct <= vsync ;
+				pxclkt <= pxclk ;
 			end if ;
 	end process ;
 	
+	--pxclk rising and falling edge
 	process(clock, arazb)
 		 begin
 			if arazb = '0' then
 				pxclk_rising_edge <= '0' ;
+				pxclk_falling_edge <= '0' ;
 				pxclk_old <= '0' ;
 		 	elsif  clock'event and clock = '1' then
 				pxclk_old <= pxclk ;
-				if pxclk /= pxclk_old and pxclk = '1' and hsynct = '0' and vsynct = '0' then
-					pxclk_rising_edge <= '1' ;
+				if pxclk /= pxclk_old and hsynct = '0' and vsynct = '0' then
+					pxclk_rising_edge <= pxclk ;
+					pxclk_falling_edge <= NOT pxclk ;
 				else
 					pxclk_rising_edge <= '0' ;
+					pxclk_falling_edge <= '0' ;
 				end if ;
 			end if ;
 	end process ;
@@ -212,7 +218,7 @@ b_data(0) <= '0' ;
 	process(clock, arazb)
 		begin
 		if arazb = '0'  then
-		 		pix_state <= WAIT_PIXEL ;
+		 		pix_state <= WAIT_LINE;
 		elsif clock'event and clock = '1'  then
 				pix_state <= next_state ;
 		end if ;
@@ -223,52 +229,48 @@ b_data(0) <= '0' ;
 		begin
 			next_state <= pix_state ;
 			case pix_state is
-				when WAIT_PIXEL =>
-					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+				when WAIT_LINE =>
+					if hsynct = '0' and vsynct = '0' then
 						next_state <= RG ;
 					end if ;
 				when RG => 
 					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+						next_state <= WAIT_LINE ;
+					elsif pxclk_falling_edge = '1' then
 						next_state <= GB ;
 					end if ;
 				when GB => 
 					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+						next_state <= WAIT_LINE ;
+					elsif pxclk_falling_edge = '1' then
 						next_state <= RG ;
 					end if ;
 				when others => 
-					next_state <= WAIT_PIXEL ;
+					next_state <= WAIT_LINE ;
 			end case ;
 	 end process;  
 	 
 	 with pix_state select
-		pixel_clock_out <=  pxclk_rising_edge when RG ,
-								  (NOT pxclk_rising_edge) when GB ,
-								  '0' when others ;
+		pixel_clock_out_t <=  pxclkt when  GB , 
+									 '0' when others ;
 								  
 	 with pix_state select
-		en_rlatch <=  pxclk when  WAIT_PIXEL ,
-						  pxclk when  GB ,
+		en_rlatch <=  pxclk when RG ,
 						  '0' when others ;
 	 with pix_state select
-		en_glatch0 <=  pxclk when  WAIT_PIXEL ,
-						   pxclk when  GB ,
+		en_glatch0 <=  pxclk when  RG ,
 						   '0' when others ;
 	 with pix_state select
-		en_glatch1 <=  pxclk when  RG ,
+		en_glatch1 <=  pxclk when  GB ,
 						  '0' when others ;
 	
 	 with pix_state select
-		en_blatch <=  pxclk when  RG ,
+		en_blatch <=  pxclk when  GB ,
 						  '0' when others ;
 	
-    hsync_out <= hsynct ;	
-	 vsync_out <= vsynct ;
+    hsync_out <= hsynct AND (NOT pixel_clock_out_t) ;	
+	 vsync_out <= vsynct AND (NOT pixel_clock_out_t);
+	 pixel_clock_out <= pixel_clock_out_t ;
 
 	
 end systemc ;

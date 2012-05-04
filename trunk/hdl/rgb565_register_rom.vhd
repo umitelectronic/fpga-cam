@@ -125,7 +125,7 @@ architecture qvga of rgb565_register_rom is
 	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01")), -- COM8 AGC AEC
 	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04")), -- COM8 AGC
 	--(X"13" & (X"80" OR X"40" OR X"20" )), -- COM8
-	(X"13" & (X"80" OR X"40" OR X"20" OR X"01" )), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
+	(X"13" & (X"80" OR X"40" OR X"20" OR X"01" OR X"04")), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
 	(X"4f" & X"b3"), --"matrix coefficient 1" 
 	(X"50" & X"b3"), -- "matrix coefficient 2" 
 	(X"51" & X"00"), -- vb 
@@ -314,7 +314,7 @@ architecture vga of rgb565_register_rom is
 	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04" OR X"01")), -- COM8 AGC AEC
 	--(X"13" & (X"80" OR X"40" OR X"20" OR X"04")), -- COM8 AGC
 	--(X"13" & (X"80" OR X"40" OR X"20" )), -- COM8
-	(X"13" & (X"80" OR X"40" OR X"20" OR X"01" )), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
+	(X"13" & (X"80" OR X"40" OR X"20" OR X"01" OR X"04")), -- COM8 AEC (BEST CONFIG FOR LINE DETECTION)
 	(X"4f" & X"b3"), --"matrix coefficient 1" 
 	(X"50" & X"b3"), -- "matrix coefficient 2" 
 	(X"51" & X"00"), -- vb 
