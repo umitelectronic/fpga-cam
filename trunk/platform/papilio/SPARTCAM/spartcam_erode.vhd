@@ -175,7 +175,7 @@ architecture Structural of spartcam_erode is
 		bin0 : binarization
 		port map( 
 				pixel_data_in => pixel_from_interface,
-				upper_bound	=> X"50",
+				upper_bound	=> X"30",
 				lower_bound	=> X"00",
 				pixel_data_out => binarized_pixel 
 		);
