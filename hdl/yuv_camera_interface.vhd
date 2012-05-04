@@ -26,7 +26,7 @@ end yuv_camera_interface;
 architecture systemc of yuv_camera_interface is
 	constant NB_REGS : integer := 255; 
 	constant OV7670_I2C_ADDR : std_logic_vector(6 downto 0) := "0100001"; 
-	TYPE pixel_state IS (WAIT_PIXEL, Y1, U1, Y2, V1) ; 
+	TYPE pixel_state IS (WAIT_LINE, Y1, U1, Y2, V1) ; 
 	TYPE registers_state IS (INIT, SEND_ADDR, WAIT_ACK0, SEND_DATA, WAIT_ACK1, NEXT_REG, STOP) ; 
 	signal i2c_data : std_logic_vector(7 downto 0 ) ; 
 	signal reg_data : std_logic_vector(15 downto 0 ) ; 
@@ -39,9 +39,9 @@ architecture systemc of yuv_camera_interface is
 	signal next_state : pixel_state ; 
 	signal reg_state : registers_state ; 
 	signal reg_addr : std_logic_vector(7 downto 0 ) ;
-	signal pxclk_old, pxclk_rising_edge, nclk : std_logic ;
+	signal pxclk_old, pxclk_rising_edge, pxclk_falling_edge, nclk : std_logic ;
 	signal en_ylatch, en_ulatch, en_vlatch : std_logic ;
-	signal hsynct, vsynct, pixel_clock_out_t  : std_logic ;
+	signal hsynct, vsynct, pxclkt, pixel_clock_out_t  : std_logic ;
 	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
 	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
 	
@@ -67,7 +67,6 @@ gen_qvga : if FORMAT = QVGA generate
 		); 
 	 end generate ;
 	
-nclk <= not clock ;	
 y_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)
     port map( clk =>clock,
@@ -177,31 +176,44 @@ v_latch : edge_triggered_latch
 			if arazb = '0' then
 				hsynct <= '0' ;
 				vsynct <= '0' ;
+				pxclkt <= '0' ;
 		 	elsif  clock'event and clock = '1'  then
 				hsynct <= NOT href ; -- changing href into hsync
 				vsynct <= vsync ;
+				pxclkt <= pxclk ;
 			end if ;
 	end process ;
 	
+	
+	--pxclk rising and falling edge
 	process(clock, arazb)
 		 begin
 			if arazb = '0' then
 				pxclk_rising_edge <= '0' ;
+				pxclk_falling_edge <= '0' ;
 				pxclk_old <= '0' ;
 		 	elsif  clock'event and clock = '1' then
 				pxclk_old <= pxclk ;
-				if pxclk /= pxclk_old and pxclk = '1' and hsynct = '0' and vsynct = '0' then
-					pxclk_rising_edge <= '1' ;
+				if pxclk /= pxclk_old and hsynct = '0' and vsynct = '0' then
+					pxclk_rising_edge <= pxclk ;
+					pxclk_falling_edge <= NOT pxclk ;
 				else
 					pxclk_rising_edge <= '0' ;
+					pxclk_falling_edge <= '0' ;
 				end if ;
 			end if ;
 	end process ;
+
+	
+	
+	
+	
+	
 	
 	process(clock, arazb)
 		begin
 		if arazb = '0'  then
-		 		pix_state <= WAIT_PIXEL ;
+		 		pix_state <= WAIT_LINE ;
 		elsif clock'event and clock = '1'  then
 				pix_state <= next_state ;
 		end if ;
@@ -212,75 +224,60 @@ v_latch : edge_triggered_latch
 		begin
 			next_state <= pix_state ;
 			case pix_state is
-				when WAIT_PIXEL =>
-					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+				when WAIT_LINE =>
+					if hsynct = '0' and vsynct = '0' then
 						next_state <= Y1 ;
 					end if ;
 				when Y1 => 
 					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+						next_state <= WAIT_LINE ;
+					elsif pxclk_falling_edge = '1' then
 						next_state <= U1 ;
 					end if ;
 				when U1 => 
 					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+						next_state <= WAIT_LINE ;
+					elsif pxclk_falling_edge = '1' then
 						next_state <= Y2 ;
 					end if ;
 				when Y2 => 
 					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+						next_state <= WAIT_LINE ;
+					elsif pxclk_falling_edge = '1' then
 						next_state <= V1 ;
 					end if ;
 				when V1 => 
 					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_PIXEL ;
-					elsif pxclk_rising_edge = '1' then
+						next_state <= WAIT_LINE ;
+					elsif pxclk_falling_edge = '1' then
 						next_state <= Y1 ;
 					end if ;
 				when others => 
-					next_state <= WAIT_PIXEL ;
+					next_state <= WAIT_LINE ;
 			end case ;
 	 end process;  
 	 
+	 
 	 with pix_state select
-		pixel_clock_out <= 	 pxclk_rising_edge when  Y1 , -- would allow faster clock output
-									 pxclk_rising_edge when  Y2 , -- but necessitate to sample data using pixel_clock as latch clock
-									 (NOT pxclk_rising_edge) when  U1 ,
-									 (NOT pxclk_rising_edge) when  V1 ,
+		pixel_clock_out_t <=  pxclkt when  U1 , 
+									 pxclkt when  V1 , 
 									 '0' when others ;
 	
 	 with pix_state select
-		en_ylatch <=  pxclk when  WAIT_PIXEL ,
-						  pxclk when  U1 ,
-						  pxclk when  V1 ,
+		en_ylatch <=  pxclk when  Y1 ,
+						  pxclk when  Y2 ,
 						  '0' when others ;
 	 with pix_state select
-		en_ulatch <=  pxclk when  Y1 ,
+		en_ulatch <=  pxclk when  U1 ,
 						  '0' when others ;
 	 with pix_state select
-		en_vlatch <=  pxclk when  Y2 ,
+		en_vlatch <=  pxclk when  V1 ,
 						  '0' when others ;
 
-	
---	 with pix_state select
---		en_ylatch <=  pxclk_rising_edge when  WAIT_PIXEL ,
---						  pxclk_rising_edge when  U1 ,
---						  pxclk_rising_edge when  V1 ,
---						  '0' when others ;
---	 with pix_state select
---		en_ulatch <=  pxclk_rising_edge when  Y1 ,
---						  '0' when others ;
---	 with pix_state select
---		en_vlatch <=  pxclk_rising_edge when  Y2 ,
---						  '0' when others ;
+
 	
     hsync_out <= hsynct AND (NOT pixel_clock_out_t) ;	
 	 vsync_out <= vsynct AND (NOT pixel_clock_out_t);
-	 --pixel_clock_out <= pixel_clock_out_t ;
+	 pixel_clock_out <= pixel_clock_out_t ;
 						  
 end systemc ;
