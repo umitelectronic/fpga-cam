@@ -65,7 +65,6 @@ architecture Behavioral of blobs is
 
 type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
 
-constant NEW_PACKET	: std_logic_vector(7 downto 0) := X"55" ;
 signal pixel_state : PIXEL_ADD_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
@@ -285,8 +284,9 @@ xy_pixel_ram0: ram_NxN
 			end case ;
 		end if;
 	end if ;
-	
 	end process;
+	
+	
 	
 	blob_sender0 : blob_sender 
 	generic map(NB_BLOB => NB_BLOB)
