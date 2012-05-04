@@ -55,15 +55,6 @@ component edge_triggered_latch is
            q : out  STD_LOGIC_VECTOR((NBIT - 1) downto 0));
 end component;
 
-component sr_latch is
-	port(
-			clk : in std_logic ;
-			arazb : in std_logic ;
-			R, S : in std_logic ;
-			Q : out std_logic 
-	);
-end component;
-
 
 component ram_NxN is
 	generic(SIZE : natural := 64 ; NBIT : natural := 8; ADDR_WIDTH : natural := 6);
