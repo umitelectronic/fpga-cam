@@ -60,6 +60,7 @@ architecture Structural of spartcam_conf_y is
 		);
 	END COMPONENT;
 
+
 	COMPONENT dcm96
 	PORT(
 		CLKIN_IN : IN std_logic;          
@@ -185,7 +186,7 @@ architecture Structural of spartcam_conf_y is
 	);
 	
 	
-	camera0: yuv_camera_interface
+	camera0: rgb565_camera_interface
 		generic map(FORMAT => QVGA)
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
@@ -195,9 +196,9 @@ architecture Structural of spartcam_conf_y is
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_y_from_interface,
-		u_data => pixel_u_from_interface,
-		v_data => pixel_v_from_interface
+ 		r_data => pixel_y_from_interface,
+		g_data => pixel_u_from_interface,
+		b_data => pixel_v_from_interface
 		);
 		
 		biny : binarization
