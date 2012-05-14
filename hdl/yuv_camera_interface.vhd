@@ -7,7 +7,7 @@ library work;
 		  use work.generic_components.all ;
 
 entity yuv_camera_interface is
-generic(FORMAT : FRAME_FORMAT := QVGA);
+generic(FORMAT : FRAME_FORMAT := QVGA; CAMERA : CAMERA_TYPE := OV7670);
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
@@ -42,30 +42,58 @@ architecture systemc of yuv_camera_interface is
 	signal pxclk_old, pxclk_rising_edge, pxclk_falling_edge, nclk : std_logic ;
 	signal en_ylatch, en_ulatch, en_vlatch : std_logic ;
 	signal hsynct, vsynct, pxclkt, pixel_clock_out_t  : std_logic ;
-	for register_rom_vga : yuv_register_rom use entity yuv_register_rom(vga) ;
-	for register_rom_qvga : yuv_register_rom use entity yuv_register_rom(qvga) ;
 	
+	for register_rom_ov7670_vga : yuv_register_rom use entity yuv_register_rom(ov7670_vga) ;
+	for register_rom_ov7670_qvga : yuv_register_rom use entity yuv_register_rom(ov7670_qvga) ;
+	for register_rom_ov7725_vga : yuv_register_rom use entity yuv_register_rom(ov7725_vga) ;
+	for register_rom_ov7725_qvga : yuv_register_rom use entity yuv_register_rom(ov7725_qvga) ;
 	begin
-	
-gen_vga : if FORMAT = VGA generate
-	register_rom_vga : yuv_register_rom --rom containg sensor configuration
-		port map (
-		   clk => clock,
-			en => '1',
-			addr => reg_addr, 
-			data => reg_data
-		); 
-	 end generate ;
-	 
-gen_qvga : if FORMAT = QVGA generate
-	register_rom_qvga : yuv_register_rom --rom containg sensor configuration
-		port map (
-		   clk => clock,
-			en => '1',
-			addr => reg_addr, 
-			data => reg_data
-		); 
-	 end generate ;
+gen_ov7670: if CAMERA = OV7670 generate	
+		gen_vga : if FORMAT = VGA generate
+			register_rom_ov7670_vga : yuv_register_rom --rom containg sensor configuration
+				port map (
+					clk => clock,
+					en => '1',
+					addr => reg_addr, 
+					data => reg_data
+				); 
+			 end generate ;
+			 
+		gen_qvga : if FORMAT = QVGA generate
+			register_rom_ov7670_qvga : yuv_register_rom --rom containg sensor configuration
+				port map (
+					clk => clock,
+					en => '1',
+					addr => reg_addr, 
+					data => reg_data
+				); 
+			 end generate ;
+end generate ;
+
+
+gen_ov7725: if CAMERA = OV7725 generate	
+		gen_vga : if FORMAT = VGA generate
+			register_rom_ov7725_vga : yuv_register_rom --rom containg sensor configuration
+				port map (
+					clk => clock,
+					en => '1',
+					addr => reg_addr, 
+					data => reg_data
+				); 
+			 end generate ;
+			 
+		gen_qvga : if FORMAT = QVGA generate
+			register_rom_ov7725_qvga : yuv_register_rom --rom containg sensor configuration
+				port map (
+					clk => clock,
+					en => '1',
+					addr => reg_addr, 
+					data => reg_data
+				); 
+			 end generate ;
+end generate ;
+
+
 	
 y_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)

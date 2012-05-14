@@ -35,6 +35,8 @@ constant VGA_WIDTH : natural := 640;
 constant QVGA_HEIGHT : natural := 240;
 constant VGA_HEIGHT : natural := 480;
 
+type CAMERA_TYPE is (OV7670, OV7725);
+
 
 component yuv_register_rom is
 	port(
@@ -53,7 +55,7 @@ component rgb565_register_rom is
 end component;
 
 component yuv_camera_interface is
-	generic(FORMAT : FRAME_FORMAT := QVGA);
+	generic(FORMAT : FRAME_FORMAT := QVGA; CAMERA : CAMERA_TYPE := OV7670);
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
