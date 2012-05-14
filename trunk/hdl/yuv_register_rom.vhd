@@ -12,7 +12,7 @@ entity yuv_register_rom is
 	); 
 end yuv_register_rom;
 
-architecture qvga of yuv_register_rom is
+architecture ov7670_qvga of yuv_register_rom is
  
 	type array_160 is array (0 to 159) of std_logic_vector(15 downto 0 ); 
 	
@@ -201,9 +201,9 @@ architecture qvga of yuv_register_rom is
 		 end if;
 		 end process;  
 	
-end qvga ;
+end ov7670_qvga ;
 
-architecture vga of yuv_register_rom is
+architecture ov7670_vga of yuv_register_rom is
  
 	type array_160 is array (0 to 159) of std_logic_vector(15 downto 0 ); 
 	
@@ -392,4 +392,202 @@ architecture vga of yuv_register_rom is
 		 end if;
 		 end process;  
 	
-end vga ;
+end ov7670_vga ;
+
+
+
+architecture ov7725_qvga of yuv_register_rom is
+ 
+	type array_72 is array (0 to 71) of std_logic_vector(15 downto 0 ); 
+	
+	
+	
+	-- CONFIGURATION TAKEN FROM ov534.c IN LINUX KERNEL DRIVERS
+	signal rom : array_72 :=( 
+	( X"12" & X"40"),
+	( X"11" & X"01" ),
+	( X"17" & X"3f"),
+	( X"18" & X"50"),
+	( X"19" & X"03"),
+	( X"1a" & X"78"),
+	( X"29" & X"50"),
+	( X"2c" & X"78"),
+	( X"65" & X"2f"),
+	( X"11" & X"01"),
+	( X"42" & X"7f"),
+	( X"63" & X"aa"),		-- AWB - was e0 
+	( X"64" & X"ff"),
+	( X"66" & X"00"),
+	( X"13" & X"f0"),		-- com8 
+	( X"0d" & X"41"),
+	( X"0f" & X"c5"),
+	( X"14" & X"11"),
+	( X"22" & X"7f"),
+	( X"23" & X"03"),
+	( X"24" & X"40"),
+	( X"25" & X"30"),
+	( X"26" & X"a1"),
+	( X"2a" & X"00"),
+	( X"2b" & X"00"),
+	( X"6b" & X"aa"),
+	( X"13" & X"ff"),		-- AWB 
+	( X"90" & X"05"),
+	( X"91" & X"01"),
+	( X"92" & X"03"),
+	( X"93" & X"00"),
+	( X"94" & X"60"),
+	( X"95" & X"3c"),
+	( X"96" & X"24"),
+	( X"97" & X"1e"),
+	( X"98" & X"62"),
+	( X"99" & X"80"),
+	( X"9a" & X"1e"),
+	( X"9b" & X"08"),
+	( X"9c" & X"20"),
+	( X"9e" & X"81"),
+	( X"a6" & X"04"),
+	( X"7e" & X"0c"),
+	( X"7f" & X"16"),
+	( X"80" & X"2a"),
+	( X"81" & X"4e"),
+	( X"82" & X"61"),
+	( X"83" & X"6f"),
+	( X"84" & X"7b"),
+	( X"85" & X"86"),
+	( X"86" & X"8e"),
+	( X"87" & X"97"),
+	( X"88" & X"a4"),
+	( X"89" & X"af"),
+	( X"8a" & X"c5"),
+	( X"8b" & X"d7"),
+	( X"8c" & X"e8"),
+	( X"8d" & X"20"),
+	( X"0c" & X"90"),
+	( X"2b" & X"00"),
+	( X"22" & X"7f"),
+	( X"23" & X"03"),
+	--( X"11" & X"01"), -- double check value fint = fxclk * (PLL/((val + 1)*2) linux driver uses 12mhz i'am using 24mhz ...
+	( X"11" & X"09"), -- should work for 30fps fint = 24 * (4/(10)*2) = 4.8mhz
+	( X"0c" & X"d0"),
+	( X"64" & X"ff"),
+	( X"0d" & X"41"), -- double check value (4 = 4X, 8 = 6X, C = 8X)
+	( X"14" & X"41"),
+	( X"0e" & X"cd"),
+	( X"ac" & X"bf"),
+	( X"8e" & X"00"),		-- De-noise threshold 
+	( X"0c" & X"d0"),
+	( X"FF" & X"FF" )
+);
+
+	begin
+	
+	
+	-- rom_process
+	process(clk)
+		 begin
+		 if clk'event and clk = '1' then
+			if en = '1' then
+				data <= rom(conv_integer(addr)) ;
+			end if;
+		 end if;
+		 end process;  
+	
+end ov7725_qvga ;
+
+architecture ov7725_vga of yuv_register_rom is
+ 
+	type array_72 is array (0 to 71) of std_logic_vector(15 downto 0 ); 
+	
+	
+	
+	-- CONFIGURATION TAKEN FROM OV534.c IN LINUX KERNEL DRIVERS
+	signal rom : array_72 :=( 
+	( X"12" & X"00"),
+	( X"11" & X"01" ),
+	( X"17" & X"26"),
+	( X"18" & X"a0"),
+	( X"19" & X"07"),
+	( X"1a" & X"f0"),
+	( X"29" & X"a0"),
+	( X"2c" & X"f0"),
+	( X"65" & X"20"),
+	( X"11" & X"01"),
+	( X"42" & X"7f"),
+	( X"63" & X"aa"),		-- AWB - was e0 
+	( X"64" & X"ff"),
+	( X"66" & X"00"),
+	( X"13" & X"f0"),		-- com8 
+	( X"0d" & X"41"),
+	( X"0f" & X"c5"),
+	( X"14" & X"11"),
+	( X"22" & X"7f"),
+	( X"23" & X"03"),
+	( X"24" & X"40"),
+	( X"25" & X"30"),
+	( X"26" & X"a1"),
+	( X"2a" & X"00"),
+	( X"2b" & X"00"),
+	( X"6b" & X"aa"),
+	( X"13" & X"ff"),		-- AWB 
+	( X"90" & X"05"),
+	( X"91" & X"01"),
+	( X"92" & X"03"),
+	( X"93" & X"00"),
+	( X"94" & X"60"),
+	( X"95" & X"3c"),
+	( X"96" & X"24"),
+	( X"97" & X"1e"),
+	( X"98" & X"62"),
+	( X"99" & X"80"),
+	( X"9a" & X"1e"),
+	( X"9b" & X"08"),
+	( X"9c" & X"20"),
+	( X"9e" & X"81"),
+	( X"a6" & X"04"),
+	( X"7e" & X"0c"),
+	( X"7f" & X"16"),
+	( X"80" & X"2a"),
+	( X"81" & X"4e"),
+	( X"82" & X"61"),
+	( X"83" & X"6f"),
+	( X"84" & X"7b"),
+	( X"85" & X"86"),
+	( X"86" & X"8e"),
+	( X"87" & X"97"),
+	( X"88" & X"a4"),
+	( X"89" & X"af"),
+	( X"8a" & X"c5"),
+	( X"8b" & X"d7"),
+	( X"8c" & X"e8"),
+	( X"8d" & X"20"),
+	( X"0c" & X"90"),
+	( X"2b" & X"00"),
+	( X"22" & X"7f"),
+	( X"23" & X"03"),
+	--( X"11" & X"01"), -- double check value fint = fxclk * (PLL/((val + 1)*2) linux driver uses 12mhz i'am using 24mhz ...
+	( X"11" & X"03"), -- should work for 30fps fint = 24 * (4/(4*2)) = 12mhz
+	( X"0c" & X"d0"),
+	( X"64" & X"ff"),
+	( X"0d" & X"41"),
+	( X"14" & X"41"),
+	( X"0e" & X"cd"),
+	( X"ac" & X"bf"),
+	( X"8e" & X"00"),		-- De-noise threshold 
+	( X"0c" & X"d0"),
+	( X"FF" & X"FF" )
+);
+
+	begin
+	
+	
+	-- rom_process
+	process(clk)
+		 begin
+		 if clk'event and clk = '1' then
+			if en = '1' then
+				data <= rom(conv_integer(addr)) ;
+			end if;
+		 end if;
+		 end process;  
+	
+end ov7725_vga ;
