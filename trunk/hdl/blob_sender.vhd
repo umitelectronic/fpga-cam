@@ -79,11 +79,13 @@ begin
 					 std_logic_vector(height(8 downto 1) - 1) ; -- bottom right coordinate
 
 	addr_counter0 :  simple_counter
-	 generic map(MODULO => NB_BLOB , NBIT => 4)
+	 generic map(NBIT => 4)
 	 port map( clk => clk,
 			  arazb => arazb,
 			  sraz => sraz_blob_addr,
 			  en => en_blob_addr,
+			  load => '0', 
+			  E => (others => '0'),
 			  Q => blob_addr(3 downto 0)
 			  );
 	blob_addr(7 downto 4) <= (others => '0') ;

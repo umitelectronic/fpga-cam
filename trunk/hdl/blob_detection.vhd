@@ -234,9 +234,6 @@ with blob_state0 select
 							 '0' when others ;
 
 
-
-
-
 hsync_out <= hsync ;
 vsync_out <= vsync ;
 

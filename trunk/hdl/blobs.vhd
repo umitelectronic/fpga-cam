@@ -81,6 +81,12 @@ signal blob_index_latched, blob_index_to_merge_latched : std_logic_vector(7 down
 
 signal clear_blob, sender_active : std_logic ;
 
+
+signal en_free_blob_pointer, en_free_index_counter, en_uninitialized_blob_pointer : std_logic ;
+signal load_free_blob_pointer, load_free_index_counter, load_uninitialized_blob_pointer : std_logic ;
+signal inc_free_index_counter : std_logic ;
+signal slv_nb_free_index, slv_next_blob_index_tp, slv_unused_blob_index : std_logic_vector(7 downto 0) ;
+
 begin 
 
 nclk <= NOT clk ;
@@ -119,8 +125,64 @@ blobymax <= unsigned(ram0_out(39 downto 30)) ; -- bottom right coordinate
 
 next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more free index ...
 						 X"00";
-						
-unused_blob_index	<=  ((next_blob_index_tp - 1) + nb_free_index) ; -- blob index not associated to ram addr
+		
+
+free_index_counter: up_down_counter 
+	 generic map(MODULO => 256 , NBIT => 8 )
+    port map( clk => clk,
+           arazb => arazb,
+           sraz => '0',
+			  load => load_free_index_counter ,
+			  E => std_logic_vector(to_unsigned(NB_BLOB, 8)),
+           en => en_free_index_counter, 
+			  up_downn => inc_free_index_counter,
+           Q => slv_nb_free_index
+			  );		
+			  
+nb_free_index <= unsigned(slv_nb_free_index);			  
+			  
+with 	pixel_state select
+			load_free_index_counter <= '1'  when INIT_BLOB,-- load free blob pointer
+			'0' when others ;
+			
+en_free_index_counter <= '1'  when pixel_state = NEW_BLOB1 and nb_free_index > 0 else-- decrement free index
+								 '1'  when pixel_state = MERGE_BLOB3 and nb_free_index < 255 else-- increment free index
+								 '0'  ;
+			
+with pixel_state select
+			inc_free_index_counter <= '1'  when NEW_BLOB1,-- decrement free index
+			'0' when others ;
+
+next_free_blob_pointer: up_down_counter
+	 generic map(MODULO => 256 , NBIT => 8 )
+    port map( clk => clk,
+           arazb => arazb,
+			  sraz => '0',
+			  load => load_free_blob_pointer,
+			  E => std_logic_vector(to_unsigned(1, 8)),
+           en => en_free_blob_pointer, 
+			  up_downn => '1',
+           Q => slv_next_blob_index_tp
+			  );
+next_blob_index_tp <= unsigned(slv_next_blob_index_tp) ;
+
+with 	pixel_state select
+			load_free_blob_pointer <= '1'  when INIT_BLOB,-- load free blob pointer
+			'0' when others ;
+			
+en_free_blob_pointer <= '1'  when pixel_state = NEW_BLOB1 and nb_free_index > 0 else -- increment free blob pointer
+								'0' ;
+			
+unused_blob_index <= next_blob_index_tp + nb_free_index;			  
+
+			  
+with 	pixel_state select
+			load_uninitialized_blob_pointer <= '1'  when INIT_BLOB,-- load free blob pointer
+			'0' when others ;
+
+en_uninitialized_blob_pointer <= '1'  when pixel_state = MERGE_BLOB3 and unused_blob_index < 255 else-- increment free blob pointer
+			'0' ;
+
 
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB,
@@ -140,12 +202,13 @@ true_blob_index <= unsigned(ram_addr) ;
 blob_index_ram : ram_NxN 
 	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
- 		clk => nclk, -- causes timing problem ... must check how it works.
+ 		clk => clk, -- causes timing problem ... must check how it works.
  		we => index_wr, en => '1',
  		do => ram_addr ,
  		di => std_logic_vector(index_in),  
  		addr => std_logic_vector(blob_index_tp)
 	); 
+
 
 xy_pixel_ram0: ram_NxN
 	generic map(SIZE => NB_BLOB , NBIT => 40, ADDR_WIDTH => 8)
@@ -158,6 +221,13 @@ xy_pixel_ram0: ram_NxN
 	); 
 	
 	ram_en <= '1' ;
+	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
+				 --'1' when pixel_state = MERGE_BLOB2 else -- to be tested, clears blob data
+				 clear_blob ;
+	ram0_in <= std_logic_vector(newymax) & std_logic_vector(newymin) & std_logic_vector(newxmax) & std_logic_vector(newxmin) when pixel_state = UPDATE_BLOB else
+			  (others => '0') ;
+				  
+	
 	 --blob_add
 	process(clk, arazb)
 	begin
@@ -166,8 +236,6 @@ xy_pixel_ram0: ram_NxN
 		index_in <= (others => '0');
 		to_merge <= '0' ;
 		pixel_state <= INIT_BLOB ;
-		next_blob_index_tp <= (others => '0');
-		nb_free_index <= (others => '0');
 	elsif clk'event and clk = '1' then
 		if sraz = '1' then
 			to_merge <= '0' ;
@@ -185,15 +253,13 @@ xy_pixel_ram0: ram_NxN
 					to_merge <= '0' ;
 					if index_in = NB_BLOB - 1 then
 						index_in <= (others => '0');
-						next_blob_index_tp <= X"01" ; -- index starts at 1
-						nb_free_index <= to_unsigned(NB_BLOB, 8); -- all index are free to use
 						pixel_state <= WAIT_PIXEL ;
 					end if;
 				when WAIT_PIXEL =>
 					index_wr <= '0' ;
 					to_merge <= '0' ;
 					if add_pixel = '1' then
-						if new_blob = '1' then
+						if new_blob = '1' and nb_free_index > 0 then
 							pixel_state <= NEW_BLOB1 ;
 						else
 							if merge_blob = '1' then
@@ -262,7 +328,6 @@ xy_pixel_ram0: ram_NxN
 					pixel_state <= MERGE_BLOB3 ;
 				when MERGE_BLOB3 =>
 					index_wr <= '0' ;
-					nb_free_index <= nb_free_index + 1 ;
 					pixel_state <= UPDATE_BLOB ;
 				when NEW_BLOB1 =>
 					newxmin <= pixel_posx ;
@@ -270,10 +335,6 @@ xy_pixel_ram0: ram_NxN
 					newymin <= pixel_posy ;
 					newymax <= pixel_posy ;
 					index_wr <= '0' ;
-					if nb_free_index > 0 then
-						nb_free_index <= nb_free_index - 1 ;
-						next_blob_index_tp <= next_blob_index_tp + 1 ;
-					end if ;
 					pixel_state <= UPDATE_BLOB ;
 				when UPDATE_BLOB =>
 					index_wr <= '0' ;
@@ -302,14 +363,6 @@ xy_pixel_ram0: ram_NxN
 		send_blob => send_blob
 	);
 	
-	
-	
-	ram0_in <= std_logic_vector(newymax) & std_logic_vector(newymin) & std_logic_vector(newxmax) & std_logic_vector(newxmin) when pixel_state = UPDATE_BLOB else
-				  (others => '0') ;
-				  
-	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
-				 '1' when pixel_state = MERGE_BLOB2 else -- to be tested, clears blob data
-				 clear_blob ;
 					 
 
 	
