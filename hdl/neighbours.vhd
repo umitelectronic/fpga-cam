@@ -49,18 +49,18 @@ architecture Behavioral of neighbours is
 type read_neighbour_state is (WRITE_VALUE, LOAD_VALUE, WAIT_NEIGHBOUR, WAIT_END_NEW_LINE);
 
 
-signal pixel_state : read_neighbour_state ;
+signal pixel_state, next_pixel_state : read_neighbour_state ;
 
 signal neighbours0 : pix_neighbours := ((others => '0'), (others => '0'), (others => '0'), (others => '0')); 
-signal nl :	unsigned(7 downto 0) := (others => '0');
-signal pixel_count, pixel_count_tp : std_logic_vector(9 downto 0) := (others => '0');
 signal line_count : std_logic_vector(9 downto 0) := (others => '0');
 signal line_addr : std_logic_vector(9 downto 0) ;
+signal read_pixel_index, write_pixel_index : std_logic_vector(9 downto 0) ;
 
 signal new_neighbour, next_neighbour: std_logic_vector(7 downto 0) := X"00";
 signal nclk, first_line, neighbour_wr : std_logic;
 
-signal pixel_counter_sraz : std_logic ;
+signal en_read_pixel_index, load_read_pixel_index, sraz_read_pixel_index : std_logic ;
+signal pixel_counter_sraz, en_write_pixel_index, sraz_write_pixel_index : std_logic ;
 begin
 
 nclk <= NOT clk ;
@@ -68,7 +68,7 @@ nclk <= NOT clk ;
 line1: ram_Nx8
 	generic map(N => LINE_SIZE + 2, A => 10)
 	port map(
- 		clk => nclk, 
+ 		clk => clk,  --worked with nclk, but messy ...
  		we => neighbour_wr, en => '1' ,
  		do => next_neighbour,
  		di => new_neighbour,
@@ -76,24 +76,49 @@ line1: ram_Nx8
 	); 
 
 
-pixel_count_tp <= pixel_count when neighbour_wr = '1' else
-						pixel_count + 1 ;
-
-line_addr <= pixel_count_tp when pixel_count_tp < LINE_SIZE else -- pixel count modulo 640
-						 pixel_count_tp - LINE_SIZE ;
+line_addr <= write_pixel_index when neighbour_wr = '1' else
+				 read_pixel_index ;
 
 	
 
 pixel_counter_sraz <= (next_line OR sraz) ;
 	
-pixel_counter0: pixel_counter
-		generic map(POL => '0')
-		port map(
-			clk => clk,
-			arazb => arazb, 
-			pixel_clock => add_neighbour, hsync => pixel_counter_sraz,
-			pixel_count => pixel_count
-			);
+	
+read_pixel_index0 : simple_counter 
+	 generic map(NBIT => 10)
+    port map( clk => clk,
+           arazb => arazb,
+           sraz => sraz_read_pixel_index ,
+           en => en_read_pixel_index,
+			  load => load_read_pixel_index,
+			  E => std_logic_vector(to_unsigned(1, 10)),
+           Q => read_pixel_index
+			  );
+
+sraz_read_pixel_index <= '1' when read_pixel_index = LINE_SIZE else
+							    '0' ;
+with pixel_state select
+	en_read_pixel_index <= add_neighbour when WAIT_NEIGHBOUR,
+								  '0' when others ;
+	load_read_pixel_index <= sraz ;
+	
+	
+write_pixel_index0 : simple_counter 
+	 generic map(NBIT => 10)
+    port map( clk => clk,
+           arazb => arazb,
+           sraz => sraz_write_pixel_index ,
+           en => en_write_pixel_index,
+			  load => '0',
+			  E => (others => '0'),
+           Q => write_pixel_index
+			  );
+
+sraz_write_pixel_index <= '1' when write_pixel_index = LINE_SIZE else
+							     pixel_counter_sraz ;
+with pixel_state select
+	en_write_pixel_index <= '1' when LOAD_VALUE,
+								  '0' when others ;
 			
 line_counter0: line_counter
 		port map(
@@ -103,7 +128,43 @@ line_counter0: line_counter
 			line_count => line_count
 			);
 
-			
+
+--process(clk, arazb)
+--begin
+--	if arazb = '0' then
+--		pixel_state <= LOAD_VALUE ;
+--	elsif clk'event and clk = '1' then
+--		if sraz = '1' then
+--			pixel_state <= LOAD_VALUE ;
+--		else
+--			pixel_state <= next_pixel_state ;
+--		end if ;
+--	end if;
+--end process ;	
+--
+--process(clk, arazb)
+--begin
+--	next_pixel_state <= pixel_state ;
+--	case pixel_state is
+--			when WRITE_VALUE => -- load value from fifos into buffer
+--				next_pixel_state <= LOAD_VALUE ;
+--			when LOAD_VALUE => -- load value from fifos into buffer
+--				next_pixel_state <= WAIT_NEIGHBOUR ;
+--			when WAIT_NEIGHBOUR =>
+--				if add_neighbour = '1' then
+--					next_pixel_state <= WRITE_VALUE ;
+--				elsif  next_line = '1' then
+--					next_pixel_state <= WAIT_END_NEW_LINE ;
+--				end if;
+--			when WAIT_END_NEW_LINE =>
+--				if  next_line = '0' then
+--					next_pixel_state <= LOAD_VALUE ;
+--				end if;
+--			when others =>
+--				next_pixel_state <= WAIT_NEIGHBOUR ;
+--	end case ;
+--end process ;
+							
 
 -- actualize matrix with values
 process(clk, arazb)
@@ -114,8 +175,7 @@ if arazb = '0' then
 	neighbours0(2) <= (others => '0') ;
 	neighbours0(3) <= (others => '0') ;
 	neighbour_wr <= '0' ;
-	nl <= (others => '0') ;
-	pixel_state <= LOAD_VALUE ;
+	pixel_state <= WAIT_NEIGHBOUR ;
 	first_line <= '1' ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
@@ -123,9 +183,8 @@ elsif clk'event and clk = '1' then
 		neighbours0(1) <= (others => '0') ; -- zeroing neighbours
 		neighbours0(2) <= (others => '0') ;
 		neighbours0(3) <= (others => '0') ;
-		nl <= (others => '0') ;
 		neighbour_wr <= '0' ;
-		pixel_state <= LOAD_VALUE ;
+		pixel_state <= WAIT_NEIGHBOUR ;
 		first_line <= '1' ;
 	else
 		case pixel_state is
@@ -134,18 +193,17 @@ elsif clk'event and clk = '1' then
 				pixel_state <= LOAD_VALUE ;
 			when LOAD_VALUE => -- load value from fifos into buffer
 				neighbour_wr <= '0' ;
-				if first_line = '0' OR pixel_count > (LINE_SIZE - 2) then
-					nl <= unsigned(next_neighbour) ;
-				else
-					nl <= (others => '0') ;
-				end if;
 				pixel_state <= WAIT_NEIGHBOUR ;
 			when WAIT_NEIGHBOUR =>
 				neighbour_wr <= '0' ;
 				if add_neighbour = '1' then
 					neighbours0(0) <=  neighbours0(1);
 					neighbours0(1) <= neighbours0(2) ; -- shifting matrix to right
-					neighbours0(2) <= nl ; -- from fifo
+					if first_line = '0' OR write_pixel_index > (LINE_SIZE - 2) then
+						neighbours0(2) <= unsigned(next_neighbour) ;
+					else
+						neighbours0(2) <= (others => '0') ;
+					end if;
 					neighbours0(3) <= neighbour_in ;
 					
 					new_neighbour <= std_logic_vector(neighbour_in) ; -- shifting left neighbour to upper line fifo
@@ -157,9 +215,8 @@ elsif clk'event and clk = '1' then
 			when WAIT_END_NEW_LINE =>
 				neighbour_wr <= '0' ;
 				if  next_line = '0' then
-					nl <=  unsigned(next_neighbour) ; -- loading next neighbour
 					first_line <= '0' ;
-					pixel_state <= LOAD_VALUE ;
+					pixel_state <= WAIT_NEIGHBOUR ;
 				end if;
 			when others =>
 				pixel_state <= WAIT_NEIGHBOUR ;
@@ -169,11 +226,17 @@ end if;
 end process;
 
 
-neighbours(0) <= neighbours0(0 ) when pixel_count > 0 else
+
+
+
+
+
+
+neighbours(0) <= neighbours0(0 ) when write_pixel_index > 0 else
 					  X"00" ;
 neighbours(1) <= neighbours0(1) ; -- always valid
 neighbours(3) <= neighbours0(3) ;-- always valid
-neighbours(2) <= X"00" when pixel_count > (LINE_SIZE - 2) else -- ul neighbour is zero when reaching end of line
+neighbours(2) <= X"00" when write_pixel_index > (LINE_SIZE - 2) else -- ul neighbour is zero when reaching end of line
 					  neighbours0(2) ;
 
 end Behavioral;

@@ -19,11 +19,25 @@ Function nbit(max : integer) return integer;
 type slv8_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
 component simple_counter is
-	 generic(MODULO : positive := 16 ; NBIT : positive := 4);
+	 generic(NBIT : positive := 4);
     Port ( clk : in  STD_LOGIC;
            arazb : in  STD_LOGIC;
            sraz : in  STD_LOGIC;
            en : in  STD_LOGIC;
+			  load : in  STD_LOGIC;
+			  E : in	STD_LOGIC_VECTOR(NBIT - 1 downto 0);
+           Q : out  STD_LOGIC_VECTOR(NBIT - 1 downto 0)
+			  );
+end component;
+
+component up_down_counter is
+	 generic(MODULO : positive := 16 ; NBIT : positive := 4);
+    Port ( clk : in  STD_LOGIC;
+           arazb : in  STD_LOGIC;
+           sraz : in  STD_LOGIC;
+           en, load : in  STD_LOGIC;
+			  up_downn : in  STD_LOGIC;
+			  E : in  STD_LOGIC_VECTOR(NBIT - 1 downto 0);
            Q : out  STD_LOGIC_VECTOR(NBIT - 1 downto 0)
 			  );
 end component;

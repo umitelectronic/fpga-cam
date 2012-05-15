@@ -564,7 +564,7 @@ architecture ov7725_vga of yuv_register_rom is
 	( X"2b" & X"00"),
 	( X"22" & X"7f"),
 	( X"23" & X"03"),
-	--( X"11" & X"01"), -- double check value fint = fxclk * (PLL/((val + 1)*2) linux driver uses 12mhz i'am using 24mhz ...
+	--( X"11" & X"01"), -- double check value fint = fxclk * (PLL/((val + 1)*2) linux driver uses 12mhz fint = 12 * (4/(2*2)) = 12
 	( X"11" & X"03"), -- should work for 30fps fint = 24 * (4/(4*2)) = 12mhz
 	( X"0c" & X"d0"),
 	( X"64" & X"ff"),

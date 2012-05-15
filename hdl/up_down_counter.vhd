@@ -1,6 +1,3 @@
-
-
-
 ----------------------------------------------------------------------------------
 -- Company: 
 -- Engineer: 
@@ -33,19 +30,19 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity simple_counter is
-	 generic(NBIT : positive := 4);
+entity up_down_counter is
+	 generic(MODULO : positive := 16 ; NBIT : positive := 4);
     Port ( clk : in  STD_LOGIC;
            arazb : in  STD_LOGIC;
            sraz : in  STD_LOGIC;
-           en : in  STD_LOGIC;
-			  load : in  STD_LOGIC;
-			  E : in	STD_LOGIC_VECTOR(NBIT - 1 downto 0);
+           en, load : in  STD_LOGIC;
+			  up_downn : in  STD_LOGIC;
+			  E : in  STD_LOGIC_VECTOR(NBIT - 1 downto 0);
            Q : out  STD_LOGIC_VECTOR(NBIT - 1 downto 0)
 			  );
-end simple_counter;
+end up_down_counter;
 
-architecture Behavioral of simple_counter is
+architecture Behavioral of up_down_counter is
 signal Qp : std_logic_vector(NBIT - 1 downto 0);
 begin
 
@@ -59,7 +56,11 @@ begin
 		 elsif load = '1' then
 			Qp <= E ;
 		 elsif en = '1' then
-				Qp <= Qp + 1;
+				if up_downn = '1' then
+					Qp <= Qp + 1;
+				else
+					Qp <= Qp - 1;
+				end if ;
 	    end if;
 	end if;
  end process;	
@@ -67,4 +68,3 @@ begin
     -- concurrent assignment statement
     Q <=  Qp;
 end Behavioral;
-
