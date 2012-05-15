@@ -38,14 +38,25 @@ use WORK.GENERIC_COMPONENTS.ALL ;
 entity spartcam_blob is
 port( CLK : in std_logic;
 		ARAZB	:	in std_logic;
+		TXD	:	out std_logic;
+		RXD   :	in std_logic;
+		
+		
+		--camera interface
 		CAM_XCLK	:	out std_logic;
-		TXD, TXD2	:	out std_logic;
-		RXD, RXD2	:	in std_logic;
 		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
 		CAM_DATA	:	in std_logic_vector(7 downto 0);
 		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;
-		CAM_PCLK_OUT, CAM_HREF_OUT, CAM_VSYNC_OUT	:	out std_logic;
-		CAM_RESET	:	out std_logic 
+		CAM_RESET	:	out std_logic ;
+		
+		--LCD interface
+		LCD_RS, LCD_CS, LCD_WR, LCD_RD:	out std_logic;
+		LCD_DATA :	out std_logic_vector(15 downto 0);
+		
+		--FIFO interface
+		FIFO_CS, FIFO_WR, FIFO_RD, FIFO_A0:	out std_logic;
+		FIFO_DATA :	out std_logic_vector(7 downto 0)
+		
 );
 end spartcam_blob;
 
@@ -127,11 +138,24 @@ architecture Structural of spartcam_blob is
 	
 	signal configuration_registers :  register_array(0 to 5) ;
 	
-	signal fifo_empty, fifo_wr, send_data, tx1_buffer_full : std_logic ;
+	signal fifo_empty, fifo_wr0, send_data, tx1_buffer_full : std_logic ;
 	signal fifo_input, fifo_output : std_logic_vector(7 downto 0);
 	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
+
+
+--comment connections below when using pins
+	LCD_RS <= 'Z' ;
+	LCD_CS <= 'Z' ; 
+	LCD_WR <= 'Z' ; 
+	LCD_RD <= 'Z' ;
+	LCD_DATA <= (others => 'Z')  ;
+	FIFO_CS <= 'Z' ;
+	--FIFO_WR <= 'Z' ; 
+	FIFO_RD <= 'Z' ; 
+	FIFO_A0 <= 'Z' ;
+	FIFO_DATA <= (others => 'Z')  ;
 
 	process(clk0, arazb) -- reset process
 	begin
@@ -252,7 +276,7 @@ architecture Structural of spartcam_blob is
 		pixel_data_in => pixel_from_erode,
 		pixel_data_out => pixel_from_blob,
 		blob_data => fifo_input,
-		send_blob => fifo_wr
+		send_blob => fifo_wr0
 		);
 		
 		fifo_128x8_0 : fifo_Nx8 -- blob data fifo
@@ -261,7 +285,7 @@ architecture Structural of spartcam_blob is
 			clk => clk_96, 
 			arazb => arazb_delayed,
 			sraz => '0',
-			wr => fifo_wr , 
+			wr => fifo_wr0 , 
 			rd => NOT tx1_buffer_full, 
 			data_rdy => send_data,
 			data_out => fifo_output,  
@@ -273,7 +297,7 @@ architecture Structural of spartcam_blob is
                  write_buffer => send_data,
                  reset_buffer => NOT arazb_delayed, 
                  en_16_x_baud => clk_1_8,
-                 serial_out => TXD2,
+                 serial_out => FIFO_WR,
                  clk => clk_96,
 					  buffer_half_full => tx1_buffer_full);
 		
