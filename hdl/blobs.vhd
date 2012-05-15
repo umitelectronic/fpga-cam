@@ -150,8 +150,8 @@ en_free_index_counter <= '1'  when pixel_state = NEW_BLOB1 and nb_free_index > 0
 								 '0'  ;
 			
 with pixel_state select
-			inc_free_index_counter <= '1'  when NEW_BLOB1,-- decrement free index
-			'0' when others ;
+			inc_free_index_counter <= '0'  when NEW_BLOB1,-- decrement free index
+			'1' when others ;
 
 next_free_blob_pointer: up_down_counter
 	 generic map(MODULO => 256 , NBIT => 8 )
@@ -173,20 +173,13 @@ with 	pixel_state select
 en_free_blob_pointer <= '1'  when pixel_state = NEW_BLOB1 and nb_free_index > 0 else -- increment free blob pointer
 								'0' ;
 			
-unused_blob_index <= next_blob_index_tp + nb_free_index;			  
-
-			  
-with 	pixel_state select
-			load_uninitialized_blob_pointer <= '1'  when INIT_BLOB1,-- load free blob pointer
-			'0' when others ;
-
-en_uninitialized_blob_pointer <= '1'  when pixel_state = MERGE_BLOB3 and unused_blob_index < 255 else-- increment free blob pointer
-			'0' ;
+unused_blob_index <= next_blob_index_tp + nb_free_index - 1;			  
 
 
 with pixel_state select
 	blob_index_tp <= blob_index_init when INIT_BLOB2,
-						  unused_blob_index when MERGE_BLOB3  ,
+						  unused_blob_index when MERGE_BLOB2  ,
+						  unsigned(blob_index_to_merge_latched) when MERGE_BLOB3  ,
 						  unsigned(blob_index_latched) when others;
 						 
 	
@@ -224,7 +217,7 @@ xy_pixel_ram0: ram_NxN
 	
 	ram_en <= '1' ;
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
-				 --'1' when pixel_state = MERGE_BLOB2 else -- to be tested, clears blob data
+				 '1' when pixel_state = MERGE_BLOB3 else -- to be tested, clears blob data
 				 clear_blob ;
 	ram0_in <= std_logic_vector(newymax) & std_logic_vector(newymin) & std_logic_vector(newxmax) & std_logic_vector(newxmin) when pixel_state = UPDATE_BLOB else
 			  (others => '0') ;
@@ -251,7 +244,7 @@ xy_pixel_ram0: ram_NxN
 				when INIT_BLOB1 =>
 					index_wr <= '1' ;
 					to_merge <= '0' ;
-					if index_in = NB_BLOB - 1 then
+					if index_in = NB_BLOB then
 						index_in <= (others => '0');
 						pixel_state <= WAIT_PIXEL ;
 					else
@@ -322,7 +315,7 @@ xy_pixel_ram0: ram_NxN
 					if blobymax > newymax then
 						newymax <= blobymax ;
 					end if;
-					index_in <= unsigned(blob_merge_addr) ; -- merging addr
+					index_in <= unsigned(merge_ram_addr) ; -- merging addr
 					free_addr <= ram_addr ; -- free ram addr
 					if merge_ram_addr /= ram_addr then -- not already merged, writing merge address and freeing index
 						index_wr <= '1' ;
