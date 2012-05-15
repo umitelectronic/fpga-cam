@@ -110,7 +110,7 @@ write_pixel_index0 : simple_counter
            sraz => sraz_write_pixel_index ,
            en => en_write_pixel_index,
 			  load => '0',
-			  E => (others => '0'),
+			  E => std_logic_vector(to_unsigned(0, 10)),
            Q => write_pixel_index
 			  );
 

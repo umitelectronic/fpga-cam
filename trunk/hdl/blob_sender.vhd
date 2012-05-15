@@ -85,7 +85,7 @@ begin
 			  sraz => sraz_blob_addr,
 			  en => en_blob_addr,
 			  load => '0', 
-			  E => (others => '0'),
+			  E => std_logic_vector(to_unsigned(0, 4)),
 			  Q => blob_addr(3 downto 0)
 			  );
 	blob_addr(7 downto 4) <= (others => '0') ;
