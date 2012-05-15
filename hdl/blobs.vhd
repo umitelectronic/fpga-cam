@@ -63,12 +63,12 @@ end blobs;
 
 architecture Behavioral of blobs is
 
-type PIXEL_ADD_MAE is (INIT_BLOB, WAIT_PIXEL, READ_BLOB, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
+type PIXEL_ADD_MAE is (INIT_BLOB1 , INIT_BLOB2, WAIT_PIXEL, LOAD_VALUE, COMPARE_BLOB, NEW_BLOB1, MERGE_BLOB1, MERGE_BLOB2, MERGE_BLOB3,  UPDATE_BLOB);
 
 signal pixel_state : PIXEL_ADD_MAE ;
 signal ram0_out, ram0_in : std_logic_vector(39 downto 0);
 signal blobxmin, blobxmax, blobymin, blobymax, newxmin, newxmax, newymin, newymax : unsigned(9 downto 0);
-signal ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr  : std_logic_vector(7 downto 0);
+signal ram_addr, merge_ram_addr, ram_addr_tp, free_addr, blob_merge_addr, blob_addr  : std_logic_vector(7 downto 0);
 signal ram_en, ram_wr, index_wr : std_logic ;
 signal blob_index_init, blob_index_tp: unsigned(7 downto 0);
 signal index_in : unsigned(7 downto 0);
@@ -142,7 +142,7 @@ free_index_counter: up_down_counter
 nb_free_index <= unsigned(slv_nb_free_index);			  
 			  
 with 	pixel_state select
-			load_free_index_counter <= '1'  when INIT_BLOB,-- load free blob pointer
+			load_free_index_counter <= '1'  when INIT_BLOB1,-- load free blob pointer
 			'0' when others ;
 			
 en_free_index_counter <= '1'  when pixel_state = NEW_BLOB1 and nb_free_index > 0 else-- decrement free index
@@ -167,7 +167,7 @@ next_free_blob_pointer: up_down_counter
 next_blob_index_tp <= unsigned(slv_next_blob_index_tp) ;
 
 with 	pixel_state select
-			load_free_blob_pointer <= '1'  when INIT_BLOB,-- load free blob pointer
+			load_free_blob_pointer <= '1'  when INIT_BLOB1,-- load free blob pointer
 			'0' when others ;
 			
 en_free_blob_pointer <= '1'  when pixel_state = NEW_BLOB1 and nb_free_index > 0 else -- increment free blob pointer
@@ -177,7 +177,7 @@ unused_blob_index <= next_blob_index_tp + nb_free_index;
 
 			  
 with 	pixel_state select
-			load_uninitialized_blob_pointer <= '1'  when INIT_BLOB,-- load free blob pointer
+			load_uninitialized_blob_pointer <= '1'  when INIT_BLOB1,-- load free blob pointer
 			'0' when others ;
 
 en_uninitialized_blob_pointer <= '1'  when pixel_state = MERGE_BLOB3 and unused_blob_index < 255 else-- increment free blob pointer
@@ -185,28 +185,24 @@ en_uninitialized_blob_pointer <= '1'  when pixel_state = MERGE_BLOB3 and unused_
 
 
 with pixel_state select
-	blob_index_tp <= blob_index_init when INIT_BLOB,
-						  unsigned(blob_index_to_merge_latched) when MERGE_BLOB1  ,
-						  unsigned(blob_index_to_merge_latched) when MERGE_BLOB2  ,
+	blob_index_tp <= blob_index_init when INIT_BLOB2,
 						  unused_blob_index when MERGE_BLOB3  ,
 						  unsigned(blob_index_latched) when others;
-						  
-
-ram_addr_tp <= blob_addr when sender_active = '1' else
-					free_addr when pixel_state = MERGE_BLOB2 else
-					ram_addr ;
+						 
 	
 
 true_blob_index <= unsigned(ram_addr) ; 
 
-blob_index_ram : ram_NxN 
+blob_index_ram : DP_ram_NxN 
 	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
- 		clk => clk, -- causes timing problem ... must check how it works.
- 		we => index_wr, en => '1',
- 		do => ram_addr ,
+ 		clk => clk,
+ 		we => index_wr,
+ 		spo => ram_addr ,
+		dpo => merge_ram_addr ,
  		di => std_logic_vector(index_in),  
- 		addr => std_logic_vector(blob_index_tp)
+ 		a => std_logic_vector(blob_index_tp),
+		dpra => std_logic_vector(blob_index_to_merge_latched)
 	); 
 
 
@@ -219,6 +215,12 @@ xy_pixel_ram0: ram_NxN
  		di => ram0_in,  
  		addr => ram_addr_tp
 	); 
+	
+	ram_addr_tp <= blob_addr when sender_active = '1' else
+						free_addr when pixel_state = MERGE_BLOB2 else
+						--merge_ram_addr when pixel_state = MERGE_BLOB1 else
+						merge_ram_addr when pixel_state = COMPARE_BLOB else
+						ram_addr ;
 	
 	ram_en <= '1' ;
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
@@ -235,7 +237,7 @@ xy_pixel_ram0: ram_NxN
 		blob_index_init <= (others => '0');
 		index_in <= (others => '0');
 		to_merge <= '0' ;
-		pixel_state <= INIT_BLOB ;
+		pixel_state <= INIT_BLOB1 ;
 	elsif clk'event and clk = '1' then
 		if sraz = '1' then
 			to_merge <= '0' ;
@@ -243,18 +245,24 @@ xy_pixel_ram0: ram_NxN
 			index_in <= (others => '0');
 			index_wr <= '1' ;
 			to_merge <= '0' ;
-			pixel_state <= INIT_BLOB ;
+			pixel_state <= INIT_BLOB1 ;
 		else
 			case pixel_state is
-				when INIT_BLOB =>
-					index_in <= index_in + 1 ;
-					blob_index_init <= blob_index_init + 1 ;
+				when INIT_BLOB1 =>
 					index_wr <= '1' ;
 					to_merge <= '0' ;
 					if index_in = NB_BLOB - 1 then
 						index_in <= (others => '0');
 						pixel_state <= WAIT_PIXEL ;
+					else
+						pixel_state <= INIT_BLOB2 ;
 					end if;
+				when INIT_BLOB2 =>
+					index_in <= index_in + 1 ;
+					blob_index_init <= blob_index_init + 1 ;
+					index_wr <= '0' ;
+					to_merge <= '0' ;
+					pixel_state <= INIT_BLOB1 ;
 				when WAIT_PIXEL =>
 					index_wr <= '0' ;
 					to_merge <= '0' ;
@@ -267,10 +275,12 @@ xy_pixel_ram0: ram_NxN
 							else
 								to_merge <= '0' ;
 							end if ;
-							pixel_state <= COMPARE_BLOB ;
+							pixel_state <= LOAD_VALUE ;
 						end if ;
 					end if ;
-				when COMPARE_BLOB =>
+				when LOAD_VALUE => --load blob value from ram
+					pixel_state <= COMPARE_BLOB ;
+				when COMPARE_BLOB => -- compare and load merge value from ram 
 					index_wr <= '0' ;
 					if pixel_posx < blobxmin then
 						newxmin <= pixel_posx ;
@@ -294,7 +304,6 @@ xy_pixel_ram0: ram_NxN
 					end if;
 					if to_merge = '1' then
 						pixel_state <= MERGE_BLOB1 ;
-						blob_merge_addr <= ram_addr ;
 					else
 						pixel_state <= UPDATE_BLOB ;
 					end if ;
@@ -315,7 +324,7 @@ xy_pixel_ram0: ram_NxN
 					end if;
 					index_in <= unsigned(blob_merge_addr) ; -- merging addr
 					free_addr <= ram_addr ; -- free ram addr
-					if blob_merge_addr /= ram_addr then -- not already merged, writing merge address and freeing index
+					if merge_ram_addr /= ram_addr then -- not already merged, writing merge address and freeing index
 						index_wr <= '1' ;
 						pixel_state <= MERGE_BLOB2 ;
 					else

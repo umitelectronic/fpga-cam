@@ -81,6 +81,17 @@ component ram_NxN is
 	); 
 end component;
 
+component DP_ram_NxN is
+	 generic(SIZE : natural := 64 ; NBIT : natural := 8; ADDR_WIDTH : natural := 6);
+    port (clk  : in std_logic;
+          we   : in std_logic;
+          a    : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
+          dpra : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
+          di   : in std_logic_vector((NBIT - 1)  downto 0);
+          spo  : out std_logic_vector((NBIT - 1) downto 0);
+          dpo  : out std_logic_vector((NBIT - 1) downto 0));
+end component;
+
 component ram_Nx8 is
 	generic(N : natural := 645; A : natural := 10);
 	port(
