@@ -93,7 +93,7 @@ begin
 		
 					  
 	clear_blob <= '1' when frame_state = ERASE_BLOB else
-				 '0' ;			 
+					  '0' ;			 
 
 
 	with frame_state select
