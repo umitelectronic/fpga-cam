@@ -38,6 +38,8 @@ port( CLK : in std_logic;
 		ARAZB	:	in std_logic;
 		TXD	:	out std_logic;
 		RXD   :	in std_logic;
+		
+		
 		--camera interface
 		CAM_XCLK	:	out std_logic;
 		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
@@ -105,6 +107,20 @@ architecture Structural of spartcam is
 	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
+	
+	--comment connections below when using pins
+	LCD_RS <= 'Z' ;
+	LCD_CS <= 'Z' ; 
+	LCD_WR <= 'Z' ; 
+	LCD_RD <= 'Z' ;
+	LCD_DATA <= (others => 'Z')  ;
+	FIFO_CS <= 'Z' ;
+	FIFO_WR <= 'Z' ; 
+	FIFO_RD <= 'Z' ; 
+	FIFO_A0 <= 'Z' ;
+	FIFO_DATA <= (others => 'Z')  ;
+	
+	
 
 	process(clk0, arazb) -- reset process
 	begin
@@ -135,16 +151,6 @@ architecture Structural of spartcam is
 
 	CAM_RESET <= arazb ;
 	CAM_XCLK <= clk_24 ;
-	TXD2 <= 'Z' ;
-	--CAM_PCLK_OUT <= CAM_PCLK;
-	--CAM_HREF_OUT <= CAM_HREF;
-	--CAM_VSYNC_OUT <= CAM_VSYNC;
-	--CAM_PCLK_OUT <= pxclk_from_interface;
-	--CAM_HREF_OUT <= href_from_interface;
-	--CAM_VSYNC_OUT <= vsync_from_interface;
-	--CAM_PCLK_OUT <= pxclk_from_ds;
-	--CAM_HREF_OUT <= href_from_ds;
-	--CAM_VSYNC_OUT <= vsync_from_ds;
 	
 	CAM_SIOC <= i2c_scl ;
 	CAM_SIOD <= i2c_sda ;
