@@ -128,6 +128,7 @@ architecture Structural of spartcam_blob is
 	signal data_to_read : std_logic_vector(7 downto 0);
 	signal send_signal, tx_buffer_full, read_signal, data_present	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
+	signal pxclk_from_bin, href_from_bin, vsync_from_bin : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	signal pxclk_from_erode, href_from_erode, vsync_from_erode : std_logic ;
@@ -227,16 +228,36 @@ architecture Structural of spartcam_blob is
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_y_from_interface
+ 		y_data => pixel_y_from_interface,
+		u_data => pixel_u_from_interface,
+		v_data => pixel_v_from_interface
 		);
 		
-		biny : binarization
-		port map( 
-				pixel_data_in => pixel_y_from_interface,
-				upper_bound	=> X"30",
-				lower_bound	=> X"00",
-				pixel_data_out => binarized_pixel
+		
+		bin_pixel0:  synced_binarization 
+		port map( clk	=> clk_96, 
+				arazb	=> arazb_delayed,
+				pixel_clock => pxclk_from_interface, hsync =>  href_from_interface, vsync => vsync_from_interface, 
+				pixel_clock_out => pxclk_from_bin, hsync_out => href_from_bin, vsync_out => vsync_from_bin, 
+				pixel_data_1 => pixel_y_from_interface,
+				pixel_data_2 => pixel_u_from_interface,
+				pixel_data_3 => pixel_v_from_interface,
+				upper_bound_1	=>	configuration_registers(0) ,
+				upper_bound_2	=>	configuration_registers(2) ,
+				upper_bound_3	=>	configuration_registers(4) ,
+				lower_bound_1	=>	configuration_registers(1),
+				lower_bound_2	=>	configuration_registers(3),
+				lower_bound_3	=>	configuration_registers(5),
+				pixel_data_out => binarized_pixel 
 		);
+		
+--		biny : binarization
+--		port map( 
+--				pixel_data_in => pixel_y_from_interface,
+--				upper_bound	=> configuration_registers(0),
+--				lower_bound	=> configuration_registers(1),
+--				pixel_data_out => binarized_pixel 
+--		);
 		
 		
 		erode0 : erode3x3
@@ -260,9 +281,7 @@ architecture Structural of spartcam_blob is
  		clk => clk_96, 
  		arazb => arazb_delayed,
  		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
- 		pixel_clock_out => pxclk_from_blob, hsync_out => href_from_blob, vsync_out => vsync_from_blob, 
 		pixel_data_in => pixel_from_erode,
-		pixel_data_out => pixel_from_blob,
 		blob_data => fifo_input,
 		send_blob => fifo_wr0
 		);
@@ -320,25 +339,25 @@ architecture Structural of spartcam_blob is
                  clk => clk_96,
 					  buffer_half_full => tx_buffer_full);
 
---	uart_rx0 : uart_rx 
---    port map(            serial_in => RXD,
---                       data_out => data_to_read,
---                    read_buffer => read_signal,
---                   reset_buffer => NOT arazb_delayed,
---                   en_16_x_baud => clk_48,
---            buffer_data_present => data_present,
---                            clk => clk_96);
---
---configuration_module0 : configuration_module
---	generic map(NB_REGISTERS => 6)
---	port map(
---		clk => clk_96, arazb =>  arazb_delayed,
---		input_data	=> data_to_read,
---		read_data	=> read_signal,
---		data_present => data_present,
---		vsync	=> vsync_from_interface,
---		registers	=> configuration_registers
---	);
+	uart_rx0 : uart_rx 
+    port map(            serial_in => RXD,
+                       data_out => data_to_read,
+                    read_buffer => read_signal,
+                   reset_buffer => NOT arazb_delayed,
+                   en_16_x_baud => clk_48,
+            buffer_data_present => data_present,
+                            clk => clk_96);
+
+configuration_module0 : configuration_module
+	generic map(NB_REGISTERS => 6)
+	port map(
+		clk => clk_96, arazb =>  arazb_delayed,
+		input_data	=> data_to_read,
+		read_data	=> read_signal,
+		data_present => data_present,
+		vsync	=> vsync_from_interface,
+		registers	=> configuration_registers
+	);
 
 
 end Structural;
