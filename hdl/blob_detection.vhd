@@ -41,9 +41,7 @@ port(
  		clk : in std_logic; 
  		arazb: in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic;
-		pixel_clock_out, hsync_out, vsync_out : out std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
-		pixel_data_out : out std_logic_vector(7 downto 0 );
 		blob_data : out std_logic_vector(7 downto 0);
 		send_blob : out std_logic
 		);
@@ -179,14 +177,12 @@ elsif clk'event and clk = '1' then
 		when ADD_TO_BLOB =>
 			add_neighbour <= '1' ;
 			if current_blob /= X"00" then
-				pixel_data_out <= std_logic_vector(true_blob_index(5 downto 0)) & "11";
 				add_pixel <= '1';
 				if neighbours0(3)/=X"00" and neighbours0(3) /= current_blob then -- left pixel and upper right pixel are different, merge
 					blob_index_to_merge <= neighbours0(3) ;
 					merge_blob <= '1' ;
 				end if ;
 			else
-				pixel_data_out <= (others => '0') ;
 				add_pixel <= '0';
 				merge_blob <= '0' ;
 			end if;
@@ -194,7 +190,6 @@ elsif clk'event and clk = '1' then
 		when ADD_NEW_BLOB =>
 			add_neighbour <= '1' ;
 			merge_blob <= '0' ;
-			pixel_data_out <= std_logic_vector(true_blob_index(5 downto 0)) & "11";
 			add_pixel <= '1';
 			new_blob <= '1' ;
 			blob_state0 <= END_PIXEL ;
@@ -214,11 +209,7 @@ elsif clk'event and clk = '1' then
 	end case;
 end if;
 end process;
-
-						  
-with blob_state0 select
-	pixel_clock_out <= '1' when END_PIXEL,
-						    '0' when others ;		
+	
 						  
 with blob_state0 select
 	sraz_blobs <= vsync when WAIT_PIXEL ,
@@ -233,9 +224,6 @@ with blob_state0 select
 	sraz_neighbours <= '1' when WAIT_VSYNC,
 							 '0' when others ;
 
-
-hsync_out <= hsync ;
-vsync_out <= vsync ;
 
 end Behavioral;
 
