@@ -169,7 +169,7 @@ architecture Structural of spartcam is
 	
 	
 	camera0: yuv_camera_interface
-		generic map(FORMAT => VGA)
+		generic map(FORMAT => QVGA)
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
@@ -184,7 +184,7 @@ architecture Structural of spartcam is
 		
 		
 		down_scaler0: down_scaler
-		generic map(SCALING_FACTOR => 8, INPUT_WIDTH => 640, INPUT_HEIGHT => 480 )
+		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
 		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,

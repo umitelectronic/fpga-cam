@@ -200,16 +200,6 @@ architecture Structural of spartcam_blob is
 
 	CAM_RESET <= arazb ;
 	CAM_XCLK <= clk_24 ;
-	--CAM_PCLK_OUT <= CAM_PCLK;
-	--CAM_HREF_OUT <= CAM_HREF;
-	--CAM_VSYNC_OUT <= CAM_VSYNC;
-	--CAM_PCLK_OUT <= pxclk_from_interface;
-	--CAM_HREF_OUT <= href_from_interface;
-	--CAM_VSYNC_OUT <= vsync_from_interface;
-	--CAM_PCLK_OUT <= pxclk_from_ds;
-	--CAM_HREF_OUT <= href_from_ds;
-	--CAM_VSYNC_OUT <= vsync_from_ds;
-	
 	
 	CAM_SIOC <= i2c_scl ;
 	CAM_SIOD <= i2c_sda ;
@@ -237,16 +227,14 @@ architecture Structural of spartcam_blob is
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_y_from_interface,
-		u_data => pixel_u_from_interface,
-		v_data => pixel_v_from_interface
+ 		y_data => pixel_y_from_interface
 		);
 		
 		biny : binarization
 		port map( 
 				pixel_data_in => pixel_y_from_interface,
-				upper_bound	=> configuration_registers(0),
-				lower_bound	=> configuration_registers(1),
+				upper_bound	=> X"30",
+				lower_bound	=> X"00",
 				pixel_data_out => binarized_pixel
 		);
 		
@@ -306,9 +294,9 @@ architecture Structural of spartcam_blob is
 		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+		  pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_y_from_interface,
+		  pixel_data_in => pixel_from_erode,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
@@ -332,25 +320,25 @@ architecture Structural of spartcam_blob is
                  clk => clk_96,
 					  buffer_half_full => tx_buffer_full);
 
-	uart_rx0 : uart_rx 
-    port map(            serial_in => RXD,
-                       data_out => data_to_read,
-                    read_buffer => read_signal,
-                   reset_buffer => NOT arazb_delayed,
-                   en_16_x_baud => clk_48,
-            buffer_data_present => data_present,
-                            clk => clk_96);
-
-configuration_module0 : configuration_module
-	generic map(NB_REGISTERS => 6)
-	port map(
-		clk => clk_96, arazb =>  arazb_delayed,
-		input_data	=> data_to_read,
-		read_data	=> read_signal,
-		data_present => data_present,
-		vsync	=> vsync_from_interface,
-		registers	=> configuration_registers
-	);
+--	uart_rx0 : uart_rx 
+--    port map(            serial_in => RXD,
+--                       data_out => data_to_read,
+--                    read_buffer => read_signal,
+--                   reset_buffer => NOT arazb_delayed,
+--                   en_16_x_baud => clk_48,
+--            buffer_data_present => data_present,
+--                            clk => clk_96);
+--
+--configuration_module0 : configuration_module
+--	generic map(NB_REGISTERS => 6)
+--	port map(
+--		clk => clk_96, arazb =>  arazb_delayed,
+--		input_data	=> data_to_read,
+--		read_data	=> read_signal,
+--		data_present => data_present,
+--		vsync	=> vsync_from_interface,
+--		registers	=> configuration_registers
+--	);
 
 
 end Structural;
