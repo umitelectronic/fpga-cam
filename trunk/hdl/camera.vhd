@@ -219,6 +219,25 @@ port(
 );
 end component;
 
+
+component synced_binarization is
+port( clk	:	in std_logic ;
+		arazb	:	in std_logic ;
+		pixel_clock, hsync, vsync : in std_logic; 
+		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_data_1 : in std_logic_vector(7 downto 0) ;
+		pixel_data_2 : in std_logic_vector(7 downto 0) ;
+		pixel_data_3 : in std_logic_vector(7 downto 0) ;
+		upper_bound_1	:	in std_logic_vector(7 downto 0);
+		upper_bound_2	:	in std_logic_vector(7 downto 0);
+		upper_bound_3	:	in std_logic_vector(7 downto 0);
+		lower_bound_1	:	in std_logic_vector(7 downto 0);
+		lower_bound_2	:	in std_logic_vector(7 downto 0);
+		lower_bound_3	:	in std_logic_vector(7 downto 0);
+		pixel_data_out : out std_logic_vector(7 downto 0) 
+);
+end component;
+
 component threshold is
 generic(INVERT : natural := 0; VALUE : std_logic_vector(7 downto 0) := X"FF");
 port( 
@@ -301,9 +320,7 @@ port(
  		clk : in std_logic; 
  		arazb: in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic;
-		pixel_clock_out, hsync_out, vsync_out : out std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
-		pixel_data_out : out std_logic_vector(7 downto 0 );
 		blob_data : out std_logic_vector(7 downto 0);
 		send_blob : out std_logic
 		);
