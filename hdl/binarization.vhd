@@ -47,13 +47,13 @@ begin
 
 non_inv0 : if INVERT = 0 generate
 pixel_data_out <= X"00" when pixel_data_in >= upper_bound else
-						X"00" when pixel_data_in <= lower_bound else
+						X"00" when pixel_data_in < lower_bound else
 						VALUE ;
 end generate non_inv0;
 
 inv0 : if INVERT = 1 generate						
 pixel_data_out <= VALUE when pixel_data_in >= upper_bound else
-						VALUE when pixel_data_in <= lower_bound else
+						VALUE when pixel_data_in < lower_bound else
 						X"00" ;
 end generate inv0;
 

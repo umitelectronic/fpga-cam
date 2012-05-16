@@ -48,6 +48,8 @@ architecture systemc of yuv_camera_interface is
 	for register_rom_ov7725_vga : yuv_register_rom use entity yuv_register_rom(ov7725_vga) ;
 	for register_rom_ov7725_qvga : yuv_register_rom use entity yuv_register_rom(ov7725_qvga) ;
 	begin
+	
+	
 gen_ov7670: if CAMERA = OV7670 generate	
 		gen_vga : if FORMAT = VGA generate
 			register_rom_ov7670_vga : yuv_register_rom --rom containg sensor configuration

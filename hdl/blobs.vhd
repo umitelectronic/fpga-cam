@@ -217,7 +217,7 @@ xy_pixel_ram0: ram_NxN
 	
 	ram_en <= '1' ;
 	ram_wr <= '1' when pixel_state = UPDATE_BLOB else
-				 '1' when pixel_state = MERGE_BLOB3 else -- to be tested, clears blob data
+				 --'1' when pixel_state = MERGE_BLOB3 else -- to be tested, clears blob data
 				 clear_blob ;
 	ram0_in <= std_logic_vector(newymax) & std_logic_vector(newymin) & std_logic_vector(newxmax) & std_logic_vector(newxmin) when pixel_state = UPDATE_BLOB else
 			  (others => '0') ;
