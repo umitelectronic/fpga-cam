@@ -141,9 +141,11 @@ v_latch : edge_triggered_latch
 	
 	-- sccb_interface
 	process(clock, arazb)
+		variable multi : integer range 0 to 7;
 		 begin
 		 	i2c_addr <= OV7670_I2C_ADDR ; -- sensor address
 		 	if  arazb = '0'  then
+				multi := 5;
 		 		reg_state <= init ;
 				reg_addr <= (others => '0');
 		 	elsif clock'event and clock = '1' then
@@ -159,25 +161,30 @@ v_latch : edge_triggered_latch
 		 					send <= '1' ; 
 		 					i2c_data <= reg_data(7 downto 0) ; 
 		 					reg_state <= wait_ack0 ;
-						elsif nack_byte = '1' then
-							send <= '0' ; 
-							reg_state <= next_reg ;
-		 				end if ;
+						end if;
 		 			when wait_ack0 => -- falling edge of ack 
-		 			  if  ack_byte = '0'  then
+						if nack_byte = '1' then							send <= '0' ; 
+							reg_state <= next_reg ;
+						elsif  ack_byte = '0'  then
 		 					reg_state <= send_data ;
 		 				end if ;
 		 			when send_data => --send register value
 		 				if  ack_byte = '1'  then
 		 					send <= '0' ; 
 		 					reg_state <= wait_ack1 ; 
-		 					reg_addr <= (reg_addr + 1) ;
-						elsif nack_byte = '1' then
-							send <= '0' ; 
-							reg_state <= next_reg ;
-		 				end if ;
-		 			when wait_ack1 => -- wait for ack
-		 			  if  ack_byte = '0'  then
+							if (multi = 0) then
+								reg_addr <= (reg_addr + 1) ;
+								multi := 5;
+							else
+								multi := multi -1;
+							end if;
+						end if;
+						
+					when wait_ack1 => -- wait for ack
+					  if nack_byte = '1' then
+								  send <= '0' ; 
+								  reg_state <= next_reg ;
+						elsif  ack_byte = '0'  then
 		 					reg_state <= next_reg ;
 		 				end if ;
 		 			when next_reg => -- switching to next register
