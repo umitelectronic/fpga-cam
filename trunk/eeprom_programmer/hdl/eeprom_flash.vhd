@@ -35,7 +35,7 @@ use WORK.GENERIC_COMPONENTS.ALL ;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity spartcam_blob is
+entity eeprom_flash is
 port( CLK : in std_logic;
 		ARAZB	:	in std_logic;
 		TXD	:	out std_logic;
@@ -45,7 +45,7 @@ port( CLK : in std_logic;
 		--camera interface
 		CAM_XCLK	:	out std_logic;
 		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
-		CAM_DATA	:	in std_logic_vector(7 downto 0);
+		CAM_DATA	:	out std_logic_vector(7 downto 0);
 		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;
 		CAM_RESET	:	out std_logic ;
 		
@@ -58,10 +58,10 @@ port( CLK : in std_logic;
 		FIFO_DATA :	out std_logic_vector(7 downto 0)
 		
 );
-end spartcam_blob;
+end eeprom_flash;
 
 
-architecture Structural of spartcam_blob is
+architecture Structural of eeprom_flash is
 
 	COMPONENT dcm24
 	PORT(
@@ -103,6 +103,25 @@ architecture Structural of spartcam_blob is
                buffer_half_full : out std_logic;
                             clk : in std_logic);
     end component;
+	 
+	 
+   component ee_commands
+	 port (
+    clk          : in  std_logic;       -- System clock
+    arazb        : in  std_logic;       -- Reset input
+
+    data_in      : in  std_logic_vector(7 downto 0);  -- RS232 data in
+    data_present : in  std_logic;       -- RS232 data are present
+    data_read    : out std_logic;       -- Read data from then RS232 fifo
+    
+    data_out     : out std_logic_vector(7 downto 0);  -- Data out to the RS232
+    data_write   : out std_logic;       -- Write signal to the RS232 transceiver
+
+    SDA          : inout std_logic;     -- EEPROM SDA signal
+    SCL          : inout std_logic;     -- EEPROM SCL signal
+	 
+	 State		  : out std_logic_vector(3 downto 0));
+   end component;
 
 	signal clk_24, clk_96, clk_48, clk_1_8 : std_logic ;
 	signal baud_count, arazb_delayed, clk0 : std_logic ;
@@ -153,10 +172,12 @@ architecture Structural of spartcam_blob is
 	LCD_RD <= 'Z' ;
 	LCD_DATA <= (others => 'Z')  ;
 	FIFO_CS <= 'Z' ;
-	--FIFO_WR <= 'Z' ; 
+	FIFO_WR <= 'Z' ; 
 	FIFO_RD <= 'Z' ; 
 	FIFO_A0 <= 'Z' ;
 	FIFO_DATA <= (others => 'Z')  ;
+	CAM_XCLK <= 'Z';
+	CAM_DATA(7 downto 4) <= (others => 'Z');
 
 	process(clk0, arazb) -- reset process
 	begin
@@ -199,8 +220,7 @@ architecture Structural of spartcam_blob is
 			end if;
 	end process;
 
-	CAM_RESET <= arazb ;
-	CAM_XCLK <= clk_24 ;
+	CAM_RESET <= data_present ;
 	
 	CAM_SIOC <= i2c_scl ;
 	CAM_SIOD <= i2c_sda ;
@@ -210,129 +230,37 @@ architecture Structural of spartcam_blob is
 		CLKFX_OUT => clk_96, 
 		CLKIN_IBUFG_OUT => clk0
 	);	
-
-
-	Inst_dcm24: dcm24 PORT MAP(
-		CLKIN_IN => clk_96,
-		CLKDV_OUT => clk_24
-	);
 	
-	
-	camera0: yuv_camera_interface
-		generic map(FORMAT => QVGA)
-		port map(clock => clk_96,
-		pixel_data => CAM_DATA, 
- 		i2c_clk => clk_24,
-		scl => i2c_scl ,
-		sda => i2c_sda ,
- 		arazb => arazb_delayed,
- 		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
- 		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_y_from_interface,
-		u_data => pixel_u_from_interface,
-		v_data => pixel_v_from_interface
-		);
-		
-		
-		bin_pixel0:  synced_binarization 
-		port map( clk	=> clk_96, 
-				arazb	=> arazb_delayed,
-				pixel_clock => pxclk_from_interface, hsync =>  href_from_interface, vsync => vsync_from_interface, 
-				pixel_clock_out => pxclk_from_bin, hsync_out => href_from_bin, vsync_out => vsync_from_bin, 
-				pixel_data_1 => pixel_y_from_interface,
-				pixel_data_2 => pixel_u_from_interface,
-				pixel_data_3 => pixel_v_from_interface,
-				upper_bound_1	=>	configuration_registers(0) ,
-				upper_bound_2	=>	configuration_registers(2) ,
-				upper_bound_3	=>	configuration_registers(4) ,
-				lower_bound_1	=>	configuration_registers(1),
-				lower_bound_2	=>	configuration_registers(3),
-				lower_bound_3	=>	configuration_registers(5),
-				pixel_data_out => binarized_pixel 
-		);
-		
---		biny : binarization
---		port map( 
---				pixel_data_in => pixel_y_from_interface,
---				upper_bound	=> configuration_registers(0),
---				lower_bound	=> configuration_registers(1),
---				pixel_data_out => binarized_pixel 
---		);
---		
-		
-		erode0 : erode3x3
-		generic map(
-		  WIDTH => 320, 
-		  HEIGHT => 240)
-		port map(
-				clk => clk_96,  
-				arazb => arazb_delayed ,  
-				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
-				pixel_clock_out => pxclk_from_erode, hsync_out => href_from_erode, vsync_out => vsync_from_erode, 
-				pixel_data_in => binarized_pixel, 
-				pixel_data_out => pixel_from_erode
-
-		);  
-		
-		
-		blob_detection0:  blob_detection
-		generic map(LINE_SIZE => 320)
-		port map(
- 		clk => clk_96, 
- 		arazb => arazb_delayed,
- 		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
-		pixel_data_in => pixel_from_erode,
-		blob_data => fifo_input,
-		send_blob => fifo_wr0
-		);
-		
-		fifo_128x8_0 : fifo_Nx8 -- blob data fifo
-			generic map(N =>64)
+	fifo_128x8_0 : fifo_Nx8 -- blob data fifo
+			generic map(N =>8)
 			port map(
 			clk => clk_96, 
 			arazb => arazb_delayed,
 			sraz => '0',
 			wr => fifo_wr0 , 
-			rd => NOT tx1_buffer_full, 
+			rd => NOT tx_buffer_full, 
 			data_rdy => send_data,
-			data_out => fifo_output,  
+			data_out => data_to_send,  
 			data_in => fifo_input
 		); 
-		
-		uart_tx1 : uart_tx 
-		port map ( data_in => fifo_output, 
-                 write_buffer => send_data,
-                 reset_buffer => NOT arazb_delayed, 
-                 en_16_x_baud => clk_1_8,
-                 serial_out => FIFO_WR,
-                 clk => clk_96,
-					  buffer_half_full => tx1_buffer_full);
-		
-		
-		down_scaler0: down_scaler
-		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
-		port map(clk => clk_96,
-		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
-		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_y_from_interface,
-		  pixel_data_out => pixel_from_ds 
-		);
-		
-		send_picture0: send_picture
-		port map(
-			clk => clk_96,
-			arazb => arazb_delayed,
-			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
-			pixel_data_in => pixel_from_ds,
-			data_out => data_to_send, 
-			send => send_signal, 
-			output_ready => NOT tx_buffer_full
-		);
+
+	ee_interp : ee_commands
+	 port map (
+					  clk => clk_96,
+					  arazb => arazb,
+					  data_in => data_to_read,
+					  data_present => data_present,
+					  data_read => read_signal,
+					  data_out => fifo_input,
+					  data_write => fifo_wr0,
+					  SDA => i2c_sda,
+					  SCL => i2c_scl,
+					  State => CAM_DATA(3 downto 0)
+	 );
 
 	uart_tx0 : uart_tx 
     port map (   data_in => data_to_send, 
-                 write_buffer => send_signal,
+                 write_buffer => send_data,
                  reset_buffer => NOT arazb_delayed, 
                  en_16_x_baud => clk_48,
                  serial_out => TXD,
@@ -347,17 +275,6 @@ architecture Structural of spartcam_blob is
                    en_16_x_baud => clk_48,
             buffer_data_present => data_present,
                             clk => clk_96);
-
-configuration_module0 : configuration_module
-	generic map(NB_REGISTERS => 6)
-	port map(
-		clk => clk_96, arazb =>  arazb_delayed,
-		input_data	=> data_to_read,
-		read_data	=> read_signal,
-		data_present => data_present,
-		vsync	=> vsync_from_interface,
-		registers	=> configuration_registers
-	);
 
 
 end Structural;
