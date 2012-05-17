@@ -258,7 +258,7 @@ architecture Structural of spartcam_blob is
 --				lower_bound	=> configuration_registers(1),
 --				pixel_data_out => binarized_pixel 
 --		);
---		
+		
 		
 		erode0 : erode3x3
 		generic map(
@@ -313,9 +313,9 @@ architecture Structural of spartcam_blob is
 		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+		  pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_y_from_interface,
+		  pixel_data_in => pixel_from_erode,
 		  pixel_data_out => pixel_from_ds 
 		);
 		

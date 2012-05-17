@@ -61,8 +61,8 @@
 # UCF File starts here, uncomment lines below as required #
 ###########################################################
 
-CONFIG PART = XC3S500E-VQ100-4 ;
-#CONFIG PART = XC3S250E-VQ100-4 ;
+#CONFIG PART = XC3S500E-VQ100-4 ;
+CONFIG PART = XC3S250E-VQ100-4 ;
 
 #NET I_CLK_REF  TNM_NET = clk_ref_grp;
 #TIMESPEC TS01 = PERIOD : clk_ref_grp : 31.25ns : PRIORITY 1;   # 32.00 MHz
