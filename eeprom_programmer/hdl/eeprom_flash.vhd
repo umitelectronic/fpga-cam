@@ -175,49 +175,53 @@ architecture Structural of eeprom_flash is
 	FIFO_WR <= 'Z' ; 
 	FIFO_RD <= 'Z' ; 
 	FIFO_A0 <= 'Z' ;
-	FIFO_DATA <= (others => 'Z')  ;
+	FIFO_DATA(7 downto 6) <= (others => 'Z')  ;
 	CAM_XCLK <= 'Z';
-	CAM_DATA(7 downto 4) <= (others => 'Z');
+	CAM_DATA <= (others => 'Z');
+
+        -- Put a spy on the I2C communication
+        FIFO_DATA(4) <= i2c_scl;
+        FIFO_DATA(5) <= i2c_sda;
 
 	process(clk0, arazb) -- reset process
 	begin
-		if arazb = '0' then
-			arazb_time <= arazb_delay;
-		elsif clk0'event and clk0 = '1' then
-			if arazb_time = 0 then
-				arazb_delayed <= '1' ;
-			else
-				arazb_delayed <= '0';
-				arazb_time <= arazb_time - 1 ;
-			end if;
-		end if;
+          if arazb = '0' then
+            arazb_time <= arazb_delay;
+          elsif clk0'event and clk0 = '1' then
+            if arazb_time = 0 then
+              arazb_delayed <= '1' ;
+            else
+              arazb_delayed <= '0';
+              arazb_time <= arazb_time - 1 ;
+            end if;
+          end if;
 	end process;
 	
 	process(clk_96) -- clk div for uart 3Mbs process
 	begin
 	if clk_96'event and clk_96 = '1' then
-		if baud_count = '1' then
-			baud_count <= '0' ;
-			clk_48 <= '1';
-		else
-			baud_count <= '1';
-			clk_48 <= '0';
-		end if;
+          if baud_count = '1' then
+            baud_count <= '0' ;
+            clk_48 <= '1';
+          else
+            baud_count <= '1';
+            clk_48 <= '0';
+          end if;
 	end if;
 	end process;
 	
 	
 	process(clk_96)
-			begin
-			if clk_96'event and clk_96='1' then
-				if baud_rate_divider=52 then
-					baud_rate_divider <= 0;
-					clk_1_8 <= '1';
-				else
-					baud_rate_divider <= baud_rate_divider + 1;
-					clk_1_8 <= '0';
-				end if;
-			end if;
+        begin
+          if clk_96'event and clk_96='1' then
+            if baud_rate_divider=52 then
+              baud_rate_divider <= 0;
+              clk_1_8 <= '1';
+            else
+              baud_rate_divider <= baud_rate_divider + 1;
+              clk_1_8 <= '0';
+            end if;
+          end if;
 	end process;
 
 	CAM_RESET <= data_present ;
@@ -226,55 +230,57 @@ architecture Structural of eeprom_flash is
 	CAM_SIOD <= i2c_sda ;
 
 	Inst_dcm96: dcm96 PORT MAP(
-		CLKIN_IN => clk,
-		CLKFX_OUT => clk_96, 
-		CLKIN_IBUFG_OUT => clk0
+          CLKIN_IN => clk,
+          CLKFX_OUT => clk_96, 
+          CLKIN_IBUFG_OUT => clk0
 	);	
 	
-	fifo_128x8_0 : fifo_Nx8 -- blob data fifo
-			generic map(N =>8)
-			port map(
-			clk => clk_96, 
-			arazb => arazb_delayed,
-			sraz => '0',
-			wr => fifo_wr0 , 
-			rd => NOT tx_buffer_full, 
-			data_rdy => send_data,
-			data_out => data_to_send,  
-			data_in => fifo_input
-		); 
+	fifo_8x8_0 : fifo_Nx8         -- Output fifo
+          generic map(N =>8)
+          port map(
+            clk => clk_96, 
+            arazb => arazb_delayed,
+            sraz => '0',
+            wr => fifo_wr0 , 
+            rd => NOT tx_buffer_full, 
+            data_rdy => send_data,
+            data_out => data_to_send,  
+            data_in => fifo_input
+            ); 
 
 	ee_interp : ee_commands
 	 port map (
-					  clk => clk_96,
-					  arazb => arazb,
-					  data_in => data_to_read,
-					  data_present => data_present,
-					  data_read => read_signal,
-					  data_out => fifo_input,
-					  data_write => fifo_wr0,
-					  SDA => i2c_sda,
-					  SCL => i2c_scl,
-					  State => CAM_DATA(3 downto 0)
+           clk => clk_96,
+           arazb => arazb,
+           data_in => data_to_read,
+           data_present => data_present,
+           data_read => read_signal,
+           data_out => fifo_input,
+           data_write => fifo_wr0,
+           SDA => i2c_sda,
+           SCL => i2c_scl,
+           State => FIFO_DATA(3 downto 0)
 	 );
 
 	uart_tx0 : uart_tx 
-    port map (   data_in => data_to_send, 
-                 write_buffer => send_data,
-                 reset_buffer => NOT arazb_delayed, 
-                 en_16_x_baud => clk_48,
-                 serial_out => TXD,
-                 clk => clk_96,
-					  buffer_half_full => tx_buffer_full);
-
+          port map (
+            data_in => data_to_send, 
+            write_buffer => send_data,
+            reset_buffer => NOT arazb_delayed, 
+            en_16_x_baud => clk_48,
+            serial_out => TXD,
+            clk => clk_96,
+            buffer_half_full => tx_buffer_full);
+        
 	uart_rx0 : uart_rx 
-    port map(            serial_in => RXD,
-                       data_out => data_to_read,
-                    read_buffer => read_signal,
-                   reset_buffer => NOT arazb_delayed,
-                   en_16_x_baud => clk_48,
+          port map(
+            serial_in => RXD,
+            data_out => data_to_read,
+            read_buffer => read_signal,
+            reset_buffer => NOT arazb_delayed,
+            en_16_x_baud => clk_48,
             buffer_data_present => data_present,
-                            clk => clk_96);
+            clk => clk_96);
 
 
 end Structural;

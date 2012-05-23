@@ -16,7 +16,8 @@ use WORK.GENERIC_COMPONENTS.ALL ;
 -- EEPROM command interpreter
 entity ee_commands is
   generic (
-    EEPROM_SIZE : integer := 128);      -- EEPROM size in Kbits
+    EEPROM_SIZE : integer := 128;       -- EEPROM size in Kbits
+    MAX_BURST : integer := 8);          -- Maximum burst size (in bytes)
   
   port (
     clk          : in  std_logic;       -- System clock
@@ -39,18 +40,27 @@ end ee_commands;
 -- EEPROM programmer commands interpreter
 architecture a_ee_commands of ee_commands is
 
-  type EE_STATE is (S_IDLE, S_START, COMMAND, S_DATA_READ, S_DATA_WRITE, S_STOP);                   -- Module states
+  type EE_STATE is (S_IDLE, S_START, S_DATA_READ, S_DATA_WRITE, S_GET_ADDR, S_TRANSFER, S_STOP);                   -- Module states
+  type EE_MODE is (M_IDLE, M_READ, M_WRITE);    -- Data transfer mode
+
+  -- I2C Constants
+  constant I2C_DEV_ADDR : std_logic_vector(6 downto 0) := "1010000";  -- I2C EEPROM device address
   
   -- RS232 commands
   constant READ_DATA : std_logic_vector(7 downto 0) := "00000001";
   constant WRITE_DATA : std_logic_vector(7 downto 0) := "00000010";
   constant ACK_DATA : std_logic_vector(7 downto 0) := "01010101";  -- Acknowledge command (returned to computer)
+  constant NACK_DATA : std_logic_vector(7 downto 0) := "11001100";  -- Not acknowledge, return an error
   constant EOF_DATA : std_logic_vector(7 downto 0) := "00001111";  -- End Of Frame sent to the computer (after data count received)
+  
   
   -- states
   signal current_state : EE_STATE := S_IDLE;  -- Module current state
   signal data_read_s, data_write_s : std_logic := '0';  -- Data read/write signal
   signal i2c_sda, i2c_scl : std_logic := 'Z';  -- I2C communication signals
+
+  signal current_mode : EE_MODE := M_IDLE;  -- Data transfer mode
+  signal rw_base_address : std_logic_vector(15 downto 0);  -- Start address in EEPROM memory to start data transfer
 begin  -- a_ee_commands
 
   SDA <= 'Z';
@@ -68,6 +78,7 @@ begin  -- a_ee_commands
   StateMachine: process (arazb, clk)
     variable next_state : EE_STATE := S_IDLE;  -- next module state
     variable evolved : std_logic := '0';  -- The state machine evolved
+    variable current_byte : integer range 0 to MAX_BURST := 0;  -- Byte counter
   begin  -- process StateMachine
     -- Reset handler
     if (arazb = '0') then
@@ -75,23 +86,26 @@ begin  -- a_ee_commands
       data_read_s <= '0';
       data_out <= (others => 'Z');
       next_state := S_IDLE;
-
+      current_state <= S_IDLE;
+      current_mode <= M_IDLE;
+      
     -- State machine evolution
     elsif (rising_edge(clk) and (data_present='1' or data_read_s='1' or data_write_s='1' or evolved='1')) then
       if (data_read_s = '1' or data_write_s='1' or evolved = '1') then
         data_read_s <= '0';
         next_state := current_state;
-        
+       
         case current_state is
           -- IDLE
           when S_IDLE =>
+            data_write_s <= '0';
             if (data_in = "10101010") then
               next_state := S_START;
             end if;
 
           -- Start OK, reading the command
           when S_START =>
-				if data_read_s='1' then
+            if data_read_s='1' then
               case data_in is
                 when READ_DATA =>
                   next_state := S_DATA_READ;
@@ -105,7 +119,9 @@ begin  -- a_ee_commands
           when S_DATA_READ =>
             if (data_write_s = '1') then
               data_write_s <= '0';
-              next_state := S_IDLE;
+              current_mode <= M_READ;
+              next_state := S_GET_ADDR;
+              current_byte := 0;
             else
               data_out <= ACK_DATA;
               data_write_s <= '1';
@@ -114,11 +130,64 @@ begin  -- a_ee_commands
           when S_DATA_WRITE =>
             if (data_write_s = '1') then
               data_write_s <= '0';
-              next_state := S_IDLE;
+              current_mode <= M_WRITE;
+              next_state := S_GET_ADDR;
+              current_byte := 0;
             else
               data_out <= ACK_DATA;
               data_write_s <= '1';
             end if;
+
+          when S_GET_ADDR =>
+            if data_read_s='1' then
+              case current_byte is
+                when 0 =>
+                  rw_base_address(15 downto 8) <= data_in;
+                when 1 =>
+                  rw_base_address(7 downto 0) <= data_in;
+                when 2 =>
+                  if data_in < MAX_BURST then
+                    next_state := S_TRANSFER;  -- Start the data transfer
+                    data_out <= ACK_DATA;  -- Acknowledge the command
+                    data_write_s <= '1';
+                    current_byte := to_integer(unsigned(data_in))-2;  -- With data_in
+                  else
+                    next_state := S_IDLE;
+                    data_out <= NACK_DATA;
+                    data_write_s <= '1';
+                  end if;
+              
+                when others => null;
+              end case;
+              current_byte := current_byte +1 ;
+            end if;
+
+          when S_TRANSFER =>
+            case current_mode is
+              when M_READ  => 
+                data_out <= EOF_DATA;
+                data_write_s <= '1';
+                next_state := S_IDLE;
+                
+              when M_WRITE =>
+                if data_write_s = '1' then
+                  data_write_s <= '0';
+                elsif data_read_s = '1' then
+                  -- Insert data transfer here
+              
+                  current_byte := current_byte - 1;
+                  if current_byte > 0 then
+                    data_out <= ACK_DATA;
+                  else
+                    data_out <= EOF_DATA;
+                    next_state := S_IDLE;
+                  end if;
+
+                  data_write_s <= '1';
+                end if;
+                          
+              when others => null;
+            end case;
             
           when others => next_state := S_IDLE;
         end case;
