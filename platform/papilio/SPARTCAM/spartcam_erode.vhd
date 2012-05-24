@@ -88,28 +88,42 @@ architecture Structural of spartcam_erode is
              buffer_half_full : out std_logic;
                           clk : in std_logic);
     end component;
+	 
+	 	 component uart_rx is
+    port (            serial_in : in std_logic;
+                       data_out : out std_logic_vector(7 downto 0);
+                    read_buffer : in std_logic;
+                   reset_buffer : in std_logic;
+                   en_16_x_baud : in std_logic;
+            buffer_data_present : out std_logic;
+                    buffer_full : out std_logic;
+               buffer_half_full : out std_logic;
+                            clk : in std_logic);
+    end component;
 
 	signal clk_24, clk_96, clk_48 : std_logic ;
 	signal baud_count, arazb_delayed, clk0 : std_logic ;
 	constant arazb_delay : integer := 1000000 ;
 	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
 
-	signal pixel_from_interface : std_logic_vector(7 downto 0);
+	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
 	
 	signal pixel_from_conv : std_logic_vector(7 downto 0);
-	signal binarized_pixel : std_logic_vector(7 downto 0);
+	signal binarized_pixel, binarized_pixely, binarized_pixelu, binarized_pixelv : std_logic_vector(7 downto 0);
 	signal pixel_from_erode : std_logic_vector(7 downto 0);
 	signal pixel_from_dilate : std_logic_vector(7 downto 0);
 	
 	signal data_to_send : std_logic_vector(7 downto 0);
-	signal send_signal, tx_buffer_full	:	std_logic ;
+	signal data_to_read : std_logic_vector(7 downto 0);
+	signal send_signal, tx_buffer_full, read_signal, data_present	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	signal pxclk_from_erode, href_from_erode, vsync_from_erode : std_logic ;
 	signal pxclk_from_dilate, href_from_dilate, vsync_from_dilate : std_logic ;
 	
+	signal configuration_registers :  register_array(0 to 5) ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
@@ -184,16 +198,32 @@ architecture Structural of spartcam_erode is
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_from_interface
+ 		y_data => pixel_y_from_interface
 		);
 		
-		bin0 : binarization
+		biny : binarization
 		port map( 
-				pixel_data_in => pixel_from_interface,
-				upper_bound	=> X"30",
-				lower_bound	=> X"00",
+				pixel_data_in => pixel_y_from_interface,
+				upper_bound	=> configuration_registers(0),
+				lower_bound	=> configuration_registers(1),
 				pixel_data_out => binarized_pixel 
 		);
+--		binu : binarization
+--		port map( 
+--				pixel_data_in => pixel_u_from_interface,
+--				upper_bound	=> configuration_registers(2),
+--				lower_bound	=> configuration_registers(3),
+--				pixel_data_out => binarized_pixelu 
+--		);
+--		binv : binarization
+--		port map( 
+--				pixel_data_in => pixel_v_from_interface,
+--				upper_bound	=> configuration_registers(4),
+--				lower_bound	=> configuration_registers(5),
+--				pixel_data_out => binarized_pixelv 
+--		);
+		
+		--binarized_pixel <= binarized_pixely AND binarized_pixelu AND binarized_pixelv ;
 		
 		
 		erode0 : erode3x3
@@ -210,27 +240,13 @@ architecture Structural of spartcam_erode is
 
 		);  
 		
-		dilate0 : dilate3x3
-		generic map(
-		  WIDTH => 320, 
-		  HEIGHT => 240)
-		port map(
-				clk => clk_96,  
-				arazb => arazb_delayed ,  
-				pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
-				pixel_clock_out => pxclk_from_dilate, hsync_out => href_from_dilate, vsync_out => vsync_from_dilate, 
-				pixel_data_in => pixel_from_erode, 
-				pixel_data_out => pixel_from_dilate
-
-		); 
-		
 		down_scaler0: down_scaler
 		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_dilate, hsync => href_from_dilate, vsync => vsync_from_dilate,
+		 pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_dilate,
+		  pixel_data_in => pixel_from_erode,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
@@ -253,6 +269,27 @@ architecture Structural of spartcam_erode is
                  serial_out => TXD,
                  clk => clk_96,
 					  buffer_half_full => tx_buffer_full);
+					  
+					  
+		uart_rx0 : uart_rx 
+    port map(            serial_in => RXD,
+                       data_out => data_to_read,
+                    read_buffer => read_signal,
+                   reset_buffer => NOT arazb_delayed,
+                   en_16_x_baud => clk_48,
+            buffer_data_present => data_present,
+                            clk => clk_96);
+
+configuration_module0 : configuration_module
+	generic map(NB_REGISTERS => 6)
+	port map(
+		clk => clk_96, arazb =>  arazb_delayed,
+		input_data	=> data_to_read,
+		read_data	=> read_signal,
+		data_present => data_present,
+		vsync	=> vsync_from_interface,
+		registers	=> configuration_registers
+	);
 
 
 

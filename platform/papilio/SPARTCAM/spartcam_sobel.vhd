@@ -117,7 +117,7 @@ architecture Structural of spartcam_sobel is
 	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	
-	signal configuration_registers :  register_array(0 to 1) := (X"FF", X"F0") ;
+	signal configuration_registers :  register_array(0 to 5) ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
@@ -226,7 +226,7 @@ architecture Structural of spartcam_sobel is
 		  arazb => arazb_delayed,
 		  pixel_clock => pxclk_from_conv, hsync => href_from_conv, vsync => vsync_from_conv,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_conv,
+		  pixel_data_in => binarized_pixel,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
@@ -263,7 +263,7 @@ architecture Structural of spartcam_sobel is
 									 
 									 
 	configuration_module0 : configuration_module
-	generic map(NB_REGISTERS => 2)
+	generic map(NB_REGISTERS => 6)
 	port map(
 		clk => clk_96, arazb =>  arazb_delayed,
 		input_data	=> data_to_read,
