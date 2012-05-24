@@ -42,8 +42,8 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 	SerialChannel serialChannelData;
 	String comPort;
 	
-	JLabel dummy, upper, lower, yLabel, uLabel, vLabel ;
-	JTextField yu, yl, uu, ul, vu, vl ;
+	JLabel dummy, upper, lower, yLabel, uLabel, vLabel, channelLabel ;
+	JTextField yu, yl, uu, ul, vu, vl , channel;
 	List<JTextField> registers ;
 	
 	ImageStreamParser imageParser;
@@ -84,6 +84,7 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 		yLabel = new JLabel("Y");
 		uLabel = new JLabel("U");
 		vLabel = new JLabel("V");
+		channelLabel = new JLabel("chan");
 		
 		registers = new ArrayList<JTextField>();
 
@@ -99,9 +100,11 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 		registers.add(vu);
 		vl = new JTextField("00", 3);
 		registers.add(vl);
+		channel = new JTextField("00", 3);
+		registers.add(channel);
 		
 		JPanel confPanel = new JPanel();
-		confPanel.setLayout(new GridLayout(4, 3, 2, 2));
+		confPanel.setLayout(new GridLayout(5, 3, 2, 2));
 		
 		confPanel.add(dummy);
 		confPanel.add(upper);
@@ -118,6 +121,9 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 		confPanel.add(vLabel);
 		confPanel.add(vu);
 		confPanel.add(vl);
+		
+		confPanel.add(channelLabel);
+		confPanel.add(channel);
 		
 		
 		
@@ -222,8 +228,8 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 		}else if (e.getSource() == sendConf) {
 			if (serialChannelImage != null) {
 				try {
-					byte[] registerVals = new byte[6] ;
-					for(int i = 0; i < 6 ; i ++){
+					byte[] registerVals = new byte[7] ;
+					for(int i = 0; i < 7; i ++){
 						String val = registers.get(i).getText();
 						int iVal = Integer.decode(val);
 						if(iVal > 255){
@@ -232,7 +238,7 @@ class CamPreviewGUI extends JFrame implements Runnable, ActionListener {
 						registerVals[i] = (byte) iVal;
 						
 					}
-					serialChannelImage.writeDate(registerVals, 6);
+					serialChannelImage.writeDate(registerVals, 7);
 					
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
