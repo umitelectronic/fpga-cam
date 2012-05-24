@@ -4,6 +4,9 @@ library IEEE;
 		  use ieee.math_real.log2;
 		  use ieee.math_real.ceil;
 		  use ieee.numeric_std.all;
+		  
+library WORK ;
+use work.generic_components.all ;
 
 PACKAGE camera IS
 component i2c_master is
@@ -385,5 +388,15 @@ generic(NB_BLOB : positive	:=	16);
 	);
 end component;
 
+
+component video_switch is
+generic(NB	:	positive := 2);
+port(pixel_clock, hsync, vsync : in std_logic_vector(NB - 1 downto 0);
+	  pixel_data	:	in slv8_array(NB - 1 downto 0);
+	  pixel_clock_out, hsync_out, vsync_out : out std_logic ;
+	  pixel_data_out	:	out std_logic_vector(7 downto 0);
+	  channel	:	in std_logic_vector(7 downto 0)
+);
+end component;
 
 END camera;
