@@ -119,6 +119,7 @@ architecture Structural of spartcam_blob is
 	signal pixel_from_dilate : std_logic_vector(7 downto 0);
 	signal pixel_from_square: std_logic_vector(7 downto 0);
 	signal pixel_from_blob: std_logic_vector(7 downto 0);
+	signal pixel_from_switch: std_logic_vector(7 downto 0);
 	
 	signal raw_data : std_logic_vector(7 downto 0 );
 	signal raw_data_available : std_logic := '0' ;
@@ -135,14 +136,19 @@ architecture Structural of spartcam_blob is
 	signal pxclk_from_dilate, href_from_dilate, vsync_from_dilate : std_logic ;
 	signal pxclk_from_blob, href_from_blob, vsync_from_blob : std_logic ;
 	signal pxclk_from_square, href_from_square, vsync_from_square : std_logic ;
+	signal pxclk_from_switch, href_from_switch, vsync_from_switch : std_logic ;
 	signal blobx, bloby : unsigned(9 downto 0);
 	
-	signal configuration_registers :  register_array(0 to 5) ;
+	signal configuration_registers :  register_array(0 to 6) ;
 	
 	signal fifo_empty, fifo_wr0, send_data, tx1_buffer_full : std_logic ;
 	signal fifo_input, fifo_output : std_logic_vector(7 downto 0);
 	
 	signal i2c_scl, i2c_sda : std_logic;
+	
+	constant nb_channels : integer := 4 ;
+	signal pxclk_to_switch, hsync_to_switch, vsync_to_switch	: std_logic_vector(nb_channels - 1 downto 0);
+	signal pixel_to_switch	: slv8_array(nb_channels - 1 downto 0);
 	begin
 
 
@@ -309,13 +315,33 @@ architecture Structural of spartcam_blob is
 					  buffer_half_full => tx1_buffer_full);
 		
 		
+pxclk_to_switch <= (pxclk_from_erode & pxclk_from_interface & pxclk_from_interface & pxclk_from_interface ) ;
+hsync_to_switch <= (href_from_erode & href_from_interface & href_from_interface & href_from_interface) ;
+vsync_to_switch <= (vsync_from_erode & vsync_from_interface & vsync_from_interface & vsync_from_interface) ;
+pixel_to_switch <= (pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface, pixel_from_erode);
+
+
+	
+switch0 : video_switch
+generic map(NB	=> nb_channels)
+port map(pixel_clock => pxclk_to_switch, 
+		   hsync => hsync_to_switch, 
+			vsync => vsync_to_switch,
+	  pixel_data => pixel_to_switch,
+	  pixel_clock_out => pxclk_from_switch, hsync_out => href_from_switch, vsync_out => vsync_from_switch,
+	  pixel_data_out	=> pixel_from_switch,
+	  channel	=> configuration_registers(6)
+	);
+		
+		
+		
 		down_scaler0: down_scaler
 		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
 		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
+		  pixel_clock => pxclk_from_switch, hsync => href_from_switch, vsync => vsync_from_switch,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => pixel_from_erode,
+		  pixel_data_in => pixel_from_switch,
 		  pixel_data_out => pixel_from_ds 
 		);
 		
@@ -349,7 +375,7 @@ architecture Structural of spartcam_blob is
                             clk => clk_96);
 
 configuration_module0 : configuration_module
-	generic map(NB_REGISTERS => 6)
+	generic map(NB_REGISTERS => 7)
 	port map(
 		clk => clk_96, arazb =>  arazb_delayed,
 		input_data	=> data_to_read,
