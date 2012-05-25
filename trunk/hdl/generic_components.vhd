@@ -125,6 +125,14 @@ component hold is
 			  );
 end component;
 
+
+component reset_generator is
+generic(HOLD_0	:	natural	:= 100);
+port(clk, arazb : in std_logic ;
+     arazb_0: out std_logic
+	  );
+end component;
+
 end generic_components;
 
 Package body generic_components is
