@@ -25,11 +25,11 @@ architecture ov7670_qvga of yuv_register_rom is
 	(X"3a" & X"04"), -- OV
 	(X"12" & X"10"), -- QVGA
 	(X"8C" & X"00"), -- 
-	(X"17" & X"13"), -- HSTART
-	(X"18" & X"01"), -- HSTOP
-	(X"32" & X"b6"), -- HREF
-	(X"19" & X"02"), -- VSTART
-	(X"1A" & X"7a"), -- VSTOP
+	(X"17" & X"15"), -- HSTART
+	(X"18" & X"03"), -- HSTOP
+	(X"32" & X"A0"), -- HREF
+	(X"19" & X"03"), -- VSTART
+	(X"1A" & X"7b"), -- VSTOP
 	(X"03" & X"0a"), -- VREF
 	(X"0C" & X"00"), -- COM13
 	(X"3E" & X"00"), -- COM14
