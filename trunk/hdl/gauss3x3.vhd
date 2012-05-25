@@ -52,15 +52,8 @@ end gauss3x3;
 
 
 architecture Behavioral of gauss3x3 is
-	type clock_state is (LOW, HIGH);
-	constant clock_stretch_cycle : integer range 0 to 4 := 2 ;
-	signal clock_stretch : integer range 0 to 4 := 0 ;
 	signal block3x3_sig : mat3 ;
-	signal new_block, pxclk_state : std_logic ;
-	signal pixel_counter : unsigned(9 downto 0) := (others => '0') ;
-	signal nb_line : unsigned(9 downto 0) := (others => '0') ;
-	signal conv_counter : unsigned(9 downto 0) := (others => '0') ;
-	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
+	signal new_block : std_logic ;
 	signal line_1, line_2, line_3 : std_logic_vector(15 downto 0);
 	signal conv : std_logic_vector(15 downto 0);
 begin
@@ -90,64 +83,22 @@ begin
            d => conv(12 downto 4) ,
            q => pixel_data_out );
 		
-		
-		
-		process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			conv_counter <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if vsync = '1' then
-					conv_counter <= (others => '0') ;
-				elsif new_conv /= new_conv_old  and new_conv = '0' then
-					if conv_counter = WIDTH - 1 then
-						conv_counter <= (others => '0') ;
-					else
-						conv_counter <= conv_counter + 1 ;
-					end if;
-				end if ;
-				new_conv_old <= new_conv ;
-		end if ;
-		end process ;
-		
-		process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			pixel_counter <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if hsync = '1' then
-					pixel_counter <= (others => '0') ;
-				elsif pixel_clock /= pixel_clock_old and pixel_clock = '0' then
-					pixel_counter <= pixel_counter + 1 ;
-				end if ;
-				pixel_clock_old <= pixel_clock ;
-		end if ;
-		end process ;
 
-		-- count lines on rising edge of hsync
+
+		--sync signals latch
 		process(clk, arazb)
 		begin
 		if arazb = '0' then 
-			nb_line <= (others => '0') ;
+			pixel_clock_out <= '0' ;
+			hsync_out <= '0' ;
+			vsync_out <= '0' ;
 		elsif clk'event and clk = '1'  then
-				if vsync = '1' then
-					nb_line <= (others => '0') ;
-				elsif hsync /= hsync_old and hsync = '1' then
-					nb_line <= nb_line + 1 ;
-				end if ;
-				hsync_old <= hsync ;
+			pixel_clock_out <= new_block ;
+			hsync_out <= hsync ;
+			vsync_out <= vsync ;
 		end if ;
 		end process ;
 		
-	
-	
-		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
-		new_conv <= (new_conv1 AND new_conv2) ;
-	
-		hsync_out	<= hsync when (clock_stretch = 0 and conv_counter = 0) else --need to get this clean
-							'0' ;
-		vsync_out <= vsync when (clock_stretch = 0 and conv_counter = 0) else
-						 '0' ;
 
 end Behavioral;
 
