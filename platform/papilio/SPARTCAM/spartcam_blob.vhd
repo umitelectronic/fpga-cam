@@ -105,9 +105,7 @@ architecture Structural of spartcam_blob is
     end component;
 
 	signal clk_24, clk_96, clk_48, clk_1_8 : std_logic ;
-	signal baud_count, arazb_delayed, clk0 : std_logic ;
-	constant arazb_delay : integer := 1000000 ;
-	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
+	signal baud_count, arazb_delayed, clk0, cam_reset_delayed : std_logic ;
 	signal baud_rate_divider : integer range 0 to 53 := 0 ;
 
 	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
@@ -164,19 +162,13 @@ architecture Structural of spartcam_blob is
 	FIFO_A0 <= 'Z' ;
 	FIFO_DATA <= (others => 'Z')  ;
 
-	process(clk0, arazb) -- reset process
-	begin
-		if arazb = '0' then
-			arazb_time <= arazb_delay;
-		elsif clk0'event and clk0 = '1' then
-			if arazb_time = 0 then
-				arazb_delayed <= '1' ;
-			else
-				arazb_delayed <= '0';
-				arazb_time <= arazb_time - 1 ;
-			end if;
-		end if;
-	end process;
+
+	reset0: reset_generator 
+	generic map(HOLD_0 => 500000)
+	port map(clk => clk0, 
+		arazb => ARAZB ,
+		arazb_0 => arazb_delayed
+	 );
 	
 	process(clk_96) -- clk div for uart 3Mbs process
 	begin
@@ -205,7 +197,7 @@ architecture Structural of spartcam_blob is
 			end if;
 	end process;
 
-	CAM_RESET <= arazb ;
+	CAM_RESET <= ARAZB ;
 	CAM_XCLK <= clk_24 ;
 	
 	CAM_SIOC <= i2c_scl ;
