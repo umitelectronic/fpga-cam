@@ -69,19 +69,11 @@ port map(
 	   lcd_data => lcd_data
 	); 
 
-
 process
 begin
 	arazb <= '0' ;
 	wait for 10*clk_period;
 	arazb <= '1' ;
-	while true loop
-		arazb <= '1' ;
-	end loop ;
-end process;
-
-process
-begin
 	while true loop
 		clk <= '0';
 		wait for clk_period;

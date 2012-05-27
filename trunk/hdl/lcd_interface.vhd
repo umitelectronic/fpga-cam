@@ -149,7 +149,7 @@ lcd_wr <= '0' when count > (rs_set - 1)  and count < (rs_set + wr_hold) else
 		  '1' ;
 
 lcd_rd <= '1' ;
-
+lcd_cs <= '0' ;
 
 with state select
 	busy <= '1' when WRITE_DATA,
