@@ -413,4 +413,35 @@ port(pixel_clock, hsync, vsync : in std_logic_vector(NB - 1 downto 0);
 );
 end component;
 
+
+component lcd_interface is
+port(clk, arazb	:	in std_logic ;
+	  addr	:	in std_logic_vector(7 downto 0) ;
+	  data	:	in std_logic_vector(15 downto 0);
+	  wr_data	:	in std_logic ;
+	  set_addr	:	in std_logic ;
+	  busy	:	out std_logic ;
+	  lcd_rs, lcd_cs, lcd_rd, lcd_wr	:	 out std_logic;
+	  lcd_data	:	out std_logic_vector(15 downto 0) );
+end component;
+
+component lcd_register_rom is
+	port(
+	   clk, en	:	in std_logic ;
+ 		data : out std_logic_vector(15 downto 0 ); 
+ 		addr : in std_logic_vector(7 downto 0 )
+	); 
+end component;
+
+component lcd_controller is
+port(
+ 		clk : in std_logic; 
+ 		arazb : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_r, pixel_g, pixel_b : in std_logic_vector(7 downto 0 );
+		lcd_rs, lcd_cs, lcd_rd, lcd_wr	:	 out std_logic;
+	   lcd_data	:	out std_logic_vector(15 downto 0) 
+	); 
+end component;
+
 END camera;

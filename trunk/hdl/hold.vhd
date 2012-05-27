@@ -46,7 +46,7 @@ entity hold is
 end hold;
 
 architecture Behavioral of hold is
-signal Qp : unsigned(nbit(HOLD_TIME) - 1  downto 0);
+signal Qp : unsigned(nbit(HOLD_TIME) - 1  downto 0) := (others => '0');
 signal old_value : std_logic ;
 begin
 
