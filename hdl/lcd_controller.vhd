@@ -126,7 +126,7 @@ end if ;
 end process ;
 
 
-process(state, vsync)
+process(state, vsync, lcd_busy, register_data, count)
 begin
 next_state <= state ;
 case state is
@@ -137,7 +137,7 @@ case state is
 			next_state <= WAIT_DELAY ;
 		end if ;
 	WHEN WAIT_DELAY => 
-		if register_data = X"FF" then
+		if register_data = X"FFFF" then
 			next_state <= WAIT_VSYNC ;
 		elsif count = delay then
 			next_state <= LCD_INIT ;
