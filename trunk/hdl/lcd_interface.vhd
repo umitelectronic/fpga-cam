@@ -46,9 +46,10 @@ end lcd_interface;
 
 architecture Behavioral of lcd_interface is
 type lcd_state is (WAIT_DATA, WRITE_ADDR, WRITE_DATA);
-constant rs_set	: positive := 2 ;
-constant wr_hold	: positive := 2 ;
-constant wr_period	: positive := 5 ;
+constant rs_set	: positive := 1 ;
+constant wr_lw_pw	: positive := 5 ;
+constant wr_hw_pw	: positive := 5 ;
+constant wr_period	: positive := rs_set + wr_lw_pw + wr_hw_pw ;
 signal state, next_state	:	lcd_state ;
 signal sraz_counter, en_counter : std_logic ;
 signal count, addr_latched	:	std_logic_vector(7 downto 0);
@@ -123,13 +124,13 @@ case state is
 			next_state <= WRITE_DATA ;
 		end if ;
 	when WRITE_ADDR =>
-		if count > wr_period and wr_latched = '1' then
+		if count > (wr_period - 1) and wr_latched = '1' then
 			next_state <= WRITE_DATA ;
-		elsif count > wr_period then
+		elsif count > (wr_period - 1) then
 			next_state <= WAIT_DATA ;
 		end if ;
 	when WRITE_DATA =>
-		if count > wr_period then
+		if count > (wr_period - 1) then
 			next_state <= WAIT_DATA ;
 		end if ;
 	when others => 
@@ -145,11 +146,14 @@ with state select
 	lcd_rs <= '0' when WRITE_ADDR ,
 				 '1' when others ;
 				 
-lcd_wr <= '0' when count > (rs_set - 1)  and count < (rs_set + wr_hold) else
+lcd_wr <= '0' when count > (rs_set - 1)  and count < (rs_set + wr_lw_pw) else
 		  '1' ;
 
 lcd_rd <= '1' ;
-lcd_cs <= '0' ;
+
+with state select
+	lcd_cs <= '1' when WAIT_DATA,
+				 '0' when others ;
 
 with state select
 	busy <= '1' when WRITE_DATA,
@@ -161,7 +165,7 @@ with state select
 					  '1' when WRITE_ADDR,
 					  '0' when others ;
 					  
-sraz_counter <= '1' when (count > wr_period OR state = WAIT_DATA) else
+sraz_counter <= '1' when (count > (wr_period - 1) OR state = WAIT_DATA) else
 					 '0' ;
 
 

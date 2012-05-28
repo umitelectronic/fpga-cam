@@ -45,7 +45,7 @@ ARCHITECTURE behavior OF lcd_controller_tb IS
 
     
 	constant clk_period : time := 5 ns ;
-	constant pclk_period : time := 40 ns ;
+	constant pclk_period : time := 150 ns ;
 	
 	signal clk, arazb : std_logic ;
 	signal pxclk, hsync, vsync : std_logic ;
@@ -70,11 +70,18 @@ port map(
 	); 
 
 process
+variable a : integer := 0 ;
 begin
-	arazb <= '0' ;
-	wait for 10*clk_period;
-	arazb <= '1' ;
+	while a < 10 loop
+		arazb <= '0' ;
+		clk <= '0';
+		wait for clk_period;
+		clk <= '1';
+		wait for clk_period; 
+		a := a + 1 ;
+	end loop ;
 	while true loop
+		arazb <= '1' ;
 		clk <= '0';
 		wait for clk_period;
 		clk <= '1';
