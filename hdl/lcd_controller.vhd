@@ -54,9 +54,13 @@ signal state, next_state : lcd_state  ;
 
 signal en_rom, en_counter, sraz_counter, en_delay, sraz_delay : std_logic ;
 signal wr_lcd, set_addr_lcd, lcd_busy : std_logic ;
-signal register_addr, lcd_addr,  count	:	std_logic_vector(7 downto 0);
-signal register_data, lcd_data_s	:	std_logic_vector(15 downto 0);
+signal register_addr, lcd_addr:	std_logic_vector(7 downto 0);
+signal count	:	std_logic_vector(31 downto 0);
+signal lcd_data_s	:	std_logic_vector(15 downto 0);
+signal register_data	:	std_logic_vector(23 downto 0);
 signal pxclk_old, pxclk_rising	:	std_logic ;
+
+--for register0 : lcd_register_rom use entity lcd_register_rom(lcd2_4_bis) ;
 begin
 
 
@@ -90,13 +94,13 @@ register_counter :  simple_counter
 		  );	
 
 delay_counter :  simple_counter
- generic map(NBIT => 8)
+ generic map(NBIT => 32)
  port map( clk => clk,
 		  arazb => arazb,
 		  sraz => sraz_delay,
 		  en => en_delay,
 		  load => '0', 
-		  E => std_logic_vector(to_unsigned(0, 8)),
+		  E => std_logic_vector(to_unsigned(0, 32)),
 		  Q => count
 		  );
 
@@ -131,15 +135,17 @@ begin
 next_state <= state ;
 case state is
 	WHEN LCD_INIT => 
-		next_state <= WAIT_DONE ;	
+			next_state <= WAIT_DONE ;	
 	WHEN WAIT_DONE =>
 		if lcd_busy = '0' then
 			next_state <= WAIT_DELAY ;
 		end if ;
 	WHEN WAIT_DELAY => 
-		if register_data = X"FFFF" then
+		if register_data = X"FFFFFF" then
 			next_state <= WAIT_VSYNC ;
-		elsif count = delay then
+		elsif register_data(23 downto 16) = X"FF" and count(31 downto 16) = delay then -- only longer delay
+			next_state <= LCD_INIT ;
+		elsif register_data(23 downto 16) /= X"FF" and count = delay then
 			next_state <= LCD_INIT ;
 		end if;
 	WHEN WAIT_VSYNC => 
@@ -179,21 +185,19 @@ with state select
 -- control of LCD interface
 with state select
 	lcd_data_s <= pixel_r(4 downto 0) & pixel_g(5 downto 0) & pixel_b(4 downto 0) when LCD_VIDEO,
-					register_data(7 downto 0) when others ;
+					register_data(15 downto 0) when others ;
 					
 with state select
 	lcd_addr <= X"22" when LCD_VSYNC,
-					register_data(15 downto 8) when others ;		
+					register_data(23 downto 16) when others ;		
 
-with state select
-	wr_lcd <=  '1' when LCD_INIT ,
-				  pxclk_rising when LCD_VIDEO ,
-				  '0' when others ;	
-				  
-with state select
-	set_addr_lcd <= '1' when LCD_INIT ,
-						 (NOT vsync) when LCD_VSYNC,
-						  '0' when others ;	
+wr_lcd <=  '1' when state = LCD_INIT and register_data(23 downto 16) /= X"FF" else
+			  pxclk_rising when state = LCD_VIDEO else
+			  '0' ;	
+			  
+set_addr_lcd <= '1' when state = LCD_INIT and register_data(23 downto 16) /= X"FF" else
+					 (NOT vsync) when state = LCD_VSYNC else
+					  '0' ;	
 
 end Behavioral;
 
