@@ -180,8 +180,8 @@ architecture Structural of spartcam_lcd is
 		port map(
 				clk => clk_96,
 				arazb => arazb_delayed, 
-				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => href_from_interface, 
-				pixel_r => pixel_from_interface, pixel_g =>  pixel_from_interface, pixel_b => pixel_from_interface,
+				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface, 
+				pixel_r => pixel_from_interface, pixel_g =>  X"00", pixel_b =>  X"00",
 				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
 				lcd_data	=> LCD_DATA
 			); 
