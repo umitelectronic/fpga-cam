@@ -61,7 +61,6 @@ signal register_data	:	std_logic_vector(23 downto 0);
 signal pxclk_old, pxclk_rising:	std_logic ;
 signal pixel_count	:	std_logic_vector(8 downto 0);
 
-for register0 : lcd_register_rom use entity lcd_register_rom(lcd2_4_bis) ;
 begin
 
 
