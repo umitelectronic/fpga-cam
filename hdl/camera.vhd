@@ -444,4 +444,11 @@ port(
 	); 
 end component;
 
+component graphic_generator is
+port(clk, arazb : in  std_logic ;
+	  pixel_clock_out, hsync_out, vsync_out : out		std_logic ;
+	  pixel_r, pixel_g, pixel_b	:	out	 std_logic_vector(7 downto 0)
+	  );
+end component;
+
 END camera;

@@ -47,18 +47,19 @@ end lcd_controller;
 
 architecture Behavioral of lcd_controller is
 
-constant delay : positive :=  100 ;
+constant delay : positive :=  1 ;
 
-type lcd_state	is (LCD_INIT, WAIT_DONE, WAIT_DELAY, WAIT_VSYNC, LCD_VSYNC, LCD_VIDEO) ;
+type lcd_state	is (LCD_INIT, WAIT_DONE, WAIT_DELAY, SET_X, WAIT_DONE_X, SET_Y, WAIT_DONE_Y, WAIT_VSYNC, LCD_VSYNC, LCD_HSYNC, LCD_VIDEO) ;
 signal state, next_state : lcd_state  ;
 
-signal en_rom, en_counter, sraz_counter, en_delay, sraz_delay : std_logic ;
+signal en_rom, en_counter, sraz_counter, en_delay, sraz_delay, sraz_pixel_count : std_logic ;
 signal wr_lcd, set_addr_lcd, lcd_busy : std_logic ;
 signal register_addr, lcd_addr:	std_logic_vector(7 downto 0);
 signal count	:	std_logic_vector(31 downto 0);
 signal lcd_data_s	:	std_logic_vector(15 downto 0);
 signal register_data	:	std_logic_vector(23 downto 0);
-signal pxclk_old, pxclk_rising	:	std_logic ;
+signal pxclk_old, pxclk_rising:	std_logic ;
+signal pixel_count	:	std_logic_vector(8 downto 0);
 
 for register0 : lcd_register_rom use entity lcd_register_rom(lcd2_4_bis) ;
 begin
@@ -103,6 +104,17 @@ delay_counter :  simple_counter
 		  E => std_logic_vector(to_unsigned(0, 32)),
 		  Q => count
 		  );
+		  
+line_counter0 :  simple_counter
+ generic map(NBIT => 9)
+ port map( clk => clk,
+		  arazb => arazb,
+		  sraz => sraz_pixel_count,
+		  en => pxclk_rising,
+		  load => '0', 
+		  E => std_logic_vector(to_unsigned(0, 9)),
+		  Q => pixel_count
+		  );	
 
 process(clk, arazb)
 begin
@@ -110,7 +122,7 @@ if arazb = '0' then
 	pxclk_old <= '0' ;
 	pxclk_rising <= '0' ;
 elsif clk'event and clk = '1' then
-	if pxclk_old /= pixel_clock and pixel_clock = '1' and hsync = '0' then
+	if pxclk_old /= pixel_clock and pixel_clock = '1' and hsync = '0' and pixel_count < 320 then
 		pxclk_rising <= '1' ;
 	else
 		pxclk_rising <= '0' ;
@@ -152,13 +164,33 @@ case state is
 		if vsync = '1' then
 			next_state <= LCD_VSYNC ;
 		end if ;
+	WHEN SET_X => 
+		next_state <= WAIT_DONE_X ;
+	WHEN WAIT_DONE_X => 
+		if lcd_busy = '0' and vsync = '1' then
+			next_state <= SET_Y ;
+		elsif lcd_busy = '0' then
+			next_state <= LCD_HSYNC ;
+		end if ;
+	WHEN SET_Y => 
+		next_state <= WAIT_DONE_Y ;
+	WHEN WAIT_DONE_Y => 
+		if lcd_busy = '0' then
+			next_state <= LCD_VSYNC ;
+		end if ;
 	WHEN LCD_VSYNC => 
 		if vsync = '0' then
 			next_state <= LCD_VIDEO ;
 		end if ;
-	WHEN LCD_VIDEO => 
+	WHEN LCD_HSYNC => 
+		if hsync = '0' then
+			next_state <= LCD_VIDEO ;
+		end if ;
+	WHEN LCD_VIDEO =>
 		if vsync = '1' then
-			next_state <= LCD_VSYNC ;
+			next_state <= SET_X ;
+--		elsif hsync = '1' then
+--			next_state <= SET_X ;
 		end if ;
 	WHEN others => 
 		next_state <= LCD_INIT ;
@@ -185,19 +217,31 @@ with state select
 -- control of LCD interface
 with state select
 	lcd_data_s <= pixel_r(4 downto 0) & pixel_g(5 downto 0) & pixel_b(4 downto 0) when LCD_VIDEO,
+					X"0000" when SET_X,
+					X"0000" when SET_Y,
 					register_data(15 downto 0) when others ;
 					
 with state select
 	lcd_addr <= X"22" when LCD_VSYNC,
+					X"22" when LCD_HSYNC,
+					X"21" when SET_X,
+					X"20" when SET_Y,
 					register_data(23 downto 16) when others ;		
 
 wr_lcd <=  '1' when state = LCD_INIT and register_data(23 downto 16) /= X"FF" else
+			  '1' when state = SET_X else
+			  '1' when state = SET_Y else
 			  pxclk_rising when state = LCD_VIDEO else
 			  '0' ;	
 			  
 set_addr_lcd <= '1' when state = LCD_INIT and register_data(23 downto 16) /= X"FF" else
+					 '1' when state = SET_X else
+					 '1' when state = SET_Y else
 					 (NOT vsync) when state = LCD_VSYNC else
+					 (NOT hsync) when state = LCD_HSYNC else
 					  '0' ;	
+
+sraz_pixel_count <= hsync ;
 
 end Behavioral;
 
