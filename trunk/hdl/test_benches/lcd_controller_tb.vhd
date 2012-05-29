@@ -59,6 +59,13 @@ ARCHITECTURE behavior OF lcd_controller_tb IS
  
 BEGIN
  
+stimuli : graphic_generator 
+port map(clk => clk, arazb => arazb,
+	  pixel_clock_out => pxclk, hsync_out => hsync, vsync_out => vsync ,
+	  pixel_r => pixel
+	  );
+ 
+ 
 uut : lcd_controller
 port map(
  		clk => clk,
@@ -89,50 +96,6 @@ begin
 	end loop ;
 end process;
 	
-process
-	begin
-		pxclk <= '0';
-		if px_count < 320 and line_count >= 20 and line_count < 257 then
-				hsync <= '0' ;
-		else
-				hsync <= '1' ;
-		end if ;
-
-		if line_count < 3 then
-			vsync <= '1' ;
-		 else 
-			vsync <= '0' ;
-		end if ;
-		wait for pclk_period;
-		
-		pxclk <= '1';
-		if (px_count = 460 ) then
-			px_count <= 0 ;
-			if (line_count > 270) then
-			   line_count <= 0;
-		  else
-		    line_count <= line_count + 1 ;
-		  end if ;
-		else
-		  px_count <= px_count + 1 ;
-		end if ;
-		
-		wait for pclk_period;
-
-	end process;
-
---pixel <= X"FF" when line_count < 100 and line_count > 50 and  px_count  < 400 and  px_count  > 200 else
---			X"00" ;
-			
---pixel <= X"FF" when px_count < 100 and line_count < 240 else
---			X"00" ;
-
---pixel <= X"FF" when line_count < 100  and  px_count  >= 250 else
---			X"00" ;
-			
-pixel <= X"FF" when line_count < 100  and  px_count  >= 250 else
-			X"FF" when line_count >= 100  and  px_count  <= 250 else
-			X"00" ;
 
 
 END;

@@ -116,10 +116,10 @@ end lcd2_4 ;
 
 architecture lcd2_4_bis of lcd_register_rom is
  
-	type array_61 is array (0 to 60) of std_logic_vector(23 downto 0 ); 
+	type array_67 is array (0 to 66) of std_logic_vector(23 downto 0 ); 
 	
 	-- CONFIGURATION TAKEN FROM ARDUINO LIBRARY
-	signal rom : array_61 :=( 
+	signal rom : array_67 :=( 
 	(X"E3" & X"3008"),    --set the internal timing
 	(X"E7" & X"0012"),    --set the internal timing
 	(X"EF" & X"1231"),    --set the internal timing
@@ -127,7 +127,8 @@ architecture lcd2_4_bis of lcd_register_rom is
 	(X"FF" & X"0000"),    --delay
 	(X"01" & X"0100"),    --LCD_DRIV_OUT_CTRL
 	(X"02" & X"0700"),    --LCD_DRIV_WAV_CTRL
-	(X"03" & X"1030"),    --LCD_ENTRY_MOD
+	--(X"03" & X"1030"),    --LCD_ENTRY_MOD
+	(X"03" & X"1038"),    --LCD_ENTRY_MOD
 	(X"04" & X"0000"),    --LCD_RESIZE_CTRL
 	(X"08" & X"0202"),    --LCD_DISP_CTRL2
 	(X"09" & X"0000"),    --LCD_DISP_CTRL3
@@ -180,6 +181,12 @@ architecture lcd2_4_bis of lcd_register_rom is
 	(X"97" & X"0000"),   --LCD_PANEL_IF_CTRL5 
 	(X"98" & X"0000"),   --LCD_PANEL_IF_CTRL6
 	(X"07" & X"0133"),   --LCD_DISP_CTRL1  
+	(X"50" & X"0000"), -- set area
+	(X"51" & X"00EF"),
+	(X"52" & X"0000"),
+	(X"53" & X"013F"),
+	(X"20" & X"0000"),-- set pos
+	(X"21" & X"0000"),
 	(X"ff" & X"ffff")		-- END OF CONFIG
 );
 
