@@ -43,6 +43,28 @@ architecture a_ee_commands of ee_commands is
   type EE_STATE is (S_IDLE, S_START, S_DATA_READ, S_DATA_WRITE, S_GET_ADDR, S_TRANSFER, S_STOP);                   -- Module states
   type EE_MODE is (M_IDLE, M_READ, M_WRITE);    -- Data transfer mode
 
+  component ee_access
+    generic (
+      READ_ENABLED  : std_logic := '1';   -- Enable read access logic
+      WRITE_ENABLED : std_logic := '1');  -- Enable write access logic
+
+    port (
+      arazb    : in    std_logic;         -- Module reset input
+      clk      : in    std_logic;         -- Module clock
+      mem_addr : in    std_logic_vector(15 downto 0);  -- transfer start address
+      data_in  : in    std_logic_vector(7 downto 0);  -- Data feed input for write accesss
+      wr       : in    std_logic;         -- Write command
+      rd       : in    std_logic;         -- Read command
+      burst    : in    std_logic;  -- Burst data access (hold on until the end of the burst
+      data_out : out   std_logic_vector(7 downto 0);  -- Data feed out for read access
+      data_valid : out std_logic;         -- Signal data_out is valid
+    
+      ready    : out   std_logic;  -- Signal other modules we are ready for new access
+      sda      : inout std_logic;         -- I2C data signal
+      scl      : inout std_logic);        -- I2C clock signal
+  end component;
+
+  
   -- I2C Constants
   constant I2C_DEV_ADDR : std_logic_vector(6 downto 0) := "1010000";  -- I2C EEPROM device address
   
@@ -57,20 +79,39 @@ architecture a_ee_commands of ee_commands is
   -- states
   signal current_state : EE_STATE := S_IDLE;  -- Module current state
   signal data_read_s, data_write_s : std_logic := '0';  -- Data read/write signal
-  signal i2c_sda, i2c_scl : std_logic := 'Z';  -- I2C communication signals
 
   signal current_mode : EE_MODE := M_IDLE;  -- Data transfer mode
   signal rw_base_address : std_logic_vector(15 downto 0);  -- Start address in EEPROM memory to start data transfer
+  signal ee_write_data, ee_read_data : std_logic_vector(7 downto 0);  -- In/out data
+  signal ee_burst, ee_data_valid, ee_ready : std_logic;
+  signal ee_read, ee_write : std_logic := '0';
 begin  -- a_ee_commands
 
-  SDA <= 'Z';
-  SCL <= 'Z';
 
   data_read <= data_read_s;
   data_write <= data_write_s;
 	
   State <= std_logic_vector(to_unsigned(EE_STATE'pos(current_state),4));
 
+
+  ee_write <= '0';
+
+  eeprom_access: ee_access
+    port map (
+      arazb      => arazb,
+      clk        => clk,
+      mem_addr   => rw_base_address,
+      data_in    => ee_write_data,
+      wr         => ee_write,
+      rd         => ee_read,
+      burst      => ee_burst,
+      data_out   => ee_read_data,
+      data_valid => ee_data_valid,
+      ready      => ee_ready,
+      sda        => sda,
+      scl        => scl);
+
+  
   -- purpose: This process handle the state machine to receive and send commands
   -- type   : combinational
   -- inputs : arazb, clk
@@ -164,17 +205,28 @@ begin  -- a_ee_commands
 
           when S_TRANSFER =>
             case current_mode is
-              when M_READ  => 
-                data_out <= EOF_DATA;
-                data_write_s <= '1';
-                next_state := S_IDLE;
+              when M_READ  =>
+                if data_write_s = '1' then
+                  data_write_s <= '0';
+                  if (current_byte > 0) then
+                    current_byte := current_byte -1;
+                  end if;
+                elsif ee_data_valid = '1' then
+                  data_out <= ee_read_data;  -- When read data is valid, send it
+                  data_write_s <= '1';
+                  if (current_byte = 0) then
+                    data_out <= EOF_DATA;
+                    data_write_s <= '1';
+                    next_state := S_IDLE;
+                  end if;
+                end if;
                 
               when M_WRITE =>
                 if data_write_s = '1' then
                   data_write_s <= '0';
                 elsif data_read_s = '1' then
                   -- Insert data transfer here
-              
+                  
                   current_byte := current_byte - 1;
                   if current_byte > 0 then
                     data_out <= ACK_DATA;
@@ -205,5 +257,8 @@ begin  -- a_ee_commands
     end if;
   end process StateMachine;
   
+  ee_burst <= '1' when current_state = S_TRANSFER else '0' ;
+  ee_read <= '1' when current_state = S_TRANSFER and current_mode=M_READ else '0';
+
 
 end a_ee_commands;
