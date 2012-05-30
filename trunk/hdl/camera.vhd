@@ -451,4 +451,19 @@ port(clk, arazb : in  std_logic ;
 	  );
 end component;
 
+
+component yuv_rgb is
+port( clk	:	in std_logic ;
+		arazb	:	in std_logic ;
+		pixel_clock, hsync, vsync : in std_logic; 
+		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_y : in std_logic_vector(7 downto 0) ;
+		pixel_u : in std_logic_vector(7 downto 0) ;
+		pixel_v : in std_logic_vector(7 downto 0) ;
+		pixel_r : out std_logic_vector(7 downto 0) ;
+		pixel_g : out std_logic_vector(7 downto 0)  ;
+		pixel_b : out std_logic_vector(7 downto 0)  
+);
+end component;
+
 END camera;

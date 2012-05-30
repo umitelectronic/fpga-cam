@@ -47,8 +47,8 @@ end lcd_interface;
 architecture Behavioral of lcd_interface is
 type lcd_state is (WAIT_DATA, WRITE_ADDR, WRITE_DATA);
 constant rs_set	: positive := 1 ;
-constant wr_lw_pw	: positive := 5 ;
-constant wr_hw_pw	: positive := 5 ;
+constant wr_lw_pw	: positive := 6 ;
+constant wr_hw_pw	: positive := 6 ;
 constant wr_period	: positive := rs_set + wr_lw_pw + wr_hw_pw ;
 signal state, next_state	:	lcd_state ;
 signal sraz_counter, en_counter : std_logic ;
