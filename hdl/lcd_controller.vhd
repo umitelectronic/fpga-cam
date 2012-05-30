@@ -215,7 +215,7 @@ with state select
 
 -- control of LCD interface
 with state select
-	lcd_data_s <= pixel_r(4 downto 0) & pixel_g(5 downto 0) & pixel_b(4 downto 0) when LCD_VIDEO,
+	lcd_data_s <= pixel_r(7 downto 3) & pixel_g(7 downto 2) & pixel_b(7 downto 3) when LCD_VIDEO,
 					X"0000" when SET_X,
 					X"0000" when SET_Y,
 					register_data(15 downto 0) when others ;
