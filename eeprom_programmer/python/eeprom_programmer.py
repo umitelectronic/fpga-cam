@@ -18,7 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, serial
+import sys, os, serial, getopt
 
 ## Start of EEPROM_Programmer class
 # This class handles communications with the EEPROM Programmer
@@ -32,6 +32,7 @@ class EEPROM_Programmer:
     READ_CMD = '\x01'
     WRITE_CMD = '\x02'
     ACK = '\x55'
+    NACK = '\xCC'
     EOF = '\x0F'
 
     # Programmer class initialization
@@ -54,7 +55,25 @@ class EEPROM_Programmer:
         self.send_init()
         print "- Sending Write command"
         self.serial_port.write(self.WRITE_CMD)
+        # Check the ACK
+        if (self.wait_ack()<0):
+            print "FPGA didn't ACK"
+            return -1
+        self.serial_port.write('\xA5');
+        self.serial_port.write('\x5A');
+        self.serial_port.write('\x03');
+        if (self.wait_ack()<0):
+            print "FPGA didn't ACK"
+            return -1
+        for i in range(0, 2) :
+            self.serial_port.write('\x00');
+            if (self.wait_ack()<0):
+                print "FPGA didn't ACK"
+                return -1
+
         data = self.serial_port.read()
+        if (data == self.EOF):
+           print "EOF OK"
         print "- Read data : " + data
 
     # Try to read data from the I2C EEPROM
@@ -62,8 +81,17 @@ class EEPROM_Programmer:
         self.send_init()
         print "- Sending Read command"
         self.serial_port.write(self.READ_CMD)
-        data = self.serial_port.read()
-        print "- Read data : " + data
+        self.serial_port.write('\xA5');
+        self.serial_port.write('\x5A');
+        self.serial_port.write('\x03');
+        # Check the ACK
+        if (self.wait_ack()<0):
+           print "FPGA didn't ACK"
+           return -1
+
+        for i in range(0, 3) :
+            data = self.serial_port.read()
+            print "- Read data : " + data
 
     # Wait for an acknowledge
     def wait_ack(self):
@@ -72,9 +100,15 @@ class EEPROM_Programmer:
             print "- Waiting for ACK"
             read_size = self.serial_port.read()
             if (read_size == self.ACK):
+                print "ACK received"
                 return 1
-            else:
-                try_ack = try_ack -1
+            if (read_size == self.EOF):
+                print "EOF received"
+                return 0
+            if (read_size == self.NACK):
+                print "NACK received"
+                return -1
+            try_ack = try_ack -1
         return -1
         
     # Close the communication interface
@@ -94,13 +128,42 @@ def license():
     print "under certain conditions; type `show c' for details.\n"
 
 
+# Display the program usage
+def usage():
+    print "Usage : " + sys.argv[0] + " -t TTY_NAME"
+
 
 ## Start of the main program
-license()
+def main(argv):
+    license()
 
-prog = EEPROM_Programmer("/dev/ttyUSB2")
-prog.write_data()
-prog.read_data()
-prog.wait_ack()
+    port_name = ""
 
-prog.close()
+    try:
+        opts, args = getopt.getopt(argv, "t:h", ["tty", "help"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt in ("-t", "--tty"):
+            port_name=arg
+        else:
+            if opt in ("-h", "--help"):
+                usage()
+                sys.exit(0)
+    
+    if port_name=="":
+        usage()
+        sys.exit(0)
+
+    prog = EEPROM_Programmer(port_name)
+    #prog.write_data()
+    prog.read_data()
+    
+    prog.close()
+
+
+## Route to the main program
+if __name__ == "__main__":
+    main(sys.argv[1:])

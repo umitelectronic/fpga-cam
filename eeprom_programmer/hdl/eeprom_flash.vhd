@@ -1,13 +1,4 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    17:16:17 02/19/2012 
--- Design Name: 
--- Module Name:    spartcam - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
+
 -- Description: 
 --
 -- Dependencies: 
