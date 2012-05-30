@@ -73,7 +73,7 @@ architecture a_ee_access of ee_access is
   -- State machines current states
   signal rd_current_state : EE_R_STATE := R_IDLE;  -- Read state machine current state
   signal wr_current_state : EE_W_STATE := W_IDLE;  -- Write state machine current state
-  signal last_ack_r : std_logic := '0';            -- Last value of i2c_ack
+  signal last_ack_r,last_ack_w : std_logic := '0';            -- Last value of i2c_ack
   signal state : unsigned(3 downto 0);
                                   
 begin  -- a_ee_access
@@ -96,7 +96,8 @@ begin  -- a_ee_access
 
   i2c_slave_addr <= dev_address;
 
-  state <= to_unsigned(EE_R_STATE'pos(rd_current_state),4);
+  state <= to_unsigned(EE_R_STATE'pos(rd_current_state),4) +
+            to_unsigned(EE_W_STATE'pos(wr_current_state),4);
   
   read_process: if READ_ENABLED='1' generate
     -- purpose: Handle the data read state machine
@@ -115,9 +116,11 @@ begin  -- a_ee_access
         case rd_current_state is
           -- Idle state : the module waits for an instruction
           when R_IDLE =>
+            i2c_din <= (others => 'Z');
             if (rd = '1' and wr_current_state=W_IDLE) then
               next_state := R_ADDRH;
               start_addr := mem_addr;
+              i2c_din <= start_addr(15 downto 8);
             end if;
 
           -- Writting the high address
@@ -125,7 +128,7 @@ begin  -- a_ee_access
             -- send the high address
             if (last_ack_r = '0' and i2c_ack = '1') then
               next_state := R_ADDRL;
-              i2c_din <= start_addr(15 downto 8);
+              i2c_din <= start_addr(7 downto 0);
             elsif i2c_nack='1' then
               next_state := R_IDLE;
             end if;
@@ -175,19 +178,102 @@ begin  -- a_ee_access
           when others =>
             next_state := R_IDLE;
         end case;
-
-        last_ack_r <= i2c_ack;
         rd_current_state <= next_state;
+        last_ack_r <= i2c_ack;          
       end if;
     end process rd_proc;
 
-    -- Generate the rcv signal
-    i2c_rcv <= '1' when (rd_current_state = R_DATA or rd_current_state = R_WAIT) else '0';
-    -- Generate the send signal
-    i2c_send <= '1' when (rd_current_state=R_ADDRH or rd_current_state=R_ADDRL) and (i2c_ack = last_ack_r) else '0';
-    -- Generate the data_valid signal
-    data_valid <= '1' when (rd_current_state=R_WAIT) else '0';
   end generate read_process;
+
+
+  write_process: if WRITE_ENABLED='1' generate
+    -- purpose: Handle the data write state machine
+    -- type   : sequential
+    -- inputs : clk, arazb, rd, burst
+    wr_proc: process (clk, arazb)
+      variable next_state : EE_W_STATE := W_IDLE;  -- State machine next state
+      variable start_addr : std_logic_vector(15 downto 0);  -- Start address for read access
+    begin  -- process wr_proc
+      if arazb = '0' then               -- asynchronous reset (active low)
+        wr_current_state <= W_IDLE;
+        last_ack_r <= '0';
+      elsif clk'event and clk = '1' then  -- rising clock edge
+        next_state := wr_current_state;
+        
+        case wr_current_state is
+          -- Idle state : the module waits for an instruction
+          when W_IDLE =>
+            i2c_din <= (others => 'Z');
+            if (wr = '1' and rd_current_state=R_IDLE) then
+              next_state := W_ADDRH;
+              start_addr := mem_addr;
+              i2c_din <= start_addr(15 downto 8);
+            end if;
+
+          -- Writting the high address
+          when W_ADDRH =>
+            -- send the high address
+            if (last_ack_w = '0' and i2c_ack = '1') then
+              next_state := W_ADDRL;
+              i2c_din <= start_addr(7 downto 0);
+            elsif i2c_nack='1' then
+              next_state := W_IDLE;
+            end if;
+
+          -- Writting the low address
+          when W_ADDRL =>
+            -- send the low address
+            if (last_ack_w = '0' and i2c_ack='1') then
+              i2c_din <= data_in;
+              next_state := W_DATA;
+            elsif i2c_nack='1' then
+              next_state := W_IDLE;
+            end if;
+
+          -- Read one data
+          when W_DATA =>
+            if (i2c_ack='1' and last_ack_w='0') then
+              next_state := W_WAIT;     
+            elsif (i2c_nack='1') then
+              next_state := W_IDLE;
+            end if;
+
+          -- put the data out and get the others
+          when W_WAIT =>
+            if (wr='1' and i2c_nack='0' and burst='1') then
+              i2c_din <= data_in;
+              next_state := W_DATA;
+            elsif burst='0' or i2c_nack='1' then
+              next_state := W_END;
+            end if;
+
+          -- Wait the read command to finish
+          when W_END =>
+            if wr='0' then
+              next_state := W_IDLE;
+            end if;
+
+          -- Reset all wrong state to idle
+          when others =>
+            next_state := W_IDLE;
+        end case;
+        wr_current_state <= next_state;
+        last_ack_w <= i2c_ack;          
+      end if;
+    end process wr_proc;
+
+    end generate write_process;
+  
+    -- Generate the rcv signal
+    i2c_rcv <= '1' when  (rd_current_state = R_DATA) else '0';-- or rd_current_state = R_WAIT) else '0';
+    -- Generate the send signal
+    i2c_send <= '1' when ((wr_current_state=W_ADDRH or wr_current_state=W_ADDRL or wr_current_state=W_DATA) or --
+                          --wr_current_state=W_WAIT) or
+                          (rd_current_state=R_ADDRH or rd_current_state=R_ADDRL)) and (i2c_ack = last_ack_r or i2c_ack=last_ack_w) else '0';
+    -- Generate the data_valid signal
+    data_valid <= '1' when (rd_current_state = R_WAIT) or
+                            wr_current_state = W_WAIT else '0';
+
 
 
   ready <= '1' when (rd_current_state = R_IDLE  and
