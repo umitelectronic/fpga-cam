@@ -89,6 +89,8 @@ begin  -- behavior
     writeline (output, l);
     arazb <= '0';
 
+    mem_addr <= "1100101000110101";
+    
     wait for 1 ms;
     write(l, String'("Reset finished"));
     writeline (output, l);
@@ -103,13 +105,19 @@ begin  -- behavior
     wait until data_valid='1';
     wait until data_valid='0';
     wait until data_valid='1';
-    wait until data_valid='0';
 
     burst <= '0';
+    
+    wait for 1 ms;
+    rd <= '0';
+
+    wr <= '1';
+    burst <= '1';
+    data_in <= "11110000";
+    wait until data_valid='1';
 
     wait for 1 ms;
-
-    rd <= '0';
+    wr <= '0';
           
     write(l, String'("Ended"));
     writeline (output, l);
