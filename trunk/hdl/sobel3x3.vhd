@@ -58,12 +58,10 @@ architecture Behavioral of sobel3x3 is
 	signal pxclk_from_conv1, hsync_from_conv1, vsync_from_conv1 : std_logic ;
 	signal pxclk_from_conv2, hsync_from_conv2, vsync_from_conv2 : std_logic ;
 	signal new_conv1, new_conv2, new_conv : std_logic;
+	signal busy1, busy2, busy : std_logic;
 	signal pixel_from_conv1, pixel_from_conv2, pixel_from_conv : std_logic_vector(7 downto 0);
 	signal block3x3_sig : mat3 ;
 	signal new_block, pxclk_state : std_logic ;
-	signal pixel_counter : unsigned(9 downto 0) := (others => '0') ;
-	signal nb_line : unsigned(9 downto 0) := (others => '0') ;
-	signal conv_counter : unsigned(9 downto 0) := (others => '0') ;
 	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
 begin
 
@@ -89,6 +87,7 @@ begin
 				new_block => new_block,
 				block3x3 => block3x3_sig,
 				new_conv => new_conv1,
+				busy => busy1,
 				abs_res => pixel_from_conv1
 		);
 		
@@ -103,94 +102,33 @@ begin
 				new_block => new_block,
 				block3x3 => block3x3_sig,
 				new_conv => new_conv2,
+				busy => busy2,
 				abs_res => pixel_from_conv2
 		);
 		
-		process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			conv_counter <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if vsync = '1' then
-					conv_counter <= (others => '0') ;
-				elsif new_conv /= new_conv_old  and new_conv = '0' then
-					if conv_counter = WIDTH - 1 then
-						conv_counter <= (others => '0') ;
-					else
-						conv_counter <= conv_counter + 1 ;
-					end if;
-				end if ;
-				new_conv_old <= new_conv ;
-		end if ;
-		end process ;
-		
-		process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			pixel_counter <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if hsync = '1' then
-					pixel_counter <= (others => '0') ;
-				elsif pixel_clock /= pixel_clock_old and pixel_clock = '0' then
-					pixel_counter <= pixel_counter + 1 ;
-				end if ;
-				pixel_clock_old <= pixel_clock ;
-		end if ;
-		end process ;
-
-		-- count lines on rising edge of hsync
-		process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			nb_line <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if vsync = '1' then
-					nb_line <= (others => '0') ;
-				elsif hsync /= hsync_old and hsync = '1' then
-					nb_line <= nb_line + 1 ;
-				end if ;
-				hsync_old <= hsync ;
-		end if ;
-		end process ;
-		
-		
+	
 		process(clk, arazb)
 		begin
 			if arazb = '0' then
-				clock_stretch <= 0 ;
-				conv_state <= LOW ;
-			elsif clk'event and clk = '1' then
-				case conv_state is
-					when LOW =>
-						if clock_stretch > 0 then
-							pixel_clock_out <= '1' ;
-							clock_stretch <= clock_stretch - 1 ;
-						else
-							pixel_clock_out <= '0' ;
-						end if ;
-						if new_conv = '1' then
-							clock_stretch <= clock_stretch_cycle ;
-							pixel_clock_out <= '1' ;
-							conv_state <= HIGH ; 
-						end if ;
-					when HIGH =>
-						pixel_clock_out <= '1' ;
-						if new_conv = '0' then
-							conv_state <= LOW ; 
-						end if ;
-					when others =>
-						conv_state <= LOW ;
-				end case;
-			end if;
+				pixel_clock_out <= '0' ;
+				hsync_out <= '0' ;
+				vsync_out <= '0' ;
+			elsif clk'event and clk = '1' and busy = '0' then
+				hsync_out <= hsync ;
+				vsync_out <= vsync ;
+				pixel_clock_out <= new_conv ;
+			end if ;
 		end process ;
+	
 	
 		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
 		new_conv <= (new_conv1 AND new_conv2) ;
+		busy <= (busy1 AND busy2) ;
 	
-		hsync_out	<= hsync when (clock_stretch = 0 and conv_counter = 0) else --need to get this clean
-							'0' ;
-		vsync_out <= vsync when (clock_stretch = 0 and conv_counter = 0) else
-						 '0' ;
+--		hsync_out	<= hsync when (clock_stretch = 0 and conv_counter = 0) else --need to get this clean
+--							'0' ;
+--		vsync_out <= vsync when (clock_stretch = 0 and conv_counter = 0) else
+--						 '0' ;
 
 end Behavioral;
 

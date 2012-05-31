@@ -44,6 +44,7 @@ port(
  		new_block : in std_logic ;
 		block3x3 : in mat3;
 		new_conv : out std_logic ;
+		busy : out std_logic ;
  		abs_res : out std_logic_vector(7 downto 0 );
 		raw_res : out signed(15 downto 0 )
 );
@@ -101,15 +102,18 @@ begin
 if arazb = '0' then 
 	sraz_mac <= '1' ;
 	new_conv <= '0' ;
+	busy <= '0' ;
 	index <= (others => '0') ;
 elsif clk'event and clk = '1'  then
 	case convolution_state is
 		when WAIT_PIXEL =>
 			sraz_mac <= '1' ;
 			new_conv <= '0' ;
+			busy <= '0' ;
 			index <= (others => '0') ;
 			if new_block = '1'  then
 				new_conv <= '0' ;
+				busy <= '1' ;
 				sraz_mac <= '0' ;
 				MAC1_A(8 downto 0) <= block3x3(NON_ZERO(conv_integer(index))(0))(NON_ZERO(conv_integer(index))(1)) ;
 				MAC1_B <= to_signed(KERNEL(NON_ZERO(conv_integer(index))(0))(NON_ZERO(conv_integer(index))(1)), 16) ;
@@ -125,8 +129,9 @@ elsif clk'event and clk = '1'  then
 				convolution_state <= COMPUTE ;
 			end if;
 		when COMPUTE =>
+			busy <= '1' ;
+			new_conv <= '0' ;
 			if NON_ZERO(conv_integer(index))(0) < 3 then
-				new_conv <= '0' ;
 				sraz_mac <= '0' ;
 				MAC1_A(8 downto 0) <= block3x3(NON_ZERO(conv_integer(index))(0))(NON_ZERO(conv_integer(index))(1)) ;
 				MAC1_B <= to_signed(KERNEL(NON_ZERO(conv_integer(index))(0))(NON_ZERO(conv_integer(index))(1)), 16) ;
@@ -147,8 +152,11 @@ elsif clk'event and clk = '1'  then
 				convolution_state <= END_PIPELINE1 ;
 			end if;
 		when END_PIPELINE1 => -- accumulator is pipelined
+			busy <= '1' ;
+			new_conv <= '0' ;
 			convolution_state <= END_PIPELINE2 ;
 		when END_PIPELINE2 => -- accumulator is pipelined
+			busy <= '0' ;
 			new_conv <= '1' ;
 			raw_res <= FINAL_RES(15 downto 0) ; -- should not overflow
 			abs_resl <= abs(FINAL_RES) ;

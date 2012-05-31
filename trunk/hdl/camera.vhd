@@ -192,6 +192,7 @@ port(
  		new_block : in std_logic ;
 		block3x3 : in mat3;
 		new_conv : out std_logic ;
+		busy : out std_logic ;
  		abs_res : out std_logic_vector(7 downto 0 );
 		raw_res : out signed(15 downto 0 )
 );
