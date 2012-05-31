@@ -53,16 +53,8 @@ end dilate3x3 ;
 
 
 architecture Behavioral of dilate3x3 is
-	type clock_state is (LOW, HIGH);
-	constant clock_stretch_cycle : integer range 0 to 4 := 2 ;
-	signal clock_stretch : integer range 0 to 4 := 0 ;
-	signal conv_state : clock_state ;
 	signal block3x3_sig : mat3 ;
-	signal new_block, pxclk_state, one_value : std_logic ;
-	signal pixel_counter : unsigned(9 downto 0) := (others => '0') ;
-	signal nb_line : unsigned(9 downto 0) := (others => '0') ;
-	signal block_counter : unsigned(9 downto 0) := (others => '0') ;
-	signal pixel_clock_old, hsync_old, new_block_old : std_logic ;
+	signal new_block : std_logic ;
 begin
 
 		block0:  block3X3v2 
@@ -91,89 +83,21 @@ begin
 							VALUE ;
 		end generate ninv0 ;
 		
-		
-				process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			block_counter <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if vsync = '1' then
-					block_counter <= (others => '0') ;
-				elsif new_block /= new_block_old  and new_block = '0' then
-					if block_counter = WIDTH - 1 then
-						block_counter <= (others => '0') ;
-					else
-						block_counter <= block_counter + 1 ;
-					end if;
-				end if ;
-				new_block_old <= new_block ;
-		end if ;
-		end process ;
-		
-		process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			pixel_counter <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if hsync = '1' then
-					pixel_counter <= (others => '0') ;
-				elsif pixel_clock /= pixel_clock_old and pixel_clock = '0' then
-					pixel_counter <= pixel_counter + 1 ;
-				end if ;
-				pixel_clock_old <= pixel_clock ;
-		end if ;
-		end process ;
-
-		-- count lines on rising edge of hsync
-		process(clk, arazb)
-		begin
-		if arazb = '0' then 
-			nb_line <= (others => '0') ;
-		elsif clk'event and clk = '1'  then
-				if vsync = '1' then
-					nb_line <= (others => '0') ;
-				elsif hsync /= hsync_old and hsync = '1' then
-					nb_line <= nb_line + 1 ;
-				end if ;
-				hsync_old <= hsync ;
-		end if ;
-		end process ;
-		
-		
+	
 		process(clk, arazb)
 		begin
 			if arazb = '0' then
-				clock_stretch <= 0 ;
-				conv_state <= LOW ;
+				pixel_clock_out <= '0' ;
+				hsync_out <= '0' ;
+				vsync_out <= '0' ;
 			elsif clk'event and clk = '1' then
-				case conv_state is
-					when LOW =>
-						if clock_stretch > 0 then
-							pixel_clock_out <= '1' ;
-							clock_stretch <= clock_stretch - 1 ;
-						else
-							pixel_clock_out <= '0' ;
-						end if ;
-						if new_block = '1' then
-							clock_stretch <= clock_stretch_cycle ;
-							pixel_clock_out <= '1' ;
-							conv_state <= HIGH ; 
-						end if ;
-					when HIGH =>
-						pixel_clock_out <= '1' ;
-						if new_block = '0' then
-							conv_state <= LOW ; 
-						end if ;
-					when others =>
-						conv_state <= LOW ;
-				end case;
-			end if;
+				hsync_out <= hsync ;
+				vsync_out <= vsync ;
+				pixel_clock_out <= new_block ;
+			end if ;
 		end process ;
-	
-		hsync_out	<= hsync when (clock_stretch = 0 and block_counter = 0) else --need to get this clean
-							'0' ;
-		vsync_out <= vsync when (clock_stretch = 0 and block_counter = 0) else
-						 '0' ;
+		
+
 
 end Behavioral;
 
