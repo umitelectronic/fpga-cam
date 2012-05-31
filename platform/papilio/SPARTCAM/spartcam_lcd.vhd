@@ -88,21 +88,14 @@ architecture Structural of spartcam_lcd is
                           clk : in std_logic);
     end component;
 
-	signal clk_24, clk_96, clk_48 : std_logic ;
-	signal baud_count, arazb_delayed, clk0 : std_logic ;
-	constant arazb_delay : integer := 1000000 ;
-	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
+	signal clk_24, clk_96: std_logic ;
+	signal arazb_delayed, clk0 : std_logic ;
 
-	signal pixel_from_interface : std_logic_vector(7 downto 0);
-	signal pixel_from_ds : std_logic_vector(7 downto 0);
-	
-	signal pixel_from_conv : std_logic_vector(7 downto 0);
+	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
+	signal pixel_r, pixel_g, pixel_b : std_logic_vector(7 downto 0);
 
 	
-	signal data_to_send : std_logic_vector(7 downto 0);
-	signal send_signal, tx_buffer_full	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
-	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
@@ -129,19 +122,7 @@ architecture Structural of spartcam_lcd is
 		arazb => ARAZB ,
 		arazb_0 => arazb_delayed
 	 );
-	
-	process(clk_96) -- clk div for uart process
-	begin
-	if clk_96'event and clk_96 = '1' then
-		if baud_count = '1' then
-			baud_count <= '0' ;
-			clk_48 <= '1';
-		else
-			baud_count <= '1';
-			clk_48 <= '0';
-		end if;
-	end if;
-	end process;
+
 
 	CAM_RESET <= arazb ;
 	CAM_XCLK <= clk_24 ;
@@ -172,7 +153,22 @@ architecture Structural of spartcam_lcd is
  		arazb => arazb_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
- 		y_data => pixel_from_interface
+ 		y_data => pixel_y_from_interface,
+		u_data => pixel_u_from_interface,
+		v_data => pixel_v_from_interface
+		);
+		
+		yuv_rgb : yuv_rgb 
+		port map( clk	=> clk_96,
+				arazb	=> arazb_delayed,
+				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+				pixel_clock_out => pxclk_from_conv, hsync_out => href_from_conv, vsync_out => vsync_from_conv, 
+				pixel_y => pixel_y_from_interface,
+				pixel_u => pixel_u_from_interface,
+				pixel_v => pixel_v_from_interface,
+				pixel_r => pixel_r,
+				pixel_g => pixel_g,
+				pixel_b => pixel_b  
 		);
 		
 		
@@ -181,7 +177,9 @@ architecture Structural of spartcam_lcd is
 				clk => clk_96,
 				arazb => arazb_delayed, 
 				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface, 
-				pixel_r => pixel_from_interface, pixel_g =>  X"00", pixel_b =>  X"00",
+				pixel_r => pixel_r,
+				pixel_g => pixel_g,	
+				pixel_b => pixel_b,
 				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
 				lcd_data	=> LCD_DATA
 			); 
