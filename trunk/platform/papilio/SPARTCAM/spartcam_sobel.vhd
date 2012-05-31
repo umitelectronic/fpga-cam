@@ -23,7 +23,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library work;
 use work.camera.all ;
-
+use work.generic_components.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -76,92 +76,39 @@ architecture Structural of spartcam_sobel is
 		CLK0_OUT : OUT std_logic
 		);
 	END COMPONENT;
-	
-	component uart_tx is
-    port (            data_in : in std_logic_vector(7 downto 0);
-                 write_buffer : in std_logic;
-                 reset_buffer : in std_logic;
-                 en_16_x_baud : in std_logic;
-                   serial_out : out std_logic;
-                  buffer_full : out std_logic;
-             buffer_half_full : out std_logic;
-                          clk : in std_logic);
-    end component;
-	 
-	 component uart_rx is
-    port (            serial_in : in std_logic;
-                       data_out : out std_logic_vector(7 downto 0);
-                    read_buffer : in std_logic;
-                   reset_buffer : in std_logic;
-                   en_16_x_baud : in std_logic;
-            buffer_data_present : out std_logic;
-                    buffer_full : out std_logic;
-               buffer_half_full : out std_logic;
-                            clk : in std_logic);
-    end component;
 
-	signal clk_24, clk_96, clk_48 : std_logic ;
-	signal baud_count, arazb_delayed, clk0 : std_logic ;
-	constant arazb_delay : integer := 1000000 ;
-	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
+
+	signal clk0, clk_24, clk_96 : std_logic ;
+	signal arazb_delayed : std_logic ;
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
-	signal pixel_from_ds : std_logic_vector(7 downto 0);
 	signal pixel_from_conv : std_logic_vector(7 downto 0);
 	signal binarized_pixel : std_logic_vector(7 downto 0);
 	
-	signal data_to_send : std_logic_vector(7 downto 0);
-	signal data_to_read : std_logic_vector(7 downto 0);
-	signal send_signal, tx_buffer_full, read_signal, data_present	:	std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
-	signal pxclk_from_ds, href_from_ds, vsync_from_ds : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
-	
-	signal configuration_registers :  register_array(0 to 5) ;
+	signal pxclk_from_bin, href_from_bin, vsync_from_bin : std_logic ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
 	
 	
 	--comment connections below when using pins
-	LCD_RS <= 'Z' ;
-	LCD_CS <= 'Z' ; 
-	LCD_WR <= 'Z' ; 
-	LCD_RD <= 'Z' ;
-	LCD_DATA <= (others => 'Z')  ;
 	FIFO_CS <= 'Z' ;
 	FIFO_WR <= 'Z' ; 
 	FIFO_RD <= 'Z' ; 
 	FIFO_A0 <= 'Z' ;
 	FIFO_DATA <= (others => 'Z')  ;
+	TXD <= 'Z' ;
 	
-
-	process(clk0, arazb) -- reset process
-	begin
-		if arazb = '0' then
-			arazb_time <= arazb_delay;
-		elsif clk0'event and clk0 = '1' then
-			if arazb_time = 0 then
-				arazb_delayed <= '1' ;
-			else
-				arazb_delayed <= '0';
-				arazb_time <= arazb_time - 1 ;
-			end if;
-		end if;
-	end process;
 	
-	process(clk_96) -- clk div for uart process
-	begin
-	if clk_96'event and clk_96 = '1' then
-		if baud_count = '1' then
-			baud_count <= '0' ;
-			clk_48 <= '1';
-		else
-			baud_count <= '1';
-			clk_48 <= '0';
-		end if;
-	end if;
-	end process;
+	reset0: reset_generator 
+	generic map(HOLD_0 => 500000)
+	port map(clk => clk0, 
+		arazb => ARAZB ,
+		arazb_0 => arazb_delayed
+	 );
+	
 
 	CAM_RESET <= arazb ;
 	CAM_XCLK <= clk_24 ;
@@ -195,7 +142,6 @@ architecture Structural of spartcam_sobel is
  		y_data => pixel_from_interface
 		);
 		
-		
 
 		sobel0: sobel3x3
 		generic map(
@@ -210,68 +156,41 @@ architecture Structural of spartcam_sobel is
 			pixel_data_out => pixel_from_conv
 		);
 		
-		binc : binarization
-		port map( 
-				pixel_data_in => pixel_from_conv,
-				upper_bound	=> configuration_registers(0),
-				lower_bound	=> configuration_registers(1),
-				pixel_data_out => binarized_pixel
-		);
-
-
-		
-		down_scaler0: down_scaler
-		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
-		port map(clk => clk_96,
-		  arazb => arazb_delayed,
-		  pixel_clock => pxclk_from_conv, hsync => href_from_conv, vsync => vsync_from_conv,
-		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
-		  pixel_data_in => binarized_pixel,
-		  pixel_data_out => pixel_from_ds 
+		bin_pixel0:  synced_binarization 
+		port map( clk	=> clk_96, 
+				arazb	=> arazb_delayed,
+				pixel_clock => pxclk_from_conv, hsync =>  href_from_conv, vsync => vsync_from_conv, 
+				pixel_clock_out => pxclk_from_bin, hsync_out => href_from_bin, vsync_out => vsync_from_bin, 
+				pixel_data_1 => pixel_from_conv,
+				pixel_data_2 => X"F0",
+				pixel_data_3 => X"F0",
+				upper_bound_1	=>	X"FF" ,
+				upper_bound_2	=>	X"FF" ,
+				upper_bound_3	=>	X"FF" ,
+				lower_bound_1	=>	X"50",
+				lower_bound_2	=>	X"00",
+				lower_bound_3	=>	X"00",
+				pixel_data_out => binarized_pixel 
 		);
 		
-		send_picture0: send_picture
+		lcd_controller0 : lcd_controller 
 		port map(
-			clk => clk_96,
-			arazb => arazb_delayed,
-			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
-			pixel_data_in => pixel_from_ds,
-			data_out => data_to_send, 
-			send => send_signal, 
-			output_ready => NOT tx_buffer_full
-		);
-
-	uart_tx0 : uart_tx 
-    port map (   data_in => data_to_send, 
-                 write_buffer => send_signal,
-                 reset_buffer => NOT arazb_delayed, 
-                 en_16_x_baud => clk_48,
-                 serial_out => TXD,
-                 clk => clk_96,
-					  buffer_half_full => tx_buffer_full);
+				clk => clk_96,
+				arazb => arazb_delayed, 
+				pixel_clock => pxclk_from_bin, hsync => href_from_bin, vsync => vsync_from_bin, 
+				pixel_r => binarized_pixel ,
+				pixel_g => binarized_pixel ,		
+				pixel_b => binarized_pixel ,
+				
+				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
+				lcd_data	=> LCD_DATA
+			); 
 
 
-	uart_rx0 : uart_rx 
-    port map(            serial_in => RXD,
-                       data_out => data_to_read,
-                    read_buffer => read_signal,
-                   reset_buffer => NOT arazb_delayed,
-                   en_16_x_baud => clk_48,
-            buffer_data_present => data_present,
-                            clk => clk_96);
-									 
-									 
-									 
-	configuration_module0 : configuration_module
-	generic map(NB_REGISTERS => 6)
-	port map(
-		clk => clk_96, arazb =>  arazb_delayed,
-		input_data	=> data_to_read,
-		read_data	=> read_signal,
-		data_present => data_present,
-		vsync	=> vsync_from_interface,
-		registers	=> configuration_registers
-	);
+		
+
+
+
 
 end Structural;
 
