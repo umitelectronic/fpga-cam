@@ -55,6 +55,7 @@ architecture Behavioral of gauss3x3 is
 	signal block3x3_sig : mat3 ;
 	signal new_block : std_logic ;
 	signal line_1, line_2, line_3 : std_logic_vector(15 downto 0);
+	signal m00, m01, m02, m10, m11, m12, m20, m21, m22: std_logic_vector(15 downto 0);
 	signal conv : std_logic_vector(15 downto 0);
 begin
 
@@ -68,10 +69,20 @@ begin
 			new_block => new_block,
 			block_out => block3x3_sig);
 		
+		m00 <= "0000000" & std_logic_vector(block3x3_sig(0)(0)) ;
+		m01 <= "0000000" & std_logic_vector(block3x3_sig(0)(1)) ;
+		m02 <= "0000000" & std_logic_vector(block3x3_sig(0)(2)) ;
+		m10 <= "0000000" & std_logic_vector(block3x3_sig(1)(0)) ;
+		m11 <= "0000000" & std_logic_vector(block3x3_sig(1)(1)) ;
+		m12 <= "0000000" & std_logic_vector(block3x3_sig(1)(2)) ;
+		m20 <= "0000000" & std_logic_vector(block3x3_sig(2)(0)) ;
+		m21 <= "0000000" & std_logic_vector(block3x3_sig(2)(1)) ;
+		m22 <= "0000000" & std_logic_vector(block3x3_sig(2)(2)) ;
+		
 	
-		line_1 <= (X"00" & block3x3_sig(0)(0)) + ("0000000" & block3x3_sig(0)(1) & '0') + (X"00" & block3x3_sig(0)(2)) ;
-		line_2 <= ("0000000" & block3x3_sig(1)(0) & '0') + ("000000" & block3x3_sig(1)(1) & "00") + ("0000000" & block3x3_sig(1)(2) & '0') ;
-		line_3 <= (X"00" & block3x3_sig(2)(0)) + (block3x3_sig(2)(1) & '0') + (X"00" & block3x3_sig(2)(2)) ;
+		line_1 <= m00 + (m01(15 downto 1) & '0') + m02 ;
+		line_2 <= (m10(15 downto 1) & '0') + (m11(15 downto 2) & "00") + (m12(15 downto 1) & '0')  ;
+		line_3 <= m20 + (m21(15 downto 1) & '0') + m22 ; 
 		conv <= line_1 + line_2 + line_3 ;
 		
 		conv_latch0 : generic_latch 
@@ -80,7 +91,7 @@ begin
            arazb => arazb ,
            sraz => '0' ,
            en => new_block ,
-           d => conv(12 downto 4) ,
+           d => std_logic_vector(conv(11 downto 4)) ,
            q => pixel_data_out );
 		
 
