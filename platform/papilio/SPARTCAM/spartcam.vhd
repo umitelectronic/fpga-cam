@@ -23,7 +23,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library work;
 use work.camera.all ;
-
+use work.generic_components.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -122,19 +122,12 @@ architecture Structural of spartcam is
 	
 	
 
-	process(clk0, arazb) -- reset process
-	begin
-		if arazb = '0' then
-			arazb_time <= arazb_delay;
-		elsif clk0'event and clk0 = '1' then
-			if arazb_time = 0 then
-				arazb_delayed <= '1' ;
-			else
-				arazb_delayed <= '0';
-				arazb_time <= arazb_time - 1 ;
-			end if;
-		end if;
-	end process;
+	reset0: reset_generator 
+	generic map(HOLD_0 => 500000)
+	port map(clk => clk0, 
+		arazb => ARAZB ,
+		arazb_0 => arazb_delayed
+	 );
 	
 	process(clk_96) -- clk div for uart process
 	begin
@@ -181,6 +174,16 @@ architecture Structural of spartcam is
  		y_data => pixel_from_interface
 		);
 		
+		
+		lcd_controller0 : lcd_controller 
+		port map(
+				clk => clk_96,
+				arazb => arazb_delayed, 
+				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => href_from_interface, 
+				pixel_r => pixel_from_interface, pixel_g =>  pixel_from_interface, pixel_b => pixel_from_interface,
+				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
+				lcd_data	=> LCD_DATA
+			); 
 		
 		
 		down_scaler0: down_scaler
