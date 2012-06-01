@@ -82,12 +82,16 @@ architecture Structural of spartcam_sobel is
 	signal arazb_delayed : std_logic ;
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
+	signal pixel_from_gauss : std_logic_vector(7 downto 0);
 	signal pixel_from_conv : std_logic_vector(7 downto 0);
 	signal binarized_pixel : std_logic_vector(7 downto 0);
+	signal pixel_from_erode : std_logic_vector(7 downto 0);
 	
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
+	signal pxclk_from_gauss, href_from_gauss, vsync_from_gauss : std_logic ;
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	signal pxclk_from_bin, href_from_bin, vsync_from_bin : std_logic ;
+	signal pxclk_from_erode, href_from_erode, vsync_from_erode : std_logic ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
@@ -142,6 +146,18 @@ architecture Structural of spartcam_sobel is
  		y_data => pixel_from_interface
 		);
 		
+		gauss3x3_0	: gauss3x3 
+		generic map(WIDTH => 320,
+				  HEIGHT => 480)
+		port map(
+					clk => clk_96 ,
+					arazb => arazb_delayed ,
+					pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync =>  vsync_from_interface,
+					pixel_clock_out => pxclk_from_gauss, hsync_out => href_from_gauss, vsync_out => vsync_from_gauss, 
+					pixel_data_in => pixel_from_interface,  
+					pixel_data_out => pixel_from_gauss
+		);
+
 
 		sobel0: sobel3x3
 		generic map(
@@ -150,9 +166,9 @@ architecture Structural of spartcam_sobel is
 		port map(
 			clk => clk_96 ,
 			arazb => arazb_delayed ,
-			pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync =>  vsync_from_interface,
+			pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync =>  vsync_from_interface,
 			pixel_clock_out => pxclk_from_conv, hsync_out => href_from_conv, vsync_out => vsync_from_conv, 
-			pixel_data_in => pixel_from_interface,  
+			pixel_data_in => pixel_from_gauss,  
 			pixel_data_out => pixel_from_conv
 		);
 		
@@ -167,20 +183,35 @@ architecture Structural of spartcam_sobel is
 				upper_bound_1	=>	X"FF" ,
 				upper_bound_2	=>	X"FF" ,
 				upper_bound_3	=>	X"FF" ,
-				lower_bound_1	=>	X"50",
+				lower_bound_1	=>	X"10",
 				lower_bound_2	=>	X"00",
 				lower_bound_3	=>	X"00",
 				pixel_data_out => binarized_pixel 
 		);
 		
+		erode0 : erode3x3
+		generic map(
+		  WIDTH => 320, 
+		  HEIGHT => 240)
+		port map(
+				clk => clk_96,  
+				arazb => arazb_delayed ,  
+				pixel_clock => pxclk_from_bin, hsync => href_from_bin, vsync => vsync_from_bin,
+				pixel_clock_out => pxclk_from_erode, hsync_out => href_from_erode, vsync_out => vsync_from_erode, 
+				pixel_data_in => binarized_pixel, 
+				pixel_data_out => pixel_from_erode
+
+		);  
+		
+		
 		lcd_controller0 : lcd_controller 
 		port map(
 				clk => clk_96,
 				arazb => arazb_delayed, 
-				pixel_clock => pxclk_from_bin, hsync => href_from_bin, vsync => vsync_from_bin, 
-				pixel_r => binarized_pixel ,
-				pixel_g => binarized_pixel ,		
-				pixel_b => binarized_pixel ,
+				pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode, 
+				pixel_r => pixel_from_erode ,
+				pixel_g => pixel_from_erode ,		
+				pixel_b => pixel_from_erode ,
 				
 				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
 				lcd_data	=> LCD_DATA
