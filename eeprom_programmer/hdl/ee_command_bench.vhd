@@ -107,23 +107,62 @@ BEGIN
       wait for clk_period*10;
 
       -- insert stimulus here 
-		data_present <= '1';
+      data_in <= "10101010";
+      data_present <= '1';
+		
+      wait until data_read = '1';
+
+      data_present <= '0';
+		
+      wait for clk_period;
+		
+      data_present <= '1';
+		
+      wait until data_read = '1';
+
+      data_present <= '0';
+
+      wait for 1 us;
+      -- Send Read command
+      data_in <= "00000001";
+      data_present <= '1';
 		
 		wait until data_read = '1';
 
-		data_in <= "10101010";
-		data_present <= '0';
+      data_present <= '0';
+
+      wait for clk_period * 10;
 		
-		wait for clk_period;
-		
-		data_present <= '1';
+      -- Send Read command
+      data_in <= "00000000";
+      data_present <= '1';
 		
 		wait until data_read = '1';
+
+      data_present <= '0';
+
+      wait for clk_period * 10;
 		
-		data_in <= "00000001";
-		data_present <= '0';
+		      -- Send Read command
+      data_in <= "00000000";
+      data_present <= '1';
 		
-		wait for clk_period * 10;
+		wait until data_read = '1';
+
+      data_present <= '0';
+
+      wait for clk_period * 10;
+		
+		      -- Send Read command
+      data_in <= "00000011";
+      data_present <= '1';
+		
+		wait until data_read = '1';
+
+      data_present <= '0';
+
+      wait for clk_period * 10;
+		
       wait;
    end process;
 

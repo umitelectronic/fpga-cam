@@ -133,7 +133,8 @@ v_latch : edge_triggered_latch
 			data_in => i2c_data, 
 			slave_addr => i2c_addr, 
 			send => send, 
-			rcv => rcv, 
+			rcv => rcv,
+                        hold => '0',
 			dispo => dispo, 
 			ack_byte => ack_byte,
 			nack_byte => nack_byte

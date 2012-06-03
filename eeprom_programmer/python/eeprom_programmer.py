@@ -18,7 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, serial, getopt
+import sys, os, serial, getopt, time
 
 ## Start of EEPROM_Programmer class
 # This class handles communications with the EEPROM Programmer
@@ -59,17 +59,27 @@ class EEPROM_Programmer:
         if (self.wait_ack()<0):
             print "FPGA didn't ACK"
             return -1
-        self.serial_port.write('\xA5');
-        self.serial_port.write('\x5A');
+        self.serial_port.write('\x00');
+        self.serial_port.write('\x00');
         self.serial_port.write('\x03');
         if (self.wait_ack()<0):
             print "FPGA didn't ACK"
             return -1
-        for i in range(0, 2) :
-            self.serial_port.write('\x00');
-            if (self.wait_ack()<0):
-                print "FPGA didn't ACK"
-                return -1
+        
+        self.serial_port.write('a');
+        if (self.wait_ack()<0):
+            print "FPGA didn't ACK"
+            return -1
+
+        self.serial_port.write('B');
+        if (self.wait_ack()<0):
+            print "FPGA didn't ACK"
+            return -1
+
+        self.serial_port.write('c');
+        if (self.wait_ack()<0):
+            print "FPGA didn't ACK"
+            return -1
 
         data = self.serial_port.read()
         if (data == self.EOF):
@@ -81,8 +91,11 @@ class EEPROM_Programmer:
         self.send_init()
         print "- Sending Read command"
         self.serial_port.write(self.READ_CMD)
-        self.serial_port.write('\xA5');
-        self.serial_port.write('\x5A');
+        if (self.wait_ack()<0):
+           print "FPGA didn't ACK"
+           return -1
+        self.serial_port.write('\x00');
+        self.serial_port.write('\x00');
         self.serial_port.write('\x03');
         # Check the ACK
         if (self.wait_ack()<0):
@@ -91,7 +104,12 @@ class EEPROM_Programmer:
 
         for i in range(0, 3) :
             data = self.serial_port.read()
-            print "- Read data : " + data
+            print "- Read data : " + hex(ord(data))
+
+        if (self.wait_ack()<0):
+           print "FPGA didn't ACK"
+           return -1
+
 
     # Wait for an acknowledge
     def wait_ack(self):
@@ -158,7 +176,10 @@ def main(argv):
         sys.exit(0)
 
     prog = EEPROM_Programmer(port_name)
-    #prog.write_data()
+    prog.write_data()
+
+    time.sleep(1);
+
     prog.read_data()
     
     prog.close()

@@ -17,7 +17,8 @@ component i2c_master is
  		data_in : in std_logic_vector(7 downto 0 );
 		data_out : out std_logic_vector(7 downto 0 );  
  		send : in std_logic; 
- 		rcv : in std_logic; 
+ 		rcv : in std_logic;
+                hold : in std_logic;
  		scl : inout std_logic; 
  		sda : inout std_logic; 
  		dispo, ack_byte, nack_byte : out std_logic

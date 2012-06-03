@@ -43,7 +43,7 @@ architecture a_ee_access of ee_access is
   type EE_W_STATE is (W_IDLE, W_ADDRH, W_ADDRL, W_DATA, W_WAIT, W_END);                 -- States for the write state machine
   type EE_R_STATE is (R_IDLE, R_ADDRH, R_ADDRL, R_RESTART, R_DATA, R_WAIT, R_END);      -- States for the write state machine
 
-  component i2c_master_mdl
+  component i2c_master
   	port(
  		clock : in std_logic; 
  		arazb : in std_logic; 
@@ -52,6 +52,7 @@ architecture a_ee_access of ee_access is
 		data_out : out std_logic_vector(7 downto 0 ); 
  		send : in std_logic; 
  		rcv : in std_logic; 
+                hold : in std_logic;
  		scl : inout std_logic; 
  		sda : inout std_logic; 
  		dispo, ack_byte, nack_byte : out std_logic
@@ -69,6 +70,7 @@ architecture a_ee_access of ee_access is
   signal i2c_din, i2c_dout : std_logic_vector(7 downto 0);      -- I2C data transfer
   signal i2c_slave_addr : std_logic_vector (6 downto 0);        -- I2C slave address
   signal i2c_send, i2c_rcv : std_logic;                         -- I2C commands
+  signal i2c_hold : std_logic := '0';                           -- I2C Bursts not in pause
 
   -- State machines current states
   signal rd_current_state : EE_R_STATE := R_IDLE;  -- Read state machine current state
@@ -79,7 +81,7 @@ architecture a_ee_access of ee_access is
 begin  -- a_ee_access
 
   -- I2C master module : handle the communication with the bus
-  i2c_m: i2c_master_mdl
+  i2c_m: i2c_master
     port map (
       arazb => arazb,
       clock => clk,
@@ -88,6 +90,7 @@ begin  -- a_ee_access
       data_out => i2c_dout,
       send => i2c_send,
       rcv => i2c_rcv,
+      hold => i2c_hold,
       dispo => i2c_rdy,
       ack_byte => i2c_ack,
       nack_byte => i2c_nack,
@@ -130,7 +133,7 @@ begin  -- a_ee_access
               next_state := R_ADDRL;
               i2c_din <= start_addr(7 downto 0);
             elsif i2c_nack='1' then
-              next_state := R_IDLE;
+              next_state := R_END;
             end if;
 
           -- Writting the low address
@@ -140,7 +143,7 @@ begin  -- a_ee_access
               i2c_din <= start_addr(7 downto 0); 
               next_state := R_RESTART;
             elsif i2c_nack='1' then
-              next_state := R_IDLE;
+              next_state := R_END;
             end if;
 
           -- Restarting the I2C communication
@@ -156,13 +159,13 @@ begin  -- a_ee_access
             if (i2c_ack='1' and last_ack_r='0') then
               next_state := R_WAIT;     
             elsif (i2c_nack='1') then
-              next_state := R_IDLE;
+              next_state := R_END;
             end if;
 
           -- put the data out and get the others
           when R_WAIT =>
             data_out <= i2c_dout;
-            if (rd='1' and i2c_nack='0' and burst='1') then
+            if (rd='1' and i2c_nack='0' and burst='1' and i2c_ack='0') then
               next_state := R_DATA;
             elsif burst='0' or i2c_nack='1' then
               next_state := R_END;
@@ -196,7 +199,7 @@ begin  -- a_ee_access
     begin  -- process wr_proc
       if arazb = '0' then               -- asynchronous reset (active low)
         wr_current_state <= W_IDLE;
-        last_ack_r <= '0';
+        last_ack_w <= '0';
       elsif clk'event and clk = '1' then  -- rising clock edge
         next_state := wr_current_state;
         
@@ -269,14 +272,18 @@ begin  -- a_ee_access
     -- Generate the send signal
     i2c_send <= '1' when ((wr_current_state=W_ADDRH or wr_current_state=W_ADDRL or wr_current_state=W_DATA) or --
                           --wr_current_state=W_WAIT) or
-                          (rd_current_state=R_ADDRH or rd_current_state=R_ADDRL)) and (i2c_ack = last_ack_r or i2c_ack=last_ack_w) else '0';
+                          (rd_current_state=R_ADDRH or rd_current_state=R_ADDRL)) else '0'; --
+    --and (i2c_ack = last_ack_r or i2c_ack=last_ack_w) else '0';
+    
+    -- Hold I2C master in pause while waiting next command
+    i2c_hold <= '1' when (wr_current_state=W_WAIT)
+                          or (rd_current_state=R_WAIT) else '0';
+    
     -- Generate the data_valid signal
-    data_valid <= '1' when (rd_current_state = R_WAIT) or
-                            wr_current_state = W_WAIT else '0';
+    data_valid <= i2c_hold; --'1' when (rd_current_state = R_WAIT) or
+                            --wr_current_state = W_WAIT else '0';
 
-
-
-  ready <= '1' when (rd_current_state = R_IDLE  and
-                     wr_current_state = W_IDLE) else '0';
+    ready <= '1' when (rd_current_state = R_IDLE  and
+                       wr_current_state = W_IDLE) else '0';
 
 end a_ee_access;

@@ -7,7 +7,7 @@ library work;
 entity adder_16 is
 	port(
  		IN1, IN2 : in std_logic_vector(15 downto 0 ); 
- 		OUT : out std_logic_vector(15 downto 0 )
+ 		OUT_1 : out std_logic_vector(15 downto 0 )
 	); 
 end adder_16;
 
@@ -20,7 +20,7 @@ architecture systemc of adder_16 is
 	-- add_process
 	process(IN1, IN2)
 		 begin
-		 	OUT <= (conv_integer(IN1) + conv_integer(IN2)) ;
+		 	OUT_1 <= (conv_integer(IN1) + conv_integer(IN2)) ;
 		 end process;  
 	
 end systemc ;
