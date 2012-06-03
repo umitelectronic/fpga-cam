@@ -40,7 +40,7 @@ end ee_commands;
 -- EEPROM programmer commands interpreter
 architecture a_ee_commands of ee_commands is
 
-  type EE_STATE is (S_IDLE, S_START, S_DATA_READ, S_DATA_WRITE, S_GET_ADDR, S_TRANSFER, S_STOP);                   -- Module states
+  type EE_STATE is (S_IDLE, S_START, S_DATA_READ, S_DATA_WRITE, S_GET_ADDR, S_TRANSFER, S_WRITTING, S_READING, S_READ_DONE, S_STOP);                   -- Module states
   type EE_MODE is (M_IDLE, M_READ, M_WRITE);    -- Data transfer mode
 
   component ee_access
@@ -94,7 +94,7 @@ begin  -- a_ee_commands
   State <= std_logic_vector(to_unsigned(EE_STATE'pos(current_state),4));
 
 
-  ee_write <= '0';
+  --ee_write <= '0';
 
   eeprom_access: ee_access
     port map (
@@ -118,8 +118,8 @@ begin  -- a_ee_commands
   -- outputs: data_read, data_out, data_write
   StateMachine: process (arazb, clk)
     variable next_state : EE_STATE := S_IDLE;  -- next module state
-    variable evolved : std_logic := '0';  -- The state machine evolved
     variable current_byte : integer range 0 to MAX_BURST := 0;  -- Byte counter
+    variable data_valid_last : std_logic := '0';  -- Edge detection of ee_data_valid
   begin  -- process StateMachine
     -- Reset handler
     if (arazb = '0') then
@@ -129,136 +129,204 @@ begin  -- a_ee_commands
       next_state := S_IDLE;
       current_state <= S_IDLE;
       current_mode <= M_IDLE;
+      ee_read <= '0';
+      ee_write <= '0';
+      ee_burst <= '0';
       
     -- State machine evolution
-    elsif (rising_edge(clk) and (data_present='1' or data_read_s='1' or data_write_s='1' or evolved='1')) then
-      if (data_read_s = '1' or data_write_s='1' or evolved = '1') then
-        data_read_s <= '0';
-        next_state := current_state;
-       
-        case current_state is
-          -- IDLE
-          when S_IDLE =>
-            data_write_s <= '0';
-            if (data_in = "10101010") then
-              next_state := S_START;
-            end if;
-
-          -- Start OK, reading the command
-          when S_START =>
-            if data_read_s='1' then
-              case data_in is
-                when READ_DATA =>
-                  next_state := S_DATA_READ;
-                when WRITE_DATA =>
-                  next_state := S_DATA_WRITE;
-                when others =>
-                  next_state := S_IDLE;
-              end case;
-            end if;
-
-          when S_DATA_READ =>
-            if (data_write_s = '1') then
-              data_write_s <= '0';
-              current_mode <= M_READ;
-              next_state := S_GET_ADDR;
-              current_byte := 0;
-            else
-              data_out <= ACK_DATA;
-              data_write_s <= '1';
-            end if;
-
-          when S_DATA_WRITE =>
-            if (data_write_s = '1') then
-              data_write_s <= '0';
-              current_mode <= M_WRITE;
-              next_state := S_GET_ADDR;
-              current_byte := 0;
-            else
-              data_out <= ACK_DATA;
-              data_write_s <= '1';
-            end if;
-
-          when S_GET_ADDR =>
-            if data_read_s='1' then
-              case current_byte is
-                when 0 =>
-                  rw_base_address(15 downto 8) <= data_in;
-                when 1 =>
-                  rw_base_address(7 downto 0) <= data_in;
-                when 2 =>
-                  if data_in < MAX_BURST then
-                    next_state := S_TRANSFER;  -- Start the data transfer
-                    data_out <= ACK_DATA;  -- Acknowledge the command
-                    data_write_s <= '1';
-                    current_byte := to_integer(unsigned(data_in))-2;  -- With data_in
-                  else
-                    next_state := S_IDLE;
-                    data_out <= NACK_DATA;
-                    data_write_s <= '1';
-                  end if;
-              
-                when others => null;
-              end case;
-              current_byte := current_byte +1 ;
-            end if;
-
-          when S_TRANSFER =>
-            case current_mode is
-              when M_READ  =>
-                if data_write_s = '1' then
-                  data_write_s <= '0';
-                  if (current_byte > 0) then
-                    current_byte := current_byte -1;
-                  end if;
-                elsif ee_data_valid = '1' then
-                  data_out <= ee_read_data;  -- When read data is valid, send it
-                  data_write_s <= '1';
-                  if (current_byte = 0) then
-                    data_out <= EOF_DATA;
-                    data_write_s <= '1';
-                    next_state := S_IDLE;
-                  end if;
-                end if;
-                
-              when M_WRITE =>
-                if data_write_s = '1' then
-                  data_write_s <= '0';
-                elsif data_read_s = '1' then
-                  -- Insert data transfer here
-                  
-                  current_byte := current_byte - 1;
-                  if current_byte > 0 then
-                    data_out <= ACK_DATA;
-                  else
-                    data_out <= EOF_DATA;
-                    next_state := S_IDLE;
-                  end if;
-
-                  data_write_s <= '1';
-                end if;
-                          
-              when others => null;
-            end case;
-            
-          when others => next_state := S_IDLE;
-        end case;
-
-        -- Change the current state according to the transitions
-        if current_state = next_state then
-          evolved := '0';
-        else
-          evolved := '1';
-        end if;
-        current_state <= next_state;
-      else
+    elsif rising_edge(clk) then
+   --   if (data_read_s = '1') then
+   --     data_read_s <= '0';
+      if (data_present = '1' and data_read_s='0') then
         data_read_s <= '1';
       end if;
+
+      next_state := current_state;
+       
+      case current_state is
+        -- IDLE
+        when S_IDLE =>
+          data_write_s <= '0';
+          ee_read <= '0';
+          ee_write <= '0';
+          ee_burst <= '0';
+          
+          if (data_in="10101010" and data_read_s='1') then
+            data_read_s <= '0';
+            next_state := S_START;
+          end if;
+
+          -- Start OK, reading the command
+        when S_START =>
+          if data_read_s='1' then
+            data_read_s <= '0'; 
+            case data_in is
+              when READ_DATA =>
+                next_state := S_DATA_READ;
+              when WRITE_DATA =>
+                next_state := S_DATA_WRITE;
+              when others =>
+                next_state := S_IDLE;
+            end case;
+          end if;
+
+        when S_DATA_READ =>
+          if (data_write_s = '1') then
+            data_write_s <= '0';
+            current_mode <= M_READ;
+            next_state := S_GET_ADDR;
+            current_byte := 0;
+          else
+            data_out <= ACK_DATA;
+            data_write_s <= '1';
+          end if;
+
+        when S_DATA_WRITE =>
+          if (data_write_s = '1') then
+            data_write_s <= '0';
+            current_mode <= M_WRITE;
+            next_state := S_GET_ADDR;
+            current_byte := 0;
+          else
+            --data_read_s <= '0'; 
+            data_out <= ACK_DATA;
+            data_write_s <= '1';
+          end if;
+
+
+
+        when S_GET_ADDR =>
+          if data_read_s='1' then
+            data_read_s <= '0'; 
+            case current_byte is
+              when 0 =>
+                rw_base_address(15 downto 8) <= data_in;
+              when 1 =>
+                rw_base_address(7 downto 0) <= data_in;
+              when 2 =>
+                if data_in < MAX_BURST then
+                  ee_burst <= '1';
+                  next_state := S_TRANSFER;  -- Start the data transfer
+                  data_out <= ACK_DATA;  -- Acknowledge the command
+                  data_write_s <= '1';
+                  current_byte := to_integer(unsigned(data_in))-1;  -- With data_in
+                  if current_mode = M_READ then
+                    ee_read <= '1';
+                  end if;
+                else
+                  next_state := S_IDLE;
+                  data_out <= NACK_DATA;
+                  data_write_s <= '1';
+                end if;
+                
+              when others => null;
+            end case;
+            current_byte := current_byte +1 ;
+          end if;
+          
+        when S_TRANSFER =>
+          case current_mode is
+            when M_READ  =>
+              data_write_s<='0';
+              if ee_data_valid = '1' and data_valid_last='0' then
+                ee_read <= '0';
+                next_state := S_READING;
+                if current_byte = 1 then
+                  ee_burst <= '0';
+                end if;
+              else
+                ee_read <= '1';
+              end if;
+              
+                      
+            when M_WRITE =>
+              data_write_s <= '0';
+              
+              if data_read_s = '1' then
+                data_read_s <= '0'; 
+                -- Insert data transfer here
+                ee_write_data <= data_in;
+                ee_write <= '1';
+                current_byte := current_byte - 1;
+              end if;
+              
+              if ee_write = '1' then
+                next_state := S_WRITTING;
+              end if;
+              
+            when others => null;
+          end case;
+          
+        when S_WRITTING =>
+          if ee_write='1' then
+            ee_write <= '0';   
+          end if;
+          
+          if ee_data_valid='1' and data_valid_last='0' then
+            if current_byte > 0 then
+              data_out <= ACK_DATA;
+            else
+              data_out <= EOF_DATA;
+            end if;
+            data_write_s <= '1';
+          end if;
+
+          if current_byte > 0 then
+           if data_write_s='1' then
+             data_write_s<='0';
+             next_state := S_TRANSFER;
+           end if;
+          else
+            if data_write_s ='1' then
+              data_write_s <= '0';
+              next_state := S_STOP;  
+            end if;
+            ee_burst <= '0';
+          end if;
+          
+        when S_READING =>
+          if data_write_s='1' then
+            if (current_byte = 1) then
+              data_out <= EOF_DATA;
+              ee_burst <= '0';
+              next_state := S_STOP;
+            else
+              data_write_s <= '0';
+              current_byte := current_byte -1;
+              next_state := S_READ_DONE;
+            end if;
+          else
+            data_out <= ee_read_data;  -- When read data is valid, send it
+            data_write_s <= '1';
+          end if;
+              
+        when S_READ_DONE =>
+          ee_read <= '1';
+          if ee_data_valid = '0' then
+            next_state := S_TRANSFER;
+          end if;
+
+        when S_STOP =>
+          data_write_s<='0';
+          ee_write <= '0';
+          ee_read <= '0';
+          ee_burst <= '0';
+          if (ee_ready = '1') then
+            next_state := S_IDLE;
+          end if;
+          
+        when others => next_state := S_IDLE;
+      end case;
+
+        -- Change the current state according to the transitions
+      current_state <= next_state;
+      data_valid_last := ee_data_valid;
     end if;
   end process StateMachine;
   
-  ee_burst <= '1' when current_state = S_TRANSFER else '0' ;
-  ee_read <= '1' when current_state = S_TRANSFER and current_mode=M_READ else '0';
-
+--  ee_burst <= '1' when (current_state = S_TRANSFER or current_state = S_READING or current_state = S_WRITTING) else '0' ;
+--  ee_read <= '1' when current_state = S_TRANSFER and current_mode=M_READ else '0';
+--  ee_write <= '1' when current_state = S_TRANSFER and current_mode=M_WRITE else '0';
+  
 
 end a_ee_commands;

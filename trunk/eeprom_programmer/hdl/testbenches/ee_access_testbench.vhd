@@ -21,8 +21,8 @@ architecture behavior of ee_access_testbench is
 
   component ee_access
     generic (
-      READ_ENABLED  : std_logic := '1';   -- Enable read access logic
-      WRITE_ENABLED : std_logic := '1');  -- Enable write access logic
+    READ_ENABLED  : std_logic := '1';   -- Enable read access logic
+    WRITE_ENABLED : std_logic := '1');  -- Enable write access logic
 
   port (
     arazb    : in    std_logic;         -- Module reset input
@@ -89,8 +89,6 @@ begin  -- behavior
     writeline (output, l);
     arazb <= '0';
 
-    mem_addr <= "1100101000110101";
-    
     wait for 1 ms;
     write(l, String'("Reset finished"));
     writeline (output, l);
@@ -100,24 +98,10 @@ begin  -- behavior
     rd <= '1';
     burst <= '1';
     
-    wait until data_valid='1';
-    wait until data_valid='0';
-    wait until data_valid='1';
-    wait until data_valid='0';
-    wait until data_valid='1';
-
-    burst <= '0';
-    
-    wait for 1 ms;
+    wait until ready='1';
+    wait until ready='1';
+    wait until ready='1';
     rd <= '0';
-
-    wr <= '1';
-    burst <= '1';
-    data_in <= "11110000";
-    wait until data_valid='1';
-
-    wait for 1 ms;
-    wr <= '0';
           
     write(l, String'("Ended"));
     writeline (output, l);

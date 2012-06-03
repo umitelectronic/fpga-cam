@@ -217,8 +217,8 @@ architecture Structural of eeprom_flash is
 
 	CAM_RESET <= data_present ;
 	
-	CAM_SIOC <= i2c_scl ;
-	CAM_SIOD <= i2c_sda ;
+	i2c_scl <= CAM_SIOC ;
+	i2c_sda <= CAM_SIOD ;
 
 	Inst_dcm96: dcm96 PORT MAP(
           CLKIN_IN => clk,
@@ -248,8 +248,8 @@ architecture Structural of eeprom_flash is
            data_read => read_signal,
            data_out => fifo_input,
            data_write => fifo_wr0,
-           SDA => i2c_sda,
-           SCL => i2c_scl,
+           SDA => CAM_SIOD,
+           SCL => CAM_SIOC,
            State => FIFO_DATA(3 downto 0)
 	 );
 
