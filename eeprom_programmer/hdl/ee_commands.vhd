@@ -204,7 +204,7 @@ begin  -- a_ee_commands
               when 1 =>
                 rw_base_address(7 downto 0) <= data_in;
               when 2 =>
-                if data_in < MAX_BURST then
+                if data_in <= MAX_BURST then
                   ee_burst <= '1';
                   next_state := S_TRANSFER;  -- Start the data transfer
                   data_out <= ACK_DATA;  -- Acknowledge the command
