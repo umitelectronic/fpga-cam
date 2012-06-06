@@ -54,7 +54,7 @@ class EEPROM_Programmer:
 
     # Try to write data to the I2C EEPROM
     def write_data(self, base, count, data):
-        time.sleep(0.1)
+        time.sleep(0.001)
         self.send_init()
         #print "- Sending Write command"
         self.serial_port.write(self.WRITE_CMD)

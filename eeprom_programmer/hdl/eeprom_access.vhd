@@ -30,11 +30,19 @@ entity ee_access is
     burst    : in    std_logic;  -- Burst data access (hold on until the end of the burst
     data_out : out   std_logic_vector(7 downto 0);  -- Data feed out for read access
     data_valid : out std_logic;         -- Signal data_out is valid
-    
-    ready    : out   std_logic;  -- Signal other modules we are ready for new access
-    sda      : inout std_logic;         -- I2C data signal
-    scl      : inout std_logic);        -- I2C clock signal
 
+    ready    : out   std_logic;  -- Signal other modules we are ready for new access
+    
+    -- Signals to the I2C controller
+    i2c_slave_addr : out std_logic_vector (6 downto 0);  
+    i2c_din : out std_logic_vector (7 downto 0);
+    i2c_dout : in std_logic_vector (7 downto 0);
+    i2c_send : out std_logic;
+    i2c_rcv : out std_logic;
+    i2c_hold : out std_logic;
+    i2c_rdy : in std_logic;
+    i2c_ack, i2c_nack : in std_logic);
+    
 end ee_access;
 
 
@@ -43,34 +51,11 @@ architecture a_ee_access of ee_access is
   type EE_W_STATE is (W_IDLE, W_ADDRH, W_ADDRL, W_DATA, W_WAIT, W_END);                 -- States for the write state machine
   type EE_R_STATE is (R_IDLE, R_ADDRH, R_ADDRL, R_RESTART, R_DATA, R_WAIT, R_END);      -- States for the write state machine
 
-  component i2c_master
-  	port(
- 		clock : in std_logic; 
- 		arazb : in std_logic; 
- 		slave_addr : in std_logic_vector(6 downto 0 ); 
- 		data_in : in std_logic_vector(7 downto 0 );
-		data_out : out std_logic_vector(7 downto 0 ); 
- 		send : in std_logic; 
- 		rcv : in std_logic; 
-                hold : in std_logic;
- 		scl : inout std_logic; 
- 		sda : inout std_logic; 
- 		dispo, ack_byte, nack_byte : out std_logic
-	); 
-  end component;
-  
-
   -- Constants
   constant dev_address : std_logic_vector(6 downto 0) := "1010000";  -- I2C EEPROM device address
   
   -- module internal signals
   signal data_buffer : std_logic_vector(7 downto 0);  -- buffer to store read data (or data to write)
-
-  signal i2c_ack, i2c_nack, i2c_rdy : std_logic;                -- I2C module state signals
-  signal i2c_din, i2c_dout : std_logic_vector(7 downto 0);      -- I2C data transfer
-  signal i2c_slave_addr : std_logic_vector (6 downto 0);        -- I2C slave address
-  signal i2c_send, i2c_rcv : std_logic;                         -- I2C commands
-  signal i2c_hold : std_logic := '0';                           -- I2C Bursts not in pause
 
   -- State machines current states
   signal rd_current_state : EE_R_STATE := R_IDLE;  -- Read state machine current state
@@ -79,23 +64,6 @@ architecture a_ee_access of ee_access is
   signal state : unsigned(3 downto 0);
                                   
 begin  -- a_ee_access
-
-  -- I2C master module : handle the communication with the bus
-  i2c_m: i2c_master
-    port map (
-      arazb => arazb,
-      clock => clk,
-      slave_addr => i2c_slave_addr,
-      data_in => i2c_din,
-      data_out => i2c_dout,
-      send => i2c_send,
-      rcv => i2c_rcv,
-      hold => i2c_hold,
-      dispo => i2c_rdy,
-      ack_byte => i2c_ack,
-      nack_byte => i2c_nack,
-      sda => sda,
-      scl => scl);
 
   i2c_slave_addr <= dev_address;
 
@@ -280,8 +248,8 @@ begin  -- a_ee_access
                           or (rd_current_state=R_WAIT) else '0';
     
     -- Generate the data_valid signal
-    data_valid <= i2c_hold; --'1' when (rd_current_state = R_WAIT) or
-                            --wr_current_state = W_WAIT else '0';
+    data_valid <= '1' when (rd_current_state = R_WAIT) or
+                  (wr_current_state = W_WAIT) else '0';
 
     ready <= '1' when (rd_current_state = R_IDLE  and
                        wr_current_state = W_IDLE) else '0';
