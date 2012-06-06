@@ -36,7 +36,8 @@ use WORK.GENERIC_COMPONENTS.ALL ;
 --use UNISIM.VComponents.all;
 
 entity block3X3v2 is
-		generic(LINE_SIZE : natural := 640);
+		generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
@@ -65,14 +66,14 @@ signal line_wr, nclk: std_logic ;
 signal LINE1_INPUT, LINE1_OUTPUT, LINE2_INPUT, LINE2_OUTPUT : std_logic_vector(7 downto 0) := X"00";
 signal final_res : signed(31 downto 0);
 
-signal nb_line : std_logic_vector(9 downto 0) := (others => '0');
-signal pixel_counterq : std_logic_vector(9 downto 0) := (others => '0');
+signal nb_line : std_logic_vector((nbit(HEIGHT) - 1) downto 0) := (others => '0');
+signal pixel_counterq : std_logic_vector((nbit(WIDTH) - 1) downto 0) := (others => '0');
 begin
 
 nclk <= NOT clk ;
 
 line1: ram_Nx8
-	generic map(N => LINE_SIZE + 2, A => 10)
+	generic map(N => WIDTH + 2, A => nbit(WIDTH))
 	port map(
  		clk => nclk, 
  		we => line_wr, en => '1' ,
@@ -82,7 +83,7 @@ line1: ram_Nx8
 	); 
 
 line2: ram_Nx8
-	generic map(N => LINE_SIZE + 2, A => 10)
+	generic map(N => WIDTH + 2, A => nbit(WIDTH))
 	port map(
  		clk => nclk, 
  		we => line_wr, en => '1' ,
@@ -93,6 +94,7 @@ line2: ram_Nx8
 
 
 pixel_counter0: pixel_counter
+		generic map(MAX => WIDTH)
 		port map(
 			clk => clk,
 			arazb => arazb, 
@@ -101,6 +103,7 @@ pixel_counter0: pixel_counter
 			);
 			
 line_counter0: line_counter
+		generic map(MAX => HEIGHT)
 		port map(
 			clk => clk,
 			arazb => arazb, 

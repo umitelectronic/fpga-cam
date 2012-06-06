@@ -21,6 +21,10 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
+
+
+library work ;
+use work.generic_components.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -31,18 +35,18 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity pixel_counter is
-		generic(POL : std_logic := '0');
+		generic(POL : std_logic := '0'; MAX : positive := 640);
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
 			pixel_clock, hsync : in std_logic; 
-			pixel_count : out std_logic_vector(9 downto 0 )
+			pixel_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
 end pixel_counter;
 
 architecture Behavioral of pixel_counter is
 signal pixel_clock_old : std_logic ;
-signal pixel_count_temp : std_logic_vector(9 downto 0 ) ;
+signal pixel_count_temp : std_logic_vector((nbit(MAX) - 1) downto 0 ) ;
 begin
 process(clk, arazb)
 begin
