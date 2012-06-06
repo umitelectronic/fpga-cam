@@ -148,7 +148,7 @@ architecture Structural of spartcam_sobel is
 		
 		gauss3x3_0	: gauss3x3 
 		generic map(WIDTH => 320,
-				  HEIGHT => 480)
+				  HEIGHT => 240)
 		port map(
 					clk => clk_96 ,
 					arazb => arazb_delayed ,
