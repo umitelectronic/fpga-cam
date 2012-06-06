@@ -12,6 +12,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library work;
 use WORK.GENERIC_COMPONENTS.ALL ;
+use WORK.CAMERA.all;
 
 -- EEPROM command interpreter
 entity ee_commands is
@@ -60,8 +61,17 @@ architecture a_ee_commands of ee_commands is
       data_valid : out std_logic;         -- Signal data_out is valid
     
       ready    : out   std_logic;  -- Signal other modules we are ready for new access
-      sda      : inout std_logic;         -- I2C data signal
-      scl      : inout std_logic);        -- I2C clock signal
+
+          -- Signals to the I2C controller
+      i2c_slave_addr : out std_logic_vector (6 downto 0);  
+      i2c_din : out std_logic_vector (7 downto 0);
+      i2c_dout : in std_logic_vector (7 downto 0);
+      i2c_send : out std_logic;
+      i2c_rcv : out std_logic;
+      i2c_hold : out std_logic;
+      i2c_rdy : in std_logic;
+      i2c_ack, i2c_nack : in std_logic);
+
   end component;
 
   
@@ -85,6 +95,11 @@ architecture a_ee_commands of ee_commands is
   signal ee_write_data, ee_read_data : std_logic_vector(7 downto 0);  -- In/out data
   signal ee_burst, ee_data_valid, ee_ready : std_logic;
   signal ee_read, ee_write : std_logic := '0';
+
+  signal i2c_slave_addr : std_logic_vector(6 downto 0);  -- I2C slave address
+  signal i2c_din, i2c_dout : std_logic_vector(7 downto 0);  -- I2C data bus
+  signal i2c_rd, i2c_wr, i2c_rdy, i2c_hold : std_logic;
+  signal i2c_ack, i2c_nack : std_logic;
 begin  -- a_ee_commands
 
 
@@ -95,7 +110,23 @@ begin  -- a_ee_commands
 
 
   --ee_write <= '0';
+  i2c_m: i2c_master
+    port map (
+      clock      => clk,
+      arazb      => arazb,
+      slave_addr => i2c_slave_addr,
+      data_in    => i2c_din,
+      data_out   => i2c_dout,
+      send       => i2c_wr,
+      rcv        => i2c_rd,
+      hold       => i2c_hold,
+      scl        => scl,
+      sda        => sda,
+      dispo      => i2c_rdy,
+      ack_byte   => i2c_ack,
+      nack_byte  => i2c_nack);
 
+  
   eeprom_access: ee_access
     port map (
       arazb      => arazb,
@@ -108,8 +139,16 @@ begin  -- a_ee_commands
       data_out   => ee_read_data,
       data_valid => ee_data_valid,
       ready      => ee_ready,
-      sda        => sda,
-      scl        => scl);
+      i2c_slave_addr => i2c_slave_addr,
+      i2c_din => i2c_din,
+      i2c_dout => i2c_dout,
+      i2c_send => i2c_wr,
+      i2c_rcv => i2c_rd,
+      i2c_rdy => i2c_rdy,
+      i2c_hold => i2c_hold,
+      i2c_ack => i2c_ack,
+      i2c_nack => i2c_nack      
+      );
 
   
   -- purpose: This process handle the state machine to receive and send commands
