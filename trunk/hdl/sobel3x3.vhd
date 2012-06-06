@@ -66,7 +66,7 @@ architecture Behavioral of sobel3x3 is
 begin
 
 		block0:  block3X3v2 
-		generic map(LINE_SIZE =>  WIDTH)
+		generic map(WIDTH =>  WIDTH, HEIGHT => HEIGHT)
 		port map(
 			clk => clk ,
 			arazb => arazb , 

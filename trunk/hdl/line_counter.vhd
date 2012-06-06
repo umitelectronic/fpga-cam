@@ -21,6 +21,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
+
+library work ;
+use work.generic_components.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -31,19 +34,19 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity line_counter is
-		generic(POL : std_logic := '1');
+		generic(POL : std_logic := '1'; MAX : positive := 480);
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
 			hsync, vsync : in std_logic; 
-			line_count : out std_logic_vector(9 downto 0 )
+			line_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
 end line_counter;
 
 architecture Behavioral of line_counter is
 
 signal hsync_old : std_logic ;
-signal line_count_temp : std_logic_vector(9 downto 0 ) ;
+signal line_count_temp : std_logic_vector((nbit(MAX) - 1) downto 0 ) ;
 begin
 
 -- count lines on rising edge of hsync

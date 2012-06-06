@@ -172,7 +172,8 @@ component block3X3 is
 end component;
 
 component block3X3v2 is
-		generic(LINE_SIZE : natural := 640);
+		generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
@@ -358,22 +359,22 @@ port(
 end component;
 
 component pixel_counter is
-		generic(POL : std_logic := '0');
+		generic(POL : std_logic := '1'; MAX : positive := 640);
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
 			pixel_clock, hsync : in std_logic; 
-			pixel_count : out std_logic_vector(9 downto 0 )
+			pixel_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
 end component;
 
 component line_counter is
-		generic(POL : std_logic := '1');
+		generic(POL : std_logic := '1'; MAX : positive := 480);
 		port(
 			clk : in std_logic; 
 			arazb : in std_logic; 
 			hsync, vsync : in std_logic; 
-			line_count : out std_logic_vector(9 downto 0 )
+			line_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
 end component;
 
