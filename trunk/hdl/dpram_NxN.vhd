@@ -1,8 +1,6 @@
 library IEEE;
         use IEEE.std_logic_1164.all;
         use IEEE.std_logic_unsigned.all;
-		  use ieee.math_real.log2;
-		  use ieee.math_real.ceil;
 
 entity dpram_NxN is
 	generic(SIZE : natural := 64 ; NBIT : natural := 8; ADDR_WIDTH : natural := 6);
@@ -22,20 +20,20 @@ architecture behavioral of dpram_NxN is
  
 	type ram_type is array (0 to (SIZE - 1)) of std_logic_vector(NBIT-1 downto 0 ); 
 	signal RAM : ram_type;
-   signal read_a : std_logic_vector(5 downto 0);
-   signal read_dpra : std_logic_vector(5 downto 0);
 	begin
+	
+	
    process (clk)
    begin
 	  if (clk'event and clk = '1') then
 			if (we = '1') then
 				 RAM(conv_integer(a)) <= di;
 			end if;
-			read_a <= a;
-			read_dpra <= dpra;
 	  end if;
    end process;
-	spo <= RAM(conv_integer(read_a));
-	dpo <= RAM(conv_integer(read_dpra));
+	
+	spo <= RAM(conv_integer(a));
+	dpo <= RAM(conv_integer(dpra));
+
 	
 end behavioral ;

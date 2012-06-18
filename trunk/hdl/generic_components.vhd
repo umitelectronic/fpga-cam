@@ -81,7 +81,7 @@ component ram_NxN is
 	); 
 end component;
 
-component DP_ram_NxN is
+component dpram_NxN is
 	 generic(SIZE : natural := 64 ; NBIT : natural := 8; ADDR_WIDTH : natural := 6);
     port (clk  : in std_logic;
           we   : in std_logic;
@@ -125,6 +125,13 @@ component hold is
 			  );
 end component;
 
+
+
+component generic_rs_latch is
+	port(clk, arazb : in std_logic ;
+		  s, r : in std_logic ;
+		  q : out std_logic );
+end component;
 
 component reset_generator is
 generic(HOLD_0	:	natural	:= 100);
