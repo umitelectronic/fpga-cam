@@ -115,8 +115,10 @@ BEGIN
       wait for clk_period*10;
 		loop1: FOR a IN 1 TO 10 LOOP -- la variable de boucle est a de 1 à 10
 					wr <= '1' ;
+					rd <= '1' ;
 					WAIT FOR clk_period; -- attend la valeur de pulse_time
 					wr <= '0' ;
+					rd <= '0' ;
 					data_in <= data_in + 1;
 					WAIT FOR clk_period;
 				END LOOP loop1;
