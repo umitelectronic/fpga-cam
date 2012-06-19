@@ -9,6 +9,7 @@
 
 library IEEE;
  use IEEE.STD_LOGIC_1164.all;
+ use IEEE.NUMERIC_STD.ALL;
  use ieee.math_real.log2;
  use ieee.math_real.ceil;
 
@@ -126,6 +127,37 @@ component hold is
 end component;
 
 
+component dp_fifo is
+	generic(N : natural := 128 ; W : positive := 16);
+	port(
+ 		clk, arazb, sraz : in std_logic; 
+ 		wr, rd : in std_logic; 
+		empty, full : out std_logic ;
+ 		data_out : out std_logic_vector((W - 1) downto 0 ); 
+ 		data_in : in std_logic_vector((W - 1) downto 0 );
+		nb_free : out unsigned(nbit(N) downto 0 ); 
+		nb_available : out unsigned(nbit(N) downto 0 )
+	); 
+end component;
+
+component muxed_addr_interface is
+generic(ADDR_WIDTH : positive := 16 ; DATA_WIDTH : positive := 16);
+port(clk, arazb : in std_logic ;
+	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
+	  wrn, oen, addr_en_n : in std_logic ;
+	  data_bus	: inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
+	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
+	  wr, rd	:	out	std_logic
+);
+end component;
+
+component addr_decoder is
+generic(BUS_WIDTH	: positive := 16 ; BASE_ADDR	: natural := 0 ; END_ADDR	: positive	:= 16);
+port(addr_bus_in	: in	std_logic_vector((BUS_WIDTH - 1) downto 0 );
+	  addr_bus_out	:	out std_logic_vector((BUS_WIDTH - 1) downto 0 );
+	  cs	:	out std_logic
+);	
+end component;
 
 component generic_rs_latch is
 	port(clk, arazb : in std_logic ;

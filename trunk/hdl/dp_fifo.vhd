@@ -42,16 +42,16 @@ entity dp_fifo is
 		empty, full : out std_logic ;
  		data_out : out std_logic_vector((W - 1) downto 0 ); 
  		data_in : in std_logic_vector((W - 1) downto 0 );
-		nb_free : out unsigned((nbit(N) - 1) downto 0 ); 
-		nb_available : out unsigned((nbit(N) - 1) downto 0 )
+		nb_free : out unsigned(nbit(N) downto 0 ); 
+		nb_available : out unsigned(nbit(N)  downto 0 )
 	); 
 end dp_fifo;
 
 architecture Behavioral of dp_fifo is
-signal rd_addr, wr_addr: std_logic_vector((nbit(N) - 1 ) downto 0)  ;
-signal nb_free_t, nb_available_t : unsigned((nbit(N) - 1) downto 0 ) ;
+signal rd_addr, wr_addr: std_logic_vector((nbit(N) - 1) downto 0)  ;
+signal nb_free_t, nb_available_t : unsigned(nbit(N) downto 0 ) ;
 signal fifo_out, fifo_in : std_logic_vector((W - 1 ) downto 0)  ;
-signal rd_old, wr_old, wr_data, rd_data, set_turn, reset_turn, one_turn : std_logic ;
+signal rd_old, wr_old, wr_data, rd_data, one_turn, latch_data : std_logic ;
 begin
 
 dp_ram0 : dpram_NxN 
@@ -71,30 +71,24 @@ output_latch_0 : edge_triggered_latch
     port map( clk => clk,
            arazb => arazb ,
            sraz => '0' ,
-           en => rd ,
+           en => latch_data ,
            d => fifo_out ,
            q => data_out ) ;
 			  
---turn_ind : generic_rs_latch 
---	port map(clk => clk, arazb => arazb ,
---		  s => set_turn, r => reset_turn ,
---		  q => one_turn );
-
--- rd process 
+latch_data <= '0' when (nb_available_t = 0) else
+				  (NOT rd) ; -- latch next data on falling edge of read, ensure data to be stable while read is high
+			  
 process(clk, arazb)
 begin
 if arazb = '0' then
 	rd_addr <= (others => '0') ;
 	rd_old <= '0' ;
-	reset_turn <= '0' ;
 elsif clk'event and clk = '1' then
 	if rd_old /= rd and rd = '1' and nb_available_t > 0 then
 		if rd_addr < (N - 1) then
 			rd_addr <= rd_addr + 1;
-			reset_turn <= '0' ;
 		else
 			rd_addr <= (others => '0');
-			reset_turn <= '1' ;
 		end if ;
 	end if ;
 	rd_old <= rd ;
@@ -107,15 +101,12 @@ begin
 if arazb = '0' then
 	wr_addr <= (others => '0') ;
 	wr_old <= '0' ;
-	set_turn <= '0' ;
 elsif clk'event and clk = '1' then
 	if wr_old /= wr and wr = '1' and nb_free_t > 0 then
 		if wr_addr < (N - 1) then
 			wr_addr <= wr_addr + 1;
-			set_turn <= '0' ;
 		else
 			wr_addr <= (others => '0');
-			set_turn <= '1' ;
 		end if ;
 	end if ;
 	wr_old <= wr ;
@@ -137,11 +128,11 @@ end process ;
 
 
 
-nb_available_t <= (unsigned(wr_addr) - unsigned(rd_addr)) when one_turn = '0'  else
-				  (to_unsigned(N, nbit(N)) -  unsigned(rd_addr) +  unsigned(wr_addr)) ;
+nb_available_t <= (unsigned(wr_addr) - unsigned('0' & rd_addr)) when one_turn = '0'  else
+				  (to_unsigned(N, nbit(N) + 1) -  unsigned('0' & rd_addr) +  unsigned('0' & wr_addr)) ;
 				  
-nb_free_t <= (to_unsigned(N, nbit(N)) - unsigned(wr_addr) + unsigned(rd_addr)) when one_turn = '0' else
-				  (unsigned(rd_addr) - unsigned(wr_addr)) ;
+nb_free_t <= (to_unsigned(N, nbit(N) + 1) - unsigned('0' & wr_addr) + unsigned('0' & rd_addr)) when one_turn = '0' else
+				  (unsigned('0' & rd_addr) - unsigned('0' & wr_addr)) ;
 
 nb_free <= nb_free_t ;
 nb_available <= nb_available_t ;
