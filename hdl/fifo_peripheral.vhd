@@ -117,6 +117,7 @@ nb_availableA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 data_bus <= fifoB_out when bus_cs = '1' and wr_bus = '0' and rd_bus = '1' and in_addr(1 downto 0) = "00" else
 				( nb_freeA_latched) when bus_cs = '1' and rd_bus = '1' and wr_bus = '0' and in_addr(1 downto 0) = "01" else
 				( nb_availableB_latched) when bus_cs = '1' and rd_bus = '1' and wr_bus = '0' and in_addr(1 downto 0) = "10" else
+				fifoB_out when bus_cs = '1' and wr_bus = '0' and rd_bus = '1' and in_addr(1 downto 0) = "11" else -- peek !
 				(others => 'Z');
 
 fifoB_rd <= rd_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' else
