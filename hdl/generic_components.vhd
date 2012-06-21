@@ -144,12 +144,14 @@ component muxed_addr_interface is
 generic(ADDR_WIDTH : positive := 16 ; DATA_WIDTH : positive := 16);
 port(clk, arazb : in std_logic ;
 	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
-	  wrn, oen, addr_en_n : in std_logic ;
+	  wrn, oen, addr_en_n, csn : in std_logic ;
 	  data_bus	: inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
 	  wr, rd	:	out	std_logic
 );
 end component;
+
+
 
 component addr_decoder is
 generic(BUS_WIDTH	: positive := 16 ; BASE_ADDR	: natural := 0 ; END_ADDR	: positive	:= 16);
@@ -158,6 +160,23 @@ port(addr_bus_in	: in	std_logic_vector((BUS_WIDTH - 1) downto 0 );
 	  cs	:	out std_logic
 );	
 end component;
+
+
+component fifo_peripheral is
+generic(BASE_ADDR	:	natural	:= 0; WIDTH	: positive := 16; SIZE	: positive	:= 128);
+port(
+clk, arazb : in std_logic ;
+addr_bus : in std_logic_vector((WIDTH - 1) downto 0);
+wr_bus, rd_bus : in std_logic ;
+wrB, rdA : in std_logic ;
+data_bus	: inout std_logic_vector((WIDTH - 1) downto 0); -- bus interface
+inputB: in std_logic_vector((WIDTH - 1) downto 0); -- logic interface
+outputA	: out std_logic_vector((WIDTH - 1) downto 0); -- logic interface
+emptyA, fullA, emptyB, fullB	:	out std_logic 
+
+);
+end component;
+
 
 component generic_rs_latch is
 	port(clk, arazb : in std_logic ;
