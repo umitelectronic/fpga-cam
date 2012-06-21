@@ -48,7 +48,7 @@ emptyA, fullA, emptyB, fullB	:	out std_logic
 end fifo_peripheral;
 
 architecture Behavioral of fifo_peripheral is
-signal  fifoA_wr, fifoB_rd, bus_cs : std_logic ;
+signal  fifoA_wr, fifoB_rd, bus_cs, srazA, srazB : std_logic ;
 signal in_addr	:	std_logic_vector((WIDTH - 1) downto 0);
 signal fifoA_in,  fifoB_out : std_logic_vector((WIDTH - 1) downto 0 ); 
 signal nb_freeA, nb_availableA, nb_freeB, nb_availableB  :  unsigned((WIDTH - 1) downto 0 ); 
@@ -65,7 +65,7 @@ port map(addr_bus_in	=> addr_bus ,
 fifo_A : dp_fifo -- write from bus, read from logic
 	generic map(N => SIZE , W => WIDTH)
 	port map(
- 		clk => clk, arazb => arazb , sraz => '0' , 
+ 		clk => clk, arazb => arazb , sraz => srazA , 
  		wr => fifoA_wr, rd => rdA,
 		empty => emptyA,
 		full => fullA ,
@@ -78,7 +78,7 @@ fifo_A : dp_fifo -- write from bus, read from logic
 fifo_B : dp_fifo -- read from bus, write from logic
 	generic map(N => SIZE , W => WIDTH)
 	port map(
- 		clk => clk, arazb => arazb , sraz => '0' , 
+ 		clk => clk, arazb => arazb , sraz => srazB , 
  		wr => wrB, rd => fifoB_rd,
 		empty => emptyB,
 		full => fullB ,
@@ -125,6 +125,12 @@ fifoB_rd <= rd_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' else
 				
 fifoA_wr <= wr_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' and rd_bus = '0' else
 				'0' ;
+				
+srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "01" else
+			'0' ;
+
+srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "10" else
+			'0' ;
 				
 fifoA_in <= data_bus ;
 

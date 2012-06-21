@@ -36,7 +36,7 @@ entity muxed_addr_interface is
 generic(ADDR_WIDTH : positive := 16 ; DATA_WIDTH : positive := 16);
 port(clk, arazb : in std_logic ;
 	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
-	  wrn, oen, addr_en_n : in std_logic ;
+	  wrn, oen, addr_en_n, csn : in std_logic ;
 	  data_bus	: inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
 	  wr, rd	:	out	std_logic
@@ -57,13 +57,13 @@ add_latch0 : generic_latch
            d => data((ADDR_WIDTH - 1) downto 0),
            q => addr_bus);
 
-wr <= NOT wrn ;
-rd <= NOT oen ;
+wr <= (NOT wrn) AND csn ;
+rd <= (NOT oen) AND csn ;
 
-data <= data_bus when oen = '0' else
+data <= data_bus when oen = '0' and csn = '0' else
 		  (others => 'Z');
 
-data_bus <= data when (wrn = '0' and oen = '1') else
+data_bus <= data when (wrn = '0' and oen = '1' and csn = '0') else
 				(others => 'Z');
 
 

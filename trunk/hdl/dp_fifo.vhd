@@ -70,7 +70,7 @@ output_latch_0 : edge_triggered_latch
 	 generic map(NBIT => W,  POL => '1')
     port map( clk => clk,
            arazb => arazb ,
-           sraz => '0' ,
+           sraz => sraz ,
            en => latch_data ,
            d => fifo_out ,
            q => data_out ) ;
@@ -84,7 +84,9 @@ if arazb = '0' then
 	rd_addr <= (others => '0') ;
 	rd_old <= '0' ;
 elsif clk'event and clk = '1' then
-	if rd_old /= rd and rd = '1' and nb_available_t > 0 then
+	if sraz = '1' then
+		rd_addr <= (others => '0');
+	elsif rd_old /= rd and rd = '1' and nb_available_t > 0 then
 		if rd_addr < (N - 1) then
 			rd_addr <= rd_addr + 1;
 		else
@@ -102,7 +104,9 @@ if arazb = '0' then
 	wr_addr <= (others => '0') ;
 	wr_old <= '0' ;
 elsif clk'event and clk = '1' then
-	if wr_old /= wr and wr = '1' and nb_free_t > 0 then
+	if sraz = '1' then
+		wr_addr <= (others => '0');
+	elsif wr_old /= wr and wr = '1' and nb_free_t > 0 then
 		if wr_addr < (N - 1) then
 			wr_addr <= wr_addr + 1;
 		else
@@ -118,7 +122,9 @@ begin
 if arazb = '0' then
 	one_turn <= '0' ;
 elsif clk'event and clk = '1' then
-	if rd_old /= rd and rd = '1' and nb_available_t > 0 and NOT(rd_addr < (N - 1)) then
+	if sraz = '1' then
+		one_turn <= '0' ;
+	elsif rd_old /= rd and rd = '1' and nb_available_t > 0 and NOT(rd_addr < (N - 1)) then
 		one_turn <= '0' ;
 	elsif wr_old /= wr and wr = '1' and nb_free_t > 0 and NOT(wr_addr < (N - 1)) then
 		one_turn <= '1' ;
