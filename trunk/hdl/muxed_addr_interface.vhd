@@ -57,8 +57,8 @@ add_latch0 : generic_latch
            d => data((ADDR_WIDTH - 1) downto 0),
            q => addr_bus);
 
-wr <= (NOT wrn) AND csn ;
-rd <= (NOT oen) AND csn ;
+wr <= (NOT wrn) AND (NOT csn) ;
+rd <= (NOT oen) AND (NOT csn) ;
 
 data <= data_bus when oen = '0' and csn = '0' else
 		  (others => 'Z');

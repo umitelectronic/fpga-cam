@@ -29,11 +29,12 @@ architecture behavioral of dpram_NxN is
 			if (we = '1') then
 				 RAM(conv_integer(a)) <= di;
 			end if;
+			spo <= RAM(conv_integer(a));
+			dpo <= RAM(conv_integer(dpra));
 	  end if;
    end process;
 	
-	spo <= RAM(conv_integer(a));
-	dpo <= RAM(conv_integer(dpra));
+
 
 	
 end behavioral ;

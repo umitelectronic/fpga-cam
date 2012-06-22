@@ -118,6 +118,7 @@ data_bus <= fifoB_out when bus_cs = '1' and wr_bus = '0' and rd_bus = '1' and in
 				( nb_freeA_latched) when bus_cs = '1' and rd_bus = '1' and wr_bus = '0' and in_addr(1 downto 0) = "01" else
 				( nb_availableB_latched) when bus_cs = '1' and rd_bus = '1' and wr_bus = '0' and in_addr(1 downto 0) = "10" else
 				fifoB_out when bus_cs = '1' and wr_bus = '0' and rd_bus = '1' and in_addr(1 downto 0) = "11" else -- peek !
+				--X"55AA" when  wr_bus = '0' and bus_cs = '1' else
 				(others => 'Z');
 
 fifoB_rd <= rd_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' else
@@ -129,7 +130,7 @@ fifoA_wr <= wr_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' and rd_bus =
 srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "01" else
 			'0' ;
 
-srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "10" else
+srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "10" else
 			'0' ;
 				
 fifoA_in <= data_bus ;
