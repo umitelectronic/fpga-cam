@@ -102,13 +102,32 @@ architecture Behavioral of spartcam_beaglebone is
 signal clk_24, clk_96, clk_48, clk_1_8 : std_logic ;
 	signal baud_count, arazb_delayed, clk0, cam_reset_delayed : std_logic ;
 	signal baud_rate_divider : integer range 0 to 53 := 0 ;
-	signal data_to_send : std_logic_vector(7 downto 0);
-	signal data_to_read : std_logic_vector(7 downto 0);
-	signal send_signal, tx_buffer_full, read_signal, data_present	:	std_logic ;
+	signal data_to_send, fifo_output : std_logic_vector(15 downto 0);
+	signal data_to_read, fifo_input : std_logic_vector(15 downto 0);
+	signal send_signal, send_addr, send_data,tx_buffer_full, read_signal, data_present	:	std_logic ;
 	
 	signal mem_ad, bus_addr, bus_data : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd : std_logic ;
+	signal fifoB_wr, fifoA_rd, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 begin
+
+--comment connections below when using pins
+	FIFO_CS <= 'Z' ;
+	FIFO_WR <= 'Z' ; 
+	FIFO_RD <= 'Z' ; 
+	FIFO_A0 <= 'Z' ;
+	FIFO_DATA <= (others => 'Z')  ;
+	TXD <= 'Z' ;
+	
+	CAM_RESET <= arazb ;
+	CAM_XCLK <= clk_24 ;
+--		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;
+	
+	CAM_SIOC <= 'Z' ;
+	CAM_SIOD <= 'Z' ;
+
+
+
 
 	reset0: reset_generator 
 	generic map(HOLD_0 => 500000)
@@ -143,7 +162,18 @@ begin
 	end if;
 	end process;
 
-
+	process(clk_96)
+			begin
+			if clk_96'event and clk_96='1' then
+				if baud_rate_divider=52 then
+					baud_rate_divider <= 0;
+					clk_1_8 <= '1';
+				else
+					baud_rate_divider <= baud_rate_divider + 1;
+					clk_1_8 <= '0';
+				end if;
+			end if;
+	end process;
 
 
 mem_interface0 : muxed_addr_interface
@@ -157,42 +187,83 @@ port map(clk => clk_96 , arazb => arazb_delayed ,
 );
 
 
+
+
+
+
  bi_fifo0 : fifo_peripheral 
-			generic map(BASE_ADDR => 0, WIDTH => 16, SIZE => 128)
+			generic map(BASE_ADDR => 0, WIDTH => 16, SIZE => 32)
 			port map(
           clk => clk_96,
           arazb => arazb_delayed,
           addr_bus => bus_addr,
           wr_bus => bus_wr,
           rd_bus => bus_rd,
-          wrB => ((NOT fullA) AND data_present),
-          rdA => NOT emptyA,
+          wrB => fifoB_wr,
+          rdA => fifoA_rd,
           data_bus => bus_data,
-          inputB => data_to_read,
-          outputA => data_to_send,
-          emptyA => emptyA,
-          fullA => fullA,
-          emptyB => emptyB,
-          fullB => fullB
+          inputB => fifo_input,
+          outputA => fifo_output,
+          emptyA => fifoA_empty,
+          fullA => fifoA_full,
+          emptyB => fifoB_empty,
+          fullB => fifoB_full
         );
 
+
+fifoA_rd <= '0' ;--NOT tx_buffer_full when bus_wr = '0' else
+				--'0' ;
+fifo_input <= data_to_read ;
+
+
+delay_rd0 : generic_latch 
+	 generic map(NBIT => 1)
+    port map( clk => clk_96 ,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => '1' ,
+           d(0) => fifoA_rd ,
+           q(0) => send_data) ;
+
+send_addr <= bus_wr ;
+
+send_signal <= send_addr  ;
+
+data_to_send <= bus_addr ;--when send_addr = '1' else
+					 --fifo_output ;
+
 	uart_tx0 : uart_tx 
-    port map (   data_in => data_to_send, 
-                 write_buffer => NOT emptyA,
+    port map (   data_in => data_to_send(7 downto 0), 
+                 write_buffer => send_signal,
                  reset_buffer => NOT arazb_delayed, 
-                 en_16_x_baud => clk_48,
+                 en_16_x_baud => clk_1_8,
+					  buffer_half_full => tx_buffer_full,
                  serial_out => TXD,
                  clk => clk_96);
 
+
+
+delay_wr0 : generic_latch 
+	 generic map(NBIT => 1)
+    port map( clk => clk_96 ,
+           arazb => arazb ,
+           sraz => '0' ,
+           en => '1' ,
+           d(0) => data_present ,
+           q(0) => fifoB_wr) ;
+
+
 	uart_rx0 : uart_rx 
     port map(            serial_in => RXD,
-                       data_out => data_to_read,
-                    read_buffer => ((NOT fullA) AND data_present),
+                       data_out => data_to_read(7 downto 0),
+                    read_buffer => read_signal,
                    reset_buffer => NOT arazb_delayed,
-                   en_16_x_baud => clk_48,
+                   en_16_x_baud => clk_1_8,
             buffer_data_present => data_present,
                             clk => clk_96);
 
+read_signal <= (NOT fifoB_full) when data_present = '1' else
+			  '0' ;
 
 end Behavioral;
 
