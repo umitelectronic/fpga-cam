@@ -40,13 +40,13 @@ port(clk, arazb : in std_logic ;
 	  data_bus_out	: out	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  data_bus_in	: in	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
-	  wr, rd, cs	:	out	std_logic
+	  wr, rd	:	out	std_logic
 );
 end muxed_addr_interface;
 
 architecture Behavioral of muxed_addr_interface is
 signal latch_addr, wrt, rdt, cst : std_logic ;
-signal data_bus_t	: std_logic_vector((DATA_WIDTH - 1) downto 0);
+signal data_bus_out_t	: std_logic_vector((DATA_WIDTH - 1) downto 0);
 begin
 
 latch_addr <= '1' when csn = '0' and addr_en_n = '0' and wrn = '1' and oen = '1' else
@@ -61,25 +61,28 @@ add_latch0 : generic_latch
            d => data((ADDR_WIDTH - 1) downto 0),
            q => addr_bus);
 
-process(clk)
+process(clk, arazb)
 begin
-if clk'event and clk ='1' then
+if arazb ='0' then
+	wr <= '0' ;
+	rd <= '0' ;
+	data_bus_out <= (others => 'Z');
+elsif clk'event and clk ='1' then
 	wr <= wrt ;
+	rd <= rdt ;
+	data_bus_out <= data_bus_out_t ;
 end if ;
 end process;
 
 wrt <= (NOT wrn) when csn = '0' and latch_addr = '0' else
 		'0' ;
-rd <= (NOT oen) when  csn = '0' and latch_addr = '0' else
-		'0' ;
-
-cs <= '1' when csn = '0' and addr_en_n = '1' else	
+rdt <= (NOT oen) when  csn = '0' and latch_addr = '0' else
 		'0' ;
 
 data <= data_bus_in when oen = '0' and csn = '0' else
 		  (others => 'Z');
 
-data_bus_out <= data when (wrn = '0' and oen = '1' and csn = '0') else
+data_bus_out_t <= data when (wrn = '0' and oen = '1' and csn = '0') else
 				(others => 'Z');
 
 
