@@ -163,7 +163,7 @@ port map(clk => clk_120 , arazb => arazb_delayed ,
 	  data_bus_in	=> bus_data_in ,
 	  data_bus_out	=> bus_data_out ,
 	  addr_bus	=> bus_addr ,
-	  wr => bus_wr, rd => bus_rd, cs => bus_cs
+	  wr => bus_wr, rd => bus_rd
 );
 
 
@@ -179,7 +179,6 @@ port map(clk => clk_120 , arazb => arazb_delayed ,
           addr_bus => bus_addr,
           wr_bus => bus_wr,
           rd_bus => bus_rd,
-			 cs_bus => bus_cs ,
           wrB => fifoB_wr,
           rdA => '0',
           data_bus_in => bus_data_out,

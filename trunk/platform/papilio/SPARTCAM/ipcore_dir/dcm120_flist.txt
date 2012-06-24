@@ -1,0 +1,2 @@
+# Output products list for <dcm120>
+dcm120_flist.txt
