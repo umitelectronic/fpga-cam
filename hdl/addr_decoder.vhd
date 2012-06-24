@@ -32,16 +32,16 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity addr_decoder is
-generic(BUS_WIDTH	: positive := 16 ; BASE_ADDR	: natural := 0 ; END_ADDR	: positive	:= 16);
-port(addr_bus_in	: in	std_logic_vector((BUS_WIDTH - 1) downto 0 );
-	  addr_bus_out	:	out std_logic_vector((BUS_WIDTH - 1) downto 0 );
+generic(ADDR_WIDTH	: positive := 16 ; BASE_ADDR	: natural := 0 ; END_ADDR	: positive	:= 16);
+port(addr_bus_in	: in	std_logic_vector((ADDR_WIDTH - 1) downto 0 );
+	  addr_bus_out	:	out std_logic_vector((ADDR_WIDTH - 1) downto 0 );
 	  cs	:	out std_logic
 );	
 end addr_decoder;
 
 architecture Behavioral of addr_decoder is
 signal gteq_base, lteq_end : std_logic ;
-signal minus_offset : signed(BUS_WIDTH downto 0 ) ;
+signal minus_offset : signed(ADDR_WIDTH downto 0 ) ;
 begin
 
 
@@ -55,7 +55,7 @@ lteq_end <= '1' when  addr_bus_in <= END_ADDR else
 				 
 cs <= gteq_base AND lteq_end ;
 
-addr_bus_out <= std_logic_vector(minus_offset((BUS_WIDTH - 1) downto 0))  when gteq_base = '1' and lteq_end = '1' else
+addr_bus_out <= std_logic_vector(minus_offset((ADDR_WIDTH - 1) downto 0))  when gteq_base = '1' and lteq_end = '1' else
 					(others => '0') ;
 
 

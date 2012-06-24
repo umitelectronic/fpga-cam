@@ -75,8 +75,8 @@ output_latch_0 : edge_triggered_latch
            d => fifo_out ,
            q => data_out ) ;
 			  
-latch_data <= '0' when (nb_available_t = 0) else
-				  (NOT rd) ; -- latch next data on falling edge of read, ensure data to be stable while read is high
+latch_data <= (NOT rd) ;--'0' when (nb_available_t = 0) else
+				  --(NOT rd) ; -- latch next data on falling edge of read, ensure data to be stable while read is high
 			  
 process(clk, arazb)
 begin

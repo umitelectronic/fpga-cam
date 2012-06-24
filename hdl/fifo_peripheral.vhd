@@ -33,13 +33,14 @@ use work.generic_components.all ;
 --use UNISIM.VComponents.all;
 
 entity fifo_peripheral is
-generic(BASE_ADDR	:	natural	:= 0; WIDTH	: positive := 16; SIZE	: positive	:= 128);
+generic(BASE_ADDR	:	natural	:= 0; ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
 port(
 clk, arazb : in std_logic ;
-addr_bus : in std_logic_vector((WIDTH - 1) downto 0);
-wr_bus, rd_bus : in std_logic ;
+addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
+wr_bus, rd_bus, cs_bus : in std_logic ;
 wrB, rdA : in std_logic ;
-data_bus	: inout std_logic_vector((WIDTH - 1) downto 0); -- bus interface
+data_bus_in	: in std_logic_vector((WIDTH - 1) downto 0); -- bus interface
+data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); -- bus interface
 inputB: in std_logic_vector((WIDTH - 1) downto 0); -- logic interface
 outputA	: out std_logic_vector((WIDTH - 1) downto 0); -- logic interface
 emptyA, fullA, emptyB, fullB	:	out std_logic 
@@ -49,18 +50,19 @@ end fifo_peripheral;
 
 architecture Behavioral of fifo_peripheral is
 signal  fifoA_wr, fifoB_rd, bus_cs, srazA, srazB : std_logic ;
-signal in_addr	:	std_logic_vector((WIDTH - 1) downto 0);
+signal in_addr	:	std_logic_vector((ADDR_WIDTH - 1) downto 0);
 signal fifoA_in,  fifoB_out : std_logic_vector((WIDTH - 1) downto 0 ); 
 signal nb_freeA, nb_availableA, nb_freeB, nb_availableB  :  unsigned((WIDTH - 1) downto 0 ); 
 signal nb_freeA_latched, nb_availableB_latched : std_logic_vector((WIDTH - 1) downto 0  );
 begin
 
 fifo_addr_dec0 : addr_decoder
-generic map(BUS_WIDTH => WIDTH , BASE_ADDR => BASE_ADDR , END_ADDR =>  (BASE_ADDR + 3))
+generic map(ADDR_WIDTH => ADDR_WIDTH ,BASE_ADDR => BASE_ADDR , END_ADDR =>  (BASE_ADDR + 3))
 port map(addr_bus_in	=> addr_bus ,
 	  addr_bus_out	=> in_addr ,
 	  cs => bus_cs
 );	
+
 
 fifo_A : dp_fifo -- write from bus, read from logic
 	generic map(N => SIZE , W => WIDTH)
@@ -89,24 +91,23 @@ fifo_B : dp_fifo -- read from bus, write from logic
 	); 
 
 
-nb_free_latch0 : generic_latch 
-	 generic map(NBIT => WIDTH)
+nb_free_latch0 : edge_triggered_latch 
+	 generic map(NBIT => WIDTH, POL => '1')
     Port map( clk => clk ,
            arazb => arazb ,
            sraz => '0' ,
-           en => (NOT rd_bus) ,
+           en => cs_bus ,
            d => std_logic_vector(nb_freeA),
            q => nb_freeA_latched);
-			  
-nb_available_latch0 : generic_latch 
-	 generic map(NBIT => WIDTH)
+	  
+nb_available_latch0 : edge_triggered_latch 
+	 generic map(NBIT => WIDTH, POL => '1')
     Port map( clk => clk ,
            arazb => arazb ,
            sraz => '0' ,
-           en => (NOT rd_bus) ,
+           en => cs_bus ,
            d => std_logic_vector(nb_availableB),
            q => nb_availableB_latched);
-
 
 nb_freeA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ; 
 nb_availableB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
@@ -114,26 +115,25 @@ nb_freeB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 nb_availableA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 
 
-data_bus <= fifoB_out when bus_cs = '1' and wr_bus = '0' and rd_bus = '1' and in_addr(1 downto 0) = "00" else
-				( nb_freeA_latched) when bus_cs = '1' and rd_bus = '1' and wr_bus = '0' and in_addr(1 downto 0) = "01" else
-				( nb_availableB_latched) when bus_cs = '1' and rd_bus = '1' and wr_bus = '0' and in_addr(1 downto 0) = "10" else
-				fifoB_out when bus_cs = '1' and wr_bus = '0' and rd_bus = '1' and in_addr(1 downto 0) = "11" else -- peek !
-				--X"55AA" when  wr_bus = '0' and bus_cs = '1' else
+data_bus_out <= fifoB_out when in_addr(1 downto 0) = "00" and bus_cs = '1' else
+				( nb_freeA_latched) when in_addr(1 downto 0) = "01" and bus_cs = '1' else
+				( nb_availableB_latched) when in_addr(1 downto 0) = "10" and bus_cs = '1' else
+				fifoB_out when in_addr(1 downto 0) = "11" and bus_cs = '1' else -- peek !
 				(others => 'Z');
 
 fifoB_rd <= rd_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' else
 				'0' ;
 				
-fifoA_wr <= wr_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' and rd_bus = '0' else
+fifoA_wr <= wr_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' else
 				'0' ;
-				
+	
 srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "01" else
 			'0' ;
 
 srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "10" else
 			'0' ;
 				
-fifoA_in <= data_bus ;
+fifoA_in <= data_bus_in ;
 
 end Behavioral;
 
