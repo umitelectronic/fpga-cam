@@ -148,7 +148,7 @@ port(clk, arazb : in std_logic ;
 	  data_bus_out	: out	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  data_bus_in	: in	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
-	  wr, rd, cs	:	out	std_logic
+	  wr, rd	:	out	std_logic
 );
 end component;
 
@@ -169,7 +169,7 @@ generic(BASE_ADDR	:	natural	:= 0; ADDR_WIDTH : positive := 8; WIDTH	: positive :
 port(
 clk, arazb : in std_logic ;
 addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
-wr_bus, rd_bus, cs_bus : in std_logic ;
+wr_bus, rd_bus : in std_logic ;
 wrB, rdA : in std_logic ;
 data_bus_in	: in std_logic_vector((WIDTH - 1) downto 0); -- bus interface
 data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); -- bus interface
