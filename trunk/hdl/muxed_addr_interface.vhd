@@ -33,37 +33,53 @@ use work.generic_components.all ;
 --use UNISIM.VComponents.all;
 
 entity muxed_addr_interface is
-generic(ADDR_WIDTH : positive := 16 ; DATA_WIDTH : positive := 16);
+generic(ADDR_WIDTH : positive := 8 ; DATA_WIDTH : positive := 16);
 port(clk, arazb : in std_logic ;
 	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  wrn, oen, addr_en_n, csn : in std_logic ;
-	  data_bus	: inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
+	  data_bus_out	: out	std_logic_vector((DATA_WIDTH - 1) downto 0);
+	  data_bus_in	: in	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
-	  wr, rd	:	out	std_logic
+	  wr, rd, cs	:	out	std_logic
 );
 end muxed_addr_interface;
 
 architecture Behavioral of muxed_addr_interface is
-
+signal latch_addr, wrt, rdt, cst : std_logic ;
+signal data_bus_t	: std_logic_vector((DATA_WIDTH - 1) downto 0);
 begin
 
-
+latch_addr <= '1' when csn = '0' and addr_en_n = '0' and wrn = '1' and oen = '1' else
+				   '0' ;
+					
 add_latch0 : generic_latch 
 	 generic map(NBIT => ADDR_WIDTH)
     Port map( clk => clk ,
            arazb => arazb ,
            sraz => '0' ,
-           en => (NOT addr_en_n),
+           en => latch_addr,
            d => data((ADDR_WIDTH - 1) downto 0),
            q => addr_bus);
 
-wr <= (NOT wrn) AND (NOT csn) ;
-rd <= (NOT oen) AND (NOT csn) ;
+process(clk)
+begin
+if clk'event and clk ='1' then
+	wr <= wrt ;
+end if ;
+end process;
 
-data <= data_bus when oen = '0' and csn = '0' else
+wrt <= (NOT wrn) when csn = '0' and latch_addr = '0' else
+		'0' ;
+rd <= (NOT oen) when  csn = '0' and latch_addr = '0' else
+		'0' ;
+
+cs <= '1' when csn = '0' and addr_en_n = '1' else	
+		'0' ;
+
+data <= data_bus_in when oen = '0' and csn = '0' else
 		  (others => 'Z');
 
-data_bus <= data when (wrn = '0' and oen = '1' and csn = '0') else
+data_bus_out <= data when (wrn = '0' and oen = '1' and csn = '0') else
 				(others => 'Z');
 
 
