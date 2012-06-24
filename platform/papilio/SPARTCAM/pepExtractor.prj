@@ -1,6 +1,1 @@
-work	"../../../hdl/addr_decoder.vhd"
-work	"../../../hdl/dpram_NxN.vhd"
-work	"../../../hdl/edge_triggered_latch.vhd"
-work	"../../../hdl/fifo_peripheral.vhd"
-work	"../../../hdl/generic_components.vhd"
-work	"dp_fifo.vhd"
+work	"dcm120.vhd"
