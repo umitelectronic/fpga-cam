@@ -59,22 +59,17 @@ end spartcam_beaglebone;
 
 architecture Behavioral of spartcam_beaglebone is
 
-	COMPONENT dcm24
-	PORT(
-		CLKIN_IN : IN std_logic;          
-		CLKDV_OUT : OUT std_logic;
-		CLK0_OUT : OUT std_logic
-		);
-	END COMPONENT;
 
-	COMPONENT dcm96
+	COMPONENT dcm120
 	PORT(
 		CLKIN_IN : IN std_logic;          
 		CLKFX_OUT : OUT std_logic;
 		CLKIN_IBUFG_OUT : OUT std_logic;
-		CLK0_OUT : OUT std_logic
+		CLK0_OUT : OUT std_logic;
+		LOCKED_OUT : OUT std_logic
 		);
 	END COMPONENT;
+
 
 	component uart_tx is
     port (            data_in : in std_logic_vector(7 downto 0);
@@ -99,28 +94,28 @@ architecture Behavioral of spartcam_beaglebone is
                buffer_half_full : out std_logic;
                             clk : in std_logic);
     end component;
-signal clk_24, clk_96, clk_48, clk_1_8 : std_logic ;
-	signal baud_count, arazb_delayed, clk0, cam_reset_delayed : std_logic ;
+signal clk_120, clk_1_8 : std_logic ;
+	signal baud_count, arazb_delayed, clk0, clk0_buf, cam_reset_delayed : std_logic ;
 	signal baud_rate_divider : integer range 0 to 53 := 0 ;
 	signal data_to_send, fifo_output : std_logic_vector(15 downto 0);
 	signal data_to_read, fifo_input : std_logic_vector(15 downto 0);
 	signal send_signal, send_addr, send_data,tx_buffer_full, read_signal, data_present	:	std_logic ;
 	
-	signal mem_ad, bus_addr, bus_data : std_logic_vector(15 downto 0);
-	signal bus_wr, bus_rd : std_logic ;
+	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
+	signal bus_addr : std_logic_vector(7 downto 0);
+	signal bus_wr, bus_rd, bus_cs : std_logic ;
 	signal fifoB_wr, fifoA_rd, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 begin
 
 --comment connections below when using pins
-	FIFO_CS <= 'Z' ;
-	FIFO_WR <= 'Z' ; 
-	FIFO_RD <= 'Z' ; 
+	FIFO_CS <= bus_cs ;
+	FIFO_WR <= bus_wr ; 
+	FIFO_RD <= bus_rd ; 
 	FIFO_A0 <= 'Z' ;
-	FIFO_DATA <= (others => 'Z')  ;
-	TXD <= 'Z' ;
+	FIFO_DATA <= bus_addr(7 downto 0)  ;
 	
-	CAM_RESET <= arazb ;
-	CAM_XCLK <= clk_24 ;
+	CAM_RESET <= 'Z' ;
+	CAM_XCLK <= 'Z' ;
 --		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;
 	
 	CAM_SIOC <= 'Z' ;
@@ -131,41 +126,25 @@ begin
 
 	reset0: reset_generator 
 	generic map(HOLD_0 => 500000)
-	port map(clk => clk0, 
+	port map(clk => clk0_buf, 
 		arazb => ARAZB ,
 		arazb_0 => arazb_delayed
 	 );
 
-	Inst_dcm96: dcm96 PORT MAP(
+
+	
+	Inst_dcm120: dcm120 PORT MAP(
 		CLKIN_IN => clk,
-		CLKFX_OUT => clk_96, 
-		CLKIN_IBUFG_OUT => clk0
+		CLKFX_OUT => clk_120,
+		CLKIN_IBUFG_OUT => clk0_buf
 	);	
 
 
-	Inst_dcm24: dcm24 PORT MAP(
-		CLKIN_IN => clk_96,
-		CLKDV_OUT => clk_24
-	);
 
-
-	process(clk_96) -- clk div for uart 3Mbs process
-	begin
-	if clk_96'event and clk_96 = '1' then
-		if baud_count = '1' then
-			baud_count <= '0' ;
-			clk_48 <= '1';
-		else
-			baud_count <= '1';
-			clk_48 <= '0';
-		end if;
-	end if;
-	end process;
-
-	process(clk_96)
+	process(clk_120) -- div for 15200kbps
 			begin
-			if clk_96'event and clk_96='1' then
-				if baud_rate_divider=52 then
+			if clk_120'event and clk_120='1' then
+				if baud_rate_divider=65 then
 					baud_rate_divider <= 0;
 					clk_1_8 <= '1';
 				else
@@ -177,13 +156,14 @@ begin
 
 
 mem_interface0 : muxed_addr_interface
-generic map(ADDR_WIDTH => 16 , DATA_WIDTH => 16)
-port map(clk => clk_96 , arazb => arazb_delayed ,
+generic map(ADDR_WIDTH => 8 , DATA_WIDTH => 16)
+port map(clk => clk_120 , arazb => arazb_delayed ,
 	  data	=> BEAGLE_DATA ,
 	  wrn => BEAGLE_WRN, oen => BEAGLE_OEN, addr_en_n => BEAGLE_ALE,  csn => BEAGLE_CSN ,
-	  data_bus	=> bus_data ,
+	  data_bus_in	=> bus_data_in ,
+	  data_bus_out	=> bus_data_out ,
 	  addr_bus	=> bus_addr ,
-	  wr => bus_wr, rd => bus_rd
+	  wr => bus_wr, rd => bus_rd, cs => bus_cs
 );
 
 
@@ -192,16 +172,18 @@ port map(clk => clk_96 , arazb => arazb_delayed ,
 
 
  bi_fifo0 : fifo_peripheral 
-			generic map(BASE_ADDR => 0, WIDTH => 16, SIZE => 32)
+			generic map(BASE_ADDR => 0, ADDR_WIDTH => 8,WIDTH => 16, SIZE => 32)
 			port map(
-          clk => clk_96,
+          clk => clk_120,
           arazb => arazb_delayed,
           addr_bus => bus_addr,
           wr_bus => bus_wr,
           rd_bus => bus_rd,
+			 cs_bus => bus_cs ,
           wrB => fifoB_wr,
-          rdA => fifoA_rd,
-          data_bus => bus_data,
+          rdA => '0',
+          data_bus_in => bus_data_out,
+			 data_bus_out => bus_data_in,
           inputB => fifo_input,
           outputA => fifo_output,
           emptyA => fifoA_empty,
@@ -218,7 +200,7 @@ fifo_input <= data_to_read ;
 
 delay_rd0 : generic_latch 
 	 generic map(NBIT => 1)
-    port map( clk => clk_96 ,
+    port map( clk => clk_120 ,
            arazb => arazb ,
            sraz => '0' ,
            en => '1' ,
@@ -229,7 +211,7 @@ send_addr <= bus_wr ;
 
 send_signal <= send_addr  ;
 
-data_to_send <= bus_addr ;--when send_addr = '1' else
+data_to_send(7 downto 0) <= bus_addr ;--when send_addr = '1' else
 					 --fifo_output ;
 
 	uart_tx0 : uart_tx 
@@ -239,13 +221,13 @@ data_to_send <= bus_addr ;--when send_addr = '1' else
                  en_16_x_baud => clk_1_8,
 					  buffer_half_full => tx_buffer_full,
                  serial_out => TXD,
-                 clk => clk_96);
+                 clk => clk_120);
 
 
 
 delay_wr0 : generic_latch 
 	 generic map(NBIT => 1)
-    port map( clk => clk_96 ,
+    port map( clk => clk_120 ,
            arazb => arazb ,
            sraz => '0' ,
            en => '1' ,
@@ -260,7 +242,7 @@ delay_wr0 : generic_latch
                    reset_buffer => NOT arazb_delayed,
                    en_16_x_baud => clk_1_8,
             buffer_data_present => data_present,
-                            clk => clk_96);
+                            clk => clk_120);
 
 read_signal <= (NOT fifoB_full) when data_present = '1' else
 			  '0' ;
