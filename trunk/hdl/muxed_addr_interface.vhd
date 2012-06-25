@@ -64,26 +64,23 @@ add_latch0 : generic_latch
 process(clk, arazb)
 begin
 if arazb ='0' then
-	wr <= '0' ;
-	rd <= '0' ;
-	data_bus_out <= (others => 'Z');
+	wrt <= '0' ;
+	rdt <= '0' ;
+	data_bus_out_t <= (others => 'Z');
 elsif clk'event and clk ='1' then
-	wr <= wrt ;
-	rd <= rdt ;
-	data_bus_out <= data_bus_out_t ;
+	wrt <= (NOT wrn) and (NOT csn) and (NOT latch_addr) ;
+	rdt <= (NOT oen) and (NOT csn)  and (NOT latch_addr) ;
+	data_bus_out_t <= data ;
 end if ;
 end process;
 
-wrt <= (NOT wrn) when csn = '0' and latch_addr = '0' else
-		'0' ;
-rdt <= (NOT oen) when  csn = '0' and latch_addr = '0' else
-		'0' ;
+wr <= wrt ;
+rd <= rdt ;
 
-data <= data_bus_in when oen = '0' and csn = '0' else
+data <= data_bus_in when rdt = '1' else
 		  (others => 'Z');
 
-data_bus_out_t <= data when (wrn = '0' and oen = '1' and csn = '0') else
-				(others => 'Z');
+data_bus_out <= data_bus_out_t ;
 
 
 end Behavioral;
