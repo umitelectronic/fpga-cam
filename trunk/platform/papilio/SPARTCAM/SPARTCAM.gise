@@ -43,8 +43,11 @@
     <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="lcd_controller_tb_beh.prj"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="lcd_controller_tb_isim_beh.exe"/>
     <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="lcd_controller_tb_isim_beh.wdb"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spartcam_beaglebone.bgn" xil_pn:subbranch="FPGAConfiguration"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="spartcam_beaglebone.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="spartcam_beaglebone.bld"/>
     <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="spartcam_beaglebone.cmd_log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_DRC" xil_pn:name="spartcam_beaglebone.drc" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="spartcam_beaglebone.lso"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_beaglebone.ncd" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="spartcam_beaglebone.ngc"/>
@@ -60,6 +63,7 @@
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="spartcam_beaglebone.twr" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="spartcam_beaglebone.twx" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="spartcam_beaglebone.unroutes" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spartcam_beaglebone.ut" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:fileType="FILE_XPI" xil_pn:name="spartcam_beaglebone.xpi"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="spartcam_beaglebone.xst"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_beaglebone_envsettings.html"/>
@@ -296,21 +300,18 @@
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="fuse.log"/>
-      <outfile xil_pn:name="isim"/>
-      <outfile xil_pn:name="lcd_controller_tb_beh.prj"/>
-      <outfile xil_pn:name="lcd_controller_tb_isim_beh.exe"/>
-      <outfile xil_pn:name="xilinxsim.ini"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1338144359" xil_pn:in_ck="-6248990861297057734" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="2848000219451457137" xil_pn:start_ts="1338144359">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForProperties"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="isim.cmd"/>
-      <outfile xil_pn:name="lcd_controller_tb_isim_beh.wdb"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1338227624" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1338227623">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -328,7 +329,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1340531969" xil_pn:in_ck="4001564239117639819" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="-1621680445827967295" xil_pn:start_ts="1340531969">
+    <transform xil_pn:end_ts="1340606575" xil_pn:in_ck="4001564239117639819" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="-1621680445827967295" xil_pn:start_ts="1340606573">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="dcm120.vhd"/>
@@ -342,7 +343,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1340531999" xil_pn:in_ck="-5055906982244490832" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="-6685390420092815486" xil_pn:start_ts="1340531969">
+    <transform xil_pn:end_ts="1340609418" xil_pn:in_ck="5351017366812785219" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="-6685390420092815486" xil_pn:start_ts="1340609408">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -356,7 +357,6 @@
       <outfile xil_pn:name="spartcam_beaglebone.stx"/>
       <outfile xil_pn:name="spartcam_beaglebone.syr"/>
       <outfile xil_pn:name="spartcam_beaglebone.xst"/>
-      <outfile xil_pn:name="spartcam_beaglebone_vhdl.prj"/>
       <outfile xil_pn:name="spartcam_beaglebone_xst.xrpt"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
       <outfile xil_pn:name="xst"/>
@@ -365,7 +365,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1340532013" xil_pn:in_ck="-1342493324476114141" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="4909164157698368430" xil_pn:start_ts="1340531999">
+    <transform xil_pn:end_ts="1340609423" xil_pn:in_ck="-1342493324476114141" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="4909164157698368430" xil_pn:start_ts="1340609418">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -375,7 +375,7 @@
       <outfile xil_pn:name="spartcam_beaglebone.ngd"/>
       <outfile xil_pn:name="spartcam_beaglebone_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1340532024" xil_pn:in_ck="-70689574070906364" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="2327475146552349993" xil_pn:start_ts="1340532013">
+    <transform xil_pn:end_ts="1340609427" xil_pn:in_ck="-70689574070906364" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="2327475146552349993" xil_pn:start_ts="1340609423">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -389,7 +389,7 @@
       <outfile xil_pn:name="spartcam_beaglebone_summary.xml"/>
       <outfile xil_pn:name="spartcam_beaglebone_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1340532062" xil_pn:in_ck="-4904378529214964355" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1340532024">
+    <transform xil_pn:end_ts="1340609447" xil_pn:in_ck="-4904378529214964355" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1340609427">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -404,17 +404,20 @@
       <outfile xil_pn:name="spartcam_beaglebone_pad.txt"/>
       <outfile xil_pn:name="spartcam_beaglebone_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1338326814" xil_pn:in_ck="1825495501819126032" xil_pn:name="TRANEXT_bitFile_spartan3e" xil_pn:prop_ck="287829442711806529" xil_pn:start_ts="1338326792">
+    <transform xil_pn:end_ts="1340609452" xil_pn:in_ck="8893085057837403489" xil_pn:name="TRANEXT_bitFile_spartan3e" xil_pn:prop_ck="287829442711806529" xil_pn:start_ts="1340609447">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputAdded"/>
-      <status xil_pn:value="InputRemoved"/>
-      <status xil_pn:value="OutputRemoved"/>
+      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
+      <outfile xil_pn:name="spartcam_beaglebone.bgn"/>
+      <outfile xil_pn:name="spartcam_beaglebone.bit"/>
+      <outfile xil_pn:name="spartcam_beaglebone.drc"/>
+      <outfile xil_pn:name="spartcam_beaglebone.ut"/>
+      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
+      <outfile xil_pn:name="webtalk.log"/>
+      <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1340532062" xil_pn:in_ck="-1928087964172368384" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1340532055">
+    <transform xil_pn:end_ts="1340609447" xil_pn:in_ck="-1928087964172368384" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1340609444">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
