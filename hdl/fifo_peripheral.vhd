@@ -63,6 +63,8 @@ port map(addr_bus_in	=> addr_bus ,
 	  cs => bus_cs
 );	
 
+--bus_cs <= '1' ;
+--in_addr <= addr_bus ;
 
 fifo_A : dp_fifo -- write from bus, read from logic
 	generic map(N => SIZE , W => WIDTH)
@@ -91,23 +93,26 @@ fifo_B : dp_fifo -- read from bus, write from logic
 	); 
 
 
-nb_free_latch0 : edge_triggered_latch 
-	 generic map(NBIT => WIDTH, POL => '1')
-    Port map( clk => clk ,
-           arazb => arazb ,
-           sraz => '0' ,
-           en => cs_bus ,
-           d => std_logic_vector(nb_freeA),
-           q => nb_freeA_latched);
+--nb_free_latch0 : edge_triggered_latch 
+--	 generic map(NBIT => WIDTH, POL => '1')
+--    Port map( clk => clk ,
+--           arazb => arazb ,
+--           sraz => '0' ,
+--           en => cs_bus ,
+--           d => std_logic_vector(nb_freeA),
+--           q => nb_freeA_latched);
+nb_freeA_latched <= 	  std_logic_vector(nb_freeA) ;
 	  
-nb_available_latch0 : edge_triggered_latch 
-	 generic map(NBIT => WIDTH, POL => '1')
-    Port map( clk => clk ,
-           arazb => arazb ,
-           sraz => '0' ,
-           en => cs_bus ,
-           d => std_logic_vector(nb_availableB),
-           q => nb_availableB_latched);
+--nb_available_latch0 : edge_triggered_latch 
+--	 generic map(NBIT => WIDTH, POL => '1')
+--    Port map( clk => clk ,
+--           arazb => arazb ,
+--           sraz => '0' ,
+--           en => cs_bus ,
+--           d => std_logic_vector(nb_availableB),
+--           q => nb_availableB_latched);
+
+nb_availableB_latched <= std_logic_vector(nb_availableB) ;
 
 nb_freeA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ; 
 nb_availableB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
