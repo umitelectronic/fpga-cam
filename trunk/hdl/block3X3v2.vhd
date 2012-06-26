@@ -72,25 +72,25 @@ begin
 
 nclk <= NOT clk ;
 
-line1: ram_Nx8
-	generic map(N => WIDTH + 2, A => nbit(WIDTH))
+lines0: ram_NxN
+	generic map(SIZE => WIDTH , NBIT => 16, ADDR_WIDTH => nbit(WIDTH))
 	port map(
  		clk => nclk, 
  		we => line_wr, en => '1' ,
- 		do => LINE1_OUTPUT,
- 		di => LINE1_INPUT,
+ 		do => LINE1_OUTPUT & LINE2_OUTPUT,
+ 		di => LINE1_INPUT & LINE2_INPUT,
  		addr => pixel_counterq
 	); 
 
-line2: ram_Nx8
-	generic map(N => WIDTH + 2, A => nbit(WIDTH))
-	port map(
- 		clk => nclk, 
- 		we => line_wr, en => '1' ,
- 		do => LINE2_OUTPUT,
- 		di => LINE2_INPUT,
- 		addr => pixel_counterq
-	); 
+--line2: ram_Nx8
+--	generic map(N => WIDTH + 2, A => nbit(WIDTH))
+--	port map(
+-- 		clk => nclk, 
+-- 		we => line_wr, en => '1' ,
+-- 		do => LINE2_OUTPUT,
+-- 		di => LINE2_INPUT,
+-- 		addr => pixel_counterq
+--	); 
 
 
 pixel_counter0: pixel_counter
