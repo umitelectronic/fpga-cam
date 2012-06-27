@@ -121,7 +121,7 @@ begin
 	CAM_SIOC <= 'Z' ;
 	CAM_SIOD <= 'Z' ;
 
-
+	TXD <= 'Z' ;
 
 
 	reset0: reset_generator 
@@ -172,7 +172,7 @@ port map(clk => clk_120 , arazb => arazb_delayed ,
 
 
  bi_fifo0 : fifo_peripheral 
-			generic map(BASE_ADDR => 0, ADDR_WIDTH => 8,WIDTH => 16, SIZE => 32)
+			generic map(BASE_ADDR => 0, ADDR_WIDTH => 8,WIDTH => 16, SIZE => 512)
 			port map(
           clk => clk_120,
           arazb => arazb_delayed,
@@ -180,71 +180,31 @@ port map(clk => clk_120 , arazb => arazb_delayed ,
           wr_bus => bus_wr,
           rd_bus => bus_rd,
           wrB => fifoB_wr,
-          rdA => '0',
+          rdA => fifoA_rd,
           data_bus_in => bus_data_out,
 			 data_bus_out => bus_data_in,
-          inputB => fifo_input,
+          inputB => fifo_output,
           outputA => fifo_output,
           emptyA => fifoA_empty,
           fullA => fifoA_full,
           emptyB => fifoB_empty,
           fullB => fifoB_full
         );
-
-
-fifoA_rd <= '0' ;--NOT tx_buffer_full when bus_wr = '0' else
-				--'0' ;
-fifo_input <= data_to_read ;
-
-
-delay_rd0 : generic_latch 
-	 generic map(NBIT => 1)
-    port map( clk => clk_120 ,
-           arazb => arazb ,
-           sraz => '0' ,
-           en => '1' ,
-           d(0) => fifoA_rd ,
-           q(0) => send_data) ;
-
-send_addr <= bus_wr ;
-
-send_signal <= send_addr  ;
-
-data_to_send(7 downto 0) <= bus_addr ;--when send_addr = '1' else
-					 --fifo_output ;
-
-	uart_tx0 : uart_tx 
-    port map (   data_in => data_to_send(7 downto 0), 
-                 write_buffer => send_signal,
-                 reset_buffer => NOT arazb_delayed, 
-                 en_16_x_baud => clk_1_8,
-					  buffer_half_full => tx_buffer_full,
-                 serial_out => TXD,
-                 clk => clk_120);
-
-
-
-delay_wr0 : generic_latch 
-	 generic map(NBIT => 1)
-    port map( clk => clk_120 ,
-           arazb => arazb ,
-           sraz => '0' ,
-           en => '1' ,
-           d(0) => data_present ,
-           q(0) => fifoB_wr) ;
-
-
-	uart_rx0 : uart_rx 
-    port map(            serial_in => RXD,
-                       data_out => data_to_read(7 downto 0),
-                    read_buffer => read_signal,
-                   reset_buffer => NOT arazb_delayed,
-                   en_16_x_baud => clk_1_8,
-            buffer_data_present => data_present,
-                            clk => clk_120);
-
-read_signal <= (NOT fifoB_full) when data_present = '1' else
-			  '0' ;
+process(clk_120, arazb)
+begin
+if arazb_delayed = '0' then
+		fifoB_wr <= '0' ;
+		fifoA_rd <= '0' ;
+elsif clk_120'event and clk_120 ='1' then
+	if fifoA_empty = '0' then
+		fifoB_wr <= '1' ;
+		fifoA_rd <= '1' ;
+	else
+		fifoB_wr <= '0' ;
+		fifoA_rd <= '0' ;
+	end if ;
+end if ;
+end process ;
 
 end Behavioral;
 
