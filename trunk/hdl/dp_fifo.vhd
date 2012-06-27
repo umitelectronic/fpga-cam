@@ -34,6 +34,8 @@ use work.generic_components.all ;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
+
+-- N must be power of two
 entity dp_fifo is
 	generic(N : natural := 128 ; W : positive := 16);
 	port(
@@ -86,12 +88,8 @@ if arazb = '0' then
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		rd_addr <= (others => '0');
-	elsif rd_old /= rd and rd = '1' and nb_available_t > 0 then
-		if rd_addr < (N - 1) then
+	elsif rd_old /= rd and rd = '1' and nb_available_t /= 0 then
 			rd_addr <= rd_addr + 1;
-		else
-			rd_addr <= (others => '0');
-		end if ;
 	end if ;
 	rd_old <= rd ;
 end if ;
@@ -106,39 +104,47 @@ if arazb = '0' then
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		wr_addr <= (others => '0');
-	elsif wr_old /= wr and wr = '1' and nb_free_t > 0 then
-		if wr_addr < (N - 1) then
-			wr_addr <= wr_addr + 1;
-		else
-			wr_addr <= (others => '0');
-		end if ;
+	elsif wr_old /= wr and wr = '1' and nb_free_t /= 0 then
+		wr_addr <= wr_addr + 1;
 	end if ;
 	wr_old <= wr ;
 end if ;
 end process ;
 
+
+-- nb available process
 process(clk, arazb)
 begin
 if arazb = '0' then
-	one_turn <= '0' ;
+	nb_available_t <= (others => '0') ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
-		one_turn <= '0' ;
-	elsif rd_old /= rd and rd = '1' and nb_available_t > 0 and NOT(rd_addr < (N - 1)) then
-		one_turn <= '0' ;
-	elsif wr_old /= wr and wr = '1' and nb_free_t > 0 and NOT(wr_addr < (N - 1)) then
-		one_turn <= '1' ;
+		nb_available_t <= (others => '0') ;
+	elsif wr_old /= wr and rd_old = rd and wr = '1' and nb_available_t /= N then
+		nb_available_t <= nb_available_t + 1 ;
+	elsif wr_old = wr and rd_old /= rd and rd = '1' and nb_available_t /= 0 then
+		nb_available_t <= nb_available_t - 1 ;	
+	end if ;
+end if ;
+end process ;
+
+-- nb free process 
+process(clk, arazb)
+begin
+if arazb = '0' then
+	nb_free_t <= to_unsigned(N, nbit(N) + 1) ;
+elsif clk'event and clk = '1' then
+	if sraz = '1' then
+		nb_free_t <= to_unsigned(N, nbit(N) + 1) ;
+	elsif wr_old /= wr and rd_old = rd and wr = '1' and nb_free_t /= 0 then
+		nb_free_t <= nb_free_t - 1 ;
+	elsif wr_old = wr and rd_old /= rd and rd = '1' and nb_free_t /= N then
+		nb_free_t <= nb_free_t + 1 ;	
 	end if ;
 end if ;
 end process ;
 
 
-
-nb_available_t <= (unsigned(wr_addr) - unsigned('0' & rd_addr)) when one_turn = '0'  else
-				  (to_unsigned(N, nbit(N) + 1) -  unsigned('0' & rd_addr) +  unsigned('0' & wr_addr)) ;
-				  
-nb_free_t <= (to_unsigned(N, nbit(N) + 1) - unsigned('0' & wr_addr) + unsigned('0' & rd_addr)) when one_turn = '0' else
-				  (unsigned('0' & rd_addr) - unsigned('0' & wr_addr)) ;
 
 nb_free <= nb_free_t ;
 nb_available <= nb_available_t ;
