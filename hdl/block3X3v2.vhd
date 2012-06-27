@@ -64,6 +64,8 @@ signal line_wr, nclk: std_logic ;
 
 
 signal LINE1_INPUT, LINE1_OUTPUT, LINE2_INPUT, LINE2_OUTPUT : std_logic_vector(7 downto 0) := X"00";
+
+signal INPUT_LINES, OUTPUT_LINES : std_logic_vector(15 downto 0) ;
 signal final_res : signed(31 downto 0);
 
 signal nb_line : std_logic_vector((nbit(HEIGHT) - 1) downto 0) := (others => '0');
@@ -72,15 +74,22 @@ begin
 
 nclk <= NOT clk ;
 
+
 lines0: ram_NxN
 	generic map(SIZE => WIDTH , NBIT => 16, ADDR_WIDTH => nbit(WIDTH))
 	port map(
  		clk => nclk, 
  		we => line_wr, en => '1' ,
- 		do => LINE1_OUTPUT & LINE2_OUTPUT,
- 		di => LINE1_INPUT & LINE2_INPUT,
+ 		do => OUTPUT_LINES,
+ 		di => INPUT_LINES,
  		addr => pixel_counterq
 	); 
+
+LINE2_OUTPUT <= OUTPUT_LINES(15 downto 8);
+LINE1_OUTPUT <= OUTPUT_LINES(7 downto 0);
+
+INPUT_LINES(7 downto 0) <= LINE1_INPUT; 
+INPUT_LINES(15 downto 8) <= LINE2_INPUT; 
 
 --line2: ram_Nx8
 --	generic map(N => WIDTH + 2, A => nbit(WIDTH))
