@@ -46,13 +46,12 @@ port( CLK : in std_logic;
 		CAM_PCLK, CAM_HREF, CAM_VSYNC	:	in std_logic;
 		CAM_RESET	:	out std_logic ;
 		
-		--LCD interface
+		--beaglebone interface
 		BEAGLE_ALE, BEAGLE_CSN, BEAGLE_WRN, BEAGLE_OEN:	in std_logic;
 		BEAGLE_DATA :	inout std_logic_vector(15 downto 0);
-		
-		--FIFO interface
-		FIFO_CS, FIFO_WR, FIFO_RD, FIFO_A0:	out std_logic;
-		FIFO_DATA :	out std_logic_vector(7 downto 0)
+		BEAGLE_ADDR :	in std_logic_vector(7 downto 0);
+		--FIFO unsused signals
+		FIFO_CS, FIFO_WR, FIFO_RD, FIFO_A0:	out std_logic
 		
 );
 end spartcam_beaglebone;
@@ -112,7 +111,6 @@ begin
 	FIFO_WR <= bus_wr ; 
 	FIFO_RD <= bus_rd ; 
 	FIFO_A0 <= 'Z' ;
-	FIFO_DATA <= bus_addr(7 downto 0)  ;
 	
 	CAM_RESET <= 'Z' ;
 	CAM_XCLK <= 'Z' ;
@@ -155,11 +153,23 @@ begin
 	end process;
 
 
-mem_interface0 : muxed_addr_interface
+--mem_interface0 : muxed_addr_interface
+--generic map(ADDR_WIDTH => 8 , DATA_WIDTH => 16)
+--port map(clk => clk_120 , arazb => arazb_delayed ,
+--	  data	=> BEAGLE_DATA ,
+--	  wrn => BEAGLE_WRN, oen => BEAGLE_OEN, addr_en_n => BEAGLE_ALE,  csn => BEAGLE_CSN ,
+--	  data_bus_in	=> bus_data_in ,
+--	  data_bus_out	=> bus_data_out ,
+--	  addr_bus	=> bus_addr ,
+--	  wr => bus_wr, rd => bus_rd
+--);
+
+mem_interface0 : addr_interface
 generic map(ADDR_WIDTH => 8 , DATA_WIDTH => 16)
 port map(clk => clk_120 , arazb => arazb_delayed ,
 	  data	=> BEAGLE_DATA ,
-	  wrn => BEAGLE_WRN, oen => BEAGLE_OEN, addr_en_n => BEAGLE_ALE,  csn => BEAGLE_CSN ,
+	  addr	=> BEAGLE_ADDR ,
+	  wrn => BEAGLE_WRN, oen => BEAGLE_OEN, csn => BEAGLE_CSN ,
 	  data_bus_in	=> bus_data_in ,
 	  data_bus_out	=> bus_data_out ,
 	  addr_bus	=> bus_addr ,
@@ -190,6 +200,10 @@ port map(clk => clk_120 , arazb => arazb_delayed ,
           emptyB => fifoB_empty,
           fullB => fifoB_full
         );
+		  
+--fifoB_wr <= '0' ;
+--fifoA_rd <= '0' ;
+
 process(clk_120, arazb)
 begin
 if arazb_delayed = '0' then
