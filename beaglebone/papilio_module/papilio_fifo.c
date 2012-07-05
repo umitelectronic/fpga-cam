@@ -51,8 +51,10 @@ unsigned short int getNbAvailable(void);
 
 void setupGPMCClock(void){
 	printk("Configuring Clock for GPMC \n");   
-
+	request_mem_region(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL/4, 4, gDrvrName);
 	//enable clock to GPMC module
+	
+
 	HWREG(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL/4 ) |=
 			CM_PER_GPMC_CLKCTRL_MODULEMODE_ENABLE;
 	//check to see if enabled
@@ -61,6 +63,7 @@ void setupGPMCClock(void){
 	while((HWREG(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL/4) & 
 	CM_PER_GPMC_CLKCTRL_IDLEST) != (CM_PER_GPMC_CLKCTRL_IDLEST_FUNC << CM_PER_GPMC_CLKCTRL_IDLEST_SHIFT));
 	printk("GPMC clock is running \n");
+	release_mem_region(SOC_PRCM_REGS + CM_PER_GPMC_CLKCTRL/4, 4);
 }
 
 void setupGPMCNonMuxed(void){
@@ -69,7 +72,14 @@ void setupGPMCNonMuxed(void){
 
 	printk("Configuring GPMC for muxed access \n");	
 
-	printk("gpmc regs pointer allocated with address %x \n", SOC_GPMC_0_REGS);
+	if (check_mem_region(SOC_GPMC_0_REGS, 720)) {
+	    printk("%s: memory already in use\n", gDrvrName);
+	    return -EBUSY;
+	}
+	request_mem_region(SOC_GPMC_0_REGS, 720, gDrvrName);
+
+
+
 
 	printk("GPMC_REVISION value :%x \n", HWREG(SOC_GPMC_0_REGS + GPMC_REVISION/4)); 
 	HWREG(SOC_GPMC_0_REGS + GPMC_SYSCONFIG/4 ) |= GPMC_SYSCONFIG_SOFTRESET;
@@ -129,7 +139,7 @@ void setupGPMCNonMuxed(void){
 	(0x09 << GPMC_CONFIG7_0_BASEADDRESS_SHIFT) | //CFG_7_BASE_ADDR
 	(0x1 << GPMC_CONFIG7_0_CSVALID_SHIFT) |
 	(0x0f << GPMC_CONFIG7_0_MASKADDRESS_SHIFT);  //CFG_7_MASK
-
+	release_mem_region(SOC_GPMC_0_REGS, 720);
 }
 
 
