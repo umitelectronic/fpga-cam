@@ -53,6 +53,7 @@ if arazb ='0' then
 	wrt <= '0' ;
 	rdt <= '0' ;
 	data_bus_out_t <= (others => 'Z');
+	addr_bus <= (others => '0') ;
 elsif clk'event and clk ='1' then
 	wrt <= (NOT wrn) and (NOT csn) and (NOT latch_addr) ;
 	rdt <= (NOT oen) and (NOT csn)  and (NOT latch_addr) ;
