@@ -50,10 +50,21 @@ entity dp_fifo is
 end dp_fifo;
 
 architecture Behavioral of dp_fifo is
+
+constant std_fifo_size : std_logic_vector(nbit(N)  downto 0 ) :=  std_logic_vector(to_unsigned(N, nbit(N) + 1));
+
 signal rd_addr, wr_addr: std_logic_vector((nbit(N) - 1) downto 0)  ;
 signal nb_free_t, nb_available_t : unsigned(nbit(N) downto 0 ) ;
+signal slv_nb_free_t, slv_nb_available_t : std_logic_vector(nbit(N) downto 0 ) ;
 signal fifo_out, fifo_in : std_logic_vector((W - 1 ) downto 0)  ;
 signal rd_old, wr_old, wr_data, rd_data, one_turn, latch_data : std_logic ;
+signal rd_rising_edge, wr_rising_edge : std_logic ;
+signal rd_falling_edge, wr_falling_edge : std_logic ;
+
+signal en_available_counter, up_downn_available_counter : std_logic ;
+signal en_free_counter, up_downn_free_counter, counter_load : std_logic ;
+
+
 begin
 
 dp_ram0 : dpram_NxN 
@@ -67,31 +78,48 @@ dp_ram0 : dpram_NxN
 		dpo =>  fifo_out 
 	); 
 
+--
+--output_latch_0 : generic_latch
+--	 generic map(NBIT => W)
+--    port map( clk => clk,
+--           arazb => arazb ,
+--           sraz => sraz ,
+--           en => latch_data ,
+--           d => fifo_out ,
+--           q => data_out ) ;
+--
+--latch_data <= rd_falling_edge ;
 
-output_latch_0 : edge_triggered_latch
-	 generic map(NBIT => W,  POL => '1')
-    port map( clk => clk,
-           arazb => arazb ,
-           sraz => sraz ,
-           en => latch_data ,
-           d => fifo_out ,
-           q => data_out ) ;
+data_out <= fifo_out ;
 			  
-latch_data <= (NOT rd) ;--'0' when (nb_available_t = 0) else
-				  --(NOT rd) ; -- latch next data on falling edge of read, ensure data to be stable while read is high
-			  
+process(clk)
+begin
+	if clk'event and clk = '1' then
+		rd_old <= rd ;
+	end if ;
+end process ;
+rd_rising_edge <= (rd AND (NOT rd_old));
+rd_falling_edge <= ((NOT rd) AND rd_old);
+
+process(clk)
+begin
+	if clk'event and clk = '1' then
+		wr_old <= wr ;
+	end if ;
+end process ;
+wr_rising_edge <= (wr AND (NOT wr_old)) ;
+wr_falling_edge <= ((NOT wr) AND wr_old) ;
+
 process(clk, arazb)
 begin
 if arazb = '0' then
 	rd_addr <= (others => '0') ;
-	rd_old <= '0' ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		rd_addr <= (others => '0');
-	elsif rd_old /= rd and rd = '1' and nb_available_t /= 0 then
+	elsif rd_falling_edge = '1' and nb_available_t /= 0 then
 			rd_addr <= rd_addr + 1;
 	end if ;
-	rd_old <= rd ;
 end if ;
 end process ;
 
@@ -100,45 +128,84 @@ process(clk, arazb)
 begin
 if arazb = '0' then
 	wr_addr <= (others => '0') ;
-	wr_old <= '0' ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		wr_addr <= (others => '0');
-	elsif wr_old /= wr and wr = '1' and nb_free_t /= 0 then
+	elsif wr_falling_edge = '1' and nb_free_t /= 0 then
 		wr_addr <= wr_addr + 1;
 	end if ;
-	wr_old <= wr ;
 end if ;
 end process ;
 
 
+
+--counter_load <= sraz ;
+--
+--available_counter : up_down_counter 
+--	 generic map(NBIT => nbit(N) + 1)
+--    port map( clk => clk,
+--			  arazb => arazb,
+--           sraz => '0' ,
+--           en =>  en_available_counter,
+--			  load => counter_load,
+--			  up_downn => up_downn_available_counter ,
+--			  E =>  std_logic_vector(to_unsigned(0, nbit(N) + 1)),
+--           Q => slv_nb_available_t
+--			  );
+--
+--en_available_counter <= '1' when wr_falling_edge = '1'  AND (nb_available_t /= N) and rd_falling_edge = '0' else
+--								'1' when rd_falling_edge = '1' AND (nb_available_t /= 0) and wr_falling_edge = '0' else
+--								'0' ;
+--up_downn_available_counter <= wr_falling_edge ;
+--nb_available_t <= unsigned(slv_nb_available_t);
+--
+--										
+--free_counter : up_down_counter
+--	 generic map(NBIT => nbit(N) + 1)
+--    port map( clk => clk,
+--				arazb => arazb,
+--           sraz => '0' ,
+--           en =>  en_free_counter,
+--			  load => counter_load,
+--			  up_downn => up_downn_free_counter ,
+--			  E => std_logic_vector(to_unsigned(N, nbit(N) + 1)),
+--           Q => slv_nb_free_t
+--			  );
+--
+--en_free_counter <= '1' when wr_falling_edge = '1' and nb_free_t /= 0 and rd_falling_edge = '0' else
+--						 '1' when rd_falling_edge = '1' and nb_free_t /= N and wr_falling_edge = '0' else
+--						 '0' ;
+--up_downn_free_counter <= rd_falling_edge ;
+--nb_free_t <= unsigned(slv_nb_free_t) ;
+
+
 -- nb available process
-process(clk, arazb)
+process(clk)
 begin
 if arazb = '0' then
 	nb_available_t <= (others => '0') ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		nb_available_t <= (others => '0') ;
-	elsif wr_old /= wr and rd_old = rd and wr = '1' and nb_available_t /= N then
+	elsif wr_falling_edge = '1' and rd_falling_edge = '0' and nb_available_t /= N then
 		nb_available_t <= nb_available_t + 1 ;
-	elsif wr_old = wr and rd_old /= rd and rd = '1' and nb_available_t /= 0 then
+	elsif rd_falling_edge = '1' and wr_falling_edge = '0' and nb_available_t /= 0 then
 		nb_available_t <= nb_available_t - 1 ;	
 	end if ;
 end if ;
 end process ;
 
 -- nb free process 
-process(clk, arazb)
+process(clk)
 begin
 if arazb = '0' then
 	nb_free_t <= to_unsigned(N, nbit(N) + 1) ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		nb_free_t <= to_unsigned(N, nbit(N) + 1) ;
-	elsif wr_old /= wr and rd_old = rd and wr = '1' and nb_free_t /= 0 then
+	elsif wr_falling_edge = '1' and rd_falling_edge = '0' and nb_free_t /= 0 then
 		nb_free_t <= nb_free_t - 1 ;
-	elsif wr_old = wr and rd_old /= rd and rd = '1' and nb_free_t /= N then
+	elsif rd_falling_edge = '1' and wr_falling_edge = '0' and nb_free_t /= N then
 		nb_free_t <= nb_free_t + 1 ;	
 	end if ;
 end if ;
@@ -150,12 +217,14 @@ nb_free <= nb_free_t ;
 nb_available <= nb_available_t ;
 
 empty <= '1' when nb_available_t = 0 else
+			'1' when nb_available_t = 1 and rd_falling_edge = '1' else
          '0' ;
 
 full <= '1' when nb_free_t = 0 else
+		  '1' when nb_free_t = 1 and wr_falling_edge = '1' else
 		  '0' ;
 
-wr_data <= wr when nb_free_t > 0 else
+wr_data <= wr when nb_free_t /= 0 else
 			  '0' ;
 
 end Behavioral;

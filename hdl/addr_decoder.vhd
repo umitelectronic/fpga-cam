@@ -32,31 +32,22 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity addr_decoder is
-generic(ADDR_WIDTH	: positive := 16 ; BASE_ADDR	: natural := 0 ; END_ADDR	: positive	:= 16);
+generic(ADDR_WIDTH	: positive := 16 ; BASE_ADDR	: natural := 0 ; ADDR_OUT_WIDTH	: positive	:= 2);
 port(addr_bus_in	: in	std_logic_vector((ADDR_WIDTH - 1) downto 0 );
-	  addr_bus_out	:	out std_logic_vector((ADDR_WIDTH - 1) downto 0 );
+	  addr_bus_out	:	out std_logic_vector((ADDR_OUT_WIDTH - 1) downto 0 );
 	  cs	:	out std_logic
 );	
 end addr_decoder;
 
 architecture Behavioral of addr_decoder is
-signal gteq_base, lteq_end : std_logic ;
-signal minus_offset : signed(ADDR_WIDTH downto 0 ) ;
+constant std_base_addr : std_logic_vector((ADDR_WIDTH - 1)  downto 0 ) :=  std_logic_vector(to_unsigned(BASE_ADDR, ADDR_WIDTH));
 begin
 
-
-minus_offset <= signed('0' & addr_bus_in) - BASE_ADDR ;
-
-gteq_base <= '1' when minus_offset >= 0 else
-				 '0' ;
 				 
-lteq_end <= '1' when  addr_bus_in <= END_ADDR else
-				'0' ;
-				 
-cs <= gteq_base AND lteq_end ;
+cs <= '1' when  addr_bus_in((ADDR_WIDTH - 1) downto ADDR_OUT_WIDTH) = std_base_addr((ADDR_WIDTH - 1) downto ADDR_OUT_WIDTH)  else
+		'0';
 
-addr_bus_out <= std_logic_vector(minus_offset((ADDR_WIDTH - 1) downto 0))  when gteq_base = '1' and lteq_end = '1' else
-					(others => '0') ;
+addr_bus_out <= addr_bus_in((ADDR_OUT_WIDTH - 1) downto 0) ;
 
 
 end Behavioral;

@@ -52,7 +52,7 @@ if arazb = '0' then
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		Qp <= (others => '0');
-	elsif en  /= old_value and en = POL then
+	elsif en /= old_value and en = POL then
 		Qp <= d ;
 	end if ;
 	old_value <= en ;
