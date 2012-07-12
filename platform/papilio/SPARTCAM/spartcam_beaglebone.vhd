@@ -70,10 +70,29 @@ architecture Behavioral of spartcam_beaglebone is
 		);
 	END COMPONENT;
 	
+	COMPONENT dcm_32_144
+	PORT(
+		CLKIN_IN : IN std_logic;          
+		CLKFX_OUT : OUT std_logic;
+		CLKIN_IBUFG_OUT : OUT std_logic;
+		CLK0_OUT : OUT std_logic;
+		LOCKED_OUT : OUT std_logic
+		);
+	END COMPONENT;
+	
 	COMPONENT dcm_120_24
 	PORT(
 		CLKIN_IN : IN std_logic;          
 		CLKDV_OUT : OUT std_logic;
+		CLK0_OUT : OUT std_logic;
+		LOCKED_OUT : OUT std_logic
+		);
+	END COMPONENT;
+	
+	COMPONENT dcm_32_24
+	PORT(
+		CLKIN_IN : IN std_logic;          
+		CLKFX_OUT : OUT std_logic;
 		CLK0_OUT : OUT std_logic;
 		LOCKED_OUT : OUT std_logic
 		);
@@ -87,7 +106,9 @@ signal clk_120, clk_24: std_logic ;
 	
 	signal fifo_output : std_logic_vector(15 downto 0);
 	signal fifo_input : std_logic_vector(15 downto 0);
-	signal fifoB_wr, fifoA_rd, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
+	signal pixel_buffer : std_logic_vector(15 downto 0);
+	signal write_pixel : std_logic ;
+	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 	
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(7 downto 0);
@@ -96,12 +117,14 @@ signal clk_120, clk_24: std_logic ;
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 
+	signal hsync_rising_edge, vsync_rising_edge, hsync_old, vsync_old : std_logic ;
+
 begin
 
 --comment connections below when using pins
-	FIFO_CS <= bus_cs ;
-	FIFO_WR <= href_from_interface ; 
-	FIFO_RD <= pxclk_from_interface ; 
+	FIFO_CS <= 'Z' ;
+	FIFO_WR <= bus_wr	; 
+	FIFO_RD <= bus_rd	; 
 	FIFO_A0 <= 'Z' ;
 	
 	CAM_RESET <= ARAZB ;
@@ -117,17 +140,32 @@ begin
 	 );
 
 
+
+--	Inst_dcm_32_144: dcm_32_144 PORT MAP(
+--		CLKIN_IN => clk,
+--		CLKFX_OUT => clk_120,
+--		CLKIN_IBUFG_OUT => clk0_buf,
+--		CLK0_OUT => clk0
+--	);
 	
 	Inst_dcm_32_120: dcm_32_120 PORT MAP(
 		CLKIN_IN => clk,
 		CLKFX_OUT => clk_120,
+		CLKIN_IBUFG_OUT => clk0_buf,
 		CLK0_OUT => clk0
 	);	
 	
-	Inst_dcm_120_24: dcm_120_24 PORT MAP(
-		CLKIN_IN => clk_120,
-		CLKDV_OUT => clk_24
+	
+	
+	
+	Inst_dcm_32_24: dcm_32_24 PORT MAP(
+		CLKIN_IN => clk0_buf,
+		CLKFX_OUT => clk_24
 	);
+	--Inst_dcm_120_24: dcm_120_24 PORT MAP(
+	--	CLKIN_IN => clk_120,
+	--	CLKDV_OUT => clk_24
+	--);
 
 
 
@@ -159,13 +197,35 @@ bi_fifo0 : fifo_peripheral
 			rdA => fifoA_rd,
 			data_bus_in => bus_data_out,
 			data_bus_out => bus_data_in,
-			inputB => fifo_input,
+			inputB => fifo_input,--fifo_output,
 			outputA => fifo_output,
 			emptyA => fifoA_empty,
 			fullA => fifoA_full,
 			emptyB => fifoB_empty,
 			fullB => fifoB_full
 		);
+		
+--		process(arazb_delayed, clk_120)
+--		begin
+--		 if arazb_delayed = '0' then
+--			fifoA_rd <= '0' ;
+--		 elsif clk_120'event and clk_120 = '1' then
+--			if fifoA_empty = '0' then
+--				fifoA_rd <= not fifoA_rd ;
+--			else 
+--				fifoA_rd <= '0' ;
+--			end if ;
+--		 end if ;
+--		end process ;
+--		
+--		process(arazb_delayed, clk_120)
+--		begin
+--		 if arazb_delayed = '0' then
+--			fifoB_wr <= '0' ;
+--		 elsif clk_120'event and clk_120 = '1' then
+--				fifoB_wr <= fifoA_rd ;
+--		 end if ;
+--		end process ;
 	
  camera0: yuv_camera_interface
 		generic map(FORMAT => QVGA)
@@ -183,9 +243,50 @@ bi_fifo0 : fifo_peripheral
 CAM_XCLK <= clk_24 ;
 
 
-fifoB_wr <= pxclk_from_interface OR vsync_from_interface;
-fifo_input <= (X"AA55") when vsync_from_interface = '1' else
-				  (X"00" & pixel_from_interface);
+
+
+process(pxclk_from_interface, arazb_delayed)
+begin
+	if arazb_delayed = '0' then
+		pixel_buffer(15 downto 0) <= (others => '0') ;
+		write_pixel <= '0' ;
+	elsif pxclk_from_interface'event and pxclk_from_interface = '1' then
+		pixel_buffer(15 downto 8) <= pixel_buffer(7 downto 0) ;
+		pixel_buffer(7 downto 0)  <= pixel_from_interface ;
+		write_pixel <= NOT write_pixel ;
+	end if ;
+end process ;
+
+
+process(clk_120, arazb)
+begin
+	if arazb_delayed = '0' then
+		vsync_old <= '0' ;
+	elsif clk_120'event and clk_120 = '1' then
+		vsync_old <= vsync_from_interface ;
+	end if ;
+end process ;
+vsync_rising_edge <= (NOT vsync_old) and vsync_from_interface ;
+
+process(clk_120, arazb)
+begin
+	if arazb_delayed = '0' then
+		hsync_old <= '0' ;
+	elsif clk_120'event and clk_120 = '1' then
+		hsync_old <= href_from_interface ;
+	end if ;
+end process ;
+hsync_rising_edge <= (NOT hsync_old) and href_from_interface ;
+
+
+fifoB_wr <= write_pixel when href_from_interface = '0' and vsync_from_interface = '0' else
+			   vsync_rising_edge OR hsync_rising_edge ;
+				
+fifo_input <= (X"AA55") when vsync_rising_edge = '1' else
+				  (X"55AA") when hsync_rising_edge = '1' else
+				  (pixel_buffer(15 downto 1) & '0') when  pixel_buffer = X"AA55" else
+				  (pixel_buffer(15 downto 9) & '0' & pixel_buffer(7 downto 0)) when  pixel_buffer = X"55AA" else
+				   pixel_buffer ;
 
 
 end Behavioral;
