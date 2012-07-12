@@ -182,12 +182,12 @@ int papilio_fifo_release(struct inode *inode, struct file *filp)
 
 
 unsigned short int getNbAvailable(void){
-	printk("getting nb available \n");
+	//printk("getting nb available \n");
 	return gpmc_cs1_pointer[NB_AVAILABLE_OFFSET] ;  
 }
 
 unsigned short int getNbFree(void){
-	printk("getting nb free \n");
+	//printk("getting nb free \n");
 	return gpmc_cs1_pointer[NB_FREE_OFFSET] ;
 }
 
@@ -198,8 +198,8 @@ ssize_t papilio_fifo_write(struct file *filp, const char *buf, size_t count,
     unsigned short int nbFree ;
     unsigned short int index ;
     unsigned int ret ;
-    printk("writing to fifo \n");
-    writeBuffer = (unsigned short int *) kmalloc(count, GFP_KERNEL);
+    //printk("writing to fifo \n");
+    writeBuffer = (unsigned short *) kmalloc(count, GFP_KERNEL);
     // Now it is safe to copy the data from user space.
     if (writeBuffer == NULL || copy_from_user(writeBuffer, buf, count) )  {
         ret = -1;
@@ -207,8 +207,14 @@ ssize_t papilio_fifo_write(struct file *filp, const char *buf, size_t count,
         goto exit;
     }
     nbFree = getNbFree();
-    printk("%d data slots are free to write \n", nbFree);
-    for(index = 0 ; index < nbFree && index < count; index ++){
+    
+    if(nbFree == 0){
+	ret = -1 ; 
+	printk("No room to write in fifo \n");
+	goto exit;   
+    }
+    //printk("%d data slots are free to write \n", nbFree);
+    for(index = 0 ; index < nbFree && index < count/sizeof(unsigned short); index ++){
     	gpmc_cs1_pointer[WRITE_OFFSET] = writeBuffer[index];
     }
     kfree(writeBuffer);
@@ -220,41 +226,50 @@ ssize_t papilio_fifo_write(struct file *filp, const char *buf, size_t count,
 
 ssize_t papilio_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
-     unsigned short int * readBuffer ;
+    unsigned short int * readBuffer ;
     unsigned short int nbAvailable ;
+    unsigned short int nbToRead ;
     unsigned short int index ; 
     unsigned int ret ;
     readBuffer = (unsigned short int *) kmalloc(count, GFP_KERNEL);
-    nbAvailable = getNbAvailable();
-    printk("%d data are available to read \n", nbAvailable);
-    for(index = 0 ; index < nbAvailable && index < count; index ++){
-    	readBuffer[index] =gpmc_cs1_pointer[READ_OFFSET];
+    nbAvailable = getNbAvailable() ;
+    //printk("%d data are available to read \n", nbAvailable);
+    for(index = 0 ; index < nbAvailable && index < count/sizeof(unsigned short); index ++){
+    	readBuffer[index] = gpmc_cs1_pointer[READ_OFFSET];
     }
    
     // Now it is safe to copy the data to user space.
-    if ( copy_to_user(buf, readBuffer, index) )  {
+    if ( copy_to_user(buf, readBuffer, (index * sizeof(unsigned short))) )  {
         ret = -1;
         goto exit;
     }
 
     kfree(readBuffer);
-    ret = index ;
+    ret = index * sizeof(unsigned short) ;
     exit:
       return ret;
 }
 
 
-long papilio_fifo_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg){
+long papilio_fifo_ioctl(struct file *filp, unsigned int cmd, unsigned long arg){
+		
 	switch(cmd){
 		case PAPILIO_FIFO_RESET :
+			printk("fifo ioctl : reset \n");
+			gpmc_cs1_pointer[NB_FREE_OFFSET] = 0 ;
+			gpmc_cs1_pointer[NB_AVAILABLE_OFFSET] = 0 ;
 			return 0 ;
 		case PAPILIO_FIFO_PEEK :
+			printk("fifo ioctl : peek \n");
 			return  gpmc_cs1_pointer[PEEK_OFFSET] ;
 		case PAPILIO_FIFO_NB_FREE :
+			printk("fifo ioctl : free \n");
 			return getNbFree() ;
 		case PAPILIO_FIFO_NB_AVAILABLE :
+			printk("fifo ioctl : available \n");
 			return getNbAvailable() ;
 		default: /* redundant, as cmd was checked against MAXNR */
+			printk("unknown command %d \n", cmd);
 			return -ENOTTY;
 	}
 }
@@ -263,6 +278,7 @@ struct file_operations papilio_fifo_ops = {
     .read =   papilio_fifo_read,
     .write =  papilio_fifo_write,
     .compat_ioctl =  papilio_fifo_ioctl,
+    .unlocked_ioctl = papilio_fifo_ioctl,
     .open =   papilio_fifo_open,
     .release =  papilio_fifo_release,
 };
@@ -273,7 +289,7 @@ static int papilio_fifo_init(void)
 	dev_t dev = 0;
 	struct cdev cdev ;
 	int result ;
-	//setupGPMCClock();
+	setupGPMCClock();
 	if(setupGPMCNonMuxed() < 0 ){
 		printk(KERN_WARNING "%s: can't initialize gpmc \n",gDrvrName);
 		return -1;		
