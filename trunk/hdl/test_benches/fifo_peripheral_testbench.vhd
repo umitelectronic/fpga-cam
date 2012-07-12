@@ -41,30 +41,27 @@ ARCHITECTURE behavior OF fifo_peripheral_testbench IS
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT fifo_peripheral
-    PORT(
-         clk : IN  std_logic;
-         arazb : IN  std_logic;
-         addr_bus : IN  std_logic_vector(15 downto 0);
-         wr_bus : IN  std_logic;
-         rd_bus : IN  std_logic;
-         wrB : IN  std_logic;
-         rdA : IN  std_logic;
-         data_bus : INOUT  std_logic_vector(15 downto 0);
-         inputB : IN  std_logic_vector(15 downto 0);
-         outputA : OUT  std_logic_vector(15 downto 0);
-         emptyA : OUT  std_logic;
-         fullA : OUT  std_logic;
-         emptyB : OUT  std_logic;
-         fullB : OUT  std_logic
-        );
-    END COMPONENT;
+
+	component fifo_peripheral is
+	generic(BASE_ADDR	:	natural	:= 0; ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
+	port(
+			clk, arazb : in std_logic ;
+			addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
+			wr_bus, rd_bus, cs_bus : in std_logic ;
+			wrB, rdA : in std_logic ;
+			data_bus_in	: in std_logic_vector((WIDTH - 1) downto 0); -- bus interface
+			data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); -- bus interface
+			inputB: in std_logic_vector((WIDTH - 1) downto 0); -- logic interface
+			outputA	: out std_logic_vector((WIDTH - 1) downto 0); -- logic interface
+			emptyA, fullA, emptyB, fullB	:	out std_logic 
+	);
+	end component;
     
 
    --Inputs
    signal clk : std_logic := '0';
    signal arazb : std_logic := '0';
-   signal addr_bus : std_logic_vector(15 downto 0) := (others => '0');
+   signal addr_bus : std_logic_vector(7 downto 0) := (others => '0');
    signal wr_bus : std_logic := '0';
    signal rd_bus : std_logic := '0';
    signal wrB : std_logic := '0';
@@ -72,7 +69,8 @@ ARCHITECTURE behavior OF fifo_peripheral_testbench IS
    signal inputB : std_logic_vector(15 downto 0) := (others => '0');
 
 	--BiDirs
-   signal data_bus : std_logic_vector(15 downto 0);
+   signal data_bus_in : std_logic_vector(15 downto 0);
+	signal data_bus_out : std_logic_vector(15 downto 0);
 
  	--Outputs
    signal outputA : std_logic_vector(15 downto 0);
@@ -87,15 +85,19 @@ ARCHITECTURE behavior OF fifo_peripheral_testbench IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: fifo_peripheral PORT MAP (
+   uut: fifo_peripheral 
+	GENERIC MAP(BASE_ADDR	=> 0,  ADDR_WIDTH => 8 , WIDTH	=> 16, SIZE	=> 512)
+	PORT MAP (
           clk => clk,
           arazb => arazb,
           addr_bus => addr_bus,
           wr_bus => wr_bus,
           rd_bus => rd_bus,
+			 cs_bus => '1',
           wrB => wrB,
           rdA => rdA,
-          data_bus => data_bus,
+          data_bus_in => data_bus_in,
+			 data_bus_out => data_bus_out,
           inputB => inputB,
           outputA => outputA,
           emptyA => emptyA,
@@ -121,8 +123,7 @@ BEGIN
 		addr_bus <= (others => '0') ;
       wait for 100 ns;	
 		arazb <= '1' ;
-		addr_bus <= X"0002" ;
-		data_bus <= (others => 'Z');
+		addr_bus <= X"02" ;
       wait for clk_period*10;
 		loop_available: FOR b IN 1 TO 10 LOOP -- la variable de boucle est a de 1 à 10
 					rd_bus <= '1' ;
@@ -130,20 +131,20 @@ BEGIN
 					rd_bus <= '0' ;
 					WAIT FOR clk_period;
 				END LOOP loop_available;
-		addr_bus <= X"0000" ;
-		loop_read: FOR b IN 1 TO 10 LOOP -- la variable de boucle est a de 1 à 10
+		addr_bus <= X"00" ;
+		loop_read: FOR b IN 1 TO 1024 LOOP -- la variable de boucle est a de 1 à 10
 					rd_bus <= '1' ;
 					WAIT FOR clk_period; -- attend la valeur de pulse_time
 					rd_bus <= '0' ;
 					WAIT FOR clk_period;
 				END LOOP loop_read;
-			data_bus <= (others => '0');	
-			loop_write: FOR b IN 1 TO 10 LOOP -- la variable de boucle est a de 1 à 10
+			data_bus_in <= (others => '0');	
+			loop_write: FOR b IN 1 TO 1024 LOOP -- la variable de boucle est a de 1 à 10
 					wr_bus <= '1' ;
 					WAIT FOR clk_period; -- attend la valeur de pulse_time
 					wr_bus <= '0' ;
 					WAIT FOR clk_period;
-					data_bus <= data_bus + 1 ;
+					data_bus_in <= data_bus_in + 1 ;
 				END LOOP loop_write;
       -- insert stimulus here 
 
@@ -152,23 +153,40 @@ BEGIN
 	
 	
 	-- logic Stimulus process
-   logic_proc: process
+   logic_proc_wr: process
    begin		
       -- hold reset state for 100 ns.
       inputB <= (others => '0') ;
 		wait for 100 ns;	
 		
       wait for clk_period*10;
-		loop_logic: FOR a IN 1 TO 10 LOOP -- la variable de boucle est a de 1 à 10
+		loop_logic_wr: FOR a IN 1 TO 1024 LOOP -- la variable de boucle est a de 1 à 10
 					wrB <= '1' ;
 					WAIT FOR clk_period; -- attend la valeur de pulse_time
 					wrB <= '0' ;
 					inputB <= inputB + 1;
 					WAIT FOR clk_period;
-				END LOOP loop_logic;
+				END LOOP loop_logic_wr;
       -- insert stimulus here 
 
       wait;
    end process;
+	
+		-- logic Stimulus process
+--   logic_proc_rd: process
+--   begin		
+--      -- hold reset state for 100 ns.
+--		wait for 100 ns;	
+--      wait for clk_period*10;
+--		loop_logic_rd: FOR c IN 1 TO 1024 LOOP -- la variable de boucle est a de 1 à 10
+--					rdA <= '1' ;
+--					WAIT FOR clk_period; -- attend la valeur de pulse_time
+--					rdA <= '0' ;
+--					WAIT FOR clk_period;
+--				END LOOP loop_logic_rd;
+--      -- insert stimulus here 
+--
+--      wait;
+--   end process;
 
 END;

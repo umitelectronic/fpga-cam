@@ -54,7 +54,7 @@ gen_ov7670: if CAMERA = OV7670 generate
 		gen_vga : if FORMAT = VGA generate
 			register_rom_ov7670_vga : yuv_register_rom --rom containg sensor configuration
 				port map (
-					clk => clock,
+					clk => i2c_clk,
 					en => '1',
 					addr => reg_addr, 
 					data => reg_data
@@ -64,7 +64,7 @@ gen_ov7670: if CAMERA = OV7670 generate
 		gen_qvga : if FORMAT = QVGA generate
 			register_rom_ov7670_qvga : yuv_register_rom --rom containg sensor configuration
 				port map (
-					clk => clock,
+					clk => i2c_clk,
 					en => '1',
 					addr => reg_addr, 
 					data => reg_data
@@ -77,7 +77,7 @@ gen_ov7725: if CAMERA = OV7725 generate
 		gen_vga : if FORMAT = VGA generate
 			register_rom_ov7725_vga : yuv_register_rom --rom containg sensor configuration
 				port map (
-					clk => clock,
+					clk => i2c_clk,
 					en => '1',
 					addr => reg_addr, 
 					data => reg_data
@@ -87,7 +87,7 @@ gen_ov7725: if CAMERA = OV7725 generate
 		gen_qvga : if FORMAT = QVGA generate
 			register_rom_ov7725_qvga : yuv_register_rom --rom containg sensor configuration
 				port map (
-					clk => clock,
+					clk => i2c_clk,
 					en => '1',
 					addr => reg_addr, 
 					data => reg_data
@@ -124,7 +124,7 @@ v_latch : edge_triggered_latch
            d => pixel_data , 
            q => v_data);
 
-	i2c_master0 : i2c_master -- i2c master to send sensor configuration, no proof its working
+	i2c_master0 : i2c_master
 		port map ( 
 			clock => i2c_clk, 
 			arazb => arazb, 
@@ -141,13 +141,13 @@ v_latch : edge_triggered_latch
 		); 
 	
 	-- sccb_interface
-	process(clock, arazb)
+	process(i2c_clk, arazb)
 		 begin
 		 	i2c_addr <= OV7670_I2C_ADDR ; -- sensor address
 		 	if  arazb = '0'  then
 		 		reg_state <= init ;
 				reg_addr <= (others => '0');
-		 	elsif clock'event and clock = '1' then
+		 	elsif i2c_clk'event and i2c_clk = '1' then
 		 		case reg_state is
 		 			when init => 
 		 				if  dispo = '1'  then 
