@@ -49,7 +49,7 @@ end fifo_peripheral;
 
 architecture Behavioral of fifo_peripheral is
 signal  fifoA_wr, fifoB_rd, bus_cs, srazA, srazB : std_logic ;
-signal in_addr	:	std_logic_vector(1 downto 0);
+signal in_addr	:	std_logic_vector(2 downto 0);
 signal fifoA_in,  fifoB_out : std_logic_vector((WIDTH - 1) downto 0 ); 
 signal nb_freeA, nb_availableA, nb_freeB, nb_availableB  :  unsigned((WIDTH - 1) downto 0 ); 
 signal nb_freeA_latched, nb_availableB_latched : std_logic_vector((WIDTH - 1) downto 0  );
@@ -57,7 +57,7 @@ signal data_bus_out_t	: std_logic_vector((WIDTH - 1) downto 0);
 begin
 
 fifo_addr_dec0 : addr_decoder
-generic map(ADDR_WIDTH => ADDR_WIDTH ,BASE_ADDR => BASE_ADDR , ADDR_OUT_WIDTH =>  2)
+generic map(ADDR_WIDTH => ADDR_WIDTH ,BASE_ADDR => BASE_ADDR , ADDR_OUT_WIDTH =>  3)
 port map(addr_bus_in	=> addr_bus ,
 	  addr_bus_out	=> in_addr ,
 	  cs => bus_cs
@@ -120,26 +120,26 @@ nb_freeB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 nb_availableA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 
 
-data_bus_out_t <= fifoB_out when in_addr(1 downto 0) = "00"  else
-				( nb_freeA_latched) when in_addr(1 downto 0) = "01" else
-				( nb_availableB_latched) when in_addr(1 downto 0) = "10"  else
-				fifoB_out when in_addr(1 downto 0) = "11" else -- peek !
+data_bus_out_t <= fifoB_out when in_addr(2) = '0'  else --fifo has 2 bits address space
+				( nb_freeA_latched) when in_addr(2 downto 0) = "101" else
+				( nb_availableB_latched) when in_addr(2 downto 0) = "110"  else
+				fifoB_out when in_addr(2 downto 0) = "111" else -- peek !
 				(others => '0');
 
 data_bus_out <= data_bus_out_t when bus_cs = '1' else
 					(others => 'Z');
 
 
-fifoB_rd <= rd_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' else
+fifoB_rd <= rd_bus when in_addr(2) = '0' and bus_cs = '1' else
 				'0' ;
 				
-fifoA_wr <= wr_bus when in_addr(1 downto 0) = "00" and bus_cs = '1' else
+fifoA_wr <= wr_bus when in_addr(2) = '0' and bus_cs = '1' else
 				'0' ;
 	
-srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "01" else
+srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(2 downto 0) = "101" else
 			'0' ;
 
-srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(1 downto 0) = "10" else
+srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(2 downto 0) = "110" else
 			'0' ;
 				
 fifoA_in <= data_bus_in ;
