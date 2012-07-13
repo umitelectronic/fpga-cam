@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -118,13 +119,14 @@ signal clk_120, clk_24: std_logic ;
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 
 	signal hsync_rising_edge, vsync_rising_edge, hsync_old, vsync_old : std_logic ;
+	signal modulo_2 :std_logic_vector(1 downto 0);
 
 begin
 
 --comment connections below when using pins
 	FIFO_CS <= 'Z' ;
-	FIFO_WR <= bus_wr	; 
-	FIFO_RD <= bus_rd	; 
+	FIFO_WR <= write_pixel	; 
+	FIFO_RD <= hsync_rising_edge	; 
 	FIFO_A0 <= 'Z' ;
 	
 	CAM_RESET <= ARAZB ;
@@ -249,14 +251,21 @@ process(pxclk_from_interface, arazb_delayed)
 begin
 	if arazb_delayed = '0' then
 		pixel_buffer(15 downto 0) <= (others => '0') ;
-		write_pixel <= '0' ;
 	elsif pxclk_from_interface'event and pxclk_from_interface = '1' then
-		pixel_buffer(15 downto 8) <= pixel_buffer(7 downto 0) ;
-		pixel_buffer(7 downto 0)  <= pixel_from_interface ;
-		write_pixel <= NOT write_pixel ;
+		pixel_buffer(7 downto 0) <= pixel_buffer(15 downto 8) ;
+		pixel_buffer(15 downto 8)  <= pixel_from_interface ;
 	end if ;
 end process ;
 
+process(pxclk_from_interface, arazb_delayed, href_from_interface)
+begin
+	if arazb_delayed = '0' OR href_from_interface = '1' then
+		modulo_2 <= (others => '0'); 
+	elsif pxclk_from_interface'event and pxclk_from_interface = '1' then
+		modulo_2 <= modulo_2 + 1 ;
+	end if ;
+end process ;
+write_pixel <= modulo_2(0);
 
 process(clk_120, arazb)
 begin
