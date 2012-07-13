@@ -47,6 +47,7 @@ begin
 cs <= '1' when  addr_bus_in((ADDR_WIDTH - 1) downto ADDR_OUT_WIDTH) = std_base_addr((ADDR_WIDTH - 1) downto ADDR_OUT_WIDTH)  else
 		'0';
 
+
 addr_bus_out <= addr_bus_in((ADDR_OUT_WIDTH - 1) downto 0) ;
 
 
