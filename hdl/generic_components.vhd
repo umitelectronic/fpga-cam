@@ -146,8 +146,7 @@ component dp_fifo is
 		empty, full : out std_logic ;
  		data_out : out std_logic_vector((W - 1) downto 0 ); 
  		data_in : in std_logic_vector((W - 1) downto 0 );
-		nb_free : out unsigned(nbit(N) downto 0 ); 
-		nb_available : out unsigned(nbit(N) downto 0 )
+		nb_available : out unsigned(nbit(N)  downto 0 )
 	); 
 end component;
 
