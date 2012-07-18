@@ -44,7 +44,6 @@ entity dp_fifo is
 		empty, full : out std_logic ;
  		data_out : out std_logic_vector((W - 1) downto 0 ); 
  		data_in : in std_logic_vector((W - 1) downto 0 );
-		nb_free : out unsigned(nbit(N) downto 0 ); 
 		nb_available : out unsigned(nbit(N)  downto 0 )
 	); 
 end dp_fifo;
@@ -55,7 +54,7 @@ constant std_fifo_size : std_logic_vector(nbit(N)  downto 0 ) :=  std_logic_vect
 
 signal rd_addr, wr_addr: std_logic_vector((nbit(N) - 1) downto 0)  ;
 signal nb_free_t, nb_available_t : unsigned(nbit(N) downto 0 ) ;
-signal slv_nb_free_t, slv_nb_available_t : std_logic_vector(nbit(N) downto 0 ) ;
+signal slv_nb_available_t : std_logic_vector(nbit(N) downto 0 ) ;
 signal fifo_out, fifo_in : std_logic_vector((W - 1 ) downto 0)  ;
 signal rd_old, wr_old, wr_data, rd_data, one_turn, latch_data : std_logic ;
 signal rd_rising_edge, wr_rising_edge : std_logic ;
@@ -78,32 +77,25 @@ dp_ram0 : dpram_NxN
 		dpo =>  fifo_out 
 	); 
 
---
---output_latch_0 : generic_latch
---	 generic map(NBIT => W)
---    port map( clk => clk,
---           arazb => arazb ,
---           sraz => sraz ,
---           en => latch_data ,
---           d => fifo_out ,
---           q => data_out ) ;
---
---latch_data <= rd_falling_edge ;
 
 data_out <= fifo_out ;
 			  
-process(clk)
+process(arazb, clk)
 begin
-	if clk'event and clk = '1' then
+	if arazb = '0' then
+		rd_old <= '0' ;
+	elsif clk'event and clk = '1' then
 		rd_old <= rd ;
 	end if ;
 end process ;
 rd_rising_edge <= (rd AND (NOT rd_old));
 rd_falling_edge <= ((NOT rd) AND rd_old);
 
-process(clk)
+process(arazb, clk)
 begin
-	if clk'event and clk = '1' then
+	if arazb = '0' then
+		wr_old <= '0' ;
+	elsif clk'event and clk = '1' then
 		wr_old <= wr ;
 	end if ;
 end process ;
@@ -131,7 +123,7 @@ if arazb = '0' then
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
 		wr_addr <= (others => '0');
-	elsif wr_falling_edge = '1' and nb_free_t /= 0 then
+	elsif wr_falling_edge = '1' and nb_available_t /= N then
 		wr_addr <= wr_addr + 1;
 	end if ;
 end if ;
@@ -180,7 +172,7 @@ end process ;
 
 
 -- nb available process
-process(clk)
+process(clk, arazb)
 begin
 if arazb = '0' then
 	nb_available_t <= (others => '0') ;
@@ -195,37 +187,18 @@ elsif clk'event and clk = '1' then
 end if ;
 end process ;
 
--- nb free process 
-process(clk)
-begin
-if arazb = '0' then
-	nb_free_t <= to_unsigned(N, nbit(N) + 1) ;
-elsif clk'event and clk = '1' then
-	if sraz = '1' then
-		nb_free_t <= to_unsigned(N, nbit(N) + 1) ;
-	elsif wr_falling_edge = '1' and rd_falling_edge = '0' and nb_free_t /= 0 then
-		nb_free_t <= nb_free_t - 1 ;
-	elsif rd_falling_edge = '1' and wr_falling_edge = '0' and nb_free_t /= N then
-		nb_free_t <= nb_free_t + 1 ;	
-	end if ;
-end if ;
-end process ;
 
-
-
-nb_free <= nb_free_t ;
 nb_available <= nb_available_t ;
 
 empty <= '1' when nb_available_t = 0 else
 			'1' when nb_available_t = 1 and rd_falling_edge = '1' else
          '0' ;
 
-full <= '1' when nb_free_t = 0 else
-		  '1' when nb_free_t = 1 and wr_falling_edge = '1' else
+full <= '1' when nb_available_t = N else
+		  '1' when nb_available_t = N - 1 and wr_falling_edge = '1' else
 		  '0' ;
 
-wr_data <= wr when nb_free_t /= 0 else
-			  '0' ;
+wr_data <= wr ;
 
 end Behavioral;
 

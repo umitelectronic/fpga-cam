@@ -41,22 +41,22 @@ port(clk, arazb : in  std_logic ;
 end graphic_generator;
 
 architecture Behavioral of graphic_generator is
-constant div_factor	:	positive := 2 ;
+constant div_factor	:	positive := 4 ;
 signal line_count, pixel_count : std_logic_vector(9 downto 0) ;
-signal clock_div : std_logic_vector(5 downto 0) ;
+signal clock_div : std_logic_vector(9 downto 0) ;
 signal pxclk, new_line , pxclk_rising, pxclk_old	: std_logic ;
 signal sraz_pixel_count, sraz_line_count, valid_pixel  : std_logic ;
 begin
 
 
 clock_div_3mhz :  simple_counter
- generic map(NBIT => 6)
+ generic map(NBIT => 10)
  port map( clk => clk,
 		  arazb => arazb,
 		  sraz => '0',
 		  en => '1',
 		  load => '0', 
-		  E => std_logic_vector(to_unsigned(0, 6)),
+		  E => std_logic_vector(to_unsigned(0, 10)),
 		  Q => clock_div
 		  );	
 

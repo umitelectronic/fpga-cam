@@ -51,9 +51,10 @@ architecture Behavioral of fifo_peripheral is
 signal  fifoA_wr, fifoB_rd, bus_cs, srazA, srazB : std_logic ;
 signal in_addr	:	std_logic_vector(2 downto 0);
 signal fifoA_in,  fifoB_out : std_logic_vector((WIDTH - 1) downto 0 ); 
-signal nb_freeA, nb_availableA, nb_freeB, nb_availableB  :  unsigned((WIDTH - 1) downto 0 ); 
-signal nb_freeA_latched, nb_availableB_latched : std_logic_vector((WIDTH - 1) downto 0  );
+signal nb_availableA, nb_availableB  :  unsigned((WIDTH - 1) downto 0 ); 
+signal nb_availableA_latched, nb_availableB_latched : std_logic_vector((WIDTH - 1) downto 0  );
 signal data_bus_out_t	: std_logic_vector((WIDTH - 1) downto 0); 
+signal latch_registers : std_logic ;
 begin
 
 fifo_addr_dec0 : addr_decoder
@@ -75,7 +76,6 @@ fifo_A : dp_fifo -- write from bus, read from logic
 		full => fullA ,
  		data_out => outputA , 
  		data_in => fifoA_in ,
-		nb_free => nb_freeA(nbit(SIZE)  downto 0) ,
 		nb_available => nb_availableA(nbit(SIZE)   downto 0)
 	); 
 	
@@ -88,40 +88,39 @@ fifo_B : dp_fifo -- read from bus, write from logic
 		full => fullB ,
  		data_out => fifoB_out , 
  		data_in => inputB ,
-		nb_free => nb_freeB(nbit(SIZE)   downto 0) ,
 		nb_available => nb_availableB(nbit(SIZE)  downto 0)
 	); 
 
-
---nb_free_latch0 : generic_latch 
---	 generic map(NBIT => WIDTH)
---    Port map( clk => clk ,
---           arazb => arazb ,
---           sraz => '0' ,
---           en => (NOT rd_bus) ,
---           d => std_logic_vector(nb_freeA),
---           q => nb_freeA_latched);
-nb_freeA_latched <= 	  std_logic_vector(nb_freeA) ;
+latch_registers <= NOT rd_bus ;
 	  
 --nb_available_latch0 : generic_latch 
 --	 generic map(NBIT => WIDTH)
 --    Port map( clk => clk ,
 --           arazb => arazb ,
 --           sraz => '0' ,
---           en => (NOT rd_bus) ,
+--           en => latch_registers ,
 --           d => std_logic_vector(nb_availableB),
 --           q => nb_availableB_latched);
 
-nb_availableB_latched <= std_logic_vector(nb_availableB) ;
+nb_availableB_latched  <= std_logic_vector(nb_availableB) ;	  
+--nb_available_latch1 : generic_latch 
+--	 generic map(NBIT => WIDTH)
+--    Port map( clk => clk ,
+--           arazb => arazb ,
+--           sraz => '0' ,
+--           en => latch_registers ,
+--           d => std_logic_vector(nb_availableA),
+--           q => nb_availableA_latched);
 
-nb_freeA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ; 
+nb_availableA_latched <= std_logic_vector(nb_availableA) ;
+
 nb_availableB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
-nb_freeB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ; 
 nb_availableA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 
 
 data_bus_out_t <= fifoB_out when in_addr(2) = '0'  else --fifo has 2 bits address space
-				( nb_freeA_latched) when in_addr(2 downto 0) = "101" else
+				std_logic_vector(to_unsigned(SIZE, 16)) when in_addr(2 downto 0) = "100" else
+				( nb_availableA_latched) when in_addr(2 downto 0) = "101" else
 				( nb_availableB_latched) when in_addr(2 downto 0) = "110"  else
 				fifoB_out when in_addr(2 downto 0) = "111" else -- peek !
 				(others => '0');
