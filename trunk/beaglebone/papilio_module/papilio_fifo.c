@@ -8,6 +8,7 @@
 #include <asm/uaccess.h>   /* copy_to_user */
 #include <asm/io.h>
 #include <linux/cdev.h>
+#include <linux/sched.h>
 
 #include "hw_cm_per.h"
 #include "hw_gpmc.h"
@@ -28,9 +29,12 @@
 #define PAPILIO_DIRECT_MODE _IO(PAPILIO_FIFO_IOC_MAGIC, 5)
 
 
+//writing to fifo A reading from fifo B
+
 #define FPGA_BASE_ADDR	 0x09000000
-#define NB_FREE_OFFSET	5
-#define NB_AVAILABLE_OFFSET	6
+#define FIFO_SIZE_OFFSET	4
+#define NB_AVAILABLE_A_OFFSET	5
+#define NB_AVAILABLE_B_OFFSET	6
 #define PEEK_OFFSET	7
 #define READ_OFFSET	0
 #define WRITE_OFFSET	0
@@ -57,6 +61,8 @@ enum papilio_fifo_read_mode{
 	fifo,
 	direct
 } read_mode;
+
+unsigned int fifo_size ;
 
 
 void orShortRegister(unsigned short int value, volatile unsigned int * port){
@@ -136,8 +142,8 @@ int setupGPMCNonMuxed(void){
 
 	iowrite32( (0x0 |
 	(0) |	// CS_ON_TIME
-	(5 << GPMC_CONFIG2_0_CSRDOFFTIME_SHIFT) |	// CS_DEASSERT_RD
-	(5 << GPMC_CONFIG2_0_CSWROFFTIME_SHIFT)),	//CS_DEASSERT_WR
+	(7 << GPMC_CONFIG2_0_CSRDOFFTIME_SHIFT) |	// CS_DEASSERT_RD
+	(7 << GPMC_CONFIG2_0_CSWROFFTIME_SHIFT)),	//CS_DEASSERT_WR
 	gpmc_reg_pointer + GPMC_CONFIG2(csNum)/4)  ;	
 
 	iowrite32((0x0 |
@@ -147,16 +153,16 @@ int setupGPMCNonMuxed(void){
 	gpmc_reg_pointer + GPMC_CONFIG3(csNum)/4) ; 
 
 	iowrite32((0x0 |
-	(1 << GPMC_CONFIG4_0_OEONTIME_SHIFT) |	//OE_ASSERT
-	(5 << GPMC_CONFIG4_0_OEOFFTIME_SHIFT) |	//OE_DEASSERT
-	(1 << GPMC_CONFIG4_0_WEONTIME_SHIFT)| //WE_ASSERT
-	(5 << GPMC_CONFIG4_0_WEOFFTIME_SHIFT)), //WE_DEASSERT
+	(2 << GPMC_CONFIG4_0_OEONTIME_SHIFT) |	//OE_ASSERT
+	(6 << GPMC_CONFIG4_0_OEOFFTIME_SHIFT) |	//OE_DEASSERT
+	(2 << GPMC_CONFIG4_0_WEONTIME_SHIFT)| //WE_ASSERT
+	(6 << GPMC_CONFIG4_0_WEOFFTIME_SHIFT)), //WE_DEASSERT
 	gpmc_reg_pointer + GPMC_CONFIG4(csNum)/4)  ; 
 
 	iowrite32((0x0 |
-	(6 << GPMC_CONFIG5_0_RDCYCLETIME_SHIFT)|	//CFG_5_RD_CYCLE_TIM
-	(6 << GPMC_CONFIG5_0_WRCYCLETIME_SHIFT)|	//CFG_5_WR_CYCLE_TIM
-	(4 << GPMC_CONFIG5_0_RDACCESSTIME_SHIFT)),	// CFG_5_RD_ACCESS_TIM
+	(7 << GPMC_CONFIG5_0_RDCYCLETIME_SHIFT)|	//CFG_5_RD_CYCLE_TIM
+	(7 << GPMC_CONFIG5_0_WRCYCLETIME_SHIFT)|	//CFG_5_WR_CYCLE_TIM
+	(5 << GPMC_CONFIG5_0_RDACCESSTIME_SHIFT)),	// CFG_5_RD_ACCESS_TIM
 	gpmc_reg_pointer + GPMC_CONFIG5(csNum)/4)  ;  
 
 	iowrite32( (0x0 |
@@ -180,7 +186,9 @@ int setupGPMCNonMuxed(void){
 int papilio_fifo_open(struct inode *inode, struct file *filp)
 {
     read_mode = fifo ;
+    fifo_size = gpmc_cs1_pointer[FIFO_SIZE_OFFSET] ;
     printk("%s: Open: module opened\n",gDrvrName);
+    printk("fifo size : %d\n",fifo_size);
     return 0;
 }
 
@@ -193,12 +201,12 @@ int papilio_fifo_release(struct inode *inode, struct file *filp)
 
 unsigned short int getNbAvailable(void){
 	//printk("getting nb available \n");
-	return gpmc_cs1_pointer[NB_AVAILABLE_OFFSET] ;  
+	return gpmc_cs1_pointer[NB_AVAILABLE_B_OFFSET] ;  
 }
 
 unsigned short int getNbFree(void){
 	//printk("getting nb free \n");
-	return gpmc_cs1_pointer[NB_FREE_OFFSET] ;
+	return fifo_size - gpmc_cs1_pointer[NB_AVAILABLE_A_OFFSET] ;
 }
 
 ssize_t papilio_fifo_write(struct file *filp, const char *buf, size_t count,
@@ -241,15 +249,46 @@ ssize_t papilio_fifo_write(struct file *filp, const char *buf, size_t count,
 
 
 #define BURST_SIZE 2
+#define MIN_TRANSFER 480
 ssize_t papilio_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
 	unsigned short int * readBuffer ;
-	unsigned short int nbAvailable ;
-	unsigned int nbToRead, index = 0; 
-	unsigned int ret ;
-	readBuffer = (unsigned short int *) kmalloc(count, GFP_KERNEL);
-	if(read_mode == fifo){
-		nbAvailable = getNbAvailable() ;
+	int nbAvailable ;
+	int nbToRead, index = 0; 
+	int ret ;
+	readBuffer = (unsigned short int *) kmalloc(count/sizeof(unsigned short), GFP_KERNEL);
+	if(read_mode == fifo){		
+		while(index < (count/sizeof(unsigned short))){
+			nbAvailable = getNbAvailable() ;
+			while(nbAvailable < MIN_TRANSFER){			
+				nbAvailable = getNbAvailable() ;
+			}
+			if(nbAvailable > ((count/sizeof(unsigned short)) - index)){
+				nbAvailable =  ((count/sizeof(unsigned short)) - index) ;			
+			} 
+
+			if(nbAvailable%2 != 0){
+				nbAvailable -- ;			
+			}
+			while(nbAvailable > 0){
+				if(nbAvailable > BURST_SIZE){
+					memcpy((void *) &readBuffer[index], (void *) &gpmc_cs1_pointer[READ_OFFSET], BURST_SIZE * sizeof(unsigned short)); //taking advantage of BURST_SIZE word bursts
+					nbAvailable -= BURST_SIZE ;				
+					index += BURST_SIZE ;
+				}else{
+					readBuffer[index] = gpmc_cs1_pointer[READ_OFFSET];
+					nbAvailable -- ;
+					index ++ ;
+				} 
+			}
+			schedule();
+		}		
+		
+/*		nbAvailable = getNbAvailable() ;
+		while(nbAvailable < (count/sizeof(unsigned short))/2){
+			schedule();			
+			nbAvailable = getNbAvailable() ;
+		}
 		//printk("%d data are available to read \n", nbAvailable);
 		if(nbAvailable < count/sizeof(unsigned short)){
 			nbToRead = nbAvailable;
@@ -263,12 +302,13 @@ ssize_t papilio_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_
 				index += BURST_SIZE ;
 			}else{
 				readBuffer[index] = gpmc_cs1_pointer[READ_OFFSET];
-				nbToRead -= 1 ;
+				nbToRead -- ;
 				index ++ ;
 			} 
 		}
+*/
 		// Now it is safe to copy the data to user space.
-		if ( copy_to_user(buf, readBuffer, (index * sizeof(unsigned short))) )  {
+		if (index == 0 || copy_to_user(buf, readBuffer, (index * sizeof(unsigned short))) )  {
 			ret = -1;
 			goto exit;
 		}
@@ -277,7 +317,7 @@ ssize_t papilio_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_
 		ret = index * sizeof(unsigned short) ;
 	}else{
 		memcpy((void *) readBuffer, (void *) gpmc_cs1_pointer, count);
-		if ( copy_to_user(buf, readBuffer, count) )  {
+		if (copy_to_user(buf, readBuffer, count) )  {
 			ret = -1;
 			goto exit;
 		}
@@ -294,8 +334,8 @@ long papilio_fifo_ioctl(struct file *filp, unsigned int cmd, unsigned long arg){
 	switch(cmd){
 		case PAPILIO_FIFO_RESET :
 			printk("fifo ioctl : reset \n");
-			gpmc_cs1_pointer[NB_FREE_OFFSET] = 0 ;
-			gpmc_cs1_pointer[NB_AVAILABLE_OFFSET] = 0 ;
+			gpmc_cs1_pointer[NB_AVAILABLE_A_OFFSET] = 0 ;
+			gpmc_cs1_pointer[NB_AVAILABLE_B_OFFSET] = 0 ;
 			return 0 ;
 		case PAPILIO_FIFO_PEEK :
 			printk("fifo ioctl : peek \n");
