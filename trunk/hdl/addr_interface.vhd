@@ -91,7 +91,7 @@ end generate ;
 wr <= wrt ;
 rd <= rdt ;
 
-data <= data_bus_in_t when oen='0' and csn='0' else
+data <= data_bus_in_t when oen='0' and csn='0' else--rdt = '1' else
 		  (others => 'Z');
 
 data_bus_out <= data_bus_out_t ;
