@@ -64,8 +64,6 @@ port map(addr_bus_in	=> addr_bus ,
 	  cs => bus_cs
 );	
 
---bus_cs <= '1' ;
---in_addr <= addr_bus ;
 
 fifo_A : dp_fifo -- write from bus, read from logic
 	generic map(N => SIZE , W => WIDTH)
@@ -129,10 +127,10 @@ data_bus_out <= data_bus_out_t when bus_cs = '1' else
 					(others => 'Z');
 
 
-fifoB_rd <= rd_bus when in_addr(2) = '0' and bus_cs = '1' else
+fifoB_rd <= '1' when in_addr(2) = '0' and bus_cs = '1' and rd_bus = '1' else
 				'0' ;
 				
-fifoA_wr <= wr_bus when in_addr(2) = '0' and bus_cs = '1' else
+fifoA_wr <= '1' when in_addr(2) = '0' and bus_cs = '1' and wr_bus = '1' else
 				'0' ;
 	
 srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(2 downto 0) = "101" else
