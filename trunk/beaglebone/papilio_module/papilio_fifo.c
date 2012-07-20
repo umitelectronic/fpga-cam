@@ -141,9 +141,9 @@ int setupGPMCNonMuxed(void){
 
 
 	iowrite32( (0x0 |
-	(0) |	// CS_ON_TIME
-	(7 << GPMC_CONFIG2_0_CSRDOFFTIME_SHIFT) |	// CS_DEASSERT_RD
-	(7 << GPMC_CONFIG2_0_CSWROFFTIME_SHIFT)),	//CS_DEASSERT_WR
+	(1) |	// CS_ON_TIME
+	(6 << GPMC_CONFIG2_0_CSRDOFFTIME_SHIFT) |	// CS_DEASSERT_RD
+	(6 << GPMC_CONFIG2_0_CSWROFFTIME_SHIFT)),	//CS_DEASSERT_WR
 	gpmc_reg_pointer + GPMC_CONFIG2(csNum)/4)  ;	
 
 	iowrite32((0x0 |
@@ -160,8 +160,8 @@ int setupGPMCNonMuxed(void){
 	gpmc_reg_pointer + GPMC_CONFIG4(csNum)/4)  ; 
 
 	iowrite32((0x0 |
-	(7 << GPMC_CONFIG5_0_RDCYCLETIME_SHIFT)|	//CFG_5_RD_CYCLE_TIM
-	(7 << GPMC_CONFIG5_0_WRCYCLETIME_SHIFT)|	//CFG_5_WR_CYCLE_TIM
+	(8 << GPMC_CONFIG5_0_RDCYCLETIME_SHIFT)|	//CFG_5_RD_CYCLE_TIM
+	(8 << GPMC_CONFIG5_0_WRCYCLETIME_SHIFT)|	//CFG_5_WR_CYCLE_TIM
 	(5 << GPMC_CONFIG5_0_RDACCESSTIME_SHIFT)),	// CFG_5_RD_ACCESS_TIM
 	gpmc_reg_pointer + GPMC_CONFIG5(csNum)/4)  ;  
 
@@ -186,6 +186,8 @@ int setupGPMCNonMuxed(void){
 int papilio_fifo_open(struct inode *inode, struct file *filp)
 {
     read_mode = fifo ;
+    request_mem_region(FPGA_BASE_ADDR, 256 * sizeof(short), gDrvrName);
+    gpmc_cs1_pointer = ioremap_nocache(FPGA_BASE_ADDR, 256* sizeof(int));
     fifo_size = gpmc_cs1_pointer[FIFO_SIZE_OFFSET] ;
     printk("%s: Open: module opened\n",gDrvrName);
     printk("fifo size : %d\n",fifo_size);
@@ -195,6 +197,8 @@ int papilio_fifo_open(struct inode *inode, struct file *filp)
 int papilio_fifo_release(struct inode *inode, struct file *filp)
 {
     printk("%s: Release: module released\n",gDrvrName);
+    iounmap(gpmc_cs1_pointer);
+    release_mem_region(FPGA_BASE_ADDR, 256 * sizeof(short));
     return 0;
 }
 
@@ -248,38 +252,43 @@ ssize_t papilio_fifo_write(struct file *filp, const char *buf, size_t count,
 }
 
 
-#define BURST_SIZE 2
-#define MIN_TRANSFER 480
+#define BURST_SIZE 4
+#define MIN_TRANSFER 320
 ssize_t papilio_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
 	unsigned short int * readBuffer ;
 	int nbAvailable ;
 	int nbToRead, index = 0; 
 	int ret ;
+	nbToRead = count/sizeof(unsigned short) ;
 	readBuffer = (unsigned short int *) kmalloc(count/sizeof(unsigned short), GFP_KERNEL);
 	if(read_mode == fifo){		
 		while(index < (count/sizeof(unsigned short))){
 			nbAvailable = getNbAvailable() ;
-			while(nbAvailable < MIN_TRANSFER){			
+			while(nbAvailable < MIN_TRANSFER && nbAvailable > fifo_size){			
+				if(nbAvailable >= fifo_size){
+					printk("error while reading nb available : %d \n", nbAvailable);			
+				}				
 				nbAvailable = getNbAvailable() ;
 			}
-			if(nbAvailable > ((count/sizeof(unsigned short)) - index)){
+			
+			if(nbAvailable > (count/sizeof(unsigned short)) - index){
 				nbAvailable =  ((count/sizeof(unsigned short)) - index) ;			
 			} 
 
-			if(nbAvailable%2 != 0){
+			while(nbAvailable%BURST_SIZE != 0){
 				nbAvailable -- ;			
 			}
 			while(nbAvailable > 0){
-				if(nbAvailable > BURST_SIZE){
+				/*if(nbAvailable >= BURST_SIZE){
 					memcpy((void *) &readBuffer[index], (void *) &gpmc_cs1_pointer[READ_OFFSET], BURST_SIZE * sizeof(unsigned short)); //taking advantage of BURST_SIZE word bursts
 					nbAvailable -= BURST_SIZE ;				
 					index += BURST_SIZE ;
-				}else{
+				}else{*/
 					readBuffer[index] = gpmc_cs1_pointer[READ_OFFSET];
 					nbAvailable -- ;
 					index ++ ;
-				} 
+				//} 
 			}
 			schedule();
 		}		
@@ -385,8 +394,7 @@ static int papilio_fifo_init(void)
 	    printk("%s: memory already in use\n", gDrvrName);
 	    return -EBUSY;
 	}
-	request_mem_region(FPGA_BASE_ADDR, 256 * sizeof(short), gDrvrName);
-	gpmc_cs1_pointer = ioremap_nocache(FPGA_BASE_ADDR, 256* sizeof(int));
+	
 
 	if (gDrvrMajor) {
 		dev = MKDEV(gDrvrMajor, gDrvrMinor);
@@ -414,8 +422,7 @@ static int papilio_fifo_init(void)
 static void papilio_fifo_exit(void)
 {
 
-    iounmap(gpmc_cs1_pointer);
-    release_mem_region(FPGA_BASE_ADDR, 256 * sizeof(short));
+
     unregister_chrdev(gDrvrMajor, gDrvrName);
 
     printk(/*KERN_ALERT*/ "%s driver is unloaded\n", gDrvrName);
