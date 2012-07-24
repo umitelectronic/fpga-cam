@@ -43,7 +43,7 @@ port(clk, arazb : in std_logic ;
 end addr_interface;
 
 architecture Behavioral of addr_interface is
-signal wrt, rdt, cst : std_logic ;
+signal wrt, rdt, cst, nclk : std_logic ;
 signal data_bus_out_t, data_bus_in_t	: std_logic_vector((DATA_WIDTH - 1) downto 0);
 begin
 
@@ -75,15 +75,36 @@ gen_no_ext_clk : if (NOT USE_EXT_CLOCK) generate
 		rdt <= '0' ;
 		data_bus_out_t <= (others => '0');
 		addr_bus <= (others => '0') ;
-		data_bus_in_t <= (others => '0') ;
+		--data_bus_in_t <= (others => '0') ;
 	elsif clk'event and clk ='1' then
 		wrt <= (NOT wrn) and (NOT csn) ;
 		rdt <= (NOT oen) and (NOT csn) ;
 		addr_bus <= addr ;
 		data_bus_out_t <= data ;
-		data_bus_in_t <= data_bus_in ;
+		--data_bus_in_t <= data_bus_in ;
 	end if ;
 	end process;
+	
+	
+	-- trying to limit SSN
+	process(clk, arazb)
+	begin
+	if arazb ='0' then
+		data_bus_in_t(7 downto 0) <= (others => '0');
+	elsif clk'event and clk ='0' then
+		data_bus_in_t(7 downto 0) <= data_bus_in(7 downto 0) ;
+	end if ;
+	end process;
+	
+	process(clk, arazb)
+	begin
+	if arazb ='0' then
+		data_bus_in_t(15 downto 8) <= (others => '0');
+	elsif clk'event and clk ='1' then
+		data_bus_in_t(15 downto 8) <= data_bus_in(15 downto 8) ;
+	end if ;
+	end process;
+	
 end generate ;
 
 
