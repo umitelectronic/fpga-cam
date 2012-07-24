@@ -33,12 +33,12 @@ echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_advn_ale
 #echo 0x04 > /sys/kernel/debug/omap_mux/gpmc_ben1
 echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_clk
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn0
-echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_csn1
+echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn1
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn2
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn3
-echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_oen_ren
+echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_oen_ren
 echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_wait0
-echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_wen
+echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_wen
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_wpn
 
 
