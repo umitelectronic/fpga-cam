@@ -141,7 +141,7 @@ int setupGPMCNonMuxed(void){
 
 
 	iowrite32( (0x0 |
-	(1) |	// CS_ON_TIME
+	(0) |	// CS_ON_TIME
 	(6 << GPMC_CONFIG2_0_CSRDOFFTIME_SHIFT) |	// CS_DEASSERT_RD
 	(6 << GPMC_CONFIG2_0_CSWROFFTIME_SHIFT)),	//CS_DEASSERT_WR
 	gpmc_reg_pointer + GPMC_CONFIG2(csNum)/4)  ;	
@@ -153,16 +153,16 @@ int setupGPMCNonMuxed(void){
 	gpmc_reg_pointer + GPMC_CONFIG3(csNum)/4) ; 
 
 	iowrite32((0x0 |
-	(2 << GPMC_CONFIG4_0_OEONTIME_SHIFT) |	//OE_ASSERT
+	(1 << GPMC_CONFIG4_0_OEONTIME_SHIFT) |	//OE_ASSERT
 	(6 << GPMC_CONFIG4_0_OEOFFTIME_SHIFT) |	//OE_DEASSERT
-	(2 << GPMC_CONFIG4_0_WEONTIME_SHIFT)| //WE_ASSERT
+	(1 << GPMC_CONFIG4_0_WEONTIME_SHIFT)| //WE_ASSERT
 	(6 << GPMC_CONFIG4_0_WEOFFTIME_SHIFT)), //WE_DEASSERT
 	gpmc_reg_pointer + GPMC_CONFIG4(csNum)/4)  ; 
 
 	iowrite32((0x0 |
-	(8 << GPMC_CONFIG5_0_RDCYCLETIME_SHIFT)|	//CFG_5_RD_CYCLE_TIM
-	(8 << GPMC_CONFIG5_0_WRCYCLETIME_SHIFT)|	//CFG_5_WR_CYCLE_TIM
-	(5 << GPMC_CONFIG5_0_RDACCESSTIME_SHIFT)),	// CFG_5_RD_ACCESS_TIM
+	(7 << GPMC_CONFIG5_0_RDCYCLETIME_SHIFT)|	//CFG_5_RD_CYCLE_TIM
+	(7 << GPMC_CONFIG5_0_WRCYCLETIME_SHIFT)|	//CFG_5_WR_CYCLE_TIM
+	(6 << GPMC_CONFIG5_0_RDACCESSTIME_SHIFT)),	// CFG_5_RD_ACCESS_TIM
 	gpmc_reg_pointer + GPMC_CONFIG5(csNum)/4)  ;  
 
 	iowrite32( (0x0 |
@@ -253,7 +253,7 @@ ssize_t papilio_fifo_write(struct file *filp, const char *buf, size_t count,
 
 
 #define BURST_SIZE 4
-#define MIN_TRANSFER 320
+#define MIN_TRANSFER 1024
 ssize_t papilio_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
 	unsigned short int * readBuffer ;
@@ -280,15 +280,15 @@ ssize_t papilio_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_
 				nbAvailable -- ;			
 			}
 			while(nbAvailable > 0){
-				/*if(nbAvailable >= BURST_SIZE){
+				if(nbAvailable >= BURST_SIZE){
 					memcpy((void *) &readBuffer[index], (void *) &gpmc_cs1_pointer[READ_OFFSET], BURST_SIZE * sizeof(unsigned short)); //taking advantage of BURST_SIZE word bursts
 					nbAvailable -= BURST_SIZE ;				
 					index += BURST_SIZE ;
-				}else{*/
+				}else{
 					readBuffer[index] = gpmc_cs1_pointer[READ_OFFSET];
 					nbAvailable -- ;
 					index ++ ;
-				//} 
+				} 
 			}
 			schedule();
 		}		
