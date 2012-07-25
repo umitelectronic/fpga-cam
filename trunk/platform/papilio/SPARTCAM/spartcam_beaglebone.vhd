@@ -49,11 +49,11 @@ port( CLK : in std_logic;
 		CAM_RESET	:	out std_logic ;
 		
 		--beaglebone interface
-		BEAGLE_ALE, BEAGLE_CSN, BEAGLE_WRN, BEAGLE_OEN:	in std_logic;
+		BEAGLE_CSN, BEAGLE_WRN, BEAGLE_OEN:	in std_logic;
 		BEAGLE_DATA :	inout std_logic_vector(15 downto 0);
 		BEAGLE_ADDR :	in std_logic_vector(7 downto 0);
 		--FIFO unsused signals
-		FIFO_CS, FIFO_WR, FIFO_RD, FIFO_A0:	out std_logic
+		SPARE :	out std_logic_vector(3 downto 0)
 		
 );
 end spartcam_beaglebone;
@@ -110,7 +110,7 @@ signal clk_120, clk_24: std_logic ;
 	signal pixel_buffer : std_logic_vector(15 downto 0);
 	signal write_pixel : std_logic ;
 	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
-	
+	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(7 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
@@ -118,16 +118,15 @@ signal clk_120, clk_24: std_logic ;
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 
-	signal hsync_rising_edge, vsync_rising_edge, hsync_old, vsync_old : std_logic ;
+	signal hsync_rising_edge, vsync_rising_edge, pxclk_rising_edge, hsync_old, vsync_old, pxclk_old, write_pixel_old : std_logic ;
 	signal modulo_2 :std_logic_vector(1 downto 0);
-
+	signal pixel_count :std_logic_vector(7 downto 0);
+	
 begin
+	
+	
+	SPARE <= (others => 'Z') ;
 
---comment connections below when using pins
-	FIFO_CS <= 'Z' ;
-	FIFO_WR <= write_pixel	; 
-	FIFO_RD <= hsync_rising_edge	; 
-	FIFO_A0 <= 'Z' ;
 	
 	CAM_RESET <= ARAZB ;
 
@@ -160,14 +159,14 @@ begin
 	
 	
 	
-	Inst_dcm_32_24: dcm_32_24 PORT MAP(
-		CLKIN_IN => clk0_buf,
-		CLKFX_OUT => clk_24
+--	Inst_dcm_32_24: dcm_32_24 PORT MAP(
+--		CLKIN_IN => clk0_buf,
+--		CLKFX_OUT => clk_24
+--	);
+	Inst_dcm_120_24: dcm_120_24 PORT MAP(
+		CLKIN_IN => clk_120,
+		CLKDV_OUT => clk_24
 	);
-	--Inst_dcm_120_24: dcm_120_24 PORT MAP(
-	--	CLKIN_IN => clk_120,
-	--	CLKDV_OUT => clk_24
-	--);
 
 
 
@@ -199,7 +198,7 @@ bi_fifo0 : fifo_peripheral
 			rdA => fifoA_rd,
 			data_bus_in => bus_data_out,
 			data_bus_out => bus_data_in,
-			inputB => fifo_input,--fifo_output,
+			inputB => fifo_input, -- fifo_output, 
 			outputA => fifo_output,
 			emptyA => fifoA_empty,
 			fullA => fifoA_full,
@@ -207,6 +206,16 @@ bi_fifo0 : fifo_peripheral
 			fullB => fifoB_full
 		);
 		
+--		process(arazb, clk_24)
+--		begin	
+--			if arazb = '0' then 
+--				fifo_full_old <= '0' ;
+--			elsif clk_24'event and clk_24 = '1' then
+--				fifo_full_old <= fifoB_full ;
+--			end if ;
+--		end process ;
+--		fifo_full_rising_edge <= (NOT fifo_full_old) AND fifoB_full ;
+--		
 --		process(arazb_delayed, clk_120)
 --		begin
 --		 if arazb_delayed = '0' then
@@ -228,7 +237,7 @@ bi_fifo0 : fifo_peripheral
 --				fifoB_wr <= fifoA_rd ;
 --		 end if ;
 --		end process ;
-	
+--	
  camera0: yuv_camera_interface
 		generic map(FORMAT => QVGA)
 		port map(clock => clk_120,
@@ -242,32 +251,17 @@ bi_fifo0 : fifo_peripheral
 			y_data => pixel_from_interface
 		);	
 
+--gen_graph : graphic_generator
+--port map(clk => clk_120, arazb => arazb_delayed ,
+--	  pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
+--	  pixel_r => pixel_from_interface
+--	  );
+
 CAM_XCLK <= clk_24 ;
 
 
 
-
-process(pxclk_from_interface, arazb_delayed)
-begin
-	if arazb_delayed = '0' then
-		pixel_buffer(15 downto 0) <= (others => '0') ;
-	elsif pxclk_from_interface'event and pxclk_from_interface = '1' then
-		pixel_buffer(7 downto 0) <= pixel_buffer(15 downto 8) ;
-		pixel_buffer(15 downto 8)  <= pixel_from_interface ;
-	end if ;
-end process ;
-
-process(pxclk_from_interface, arazb_delayed, href_from_interface)
-begin
-	if arazb_delayed = '0' OR href_from_interface = '1' then
-		modulo_2 <= (others => '0'); 
-	elsif pxclk_from_interface'event and pxclk_from_interface = '1' then
-		modulo_2 <= modulo_2 + 1 ;
-	end if ;
-end process ;
-write_pixel <= modulo_2(0);
-
-process(clk_120, arazb)
+process(clk_120, arazb_delayed)
 begin
 	if arazb_delayed = '0' then
 		vsync_old <= '0' ;
@@ -277,7 +271,7 @@ begin
 end process ;
 vsync_rising_edge <= (NOT vsync_old) and vsync_from_interface ;
 
-process(clk_120, arazb)
+process(clk_120, arazb_delayed)
 begin
 	if arazb_delayed = '0' then
 		hsync_old <= '0' ;
@@ -287,15 +281,63 @@ begin
 end process ;
 hsync_rising_edge <= (NOT hsync_old) and href_from_interface ;
 
+process(clk_120, arazb_delayed)
+begin
+	if arazb_delayed = '0' then
+		pxclk_old <= '0' ;
+	elsif clk_120'event and clk_120 = '1' then
+		pxclk_old <= pxclk_from_interface ;
+	end if ;
+end process ;
+pxclk_rising_edge <= (NOT pxclk_old) and pxclk_from_interface ;
 
-fifoB_wr <= write_pixel when href_from_interface = '0' and vsync_from_interface = '0' else
-			   vsync_rising_edge OR hsync_rising_edge ;
+process(clk_120, arazb_delayed)
+begin
+	if arazb_delayed = '0' then
+		pixel_buffer(15 downto 0) <= (others => '0') ;
+	elsif clk_120'event and clk_120 = '1' then
+		if hsync_rising_edge = '1' then
+			pixel_buffer(15 downto 0) <= (others => '0') ;
+		elsif pxclk_rising_edge = '1' then
+			pixel_buffer(7 downto 0) <= pixel_buffer(15 downto 8) ;
+			pixel_buffer(15 downto 8)  <= pixel_from_interface ;
+		end if ;
+	end if ;
+end process ;
+
+process(clk_120, arazb_delayed)
+begin
+	if arazb_delayed = '0' then
+		pixel_count <= (others => '0'); 
+	elsif clk_120'event and clk_120 = '1' then
+		if hsync_rising_edge = '1' then
+			pixel_count <= (others => '0'); 
+		elsif pxclk_rising_edge = '1'  and href_from_interface = '0' then
+			pixel_count <= pixel_count + 1 ;
+		end if ;
+	end if ;
+end process ;
+write_pixel <= pixel_count(0);
+
+process(clk_120, arazb_delayed)
+begin
+	if arazb_delayed = '0' then
+		write_pixel_old <= '0'; 
+	elsif clk_120'event and clk_120 = '1' then
+		write_pixel_old <= write_pixel ;
+	end if ;
+end process ;
+
+
+
+
+
+fifoB_wr <= (write_pixel and (NOT write_pixel_old)) when vsync_from_interface = '0' and href_from_interface = '0' else
+			   vsync_rising_edge when vsync_from_interface = '1' else
+				'0' ;
 				
 fifo_input <= (X"AA55") when vsync_rising_edge = '1' else
-				  (X"55AA") when hsync_rising_edge = '1' else
-				  (pixel_buffer(15 downto 1) & '0') when  pixel_buffer = X"AA55" else
-				  (pixel_buffer(15 downto 9) & '0' & pixel_buffer(7 downto 0)) when  pixel_buffer = X"55AA" else
-				   pixel_buffer ;
+				  (pixel_buffer(15 downto 1) & '0') ;
 
 
 end Behavioral;
