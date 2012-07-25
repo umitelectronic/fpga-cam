@@ -1,0 +1,2 @@
+# Output products list for <dcm_32_144>
+dcm_32_144_flist.txt

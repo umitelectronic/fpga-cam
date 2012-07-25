@@ -1,0 +1,21 @@
+#!/bin/bash
+
+VCD_FILE=test.vcd
+ARCH=ee_access_testbench
+SOURCES_PATH="../../../../hdl/generic_*.vhd ../../../../hdl/i2c_master.vhd ../../*.vhd ../*.vhd"
+STOP_TIME=10ms
+
+simulate_arch()
+{
+	echo "## Import files"
+	ghdl -i --ieee=synopsys --workdir=work --work=work $SOURCES_PATH
+	echo "## Make architecture"
+	ghdl -m --workdir=work --ieee=synopsys $ARCH
+	echo "## Run simulation"
+	ghdl -r --workdir=work $ARCH --vcd=$VCD_FILE --stop-time=$STOP_TIME
+}
+
+
+simulate_arch
+gtkwave $VCD_FILE
+rm $VCD_FILE $ARCH work/*

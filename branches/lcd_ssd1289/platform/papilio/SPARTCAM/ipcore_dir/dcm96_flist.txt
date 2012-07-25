@@ -1,0 +1,2 @@
+# Output products list for <dcm96>
+dcm96_flist.txt
