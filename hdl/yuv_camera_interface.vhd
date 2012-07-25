@@ -220,23 +220,14 @@ v_latch : edge_triggered_latch
 	process(clock, arazb)
 		 begin
 			if arazb = '0' then
-				pxclk_rising_edge <= '0' ;
-				pxclk_falling_edge <= '0' ;
 				pxclk_old <= '0' ;
 		 	elsif  clock'event and clock = '1' then
-				pxclk_old <= pxclk ;
-				if pxclk /= pxclk_old and hsynct = '0' and vsynct = '0' then
-					pxclk_rising_edge <= pxclk ;
-					pxclk_falling_edge <= NOT pxclk ;
-				else
-					pxclk_rising_edge <= '0' ;
-					pxclk_falling_edge <= '0' ;
-				end if ;
+				pxclk_old <= pxclkt ;
 			end if ;
 	end process ;
 
-	
-	
+	pxclk_rising_edge <= (NOT pxclk_old) and pxclkt ;
+	pxclk_falling_edge <= (pxclk_old) and (NOT pxclkt) ;
 	
 	
 	

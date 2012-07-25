@@ -118,7 +118,7 @@ vsync_out <= '1' when line_count < 3 else
 pixel_clock_out <= clock_div(div_factor) and valid_pixel ;
 
 
-pixel_r <= line_count(9 downto 2);
+pixel_r <= line_count(7 downto 0);
 pixel_g <= line_count(9 downto 2);
 pixel_b <= line_count(9 downto 2);
 

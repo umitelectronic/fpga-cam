@@ -88,29 +88,29 @@ gen_no_ext_clk : if (NOT USE_EXT_CLOCK) generate
 			addr_bus <= addr ;
 			data_bus_out_t <= data ;
 		end if ;
-		--data_bus_in_t <= data_bus_in ;
+		data_bus_in_t <= data_bus_in ;
 	end if ;
 	end process;
 	
 	
 	-- trying to limit SSN
-	process(clk, arazb)
-	begin
-	if arazb ='0' then
-		data_bus_in_t(7 downto 0) <= (others => '0');
-	elsif clk'event and clk ='0' then
-		data_bus_in_t(7 downto 0) <= data_bus_in(7 downto 0) ;
-	end if ;
-	end process;
-	
-	process(clk, arazb)
-	begin
-	if arazb ='0' then
-		data_bus_in_t(15 downto 8) <= (others => '0');
-	elsif clk'event and clk ='1' then
-		data_bus_in_t(15 downto 8) <= data_bus_in(15 downto 8) ;
-	end if ;
-	end process;
+--	process(clk, arazb)
+--	begin
+--	if arazb ='0' then
+--		data_bus_in_t(7 downto 0) <= (others => '0');
+--	elsif clk'event and clk ='0' then
+--		data_bus_in_t(7 downto 0) <= data_bus_in(7 downto 0) ;
+--	end if ;
+--	end process;
+--	
+--	process(clk, arazb)
+--	begin
+--	if arazb ='0' then
+--		data_bus_in_t(15 downto 8) <= (others => '0');
+--	elsif clk'event and clk ='1' then
+--		data_bus_in_t(15 downto 8) <= data_bus_in(15 downto 8) ;
+--	end if ;
+--	end process;
 	
 end generate ;
 

@@ -74,17 +74,17 @@ pixel_data3_bin <= '0' when pixel_data_3 >= upper_bound_3 else
 pixels_and <=  pixel_data1_bin AND pixel_data2_bin AND pixel_data3_bin ;
 
 
-pixel_data_out_temp <= X"FF" when pixels_and = '1' else
+pixel_data_out <= X"FF" when pixels_and = '1' else
 							  X"00" ;
 
-pixel_data_out_latch0 : edge_triggered_latch 
-		 generic map( NBIT => 8)
-		 port map( clk =>clk,
-				  arazb => arazb ,
-				  sraz => '0' ,
-				  en => pixel_clock ,
-				  d => pixel_data_out_temp , 
-				  q => pixel_data_out);
+--pixel_data_out_latch0 : edge_triggered_latch 
+--		 generic map( NBIT => 8,POL => '1')
+--		 port map( clk =>clk,
+--				  arazb => arazb ,
+--				  sraz => '0' ,
+--				  en => pixel_clock ,
+--				  d => pixel_data_out_temp , 
+--				  q => pixel_data_out);
 				  
 
 process(clk, arazb)

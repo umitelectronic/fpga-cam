@@ -51,7 +51,7 @@ constant delay : positive :=  1 ;
 
 type lcd_state	is (LCD_INIT, WAIT_DONE, WAIT_DELAY, SET_X, WAIT_DONE_X, SET_Y, WAIT_DONE_Y, WAIT_VSYNC, LCD_VSYNC, LCD_HSYNC, LCD_VIDEO) ;
 signal state, next_state : lcd_state  ;
-
+signal pos_y : std_logic_vector(15 downto 0) := x"0000";
 signal en_rom, en_counter, sraz_counter, en_delay, sraz_delay, sraz_pixel_count : std_logic ;
 signal wr_lcd, set_addr_lcd, lcd_busy : std_logic ;
 signal register_addr, lcd_addr:	std_logic_vector(7 downto 0);
@@ -187,8 +187,10 @@ case state is
 		end if ;
 	WHEN LCD_VIDEO =>
 		if vsync = '1' then
+			pos_y <= x"0000";
 			next_state <= SET_X ;
 --		elsif hsync = '1' then
+--			pos_y <= pos_y + x"0001";
 --			next_state <= SET_X ;
 		end if ;
 	WHEN others => 
@@ -217,14 +219,14 @@ with state select
 with state select
 	lcd_data_s <= pixel_r(7 downto 3) & pixel_g(7 downto 2) & pixel_b(7 downto 3) when LCD_VIDEO,
 					X"0000" when SET_X,
-					X"0000" when SET_Y,
+					pos_y when SET_Y,
 					register_data(15 downto 0) when others ;
 					
 with state select
 	lcd_addr <= X"22" when LCD_VSYNC,
 					X"22" when LCD_HSYNC,
-					X"21" when SET_X,
-					X"20" when SET_Y,
+					X"4E" when SET_X,
+					X"4F" when SET_Y,
 					register_data(23 downto 16) when others ;		
 
 wr_lcd <=  '1' when state = LCD_INIT and register_data(23 downto 16) /= X"FF" else
@@ -236,8 +238,8 @@ wr_lcd <=  '1' when state = LCD_INIT and register_data(23 downto 16) /= X"FF" el
 set_addr_lcd <= '1' when state = LCD_INIT and register_data(23 downto 16) /= X"FF" else
 					 '1' when state = SET_X else
 					 '1' when state = SET_Y else
-					 (NOT vsync) when state = LCD_VSYNC else
-					 (NOT hsync) when state = LCD_HSYNC else
+					 (not vsync) when state = LCD_VSYNC else
+					 (not hsync) when state = LCD_HSYNC else
 					  '0' ;	
 
 sraz_pixel_count <= hsync ;
