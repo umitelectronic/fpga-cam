@@ -33,13 +33,15 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity reset_generator is
 generic(HOLD_0	:	natural	:= 100);
 port(clk, arazb : in std_logic ;
-     arazb_0: out std_logic
+     arazb_0: out std_logic;
+	  arazb_cam : out std_logic
 	  );
 end reset_generator;
 
 architecture Behavioral of reset_generator is
 signal counter0 : natural := HOLD_0 ;
 signal arazb_0_t : std_logic ;
+signal arazb_cam_t :  std_logic;
 begin
 
 	process(clk, arazb) -- reset process
@@ -59,13 +61,16 @@ begin
 arazb_0_t <= '1' when counter0 = 0 else
 				 '0' ;
 				 
+arazb_cam_t <= '1' when counter0 < (HOLD_0 / 2) else '0';
 				 
 process(clk, arazb) -- reset process
 	begin
 		if arazb = '0' then
 			arazb_0 <= '0' ;
+			arazb_cam <= '0';
 		elsif clk'event and clk = '1' then
 			arazb_0 <= arazb_0_t ;
+			arazb_cam <= arazb_cam_t;
 		end if ;
 end process ;
 
