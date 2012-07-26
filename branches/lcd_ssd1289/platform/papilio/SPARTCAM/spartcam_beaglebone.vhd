@@ -127,6 +127,11 @@ begin
 	
 	SPARE <= (others => 'Z') ;
 
+--comment connections below when using pins
+	FIFO_CS <= 'Z' ;
+	FIFO_WR <= BEAGLE_CSN	; 
+	FIFO_RD <= BEAGLE_OEN	; 
+	FIFO_A0 <= 'Z' ;
 	
 	CAM_RESET <= ARAZB ;
 
@@ -238,18 +243,27 @@ bi_fifo0 : fifo_peripheral
 --		 end if ;
 --		end process ;
 --	
- camera0: yuv_camera_interface
-		generic map(FORMAT => QVGA)
-		port map(clock => clk_120,
-			pixel_data => CAM_DATA, 
-			i2c_clk => clk_24,
-			scl => CAM_SIOC ,
-			sda => CAM_SIOD ,
-			arazb => arazb_delayed,
-			pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
-			pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
-			y_data => pixel_from_interface
-		);	
+-- camera0: yuv_camera_interface
+--		generic map(FORMAT => QVGA)
+--		port map(clock => clk_120,
+--			pixel_data => CAM_DATA, 
+--			i2c_clk => clk_24,
+--			scl => CAM_SIOC ,
+--			sda => CAM_SIOD ,
+--			arazb => arazb_delayed,
+--			pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
+--			pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
+--			y_data => pixel_from_interface
+--		);	
+--
+	gen0: graphic_generator
+	 port map(clk => clk_120, 
+		arazb => arazb_delayed,
+		pixel_clock_out => pxclk_from_interface,
+		hsync_out => href_from_interface, 
+		vsync_out => vsync_from_interface,
+	   pixel_r => pixel_from_interface
+	  );
 
 --gen_graph : graphic_generator
 --port map(clk => clk_120, arazb => arazb_delayed ,
@@ -337,7 +351,10 @@ fifoB_wr <= (write_pixel and (NOT write_pixel_old)) when vsync_from_interface = 
 				'0' ;
 				
 fifo_input <= (X"AA55") when vsync_rising_edge = '1' else
-				  (pixel_buffer(15 downto 1) & '0') ;
+				  (X"55AA") when hsync_rising_edge = '1' else
+				  --(pixel_buffer(15 downto 1) & '0') when  pixel_buffer = X"AA55" else
+				  (pixel_buffer(15 downto 9) & '0' & pixel_buffer(7 downto 1) & '0' );-- when  pixel_buffer = X"55AA" else
+				   --pixel_buffer ;
 
 
 end Behavioral;

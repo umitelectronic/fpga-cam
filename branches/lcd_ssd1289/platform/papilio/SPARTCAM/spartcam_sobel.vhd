@@ -62,9 +62,11 @@ architecture Structural of spartcam_sobel is
 
 	COMPONENT dcm24
 	PORT(
-		CLKIN_IN : IN std_logic;          
+		CLKIN_IN : IN std_logic;
+		RST_IN : IN std_logic;  		
 		CLKDV_OUT : OUT std_logic;
-		CLK0_OUT : OUT std_logic
+		CLK0_OUT : OUT std_logic;
+		LOCKED_OUT : OUT std_logic
 		);
 	END COMPONENT;
 
@@ -72,14 +74,18 @@ architecture Structural of spartcam_sobel is
 	PORT(
 		CLKIN_IN : IN std_logic;          
 		CLKFX_OUT : OUT std_logic;
+		RST_IN : IN std_logic;  
 		CLKIN_IBUFG_OUT : OUT std_logic;
-		CLK0_OUT : OUT std_logic
+		CLK0_OUT : OUT std_logic;
+		LOCKED_OUT : OUT std_logic
 		);
 	END COMPONENT;
 
 
 	signal clk0, clk_24, clk_96 : std_logic ;
+	signal locked_24, locked_96, pll_locked: std_logic;
 	signal arazb_delayed : std_logic ;
+	signal arazb_cam : std_logic;
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_gauss : std_logic_vector(7 downto 0);
@@ -110,11 +116,14 @@ architecture Structural of spartcam_sobel is
 	generic map(HOLD_0 => 500000)
 	port map(clk => clk0, 
 		arazb => ARAZB ,
-		arazb_0 => arazb_delayed
+		arazb_0 => arazb_delayed,
+		arazb_cam => arazb_cam
 	 );
 	
 
-	CAM_RESET <= arazb ;
+	pll_locked <= (locked_24 and locked_96) ;
+
+	CAM_RESET <= arazb_cam ;
 	CAM_XCLK <= clk_24 ;
 	
 	CAM_SIOC <= i2c_scl ;
@@ -123,13 +132,17 @@ architecture Structural of spartcam_sobel is
 	Inst_dcm96: dcm96 PORT MAP(
 		CLKIN_IN => clk,
 		CLKFX_OUT => clk_96, 
-		CLKIN_IBUFG_OUT => clk0
+		RST_IN => not arazb, 
+		CLKIN_IBUFG_OUT => clk0,
+		LOCKED_OUT => locked_96
 	);	
 
 
 	Inst_dcm24: dcm24 PORT MAP(
 		CLKIN_IN => clk_96,
-		CLKDV_OUT => clk_24
+		RST_IN => not arazb, 
+		CLKDV_OUT => clk_24,
+		LOCKED_OUT => locked_24
 	);
 	
 	
@@ -166,7 +179,7 @@ architecture Structural of spartcam_sobel is
 		port map(
 			clk => clk_96 ,
 			arazb => arazb_delayed ,
-			pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync =>  vsync_from_interface,
+			pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync =>  vsync_from_gauss,
 			pixel_clock_out => pxclk_from_conv, hsync_out => href_from_conv, vsync_out => vsync_from_conv, 
 			pixel_data_in => pixel_from_gauss,  
 			pixel_data_out => pixel_from_conv
@@ -183,7 +196,7 @@ architecture Structural of spartcam_sobel is
 				upper_bound_1	=>	X"FF" ,
 				upper_bound_2	=>	X"FF" ,
 				upper_bound_3	=>	X"FF" ,
-				lower_bound_1	=>	X"10",
+				lower_bound_1	=>	X"00",
 				lower_bound_2	=>	X"00",
 				lower_bound_3	=>	X"00",
 				pixel_data_out => binarized_pixel 
@@ -208,10 +221,10 @@ architecture Structural of spartcam_sobel is
 		port map(
 				clk => clk_96,
 				arazb => arazb_delayed, 
-				pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode, 
-				pixel_r => pixel_from_erode ,
-				pixel_g => pixel_from_erode ,		
-				pixel_b => pixel_from_erode ,
+				pixel_clock => pxclk_from_bin, hsync => href_from_bin, vsync => vsync_from_bin, 
+				pixel_r => binarized_pixel ,
+				pixel_g => binarized_pixel ,		
+				pixel_b => binarized_pixel ,
 				
 				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
 				lcd_data	=> LCD_DATA

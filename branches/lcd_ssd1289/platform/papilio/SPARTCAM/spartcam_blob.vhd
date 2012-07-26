@@ -151,16 +151,20 @@ architecture Structural of spartcam_blob is
 
 
 --comment connections below when using pins
-	LCD_RS <= 'Z' ;
-	LCD_CS <= 'Z' ; 
-	LCD_WR <= 'Z' ; 
-	LCD_RD <= 'Z' ;
-	LCD_DATA <= (others => 'Z')  ;
+--	LCD_RS <= 'Z' ;
+--	LCD_CS <= 'Z' ; 
+--	LCD_WR <= 'Z' ; 
+--	LCD_RD <= 'Z' ;
+--	LCD_DATA <= (others => 'Z')  ;
 	FIFO_CS <= 'Z' ;
 	--FIFO_WR <= 'Z' ; 
 	FIFO_RD <= 'Z' ; 
 	FIFO_A0 <= 'Z' ;
 	FIFO_DATA <= (others => 'Z')  ;
+	
+	FIFO_DATA(0) <= pxclk_from_interface;
+	FIFO_DATA(1) <= href_from_interface;
+	FIFO_DATA(2) <= vsync_from_interface;
 
 
 	reset0: reset_generator 
@@ -248,15 +252,15 @@ architecture Structural of spartcam_blob is
 				lower_bound_3	=>	configuration_registers(5),
 				pixel_data_out => binarized_pixel 
 		);
-		
---		biny : binarization
---		port map( 
---				pixel_data_in => pixel_y_from_interface,
---				upper_bound	=> configuration_registers(0),
---				lower_bound	=> configuration_registers(1),
---				pixel_data_out => binarized_pixel 
---		);
-		
+--		
+----		biny : binarization
+----		port map( 
+----				pixel_data_in => pixel_y_from_interface,
+----				upper_bound	=> configuration_registers(0),
+----				lower_bound	=> configuration_registers(1),
+----				pixel_data_out => binarized_pixel 
+----		);
+--		
 		
 		erode0 : erode3x3
 		generic map(
@@ -265,24 +269,24 @@ architecture Structural of spartcam_blob is
 		port map(
 				clk => clk_96,  
 				arazb => arazb_delayed ,  
-				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+				pixel_clock => pxclk_from_bin, hsync => href_from_bin, vsync => vsync_from_bin,
 				pixel_clock_out => pxclk_from_erode, hsync_out => href_from_erode, vsync_out => vsync_from_erode, 
 				pixel_data_in => binarized_pixel, 
 				pixel_data_out => pixel_from_erode
 
 		);  
 		
-		
-		blob_detection0:  blob_detection
-		generic map(LINE_SIZE => 320)
-		port map(
- 		clk => clk_96, 
- 		arazb => arazb_delayed,
- 		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
-		pixel_data_in => pixel_from_erode,
-		blob_data => fifo_input,
-		send_blob => fifo_wr0
-		);
+--		
+--		blob_detection0:  blob_detection
+--		generic map(LINE_SIZE => 320)
+--		port map(
+-- 		clk => clk_96, 
+-- 		arazb => arazb_delayed,
+-- 		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
+--		pixel_data_in => pixel_from_erode,
+--		blob_data => fifo_input,
+--		send_blob => fifo_wr0
+--		);
 		
 		fifo_128x8_0 : fifo_Nx8 -- blob data fifo
 			generic map(N =>64)
@@ -376,6 +380,19 @@ configuration_module0 : configuration_module
 		vsync	=> vsync_from_interface,
 		registers	=> configuration_registers
 	);
+
+		lcd_controller0 : lcd_controller 
+		port map(
+				clk => clk_96,
+				arazb => arazb_delayed, 
+				pixel_clock => pxclk_from_switch, hsync => href_from_switch, vsync => vsync_from_switch, 
+				pixel_r => pixel_from_switch ,
+				pixel_g => pixel_from_switch ,		
+				pixel_b => pixel_from_switch ,
+				
+				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
+				lcd_data	=> LCD_DATA
+			); 
 
 
 end Structural;
