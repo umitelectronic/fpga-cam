@@ -7,7 +7,7 @@ library work;
 entity i2c_master is
 	port(
  		clock : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		slave_addr : in std_logic_vector(6 downto 0 ); 
  		data_in : in std_logic_vector(7 downto 0 );
 		data_out : out std_logic_vector(7 downto 0 ); 
@@ -36,9 +36,9 @@ architecture systemc of i2c_master is
 	
 	
 	-- run_i2c
-	process(arazb, clock)
+	process(resetn, clock)
 		 begin
-		 if arazb = '0' then
+		 if resetn = '0' then
 			scl <= 'Z' ;
 		 	sda <= 'Z' ;
 			state <= idle ;

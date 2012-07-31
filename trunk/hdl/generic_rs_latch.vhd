@@ -30,7 +30,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity generic_rs_latch is
-	port(clk, arazb : in std_logic ;
+	port(clk, resetn : in std_logic ;
 		  s, r : in std_logic ;
 		  q : out std_logic );
 end generic_rs_latch;
@@ -39,9 +39,9 @@ architecture Behavioral of generic_rs_latch is
 signal Qp : std_logic ;
 begin
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		Qp <= '0' ;
 	elsif clk'event and clk = '1' then
 		if s = '1' then

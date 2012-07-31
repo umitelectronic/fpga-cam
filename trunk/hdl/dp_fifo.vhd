@@ -39,7 +39,7 @@ use work.generic_components.all ;
 entity dp_fifo is
 	generic(N : natural := 128 ; W : positive := 16);
 	port(
- 		clk, arazb, sraz : in std_logic; 
+ 		clk, resetn, sraz : in std_logic; 
  		wr, rd : in std_logic; 
 		empty, full : out std_logic ;
  		data_out : out std_logic_vector((W - 1) downto 0 ); 
@@ -80,9 +80,9 @@ dp_ram0 : dpram_NxN
 
 data_out <= fifo_out ;
 			  
-process(arazb, clk)
+process(resetn, clk)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		rd_old <= '0' ;
 	elsif clk'event and clk = '1' then
 		rd_old <= rd ;
@@ -91,9 +91,9 @@ end process ;
 rd_rising_edge <= (rd AND (NOT rd_old));
 rd_falling_edge <= ((NOT rd) AND rd_old);
 
-process(arazb, clk)
+process(resetn, clk)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		wr_old <= '0' ;
 	elsif clk'event and clk = '1' then
 		wr_old <= wr ;
@@ -102,9 +102,9 @@ end process ;
 wr_rising_edge <= (wr AND (NOT wr_old)) ;
 wr_falling_edge <= ((NOT wr) AND wr_old) ;
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	rd_addr <= (others => '0') ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
@@ -116,9 +116,9 @@ end if ;
 end process ;
 
 -- wr process 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	wr_addr <= (others => '0') ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then
@@ -136,7 +136,7 @@ end process ;
 --available_counter : up_down_counter 
 --	 generic map(NBIT => nbit(N) + 1)
 --    port map( clk => clk,
---			  arazb => arazb,
+--			  resetn => resetn,
 --           sraz => '0' ,
 --           en =>  en_available_counter,
 --			  load => counter_load,
@@ -155,7 +155,7 @@ end process ;
 --free_counter : up_down_counter
 --	 generic map(NBIT => nbit(N) + 1)
 --    port map( clk => clk,
---				arazb => arazb,
+--				resetn => resetn,
 --           sraz => '0' ,
 --           en =>  en_free_counter,
 --			  load => counter_load,
@@ -172,9 +172,9 @@ end process ;
 
 
 -- nb available process
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	nb_available_t <= (others => '0') ;
 elsif clk'event and clk = '1' then
 	if sraz = '1' then

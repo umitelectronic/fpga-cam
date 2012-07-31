@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity edge_triggered_latch is
 	 generic(NBIT : positive := 8; POL : std_logic :='1');
     Port ( clk : in  STD_LOGIC;
-           arazb : in  STD_LOGIC;
+           resetn : in  STD_LOGIC;
            sraz : in  STD_LOGIC;
            en : in  STD_LOGIC;
            d : in  STD_LOGIC_VECTOR((NBIT - 1) downto 0);
@@ -44,9 +44,9 @@ signal Qp : std_logic_vector((NBIT - 1) downto 0);
 signal old_value : std_logic := '0' ;
 begin
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	Qp <= (others => '0');
 	old_value <= '0' ;
 elsif clk'event and clk = '1' then

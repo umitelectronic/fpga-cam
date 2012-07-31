@@ -44,7 +44,7 @@ ARCHITECTURE behavior OF fifo_test_bench IS
 	 GENERIC(N : natural := 64);
     PORT(
          clk : IN  std_logic;
-         arazb : IN  std_logic;
+         resetn : IN  std_logic;
          wr : IN  std_logic;
          rd : IN  std_logic;
          empty : OUT  std_logic;
@@ -58,7 +58,7 @@ ARCHITECTURE behavior OF fifo_test_bench IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal arazb : std_logic := '0';
+   signal resetn : std_logic := '0';
    signal wr : std_logic := '0';
    signal rd : std_logic := '0';
    signal data_in : std_logic_vector(7 downto 0) := (others => '0');
@@ -82,7 +82,7 @@ BEGIN
 			GENERIC MAP(N => 64)
 			PORT MAP (
           clk => clk,
-          arazb => arazb,
+          resetn => resetn,
           wr => wr,
           rd => rd,
           empty => empty,
@@ -105,10 +105,10 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
-		arazb <=  '0' ;
+		resetn <=  '0' ;
       -- hold reset state for 100 ns.
       wait for 100 ns;	
-		arazb <=  '1' ;
+		resetn <=  '1' ;
 		wait for clk_period;
 		FOR j IN 0 to loop_range LOOP
 			data_in <= data_stimuli ;

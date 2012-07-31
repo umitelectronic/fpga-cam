@@ -38,7 +38,7 @@ entity blob_sender is
 generic(NB_BLOB : positive	:=	16);
 	port(
 		clk	:	in std_logic ;
-		arazb	:	in std_logic ;
+		resetn	:	in std_logic ;
 		oe : in std_logic ;
 		clear_blob	:	out std_logic ;
 		ram_addr	:	out std_logic_vector(7 downto 0);
@@ -81,7 +81,7 @@ begin
 	addr_counter0 :  simple_counter
 	 generic map(NBIT => 4)
 	 port map( clk => clk,
-			  arazb => arazb,
+			  resetn => resetn,
 			  sraz => sraz_blob_addr,
 			  en => en_blob_addr,
 			  load => '0', 
@@ -129,9 +129,9 @@ begin
 					 '1' when others ;
 
 
-	process(clk, arazb)
+	process(clk, resetn)
 	begin
-	if arazb = '0' then
+	if resetn = '0' then
 		frame_state <= WAIT_NEW_FRAME ;
 	elsif clk'event and clk = '1' then
 		frame_state <= next_frame_state ;

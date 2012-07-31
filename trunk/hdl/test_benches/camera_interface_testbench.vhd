@@ -13,9 +13,9 @@ end camera_interface_testbench;
 architecture test of camera_interface_testbench is
 	constant clk_period : time := 5 ns ;
 	constant pclk_period : time := 20 ns ;
-	constant arazb_delay : integer := 1024 ;
-	signal arazb_time : integer range 0 to 1024 := arazb_delay ;
-	signal clk, arazb_delayed : std_logic ;
+	constant resetn_delay : integer := 1024 ;
+	signal resetn_time : integer range 0 to 1024 := resetn_delay ;
+	signal clk, resetn_delayed : std_logic ;
 	signal pixel_from_camera : std_logic_vector(7 downto 0);
 	signal pixely_from_interface : std_logic_vector(7 downto 0);
 	signal pixelu_from_interface : std_logic_vector(7 downto 0);
@@ -34,11 +34,11 @@ architecture test of camera_interface_testbench is
 	process(clk) -- reset process
 	begin
 		if clk'event and clk = '1' then
-			if arazb_time = 0 then
-				arazb_delayed <= '1' ;
+			if resetn_time = 0 then
+				resetn_delayed <= '1' ;
 			else
-				arazb_delayed <= '0';
-				arazb_time <= arazb_time - 1 ;
+				resetn_delayed <= '0';
+				resetn_time <= resetn_time - 1 ;
 			end if;
 		end if;
 	end process;
@@ -49,7 +49,7 @@ architecture test of camera_interface_testbench is
 		port map(clock => clk,
 		pixel_data => pixel_from_camera, 
  		i2c_clk => clk,
- 		arazb => arazb_delayed,
+ 		resetn => resetn_delayed,
  		pxclk => pxclk_from_camera, href => href_from_camera, vsync => vsync_from_camera,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
  		y_data => pixely_from_interface, 
@@ -74,7 +74,7 @@ architecture test of camera_interface_testbench is
 		  HEIGHT => 480)
 		port map(
 				clk => clk,  
-				arazb => arazb_delayed ,  
+				resetn => resetn_delayed ,  
 				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
 				pixel_clock_out => pxclk_from_erode, hsync_out => href_from_erode, vsync_out => vsync_from_erode, 
 				pixel_data_in => binarized_pixel, 

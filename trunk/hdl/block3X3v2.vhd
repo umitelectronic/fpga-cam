@@ -40,7 +40,7 @@ entity block3X3v2 is
 		  HEIGHT: natural := 480);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			pixel_clock, hsync, vsync : in std_logic; 
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
 			new_block : out std_logic ;
@@ -106,7 +106,7 @@ pixel_counter0: pixel_counter
 		generic map(MAX => WIDTH)
 		port map(
 			clk => clk,
-			arazb => arazb, 
+			resetn => resetn, 
 			pixel_clock => pixel_clock, hsync => hsync,
 			pixel_count => pixel_counterq
 			);
@@ -115,15 +115,15 @@ line_counter0: line_counter
 		generic map(MAX => HEIGHT)
 		port map(
 			clk => clk,
-			arazb => arazb, 
+			resetn => resetn, 
 			hsync => hsync, vsync => vsync, 
 			line_count => nb_line
 			);
 
 -- actualize matrix with values
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then 
+if resetn = '0' then 
 	block3x3(0)(0) <= (others => '0') ;
 	block3x3(0)(1) <= (others => '0') ; -- zeroing matrix
 	block3x3(0)(2) <= (others => '0') ;

@@ -10,7 +10,7 @@ entity rgb565_camera_interface is
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_data : in std_logic_vector(7 downto 0 ); 
  		r_data : out std_logic_vector(7 downto 0 ); 
  		g_data : out std_logic_vector(7 downto 0 ); 
@@ -71,7 +71,7 @@ nclk <= not clock ;
 r_latch : edge_triggered_latch 
 	 generic map( NBIT => 5)
     port map( clk =>clock,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => en_rlatch ,
            d => pixel_data(7 downto 3) , 
@@ -82,7 +82,7 @@ r_data(2 downto 0) <= (others => '0') ;
 g_latch_0 : edge_triggered_latch 
 	 generic map( NBIT => 3)
     port map( clk => clock,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => en_glatch0 ,
            d => pixel_data(2 downto 0) , 
@@ -91,7 +91,7 @@ g_latch_0 : edge_triggered_latch
 g_latch_1 : edge_triggered_latch 
 	 generic map( NBIT => 3)
     port map( clk => clock,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => en_glatch1 ,
            d => pixel_data(7 downto 5) , 
@@ -101,7 +101,7 @@ g_data(1 downto 0) <= (others => '0');
 b_latch : edge_triggered_latch 
 	 generic map( NBIT => 5)
     port map( clk => clock,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => en_blatch ,
            d => pixel_data(4 downto 0) , 
@@ -112,7 +112,7 @@ b_data(2 downto 0) <= (others => '0');
 	i2c_master0 : i2c_master -- i2c master to send sensor configuration, no proof its working
 		port map ( 
 			clock => i2c_clk, 
-			arazb => arazb, 
+			resetn => resetn, 
 			sda => sda, 
 			scl => scl, 
 			data_in => i2c_data, 
@@ -125,10 +125,10 @@ b_data(2 downto 0) <= (others => '0');
 		); 
 	
 -- sccb_interface
-	process(clock, arazb)
+	process(clock, resetn)
 		 begin
 		 	i2c_addr <= OV7670_I2C_ADDR ; -- sensor address
-		 	if  arazb = '0'  then
+		 	if  resetn = '0'  then
 		 		reg_state <= init ;
 				reg_addr <= (others => '0');
 		 	elsif clock'event and clock = '1' then
@@ -183,9 +183,9 @@ b_data(2 downto 0) <= (others => '0');
 		 	end if ;
 		 end process;  
 
-	process(clock, arazb)
+	process(clock, resetn)
 		 begin
-			if arazb = '0' then
+			if resetn = '0' then
 				hsynct <= '0' ;
 				vsynct <= '0' ;
 				pxclkt <= '0' ;
@@ -197,9 +197,9 @@ b_data(2 downto 0) <= (others => '0');
 	end process ;
 	
 	--pxclk rising and falling edge
-	process(clock, arazb)
+	process(clock, resetn)
 		 begin
-			if arazb = '0' then
+			if resetn = '0' then
 				pxclk_rising_edge <= '0' ;
 				pxclk_falling_edge <= '0' ;
 				pxclk_old <= '0' ;
@@ -215,9 +215,9 @@ b_data(2 downto 0) <= (others => '0');
 			end if ;
 	end process ;
 	
-	process(clock, arazb)
+	process(clock, resetn)
 		begin
-		if arazb = '0'  then
+		if resetn = '0'  then
 		 		pix_state <= WAIT_LINE;
 		elsif clock'event and clock = '1'  then
 				pix_state <= next_state ;

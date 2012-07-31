@@ -36,7 +36,7 @@ use work.generic_components.all ;
 
 entity yuv_rgb is
 port( clk	:	in std_logic ;
-		arazb	:	in std_logic ;
+		resetn	:	in std_logic ;
 		pixel_clock, hsync, vsync : in std_logic; 
 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_y : in std_logic_vector(7 downto 0) ;
@@ -97,7 +97,7 @@ clamp_pixel_b_t <= X"FF" when pixel_b_t > 255 else
 pixel_r_latch0 : edge_triggered_latch 
 		 generic map( NBIT => 8)
 		 port map( clk =>clk,
-				  arazb => arazb ,
+				  resetn => resetn ,
 				  sraz => '0' ,
 				  en => pixel_clock ,
 				  d => clamp_pixel_r_t(7 downto 0) , 
@@ -106,7 +106,7 @@ pixel_r_latch0 : edge_triggered_latch
 pixel_g_latch0 : edge_triggered_latch 
 		 generic map( NBIT => 8)
 		 port map( clk =>clk,
-				  arazb => arazb ,
+				  resetn => resetn ,
 				  sraz => '0' ,
 				  en => pixel_clock ,
 				  d => clamp_pixel_g_t(7 downto 0) , 
@@ -115,15 +115,15 @@ pixel_g_latch0 : edge_triggered_latch
 pixel_b_latch0 : edge_triggered_latch 
 		 generic map( NBIT => 8)
 		 port map( clk =>clk,
-				  arazb => arazb ,
+				  resetn => resetn ,
 				  sraz => '0' ,
 				  en => pixel_clock ,
 				  d => clamp_pixel_b_t(7 downto 0) , 
 				  q => pixel_b);				  
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		pixel_clock_out <= '0';
 		hsync_out <= '0' ;
 		vsync_out <= '0' ;

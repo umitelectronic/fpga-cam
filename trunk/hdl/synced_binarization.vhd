@@ -36,7 +36,7 @@ library work;
 
 entity synced_binarization is
 port( clk	:	in std_logic ;
-		arazb	:	in std_logic ;
+		resetn	:	in std_logic ;
 		pixel_clock, hsync, vsync : in std_logic; 
 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_1 : in std_logic_vector(7 downto 0) ;
@@ -80,16 +80,16 @@ pixel_data_out_temp <= X"FF" when pixels_and = '1' else
 pixel_data_out_latch0 : edge_triggered_latch 
 		 generic map( NBIT => 8)
 		 port map( clk =>clk,
-				  arazb => arazb ,
+				  resetn => resetn ,
 				  sraz => '0' ,
 				  en => pixel_clock ,
 				  d => pixel_data_out_temp , 
 				  q => pixel_data_out);
 				  
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		pixel_clock_out <= '0';
 		hsync_out <= '0' ;
 		vsync_out <= '0' ;

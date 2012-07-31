@@ -33,7 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity draw_square is
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
 		posx, posy, width, height : in unsigned(9 downto 0);
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
@@ -52,9 +52,9 @@ pixel_data_out <= X"00" when pixel_x > posx and pixel_x < (posx + width) and pix
 
 
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		pixel_clock_out <= '0' ;
 		hsync_out <= '0' ;
 		vsync_out <= '0' ;
@@ -77,9 +77,9 @@ begin
 	end if;
 end process ;
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		pixel_x <= (others => '0');
 		pixel_y <= (others => '0');
 	elsif clk'event and clk = '1' then

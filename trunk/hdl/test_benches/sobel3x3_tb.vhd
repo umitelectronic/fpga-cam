@@ -17,7 +17,7 @@
           component sobel3x3 is
 				port(
 					clk : in std_logic; 
-					arazb : in std_logic; 
+					resetn : in std_logic; 
 					pixel_clock, hsync, vsync : in std_logic; 
 					pixel_clock_out, hsync_out, vsync_out : out std_logic; 
 					pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -28,7 +28,7 @@
          constant clk_period : time := 5 ns ;
 			constant pclk_period : time := 40 ns ;
 			
-			signal clk, arazb : std_logic ;
+			signal clk, resetn : std_logic ;
 			signal pxclk, hsync, vsync : std_logic ;
 			signal pxclk_out, hsync_out, vsync_out : std_logic ;
 			signal pixel : std_logic_vector(7 downto 0 ) := (others => '0');
@@ -41,7 +41,7 @@
          sobel3x3_0 :  sobel3x3 
 				port map(
 						clk => clk, 
-						arazb => arazb, 
+						resetn => resetn, 
 						pixel_clock => pxclk, 
 						hsync => hsync, 
 						vsync => vsync,
@@ -54,9 +54,9 @@
 
 	process
 	begin
-		arazb <= '0' ;
+		resetn <= '0' ;
 		wait for 10*clk_period;
-		arazb <= '1' ;
+		resetn <= '1' ;
 		while true loop
 			clk <= '0';
 			wait for clk_period;

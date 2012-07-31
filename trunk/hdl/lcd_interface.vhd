@@ -34,7 +34,7 @@ use work.generic_components.all ;
 --use UNISIM.VComponents.all;
 
 entity lcd_interface is
-port(clk, arazb	:	in std_logic ;
+port(clk, resetn	:	in std_logic ;
 	  addr	:	in std_logic_vector(7 downto 0) ;
 	  data	:	in std_logic_vector(15 downto 0);
 	  wr_data	:	in std_logic ;
@@ -62,7 +62,7 @@ begin
 addr_latch0: generic_latch
 	 generic map(NBIT => 8)
     port map( clk => clk,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => set_addr ,
            d => addr,
@@ -71,7 +71,7 @@ addr_latch0: generic_latch
 data_latch0: generic_latch
 	 generic map(NBIT => 16)
     port map( clk => clk,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => wr_data ,
            d => data,
@@ -80,7 +80,7 @@ data_latch0: generic_latch
 wr_latch0: generic_latch
 	 generic map(NBIT => 1)
     port map( clk => clk,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => latch_wr ,
            d(0) => wr_data,
@@ -92,7 +92,7 @@ wr_latch0: generic_latch
 delay_counter :  simple_counter
  generic map(NBIT => 8)
  port map( clk => clk,
-		  arazb => arazb,
+		  resetn => resetn,
 		  sraz => sraz_counter,
 		  en => en_counter,
 		  load => '0', 
@@ -101,9 +101,9 @@ delay_counter :  simple_counter
 		  );
 
 
-process(clk,arazb)
+process(clk,resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	state <= WAIT_DATA ;
 elsif clk'event and clk = '1' then
 	state <= next_state ;

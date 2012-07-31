@@ -38,7 +38,7 @@ entity pixel_counter is
 		generic(POL : std_logic := '0'; MAX : positive := 640);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			pixel_clock, hsync : in std_logic; 
 			pixel_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
@@ -48,9 +48,9 @@ architecture Behavioral of pixel_counter is
 signal pixel_clock_old : std_logic ;
 signal pixel_count_temp : std_logic_vector((nbit(MAX) - 1) downto 0 ) ;
 begin
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then 
+if resetn = '0' then 
 	pixel_count_temp <= (others => '0') ;
 elsif clk'event and clk = '1'  then
 		if hsync = '1' then

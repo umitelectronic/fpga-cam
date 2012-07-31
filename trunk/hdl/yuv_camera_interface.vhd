@@ -11,7 +11,7 @@ generic(FORMAT : FRAME_FORMAT := QVGA; CAMERA : CAMERA_TYPE := OV7670);
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_data : in std_logic_vector(7 downto 0 ); 
  		y_data : out std_logic_vector(7 downto 0 ); 
  		u_data : out std_logic_vector(7 downto 0 ); 
@@ -100,7 +100,7 @@ end generate ;
 y_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)
     port map( clk =>clock,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => en_ylatch ,
            d => pixel_data , 
@@ -109,7 +109,7 @@ y_latch : edge_triggered_latch
 u_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)
     port map( clk => clock,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => en_ulatch ,
            d => pixel_data , 
@@ -118,7 +118,7 @@ u_latch : edge_triggered_latch
 v_latch : edge_triggered_latch 
 	 generic map( NBIT => 8)
     port map( clk => clock,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => en_vlatch ,
            d => pixel_data , 
@@ -127,7 +127,7 @@ v_latch : edge_triggered_latch
 	i2c_master0 : i2c_master
 		port map ( 
 			clock => i2c_clk, 
-			arazb => arazb, 
+			resetn => resetn, 
 			sda => sda, 
 			scl => scl, 
 			data_in => i2c_data, 
@@ -141,10 +141,10 @@ v_latch : edge_triggered_latch
 		); 
 	
 	-- sccb_interface
-	process(i2c_clk, arazb)
+	process(i2c_clk, resetn)
 		 begin
 		 	i2c_addr <= OV7670_I2C_ADDR ; -- sensor address
-		 	if  arazb = '0'  then
+		 	if  resetn = '0'  then
 		 		reg_state <= init ;
 				reg_addr <= (others => '0');
 		 	elsif i2c_clk'event and i2c_clk = '1' then
@@ -202,9 +202,9 @@ v_latch : edge_triggered_latch
 
 
 
-	process(clock, arazb)
+	process(clock, resetn)
 		 begin
-			if arazb = '0' then
+			if resetn = '0' then
 				hsynct <= '0' ;
 				vsynct <= '0' ;
 				pxclkt <= '0' ;
@@ -217,9 +217,9 @@ v_latch : edge_triggered_latch
 	
 	
 	--pxclk rising and falling edge
-	process(clock, arazb)
+	process(clock, resetn)
 		 begin
-			if arazb = '0' then
+			if resetn = '0' then
 				pxclk_rising_edge <= '0' ;
 				pxclk_falling_edge <= '0' ;
 				pxclk_old <= '0' ;
@@ -241,9 +241,9 @@ v_latch : edge_triggered_latch
 	
 	
 	
-	process(clock, arazb)
+	process(clock, resetn)
 		begin
-		if arazb = '0'  then
+		if resetn = '0'  then
 		 		pix_state <= WAIT_LINE ;
 		elsif clock'event and clock = '1'  then
 				pix_state <= next_state ;

@@ -33,7 +33,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity rgb2hsv is
 port( 
 		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_r, pixel_g, pixel_b : in std_logic_vector(4 downto 0 ); 

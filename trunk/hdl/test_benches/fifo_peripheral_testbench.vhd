@@ -45,7 +45,7 @@ ARCHITECTURE behavior OF fifo_peripheral_testbench IS
 	component fifo_peripheral is
 	generic(BASE_ADDR	:	natural	:= 0; ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
 	port(
-			clk, arazb : in std_logic ;
+			clk, resetn : in std_logic ;
 			addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
 			wr_bus, rd_bus, cs_bus : in std_logic ;
 			wrB, rdA : in std_logic ;
@@ -60,7 +60,7 @@ ARCHITECTURE behavior OF fifo_peripheral_testbench IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal arazb : std_logic := '0';
+   signal resetn : std_logic := '0';
    signal addr_bus : std_logic_vector(7 downto 0) := (others => '0');
    signal wr_bus : std_logic := '0';
    signal rd_bus : std_logic := '0';
@@ -89,7 +89,7 @@ BEGIN
 	GENERIC MAP(BASE_ADDR	=> 0,  ADDR_WIDTH => 8 , WIDTH	=> 16, SIZE	=> 512)
 	PORT MAP (
           clk => clk,
-          arazb => arazb,
+          resetn => resetn,
           addr_bus => addr_bus,
           wr_bus => wr_bus,
           rd_bus => rd_bus,
@@ -119,10 +119,10 @@ BEGIN
    -- bus Stimulus process
    bus_proc: process
    begin		
-      arazb <= '0' ;
+      resetn <= '0' ;
 		addr_bus <= (others => '0') ;
       wait for 100 ns;	
-		arazb <= '1' ;
+		resetn <= '1' ;
 		addr_bus <= X"02" ;
       wait for clk_period*10;
 		loop_available: FOR b IN 1 TO 10 LOOP -- la variable de boucle est a de 1 à 10

@@ -32,19 +32,19 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity reset_generator is
 generic(HOLD_0	:	natural	:= 100);
-port(clk, arazb : in std_logic ;
-     arazb_0: out std_logic
+port(clk, resetn : in std_logic ;
+     resetn_0: out std_logic
 	  );
 end reset_generator;
 
 architecture Behavioral of reset_generator is
 signal counter0 : natural := HOLD_0 ;
-signal arazb_0_t : std_logic ;
+signal resetn_0_t : std_logic ;
 begin
 
-	process(clk, arazb) -- reset process
+	process(clk, resetn) -- reset process
 	begin
-		if arazb = '0' then
+		if resetn = '0' then
 			counter0 <= HOLD_0 ;
 		elsif clk'event and clk = '1' then
 			if counter0 > 0 then
@@ -56,16 +56,16 @@ begin
 	end process;
 
 
-arazb_0_t <= '1' when counter0 = 0 else
+resetn_0_t <= '1' when counter0 = 0 else
 				 '0' ;
 				 
 				 
-process(clk, arazb) -- reset process
+process(clk, resetn) -- reset process
 	begin
-		if arazb = '0' then
-			arazb_0 <= '0' ;
+		if resetn = '0' then
+			resetn_0 <= '0' ;
 		elsif clk'event and clk = '1' then
-			arazb_0 <= arazb_0_t ;
+			resetn_0 <= resetn_0_t ;
 		end if ;
 end process ;
 

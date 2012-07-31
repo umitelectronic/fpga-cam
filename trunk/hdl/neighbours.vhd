@@ -39,7 +39,7 @@ entity neighbours is
 		generic(LINE_SIZE : natural := 640);
 		port(
 			clk : in std_logic; 
-			arazb, sraz : in std_logic; 
+			resetn, sraz : in std_logic; 
 			add_neighbour, next_line : in std_logic; 
 			neighbour_in : in unsigned(7 downto 0 );
 			neighbours : out pix_neighbours);
@@ -87,7 +87,7 @@ pixel_counter_sraz <= (next_line OR sraz) ;
 read_pixel_index0 : simple_counter 
 	 generic map(NBIT => 10)
     port map( clk => clk,
-           arazb => arazb,
+           resetn => resetn,
            sraz => sraz_read_pixel_index ,
            en => en_read_pixel_index,
 			  load => load_read_pixel_index,
@@ -106,7 +106,7 @@ with pixel_state select
 write_pixel_index0 : simple_counter 
 	 generic map(NBIT => 10)
     port map( clk => clk,
-           arazb => arazb,
+           resetn => resetn,
            sraz => sraz_write_pixel_index ,
            en => en_write_pixel_index,
 			  load => '0',
@@ -123,15 +123,15 @@ with pixel_state select
 line_counter0: line_counter
 		port map(
 			clk => clk,
-			arazb => arazb, 
+			resetn => resetn, 
 			hsync => next_line, vsync => sraz, 
 			line_count => line_count
 			);
 
 
---process(clk, arazb)
+--process(clk, resetn)
 --begin
---	if arazb = '0' then
+--	if resetn = '0' then
 --		pixel_state <= LOAD_VALUE ;
 --	elsif clk'event and clk = '1' then
 --		if sraz = '1' then
@@ -142,7 +142,7 @@ line_counter0: line_counter
 --	end if;
 --end process ;	
 --
---process(clk, arazb)
+--process(clk, resetn)
 --begin
 --	next_pixel_state <= pixel_state ;
 --	case pixel_state is
@@ -167,9 +167,9 @@ line_counter0: line_counter
 							
 
 -- actualize matrix with values
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then 
+if resetn = '0' then 
 	neighbours0(0) <= (others => '0') ;
 	neighbours0(1) <= (others => '0') ; -- zeroing neighbours
 	neighbours0(2) <= (others => '0') ;

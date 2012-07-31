@@ -36,7 +36,7 @@ use work.camera.all ;
 entity configuration_module is
 generic(NB_REGISTERS : natural := 6);
 port(
-	clk, arazb : in std_logic ;
+	clk, resetn : in std_logic ;
 	input_data	:	in std_logic_vector(7 downto 0) ;
 	read_data	:	out std_logic ;
 	data_present	:	in std_logic ;
@@ -55,9 +55,9 @@ signal register_index : std_logic_vector(3 downto 0) := (others => '0') ;
 begin
 
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	register_index <= (others => '0');
 	conf_module_state0 <= WAIT_DATA_STATE ;
 elsif clk'event and clk = '1' then

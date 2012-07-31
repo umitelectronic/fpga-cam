@@ -33,7 +33,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity up_down_counter is
 	 generic(MODULO : positive := 16 ; NBIT : positive := 4);
     Port ( clk : in  STD_LOGIC;
-           arazb : in  STD_LOGIC;
+           resetn : in  STD_LOGIC;
            sraz : in  STD_LOGIC;
            en, load : in  STD_LOGIC;
 			  up_downn : in  STD_LOGIC;
@@ -46,9 +46,9 @@ architecture Behavioral of up_down_counter is
 signal Qp : std_logic_vector(NBIT - 1 downto 0);
 begin
 
- process(clk, arazb)
+ process(clk, resetn)
     begin
-	if arazb = '0' then
+	if resetn = '0' then
  	    Qp <= (others => '0') ;
 	elsif clk'event and clk = '1' then
 	    if sraz = '1' then

@@ -40,7 +40,7 @@ use work.generic_components.all ;
 entity blobs is
 	generic(NB_BLOB : positive := 32);
 	port(
-		clk, arazb, sraz : in std_logic ; --standard signals
+		clk, resetn, sraz : in std_logic ; --standard signals
 		blob_index : in unsigned(7 downto 0); -- blob index to madd/merge with
 		next_blob_index : out unsigned(7 downto 0); -- available index
 		blob_index_to_merge : in unsigned(7 downto 0); -- the blob index to merge
@@ -97,7 +97,7 @@ pos_blob_index <= unsigned(blob_index) when blob_index = X"00" else
 blob_index_latch : generic_latch 
 	 generic map(NBIT => 8)
     port map( clk => nclk,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => add_pixel ,
            d => std_logic_vector(pos_blob_index) ,
@@ -109,7 +109,7 @@ pos_merge_index <= unsigned(blob_index_to_merge) when blob_index_to_merge = X"00
 merge_index_latch : generic_latch 
 	 generic map(NBIT => 8)
     port map( clk => nclk,
-           arazb => arazb,
+           resetn => resetn,
            sraz => '0' ,
            en => merge_blob ,
            d => std_logic_vector(pos_merge_index) ,
@@ -130,7 +130,7 @@ next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more fre
 free_index_counter: up_down_counter 
 	 generic map(MODULO => 256 , NBIT => 8 )
     port map( clk => clk,
-           arazb => arazb,
+           resetn => resetn,
            sraz => '0',
 			  load => load_free_index_counter ,
 			  E => std_logic_vector(to_unsigned(NB_BLOB, 8)),
@@ -156,7 +156,7 @@ with pixel_state select
 next_free_blob_pointer: up_down_counter
 	 generic map(MODULO => 256 , NBIT => 8 )
     port map( clk => clk,
-           arazb => arazb,
+           resetn => resetn,
 			  sraz => '0',
 			  load => load_free_blob_pointer,
 			  E => std_logic_vector(to_unsigned(1, 8)),
@@ -224,9 +224,9 @@ xy_pixel_ram0: ram_NxN
 				  
 	
 	 --blob_add
-	process(clk, arazb)
+	process(clk, resetn)
 	begin
-	if arazb = '0' then
+	if resetn = '0' then
 		blob_index_init <= (others => '0');
 		index_in <= (others => '0');
 		to_merge <= '0' ;
@@ -355,7 +355,7 @@ xy_pixel_ram0: ram_NxN
 	generic map(NB_BLOB => NB_BLOB)
 	port map(
 		clk	=> clk, 
-		arazb	=> arazb,
+		resetn	=> resetn,
 		oe => oe,
 		clear_blob => clear_blob, 
 		ram_addr	=> blob_addr ,
