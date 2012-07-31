@@ -37,7 +37,7 @@ use WORK.GENERIC_COMPONENTS.ALL ;
 
 entity spartcam_blob is
 port( CLK : in std_logic;
-		ARAZB	:	in std_logic;
+		RESETN	:	in std_logic;
 		TXD	:	out std_logic;
 		RXD   :	in std_logic;
 		
@@ -105,7 +105,7 @@ architecture Structural of spartcam_blob is
     end component;
 
 	signal clk_24, clk_96, clk_48, clk_1_8 : std_logic ;
-	signal baud_count, arazb_delayed, clk0, cam_reset_delayed : std_logic ;
+	signal baud_count, resetn_delayed, clk0, cam_reset_delayed : std_logic ;
 	signal baud_rate_divider : integer range 0 to 53 := 0 ;
 
 	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
@@ -166,8 +166,8 @@ architecture Structural of spartcam_blob is
 	reset0: reset_generator 
 	generic map(HOLD_0 => 500000)
 	port map(clk => clk0, 
-		arazb => ARAZB ,
-		arazb_0 => arazb_delayed
+		resetn => RESETN ,
+		resetn_0 => resetn_delayed
 	 );
 	
 	process(clk_96) -- clk div for uart 3Mbs process
@@ -197,7 +197,7 @@ architecture Structural of spartcam_blob is
 			end if;
 	end process;
 
-	CAM_RESET <= ARAZB ;
+	CAM_RESET <= RESETN ;
 	CAM_XCLK <= clk_24 ;
 	
 	CAM_SIOC <= i2c_scl ;
@@ -223,7 +223,7 @@ architecture Structural of spartcam_blob is
  		i2c_clk => clk_24,
 		scl => i2c_scl ,
 		sda => i2c_sda ,
- 		arazb => arazb_delayed,
+ 		resetn => resetn_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
  		y_data => pixel_y_from_interface,
@@ -234,7 +234,7 @@ architecture Structural of spartcam_blob is
 		
 		bin_pixel0:  synced_binarization 
 		port map( clk	=> clk_96, 
-				arazb	=> arazb_delayed,
+				resetn	=> resetn_delayed,
 				pixel_clock => pxclk_from_interface, hsync =>  href_from_interface, vsync => vsync_from_interface, 
 				pixel_clock_out => pxclk_from_bin, hsync_out => href_from_bin, vsync_out => vsync_from_bin, 
 				pixel_data_1 => pixel_y_from_interface,
@@ -264,7 +264,7 @@ architecture Structural of spartcam_blob is
 		  HEIGHT => 240)
 		port map(
 				clk => clk_96,  
-				arazb => arazb_delayed ,  
+				resetn => resetn_delayed ,  
 				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
 				pixel_clock_out => pxclk_from_erode, hsync_out => href_from_erode, vsync_out => vsync_from_erode, 
 				pixel_data_in => binarized_pixel, 
@@ -277,7 +277,7 @@ architecture Structural of spartcam_blob is
 		generic map(LINE_SIZE => 320)
 		port map(
  		clk => clk_96, 
- 		arazb => arazb_delayed,
+ 		resetn => resetn_delayed,
  		pixel_clock => pxclk_from_erode, hsync => href_from_erode, vsync => vsync_from_erode,
 		pixel_data_in => pixel_from_erode,
 		blob_data => fifo_input,
@@ -288,7 +288,7 @@ architecture Structural of spartcam_blob is
 			generic map(N =>64)
 			port map(
 			clk => clk_96, 
-			arazb => arazb_delayed,
+			resetn => resetn_delayed,
 			sraz => '0',
 			wr => fifo_wr0 , 
 			rd => NOT tx1_buffer_full, 
@@ -300,7 +300,7 @@ architecture Structural of spartcam_blob is
 		uart_tx1 : uart_tx 
 		port map ( data_in => fifo_output, 
                  write_buffer => send_data,
-                 reset_buffer => NOT arazb_delayed, 
+                 reset_buffer => NOT resetn_delayed, 
                  en_16_x_baud => clk_1_8,
                  serial_out => FIFO_WR,
                  clk => clk_96,
@@ -330,7 +330,7 @@ port map(pixel_clock => pxclk_to_switch,
 		down_scaler0: down_scaler
 		generic map(SCALING_FACTOR => 4, INPUT_WIDTH => 320, INPUT_HEIGHT => 240 )
 		port map(clk => clk_96,
-		  arazb => arazb_delayed,
+		  resetn => resetn_delayed,
 		  pixel_clock => pxclk_from_switch, hsync => href_from_switch, vsync => vsync_from_switch,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
 		  pixel_data_in => pixel_from_switch,
@@ -340,7 +340,7 @@ port map(pixel_clock => pxclk_to_switch,
 		send_picture0: send_picture
 		port map(
 			clk => clk_96,
-			arazb => arazb_delayed,
+			resetn => resetn_delayed,
 			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
 			pixel_data_in => pixel_from_ds,
 			data_out => data_to_send, 
@@ -351,7 +351,7 @@ port map(pixel_clock => pxclk_to_switch,
 	uart_tx0 : uart_tx 
     port map (   data_in => data_to_send, 
                  write_buffer => send_signal,
-                 reset_buffer => NOT arazb_delayed, 
+                 reset_buffer => NOT resetn_delayed, 
                  en_16_x_baud => clk_48,
                  serial_out => TXD,
                  clk => clk_96,
@@ -361,7 +361,7 @@ port map(pixel_clock => pxclk_to_switch,
     port map(            serial_in => RXD,
                        data_out => data_to_read,
                     read_buffer => read_signal,
-                   reset_buffer => NOT arazb_delayed,
+                   reset_buffer => NOT resetn_delayed,
                    en_16_x_baud => clk_48,
             buffer_data_present => data_present,
                             clk => clk_96);
@@ -369,7 +369,7 @@ port map(pixel_clock => pxclk_to_switch,
 configuration_module0 : configuration_module
 	generic map(NB_REGISTERS => 7)
 	port map(
-		clk => clk_96, arazb =>  arazb_delayed,
+		clk => clk_96, resetn =>  resetn_delayed,
 		input_data	=> data_to_read,
 		read_data	=> read_signal,
 		data_present => data_present,

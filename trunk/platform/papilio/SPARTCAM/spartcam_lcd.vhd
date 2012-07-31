@@ -35,7 +35,7 @@ use work.generic_components.all ;
 
 entity spartcam_lcd is
 port( CLK : in std_logic;
-		ARAZB	:	in std_logic;
+		RESETN	:	in std_logic;
 		TXD	:	out std_logic;
 		RXD   :	in std_logic;
 		
@@ -89,7 +89,7 @@ architecture Structural of spartcam_lcd is
     end component;
 
 	signal clk_24, clk_96: std_logic ;
-	signal arazb_delayed, clk0 : std_logic ;
+	signal resetn_delayed, clk0 : std_logic ;
 
 	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_r, pixel_g, pixel_b : std_logic_vector(7 downto 0);
@@ -119,12 +119,12 @@ architecture Structural of spartcam_lcd is
 	reset0: reset_generator 
 	generic map(HOLD_0 => 500000)
 	port map(clk => clk0, 
-		arazb => ARAZB ,
-		arazb_0 => arazb_delayed
+		resetn => RESETN ,
+		resetn_0 => resetn_delayed
 	 );
 
 
-	CAM_RESET <= arazb ;
+	CAM_RESET <= resetn ;
 	CAM_XCLK <= clk_24 ;
 	
 	CAM_SIOC <= i2c_scl ;
@@ -150,7 +150,7 @@ architecture Structural of spartcam_lcd is
  		i2c_clk => clk_24,
 		scl => i2c_scl ,
 		sda => i2c_sda ,
- 		arazb => arazb_delayed,
+ 		resetn => resetn_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
  		y_data => pixel_y_from_interface,
@@ -160,7 +160,7 @@ architecture Structural of spartcam_lcd is
 		
 		yuv_rgb : yuv_rgb 
 		port map( clk	=> clk_96,
-				arazb	=> arazb_delayed,
+				resetn	=> resetn_delayed,
 				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
 				pixel_clock_out => pxclk_from_conv, hsync_out => href_from_conv, vsync_out => vsync_from_conv, 
 				pixel_y => pixel_y_from_interface,
@@ -175,7 +175,7 @@ architecture Structural of spartcam_lcd is
 		lcd_controller0 : lcd_controller 
 		port map(
 				clk => clk_96,
-				arazb => arazb_delayed, 
+				resetn => resetn_delayed, 
 				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface, 
 				pixel_r => pixel_r,
 				pixel_g => pixel_g,	

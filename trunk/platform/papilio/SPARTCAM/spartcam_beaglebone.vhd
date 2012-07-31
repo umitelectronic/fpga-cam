@@ -36,7 +36,7 @@ use work.camera.all ;
 
 entity spartcam_beaglebone is
 port( CLK : in std_logic;
-		ARAZB	:	in std_logic;
+		RESETN	:	in std_logic;
 		TXD	:	out std_logic;
 		RXD   :	in std_logic;
 		
@@ -100,7 +100,7 @@ architecture Behavioral of spartcam_beaglebone is
 	END COMPONENT;
 
 signal clk_120, clk_24: std_logic ;
-	signal baud_count, arazb_delayed, clk0, clk0_buf, cam_reset_delayed : std_logic ;
+	signal baud_count, resetn_delayed, clk0, clk0_buf, cam_reset_delayed : std_logic ;
 	signal baud_rate_divider : integer range 0 to 53 := 0 ;
 	signal cam_clock_divider : integer range 0 to 10 := 0 ;
 	
@@ -128,7 +128,7 @@ begin
 	SPARE <= (others => 'Z') ;
 
 	
-	CAM_RESET <= ARAZB ;
+	CAM_RESET <= RESETN ;
 
 	TXD <= 'Z' ;
 
@@ -136,8 +136,8 @@ begin
 	reset0: reset_generator 
 	generic map(HOLD_0 => 500000)
 	port map(clk => clk0, 
-		arazb => ARAZB ,
-		arazb_0 => arazb_delayed
+		resetn => RESETN ,
+		resetn_0 => resetn_delayed
 	 );
 
 
@@ -174,7 +174,7 @@ begin
 
 mem_interface0 : addr_interface
 generic map(ADDR_WIDTH => 8 , DATA_WIDTH => 16)
-		port map(clk => clk_120 , arazb => arazb_delayed ,
+		port map(clk => clk_120 , resetn => resetn_delayed ,
 		  data	=> BEAGLE_DATA ,
 		  addr	=> BEAGLE_ADDR ,
 		  wrn => BEAGLE_WRN, oen => BEAGLE_OEN, csn => BEAGLE_CSN ,
@@ -190,7 +190,7 @@ bi_fifo0 : fifo_peripheral
 		generic map(BASE_ADDR => 0, ADDR_WIDTH => 8,WIDTH => 16, SIZE => 1024)
 		port map(
 			clk => clk_120,
-			arazb => arazb_delayed,
+			resetn => resetn_delayed,
 			addr_bus => bus_addr,
 			wr_bus => bus_wr,
 			rd_bus => bus_rd,
@@ -206,9 +206,9 @@ bi_fifo0 : fifo_peripheral
 			fullB => fifoB_full
 		);
 		
---		process(arazb, clk_24)
+--		process(resetn, clk_24)
 --		begin	
---			if arazb = '0' then 
+--			if resetn = '0' then 
 --				fifo_full_old <= '0' ;
 --			elsif clk_24'event and clk_24 = '1' then
 --				fifo_full_old <= fifoB_full ;
@@ -216,9 +216,9 @@ bi_fifo0 : fifo_peripheral
 --		end process ;
 --		fifo_full_rising_edge <= (NOT fifo_full_old) AND fifoB_full ;
 --		
---		process(arazb_delayed, clk_120)
+--		process(resetn_delayed, clk_120)
 --		begin
---		 if arazb_delayed = '0' then
+--		 if resetn_delayed = '0' then
 --			fifoA_rd <= '0' ;
 --		 elsif clk_120'event and clk_120 = '1' then
 --			if fifoA_empty = '0' then
@@ -229,9 +229,9 @@ bi_fifo0 : fifo_peripheral
 --		 end if ;
 --		end process ;
 --		
---		process(arazb_delayed, clk_120)
+--		process(resetn_delayed, clk_120)
 --		begin
---		 if arazb_delayed = '0' then
+--		 if resetn_delayed = '0' then
 --			fifoB_wr <= '0' ;
 --		 elsif clk_120'event and clk_120 = '1' then
 --				fifoB_wr <= fifoA_rd ;
@@ -245,14 +245,14 @@ bi_fifo0 : fifo_peripheral
 			i2c_clk => clk_24,
 			scl => CAM_SIOC ,
 			sda => CAM_SIOD ,
-			arazb => arazb_delayed,
+			resetn => resetn_delayed,
 			pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
 			pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
 			y_data => pixel_from_interface
 		);	
 
 --gen_graph : graphic_generator
---port map(clk => clk_120, arazb => arazb_delayed ,
+--port map(clk => clk_120, resetn => resetn_delayed ,
 --	  pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
 --	  pixel_r => pixel_from_interface
 --	  );
@@ -261,9 +261,9 @@ CAM_XCLK <= clk_24 ;
 
 
 
-process(clk_120, arazb_delayed)
+process(clk_120, resetn_delayed)
 begin
-	if arazb_delayed = '0' then
+	if resetn_delayed = '0' then
 		vsync_old <= '0' ;
 	elsif clk_120'event and clk_120 = '1' then
 		vsync_old <= vsync_from_interface ;
@@ -271,9 +271,9 @@ begin
 end process ;
 vsync_rising_edge <= (NOT vsync_old) and vsync_from_interface ;
 
-process(clk_120, arazb_delayed)
+process(clk_120, resetn_delayed)
 begin
-	if arazb_delayed = '0' then
+	if resetn_delayed = '0' then
 		hsync_old <= '0' ;
 	elsif clk_120'event and clk_120 = '1' then
 		hsync_old <= href_from_interface ;
@@ -281,9 +281,9 @@ begin
 end process ;
 hsync_rising_edge <= (NOT hsync_old) and href_from_interface ;
 
-process(clk_120, arazb_delayed)
+process(clk_120, resetn_delayed)
 begin
-	if arazb_delayed = '0' then
+	if resetn_delayed = '0' then
 		pxclk_old <= '0' ;
 	elsif clk_120'event and clk_120 = '1' then
 		pxclk_old <= pxclk_from_interface ;
@@ -291,9 +291,9 @@ begin
 end process ;
 pxclk_rising_edge <= (NOT pxclk_old) and pxclk_from_interface ;
 
-process(clk_120, arazb_delayed)
+process(clk_120, resetn_delayed)
 begin
-	if arazb_delayed = '0' then
+	if resetn_delayed = '0' then
 		pixel_buffer(15 downto 0) <= (others => '0') ;
 	elsif clk_120'event and clk_120 = '1' then
 		if hsync_rising_edge = '1' then
@@ -305,9 +305,9 @@ begin
 	end if ;
 end process ;
 
-process(clk_120, arazb_delayed)
+process(clk_120, resetn_delayed)
 begin
-	if arazb_delayed = '0' then
+	if resetn_delayed = '0' then
 		pixel_count <= (others => '0'); 
 	elsif clk_120'event and clk_120 = '1' then
 		if hsync_rising_edge = '1' then
@@ -319,9 +319,9 @@ begin
 end process ;
 write_pixel <= pixel_count(0);
 
-process(clk_120, arazb_delayed)
+process(clk_120, resetn_delayed)
 begin
-	if arazb_delayed = '0' then
+	if resetn_delayed = '0' then
 		write_pixel_old <= '0'; 
 	elsif clk_120'event and clk_120 = '1' then
 		write_pixel_old <= write_pixel ;

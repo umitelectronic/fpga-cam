@@ -36,7 +36,7 @@ use work.camera.all ;
 
 entity spartcam_square is
 port( CLK : in std_logic;
-		ARAZB	:	in std_logic;
+		RESETN	:	in std_logic;
 		CAM_XCLK	:	out std_logic;
 		TXD	:	out std_logic;
 		CAM_SIOC, CAM_SIOD	:	inout std_logic; 
@@ -79,9 +79,9 @@ architecture Structural of spartcam_square is
     end component;
 
 	signal clk_24, clk_96, clk_48 : std_logic ;
-	signal baud_count, arazb_delayed, clk0 : std_logic ;
-	constant arazb_delay : integer := 1000000 ;
-	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
+	signal baud_count, resetn_delayed, clk0 : std_logic ;
+	constant resetn_delay : integer := 1000000 ;
+	signal resetn_time : integer range 0 to 1048576 := resetn_delay ;
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
@@ -98,16 +98,16 @@ architecture Structural of spartcam_square is
 	signal i2c_scl, i2c_sda : std_logic;
 	begin
 
-	process(clk0, arazb) -- reset process
+	process(clk0, resetn) -- reset process
 	begin
-		if arazb = '0' then
-			arazb_time <= arazb_delay;
+		if resetn = '0' then
+			resetn_time <= resetn_delay;
 		elsif clk0'event and clk0 = '1' then
-			if arazb_time = 0 then
-				arazb_delayed <= '1' ;
+			if resetn_time = 0 then
+				resetn_delayed <= '1' ;
 			else
-				arazb_delayed <= '0';
-				arazb_time <= arazb_time - 1 ;
+				resetn_delayed <= '0';
+				resetn_time <= resetn_time - 1 ;
 			end if;
 		end if;
 	end process;
@@ -125,7 +125,7 @@ architecture Structural of spartcam_square is
 	end if;
 	end process;
 
-	CAM_RESET <= arazb ;
+	CAM_RESET <= resetn ;
 	CAM_PWEN <= '0';
 	CAM_XCLK <= clk_24 ;
 	--CAM_PCLK_OUT <= CAM_PCLK;
@@ -164,7 +164,7 @@ architecture Structural of spartcam_square is
  		i2c_clk => clk_24,
 		scl => i2c_scl ,
 		sda => i2c_sda ,
- 		arazb => arazb_delayed,
+ 		resetn => resetn_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
  		y_data => pixel_from_interface
@@ -173,7 +173,7 @@ architecture Structural of spartcam_square is
 		square0: draw_square 
 port map(
  		clk => clk_96, 
- 		arazb => arazb_delayed,
+ 		resetn => resetn_delayed,
 		posx => "0101000000", posy => "0011110000", width => "0000010000", height =>  "0000010000",
  		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
  		pixel_clock_out => pxclk_from_square, hsync_out => href_from_square, vsync_out => vsync_from_square, 
@@ -185,7 +185,7 @@ port map(
 		
 		down_scaler0: down_scaler
 		port map(clk => clk_96,
-		  arazb => arazb_delayed,
+		  resetn => resetn_delayed,
 		  pixel_clock => pxclk_from_square, hsync => href_from_square, vsync => vsync_from_square,
 		  pixel_clock_out => pxclk_from_ds, hsync_out => href_from_ds, vsync_out => vsync_from_ds,
 		  pixel_data_in => pixel_from_square,
@@ -195,7 +195,7 @@ port map(
 		send_picture0: send_picture
 		port map(
 			clk => clk_96,
-			arazb => arazb_delayed,
+			resetn => resetn_delayed,
 			pixel_clock => pxclk_from_ds, hsync => href_from_ds, vsync => vsync_from_ds, 
 			pixel_data_in => pixel_from_ds,
 			data_out => data_to_send, 
@@ -206,7 +206,7 @@ port map(
 	uart_tx0 : uart_tx 
     port map (   data_in => data_to_send, 
                  write_buffer => send_signal,
-                 reset_buffer => NOT arazb_delayed, 
+                 reset_buffer => NOT resetn_delayed, 
                  en_16_x_baud => clk_48,
                  serial_out => TXD,
                  clk => clk_96,
