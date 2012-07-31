@@ -35,7 +35,7 @@ use work.generic_components.all ;
 
 entity spartcam_lcd_test is
 port( CLK : in std_logic;
-		ARAZB	:	in std_logic;
+		RESETN	:	in std_logic;
 		TXD	:	out std_logic;
 		RXD   :	in std_logic;
 		
@@ -89,9 +89,9 @@ architecture Structural of spartcam_lcd_test is
     end component;
 
 	signal clk_24, clk_96, clk_48 : std_logic ;
-	signal baud_count, arazb_delayed, clk0 : std_logic ;
-	constant arazb_delay : integer := 1000000 ;
-	signal arazb_time : integer range 0 to 1048576 := arazb_delay ;
+	signal baud_count, resetn_delayed, clk0 : std_logic ;
+	constant resetn_delay : integer := 1000000 ;
+	signal resetn_time : integer range 0 to 1048576 := resetn_delay ;
 
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pixel_from_ds : std_logic_vector(7 downto 0);
@@ -121,7 +121,7 @@ architecture Structural of spartcam_lcd_test is
 	FIFO_DATA <= (others => 'Z')  ;
 	TXD <= 'Z' ;
 	
-	CAM_RESET <= arazb ;
+	CAM_RESET <= resetn ;
 	CAM_XCLK <= clk_24 ;
 	
 	CAM_SIOC <= 'Z' ;
@@ -130,8 +130,8 @@ architecture Structural of spartcam_lcd_test is
 	reset0: reset_generator 
 	generic map(HOLD_0 => 500000)
 	port map(clk => clk0, 
-		arazb => ARAZB ,
-		arazb_0 => arazb_delayed
+		resetn => RESETN ,
+		resetn_0 => resetn_delayed
 	 );
 	
 	process(clk_96) -- clk div for uart process
@@ -162,7 +162,7 @@ architecture Structural of spartcam_lcd_test is
 	
 	
 		graphic_gen : graphic_generator 
-		port map(clk => clk_24, arazb => arazb,
+		port map(clk => clk_24, resetn => resetn,
 			  pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface ,
 			  pixel_r => pixel_from_interface
 	   );
@@ -170,7 +170,7 @@ architecture Structural of spartcam_lcd_test is
 		lcd_controller0 : lcd_controller 
 		port map(
 				clk => clk_96,
-				arazb => arazb_delayed, 
+				resetn => resetn_delayed, 
 				pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface, 
 				pixel_r => pixel_from_interface, pixel_g =>  X"00", pixel_b =>  X"00",
 				lcd_rs => LCD_RS, lcd_cs => LCD_CS, lcd_rd => LCD_RD, lcd_wr => LCD_WR,
