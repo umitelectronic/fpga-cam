@@ -12,7 +12,7 @@ PACKAGE camera IS
 component i2c_master is
 	port(
  		clock : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		slave_addr : in std_logic_vector(6 downto 0 ); 
  		data_in : in std_logic_vector(7 downto 0 );
 		data_out : out std_logic_vector(7 downto 0 );  
@@ -63,7 +63,7 @@ component yuv_camera_interface is
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_data : in std_logic_vector(7 downto 0 ); 
  		y_data : out std_logic_vector(7 downto 0 ); 
  		u_data : out std_logic_vector(7 downto 0 ); 
@@ -80,7 +80,7 @@ component rgb565_camera_interface is
 	port(
  		clock : in std_logic; 
  		i2c_clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_data : in std_logic_vector(7 downto 0 ); 
  		r_data : out std_logic_vector(7 downto 0 ); 
  		g_data : out std_logic_vector(7 downto 0 ); 
@@ -96,7 +96,7 @@ component down_scaler is
 	generic(SCALING_FACTOR : natural := 8; INPUT_WIDTH : natural := 640; INPUT_HEIGHT : natural := 480 );
 	port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -120,7 +120,7 @@ end component;
 component send_picture is
 	port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
  		data_out : out std_logic_vector(7 downto 0 ); 
@@ -164,7 +164,7 @@ component block3X3 is
 		generic(LINE_SIZE : natural := 640);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			pixel_clock, hsync, vsync : in std_logic; 
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
 			new_block : out std_logic ;
@@ -176,7 +176,7 @@ component block3X3v2 is
 		  HEIGHT: natural := 480);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			pixel_clock, hsync, vsync : in std_logic; 
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
 			new_block : out std_logic ;
@@ -190,7 +190,7 @@ generic(KERNEL : imat3 := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
 		  );
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		new_block : in std_logic ;
 		block3x3 : in mat3;
 		new_conv : out std_logic ;
@@ -205,7 +205,7 @@ generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -220,7 +220,7 @@ generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -242,7 +242,7 @@ end component;
 
 component synced_binarization is
 port( clk	:	in std_logic ;
-		arazb	:	in std_logic ;
+		resetn	:	in std_logic ;
 		pixel_clock, hsync, vsync : in std_logic; 
 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_1 : in std_logic_vector(7 downto 0) ;
@@ -274,7 +274,7 @@ generic(INVERT : natural := 0;
 		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -291,7 +291,7 @@ generic(INVERT : natural := 0;
 		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -307,7 +307,7 @@ component neighbours is
 		generic(LINE_SIZE : natural := 640);
 		port(
 			clk : in std_logic; 
-			arazb, sraz : in std_logic; 
+			resetn, sraz : in std_logic; 
 			add_neighbour, next_line : in std_logic; 
 			neighbour_in : in unsigned(7 downto 0 );
 			neighbours : out pix_neighbours);
@@ -316,7 +316,7 @@ end component;
 component blobs is
 	generic(NB_BLOB : positive:= 16);
 	port(
-		clk, arazb, sraz : in std_logic ;
+		clk, resetn, sraz : in std_logic ;
 		blob_index : in unsigned(7 downto 0);
 		next_blob_index : out unsigned(7 downto 0);
 		blob_index_to_merge : in unsigned(7 downto 0);
@@ -338,7 +338,7 @@ component blob_detection is
 generic(LINE_SIZE : natural := 640);
 port(
  		clk : in std_logic; 
- 		arazb: in std_logic; 
+ 		resetn: in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
 		blob_data : out std_logic_vector(7 downto 0);
@@ -349,7 +349,7 @@ end component;
 component draw_square is
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
 		posx, posy, width, height : in unsigned(9 downto 0);
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
@@ -362,7 +362,7 @@ component pixel_counter is
 		generic(POL : std_logic := '1'; MAX : positive := 640);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			pixel_clock, hsync : in std_logic; 
 			pixel_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
@@ -372,7 +372,7 @@ component line_counter is
 		generic(POL : std_logic := '1'; MAX : positive := 480);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			hsync, vsync : in std_logic; 
 			line_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
@@ -381,7 +381,7 @@ end component;
 component configuration_module is
 generic(NB_REGISTERS : natural := 6);
 port(
-	clk, arazb : in std_logic ;
+	clk, resetn : in std_logic ;
 	input_data	:	in std_logic_vector(7 downto 0) ;
 	read_data	:	out std_logic ;
 	data_present	:	in std_logic ;
@@ -394,7 +394,7 @@ component blob_sender is
 generic(NB_BLOB : positive	:=	16);
 	port(
 		clk	:	in std_logic ;
-		arazb	:	in std_logic ;
+		resetn	:	in std_logic ;
 		oe : in std_logic ;
 		clear_blob :	out std_logic ;
 		ram_addr	:	out std_logic_vector(7 downto 0);
@@ -418,7 +418,7 @@ end component;
 
 
 component lcd_interface is
-port(clk, arazb	:	in std_logic ;
+port(clk, resetn	:	in std_logic ;
 	  addr	:	in std_logic_vector(7 downto 0) ;
 	  data	:	in std_logic_vector(15 downto 0);
 	  wr_data	:	in std_logic ;
@@ -439,7 +439,7 @@ end component;
 component lcd_controller is
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_r, pixel_g, pixel_b : in std_logic_vector(7 downto 0 );
 		lcd_rs, lcd_cs, lcd_rd, lcd_wr	:	 out std_logic;
@@ -448,7 +448,7 @@ port(
 end component;
 
 component graphic_generator is
-port(clk, arazb : in  std_logic ;
+port(clk, resetn : in  std_logic ;
 	  pixel_clock_out, hsync_out, vsync_out : out		std_logic ;
 	  pixel_r, pixel_g, pixel_b	:	out	 std_logic_vector(7 downto 0)
 	  );
@@ -457,7 +457,7 @@ end component;
 
 component yuv_rgb is
 port( clk	:	in std_logic ;
-		arazb	:	in std_logic ;
+		resetn	:	in std_logic ;
 		pixel_clock, hsync, vsync : in std_logic; 
 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_y : in std_logic_vector(7 downto 0) ;

@@ -37,7 +37,7 @@ entity line_counter is
 		generic(POL : std_logic := '1'; MAX : positive := 480);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			hsync, vsync : in std_logic; 
 			line_count : out std_logic_vector((nbit(MAX) - 1) downto 0 )
 			);
@@ -50,9 +50,9 @@ signal line_count_temp : std_logic_vector((nbit(MAX) - 1) downto 0 ) ;
 begin
 
 -- count lines on rising edge of hsync
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then 
+if resetn = '0' then 
 	line_count_temp <= (others => '0') ;
 elsif clk'event and clk = '1'  then
 		if vsync = '1' then

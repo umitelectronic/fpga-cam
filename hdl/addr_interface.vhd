@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity addr_interface is
 generic(ADDR_WIDTH : positive := 8 ; DATA_WIDTH : positive := 16; USE_EXT_CLOCK : boolean := false);
-port(clk, arazb : in std_logic ;
+port(clk, resetn : in std_logic ;
 	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr	:	in	std_logic_vector((ADDR_WIDTH - 1) downto 0);
 	  wrn, oen, csn, ext_clk : in std_logic ;
@@ -54,9 +54,9 @@ rd_from_bus <= (NOT oen) and (NOT csn) ;
 
 
 gen_ext_clk : if USE_EXT_CLOCK generate
-	process(ext_clk, arazb)
+	process(ext_clk, resetn)
 	begin
-	if arazb ='0' then
+	if resetn ='0' then
 		wrt <= '0' ;
 		rdt <= '0' ;
 		data_bus_out_t <= (others => 'Z');
@@ -73,9 +73,9 @@ gen_ext_clk : if USE_EXT_CLOCK generate
 end generate ;
 
 gen_no_ext_clk : if (NOT USE_EXT_CLOCK) generate
-	process(clk, arazb)
+	process(clk, resetn)
 	begin
-	if arazb ='0' then
+	if resetn ='0' then
 		wrt <= '0' ;
 		rdt <= '0' ;
 		data_bus_out_t <= (others => '0');
@@ -94,18 +94,18 @@ gen_no_ext_clk : if (NOT USE_EXT_CLOCK) generate
 	
 	
 	-- trying to limit SSN
-	process(clk, arazb)
+	process(clk, resetn)
 	begin
-	if arazb ='0' then
+	if resetn ='0' then
 		data_bus_in_t(7 downto 0) <= (others => '0');
 	elsif clk'event and clk ='0' then
 		data_bus_in_t(7 downto 0) <= data_bus_in(7 downto 0) ;
 	end if ;
 	end process;
 	
-	process(clk, arazb)
+	process(clk, resetn)
 	begin
-	if arazb ='0' then
+	if resetn ='0' then
 		data_bus_in_t(15 downto 8) <= (others => '0');
 	elsif clk'event and clk ='1' then
 		data_bus_in_t(15 downto 8) <= data_bus_in(15 downto 8) ;
@@ -118,9 +118,9 @@ end generate ;
 --latch_en <= '1' ;
 --debounce 
 --rs lock
-process(clk, arazb)
+process(clk, resetn)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		latch_en <= '1' ;
 	elsif clk'event and clk = '1' then
 		if wr_from_bus = '1' or rd_from_bus = '1' then
@@ -131,9 +131,9 @@ begin
 	end if ;
 end process ;
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-	if arazb = '0' then
+	if resetn = '0' then
 		debounce_counter <= (others => '0') ;
 	elsif clk'event and clk = '1' then
 		if debounce_counter = 1 then

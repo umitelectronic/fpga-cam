@@ -37,7 +37,7 @@ use work.generic_components.all ;
 entity lcd_controller is
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_r, pixel_g, pixel_b : in std_logic_vector(7 downto 0 );
 		lcd_rs, lcd_cs, lcd_rd, lcd_wr	:	 out std_logic;
@@ -65,7 +65,7 @@ begin
 
 
 cl_interface0: lcd_interface
-port map(clk => clk, arazb => arazb ,
+port map(clk => clk, resetn => resetn ,
 	  addr => lcd_addr,
 	  data => lcd_data_s ,
 	  wr_data => wr_lcd,
@@ -85,7 +85,7 @@ register0: lcd_register_rom
 register_counter :  simple_counter
  generic map(NBIT => 8)
  port map( clk => clk,
-		  arazb => arazb,
+		  resetn => resetn,
 		  sraz => '0',
 		  en => en_counter,
 		  load => '0', 
@@ -96,7 +96,7 @@ register_counter :  simple_counter
 delay_counter :  simple_counter
  generic map(NBIT => 32)
  port map( clk => clk,
-		  arazb => arazb,
+		  resetn => resetn,
 		  sraz => sraz_delay,
 		  en => en_delay,
 		  load => '0', 
@@ -107,7 +107,7 @@ delay_counter :  simple_counter
 line_counter0 :  simple_counter
  generic map(NBIT => 9)
  port map( clk => clk,
-		  arazb => arazb,
+		  resetn => resetn,
 		  sraz => sraz_pixel_count,
 		  en => pxclk_rising,
 		  load => '0', 
@@ -115,9 +115,9 @@ line_counter0 :  simple_counter
 		  Q => pixel_count
 		  );	
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	pxclk_old <= '0' ;
 	pxclk_rising <= '0' ;
 elsif clk'event and clk = '1' then
@@ -131,9 +131,9 @@ end if ;
 end process ;
 
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	state <= LCD_INIT ;
 elsif clk'event and clk = '1' then
 	state <= next_state ;

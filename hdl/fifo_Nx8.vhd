@@ -11,7 +11,7 @@ library work;
 entity fifo_Nx8 is
 	generic(N : natural := 128);
 	port(
- 		clk, arazb, sraz : in std_logic; 
+ 		clk, resetn, sraz : in std_logic; 
  		wr, rd : in std_logic; 
 		empty, full, data_rdy : out std_logic ;
  		data_out : out std_logic_vector(7 downto 0 ); 
@@ -40,9 +40,9 @@ architecture behavioral of fifo_Nx8 is
 		); 
 		
 	-- fifo process
-	process(clk, arazb)
+	process(clk, resetn)
 		 begin
-			if arazb = '0' then
+			if resetn = '0' then
 				wr_addr <= (others => '0');
 				rd_addr <= (others => '0');
 				byte_count <= (others => '0');
@@ -82,9 +82,9 @@ architecture behavioral of fifo_Nx8 is
 			end if;
 	end process;
 	
-	process(clk, arazb)
+	process(clk, resetn)
 		 begin
-			if arazb = '0' then
+			if resetn = '0' then
 				data_rdy <= '0' ;
 		 	elsif  clk'event and clk = '0' then
 				data_rdy <= ready ; -- data is ready on falling edge of clock

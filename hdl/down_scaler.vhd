@@ -11,7 +11,7 @@ entity down_scaler is
 	generic(SCALING_FACTOR : natural := 8; INPUT_WIDTH : natural := 640; INPUT_HEIGHT : natural := 480 );
 	port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -49,9 +49,9 @@ architecture systemc of down_scaler is
 	add_temp <= (add_result + ("00000000" & pixel_data_in)) ; -- pixel are accumulated into a register
 
 	-- down_scaler_process
-	process(clk, arazb)
+	process(clk, resetn)
 		 begin
-		 	if arazb = '0'  then
+		 	if resetn = '0'  then
 		 		nb_line_accumulated <= (others => '0') ; 
 		 		nb_pix_accumulated <= (others => '0') ; 
 				nb_line_output <= (others => '0') ; 

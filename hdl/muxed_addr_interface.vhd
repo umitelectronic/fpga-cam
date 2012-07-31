@@ -34,7 +34,7 @@ use work.generic_components.all ;
 
 entity muxed_addr_interface is
 generic(ADDR_WIDTH : positive := 8 ; DATA_WIDTH : positive := 16);
-port(clk, arazb : in std_logic ;
+port(clk, resetn : in std_logic ;
 	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  wrn, oen, addr_en_n, csn : in std_logic ;
 	  data_bus_out	: out	std_logic_vector((DATA_WIDTH - 1) downto 0);
@@ -55,15 +55,15 @@ latch_addr <= '1' when csn = '0' and addr_en_n = '0' and wrn = '1' and oen = '1'
 add_latch0 : generic_latch 
 	 generic map(NBIT => ADDR_WIDTH)
     Port map( clk => clk ,
-           arazb => arazb ,
+           resetn => resetn ,
            sraz => '0' ,
            en => latch_addr,
            d => data((ADDR_WIDTH - 1) downto 0),
            q => addr_bus);
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb ='0' then
+if resetn ='0' then
 	wrt <= '0' ;
 	rdt <= '0' ;
 	data_bus_out_t <= (others => 'Z');

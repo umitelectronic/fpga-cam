@@ -34,7 +34,7 @@ use work.generic_components.all ;
 --use UNISIM.VComponents.all;
 
 entity graphic_generator is
-port(clk, arazb : in  std_logic ;
+port(clk, resetn : in  std_logic ;
 	  pixel_clock_out, hsync_out, vsync_out : out		std_logic ;
 	  pixel_r, pixel_g, pixel_b	:	out	 std_logic_vector(7 downto 0)
 	  );
@@ -52,7 +52,7 @@ begin
 clock_div_3mhz :  simple_counter
  generic map(NBIT => 10)
  port map( clk => clk,
-		  arazb => arazb,
+		  resetn => resetn,
 		  sraz => '0',
 		  en => '1',
 		  load => '0', 
@@ -63,9 +63,9 @@ clock_div_3mhz :  simple_counter
 pxclk <= clock_div(div_factor) ;
 
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	pxclk_old <= '0' ;
 elsif clk'event and clk ='1' then
 	if pxclk_old /= pxclk and pxclk = '1' then
@@ -80,7 +80,7 @@ end process ;
 line_counter :  simple_counter
  generic map(NBIT => 10)
  port map( clk => clk,
-		  arazb => arazb,
+		  resetn => resetn,
 		  sraz => sraz_line_count,
 		  en => sraz_pixel_count,
 		  load => '0', 
@@ -92,7 +92,7 @@ line_counter :  simple_counter
 pixel_counter :  simple_counter
  generic map(NBIT => 10)
  port map( clk => clk,
-		  arazb => arazb,
+		  resetn => resetn,
 		  sraz => sraz_pixel_count,
 		  en => pxclk_rising,
 		  load => '0', 

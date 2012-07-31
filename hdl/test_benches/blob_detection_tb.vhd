@@ -44,7 +44,7 @@ ARCHITECTURE behavior OF blob_detection_tb IS
 	 GENERIC(LINE_SIZE : natural := 640);
     PORT(
          clk : IN  std_logic;
-         arazb : IN  std_logic;
+         resetn : IN  std_logic;
          pixel_clock : IN  std_logic;
          hsync : IN  std_logic;
          vsync : IN  std_logic;
@@ -57,7 +57,7 @@ ARCHITECTURE behavior OF blob_detection_tb IS
 	constant clk_period : time := 5 ns ;
 	constant pclk_period : time := 40 ns ;
 	
-	signal clk, arazb : std_logic ;
+	signal clk, resetn : std_logic ;
 	signal pxclk, hsync, vsync, send_blob : std_logic ;
 	signal pixel, blob_data : std_logic_vector(7 downto 0 ) := (others => '0');
 	signal px_count, line_count, byte_count : integer := 0 ;
@@ -69,7 +69,7 @@ BEGIN
 		generic map(LINE_SIZE => 320)
 		PORT MAP (
           clk => clk,
-          arazb => arazb,
+          resetn => resetn,
           pixel_clock => pxclk,
           hsync => hsync,
           vsync => vsync,
@@ -80,9 +80,9 @@ BEGIN
 
 	process
 	begin
-		arazb <= '0' ;
+		resetn <= '0' ;
 		wait for 10*clk_period;
-		arazb <= '1' ;
+		resetn <= '1' ;
 		while true loop
 			clk <= '0';
 			wait for clk_period;

@@ -47,7 +47,7 @@ ARCHITECTURE behavior OF lcd_controller_tb IS
 	constant clk_period : time := 5 ns ;
 	constant pclk_period : time := 150 ns ;
 	
-	signal clk, arazb : std_logic ;
+	signal clk, resetn : std_logic ;
 	signal pxclk, hsync, vsync : std_logic ;
 	signal pixel : std_logic_vector(7 downto 0 ) := (others => '0');
 	signal px_count, line_count, byte_count : integer := 0 ;
@@ -60,7 +60,7 @@ ARCHITECTURE behavior OF lcd_controller_tb IS
 BEGIN
  
 stimuli : graphic_generator 
-port map(clk => clk, arazb => arazb,
+port map(clk => clk, resetn => resetn,
 	  pixel_clock_out => pxclk, hsync_out => hsync, vsync_out => vsync ,
 	  pixel_r => pixel
 	  );
@@ -69,7 +69,7 @@ port map(clk => clk, arazb => arazb,
 uut : lcd_controller
 port map(
  		clk => clk,
- 		arazb => arazb,
+ 		resetn => resetn,
  		pixel_clock => pxclk, hsync => hsync, vsync => vsync, 
  		pixel_r => pixel, pixel_g => pixel, pixel_b => pixel,
 		lcd_rs => lcd_rs, lcd_cs => lcd_cs, lcd_rd => lcd_rd, lcd_wr => lcd_wr,
@@ -80,7 +80,7 @@ process
 variable a : integer := 0 ;
 begin
 	while a < 10 loop
-		arazb <= '0' ;
+		resetn <= '0' ;
 		clk <= '0';
 		wait for clk_period;
 		clk <= '1';
@@ -88,7 +88,7 @@ begin
 		a := a + 1 ;
 	end loop ;
 	while true loop
-		arazb <= '1' ;
+		resetn <= '1' ;
 		clk <= '0';
 		wait for clk_period;
 		clk <= '1';

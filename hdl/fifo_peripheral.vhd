@@ -35,7 +35,7 @@ use work.generic_components.all ;
 entity fifo_peripheral is
 generic(BASE_ADDR	:	natural	:= 0; ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
 port(
-	clk, arazb : in std_logic ;
+	clk, resetn : in std_logic ;
 	addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
 	wr_bus, rd_bus, cs_bus : in std_logic ;
 	wrB, rdA : in std_logic ;
@@ -68,7 +68,7 @@ port map(addr_bus_in	=> addr_bus ,
 fifo_A : dp_fifo -- write from bus, read from logic
 	generic map(N => SIZE , W => WIDTH)
 	port map(
- 		clk => clk, arazb => arazb , sraz => srazA , 
+ 		clk => clk, resetn => resetn , sraz => srazA , 
  		wr => fifoA_wr, rd => rdA,
 		empty => emptyA,
 		full => fullA ,
@@ -80,7 +80,7 @@ fifo_A : dp_fifo -- write from bus, read from logic
 fifo_B : dp_fifo -- read from bus, write from logic
 	generic map(N => SIZE , W => WIDTH)
 	port map(
- 		clk => clk, arazb => arazb , sraz => srazB , 
+ 		clk => clk, resetn => resetn , sraz => srazB , 
  		wr => wrB, rd => fifoB_rd,
 		empty => emptyB,
 		full => fullB ,
@@ -94,7 +94,7 @@ latch_registers <= NOT rd_bus ;
 --nb_available_latch0 : generic_latch 
 --	 generic map(NBIT => WIDTH)
 --    Port map( clk => clk ,
---           arazb => arazb ,
+--           resetn => resetn ,
 --           sraz => '0' ,
 --           en => latch_registers ,
 --           d => std_logic_vector(nb_availableB),
@@ -104,7 +104,7 @@ nb_availableB_latched  <= std_logic_vector(nb_availableB) ;
 --nb_available_latch1 : generic_latch 
 --	 generic map(NBIT => WIDTH)
 --    Port map( clk => clk ,
---           arazb => arazb ,
+--           resetn => resetn ,
 --           sraz => '0' ,
 --           en => latch_registers ,
 --           d => std_logic_vector(nb_availableA),

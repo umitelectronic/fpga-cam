@@ -39,7 +39,7 @@ entity blob_detection is
 generic(LINE_SIZE : natural := 640);
 port(
  		clk : in std_logic; 
- 		arazb: in std_logic; 
+ 		resetn: in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
 		blob_data : out std_logic_vector(7 downto 0);
@@ -66,7 +66,7 @@ begin
 
 blobs0 : blobs
 	port map(
-		clk => clk, arazb => arazb, sraz => sraz_blobs,
+		clk => clk, resetn => resetn, sraz => sraz_blobs,
 		blob_index => current_blob,
 		next_blob_index => new_blob_index,
 		blob_index_to_merge => blob_index_to_merge ,
@@ -85,7 +85,7 @@ update_neighbours : neighbours
 		generic map(LINE_SIZE => LINE_SIZE )
 		port map(
 			clk => clk, 
-			arazb => arazb , sraz => sraz_neighbours, 
+			resetn => resetn , sraz => sraz_neighbours, 
 			add_neighbour => add_neighbour, next_line => new_line,  
 			neighbour_in => current_blob,
 			neighbours => neighbours0);
@@ -93,7 +93,7 @@ update_neighbours : neighbours
 pixel_counter0: pixel_counter
 		port map(
 			clk => clk,
-			arazb => arazb, 
+			resetn => resetn, 
 			pixel_clock => pixel_clock, hsync => hsync,
 			pixel_count => pixel_x
 			);
@@ -101,7 +101,7 @@ pixel_counter0: pixel_counter
 line_counter0: line_counter
 		port map(
 			clk => clk,
-			arazb => arazb, 
+			resetn => resetn, 
 			hsync => hsync, vsync => vsync, 
 			line_count => pixel_y
 			);
@@ -110,9 +110,9 @@ with blob_state0 select
 	oe_blob <= '1' when WAIT_VSYNC ,
 				  '0' when others ;
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then
+if resetn = '0' then
 	add_neighbour <= '0' ;
 	blob_state0 <= WAIT_VSYNC ;
 elsif clk'event and clk = '1' then

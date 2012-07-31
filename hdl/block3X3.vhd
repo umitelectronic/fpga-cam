@@ -38,7 +38,7 @@ entity block3X3 is
 		generic(LINE_SIZE : natural := 640);
 		port(
 			clk : in std_logic; 
-			arazb : in std_logic; 
+			resetn : in std_logic; 
 			pixel_clock, hsync, vsync : in std_logic; 
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
 			new_block : out std_logic ;
@@ -72,7 +72,7 @@ linefifo1 : fifo_Nx8
 	generic map(N => LINE_SIZE + 5) -- fifo gets full a bit too fast
 	port map(
 	clk => clk,
-	arazb => arazb,
+	resetn => resetn,
 	sraz => sraz_fifo,
 	wr => fifo1_wr , 
 	rd => fifo1_rd, 
@@ -85,7 +85,7 @@ linefifo2 : fifo_Nx8
 	generic map(N => LINE_SIZE + 5) -- fifo gets full a bit too fast
 	port map(
 	clk => clk, 
-	arazb => arazb,
+	resetn => resetn,
 	sraz => sraz_fifo,
 	wr => fifo2_wr , 
 	rd => fifo2_rd, 
@@ -96,9 +96,9 @@ linefifo2 : fifo_Nx8
 
 
 -- actualize matrix with values
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then 
+if resetn = '0' then 
 	block3x3(0)(0) <= (others => '0') ;
 	block3x3(0)(1) <= (others => '0') ; -- zeroing matrix
 	block3x3(0)(2) <= (others => '0') ;
@@ -229,9 +229,9 @@ end if;
 end process;
 
 
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then 
+if resetn = '0' then 
 	nb_line <= (others => '0') ;
 	hsync_state0 <= WAIT_HSYNC ;
 elsif clk'event and clk = '1'  then

@@ -36,7 +36,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity simple_counter is
 	 generic(NBIT : positive := 4);
     Port ( clk : in  STD_LOGIC;
-           arazb : in  STD_LOGIC;
+           resetn : in  STD_LOGIC;
            sraz : in  STD_LOGIC;
            en : in  STD_LOGIC;
 			  load : in  STD_LOGIC;
@@ -49,9 +49,9 @@ architecture Behavioral of simple_counter is
 signal Qp : std_logic_vector(NBIT - 1 downto 0);
 begin
 
- process(clk, arazb)
+ process(clk, resetn)
     begin
-	if arazb = '0' then
+	if resetn = '0' then
  	    Qp <= (others => '0') ;
 	elsif clk'event and clk = '1' then
 	    if sraz = '1' then

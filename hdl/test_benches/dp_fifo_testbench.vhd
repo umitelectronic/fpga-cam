@@ -46,7 +46,7 @@ ARCHITECTURE behavior OF dp_fifo_testbench IS
     COMPONENT dp_fifo
 		generic(N : natural := 128 ; W : positive := 16);
 		port(
-			clk, arazb, sraz : in std_logic; 
+			clk, resetn, sraz : in std_logic; 
 			wr, rd : in std_logic; 
 			empty, full : out std_logic ;
 			data_out : out std_logic_vector((W - 1) downto 0 ); 
@@ -59,7 +59,7 @@ ARCHITECTURE behavior OF dp_fifo_testbench IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal arazb : std_logic := '0';
+   signal resetn : std_logic := '0';
    signal sraz : std_logic := '0';
    signal wr : std_logic := '0';
    signal rd : std_logic := '0';
@@ -83,7 +83,7 @@ BEGIN
 			GENERIC MAP(N => 10 ,  W => 16)
 			PORT MAP (
           clk => clk,
-          arazb => arazb,
+          resetn => resetn,
           sraz => sraz,
           wr => wr,
           rd => rd,
@@ -108,10 +108,10 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
-      arazb <= '0' ;
+      resetn <= '0' ;
 		data_in <= (others => '0') ;
       wait for 100 ns;	
-		arazb <= '1' ;
+		resetn <= '1' ;
       wait for clk_period*10;
 		loop1: FOR a IN 1 TO 10 LOOP -- la variable de boucle est a de 1 à 10
 					wr <= '1' ;

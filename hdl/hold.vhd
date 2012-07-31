@@ -37,7 +37,7 @@ use work.generic_components.all ;
 entity hold is
 	 generic(HOLD_TIME : positive := 4; HOLD_LEVEL : std_logic := '1');
     Port ( clk : in  STD_LOGIC;
-           arazb : in  STD_LOGIC;
+           resetn : in  STD_LOGIC;
            sraz : in  STD_LOGIC;
            input: in  STD_LOGIC;
 			  output: out  STD_LOGIC;
@@ -50,9 +50,9 @@ signal Qp : unsigned(nbit(HOLD_TIME) - 1  downto 0) := (others => '0');
 signal old_value : std_logic ;
 begin
 
- process(clk, arazb)
+ process(clk, resetn)
     begin
-	if arazb = '0' then
+	if resetn = '0' then
  	    Qp <= (others => '0') ;
 	elsif clk'event and clk = '1' then
 	    if sraz = '1' then

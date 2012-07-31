@@ -39,7 +39,7 @@ generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480);
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
@@ -69,7 +69,7 @@ begin
 		generic map(WIDTH =>  WIDTH, HEIGHT => HEIGHT)
 		port map(
 			clk => clk ,
-			arazb => arazb , 
+			resetn => resetn , 
 			pixel_clock => pixel_clock , hsync => hsync , vsync => vsync,
 			pixel_data_in => pixel_data_in ,
 			new_block => new_block,
@@ -83,7 +83,7 @@ begin
 		  )
 		port map(
 				clk => clk,
-				arazb => arazb, 
+				resetn => resetn, 
 				new_block => new_block,
 				block3x3 => block3x3_sig,
 				new_conv => new_conv1,
@@ -98,7 +98,7 @@ begin
 		  )
 		port map(
 				clk => clk,
-				arazb => arazb, 
+				resetn => resetn, 
 				new_block => new_block,
 				block3x3 => block3x3_sig,
 				new_conv => new_conv2,
@@ -107,9 +107,9 @@ begin
 		);
 		
 	
-		process(clk, arazb)
+		process(clk, resetn)
 		begin
-			if arazb = '0' then
+			if resetn = '0' then
 				pixel_clock_out <= '0' ;
 				hsync_out <= '0' ;
 				vsync_out <= '0' ;

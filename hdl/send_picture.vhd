@@ -8,7 +8,7 @@ library work;
 entity send_picture is
 	port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
  		data_out : out std_logic_vector(7 downto 0 ); 
@@ -33,7 +33,7 @@ architecture systemc of send_picture is
 		generic map(N => 128)
 		port map(
  		clk => clk, 
-		arazb => arazb,
+		resetn => resetn,
 		sraz => '0',
  		wr => fifo_wr , 
 		rd => fifo_rd, 
@@ -43,9 +43,9 @@ architecture systemc of send_picture is
 	); 
 	
 	-- send_picture_process
-	process(clk, arazb)
+	process(clk, resetn)
 		 begin
-		 	if  NOT arazb = '1'  then
+		 	if  NOT resetn = '1'  then
 		 		state <= wait_pixel ;
 		 	elsif  clk'event and clk = '1'  then
 		 		case state is

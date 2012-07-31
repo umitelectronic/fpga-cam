@@ -16,7 +16,7 @@ architecture test of i2c_master_testbench is
 	begin
 	master_0: i2c_master
 		port map(clock => clk, 
- 		arazb => '1', 
+ 		resetn => '1', 
  		slave_addr => "1000001", 
  		data => datai2c,
  		send => '1', 

@@ -40,7 +40,7 @@ generic(KERNEL : imat3 := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
 		  );
 port(
  		clk : in std_logic; 
- 		arazb : in std_logic; 
+ 		resetn : in std_logic; 
  		new_block : in std_logic ;
 		block3x3 : in mat3;
 		new_conv : out std_logic ;
@@ -97,9 +97,9 @@ port map(clk => clk, sraz => sraz_mac,
 END GENERATE is_power_of_two1 ;
 
 --compute matrix convolution with non-zero matrix elts
-process(clk, arazb)
+process(clk, resetn)
 begin
-if arazb = '0' then 
+if resetn = '0' then 
 	sraz_mac <= '1' ;
 	new_conv <= '0' ;
 	busy <= '0' ;
