@@ -14,7 +14,7 @@
   ARCHITECTURE behavior OF testbench IS 
 
   -- Component Declaration
-			component block3X3v3 is
+			component block3X3_pixel_pipeline is
 				generic(WIDTH: natural := 640;
 				HEIGHT: natural := 480);
 				port(
@@ -31,26 +31,27 @@
 			signal clk, resetn : std_logic ;
 			signal pxclk, hsync, vsync : std_logic ;
 			signal pxclk_out, hsync_out, vsync_out : std_logic ;
+			signal new_block : std_logic ;
+			signal block_out :  mat3 ;
 			signal pixel : std_logic_vector(7 downto 0 ) := (others => '0');
-			signal abs_val : std_logic_vector(7 downto 0 );
-			signal raw_val : signed(15 downto 0 ) ;	
 
   BEGIN
 
     -- Component Instantiation
-         sobel3x3_0 :  sobel3x3 
+         block3X3v3_0 :  block3X3_pixel_pipeline 
 				port map(
-						clk => clk, 
 						resetn => resetn, 
 						pixel_clock => pxclk, 
 						hsync => hsync, 
 						vsync => vsync,
+						pixel_data_in => pixel, 
 						pixel_clock_out => pxclk_out, 
 						hsync_out => hsync_out, 
 						vsync_out => vsync_out,
-						pixel_data_in => pixel, 
-						pixel_data_out => abs_val
+						block_out => block_out
 				);
+				
+				
 
 	process
 	begin
@@ -69,7 +70,7 @@ process
 	variable px_count, line_count, byte_count : integer := 0 ;
 	begin
 		pxclk <= '0';
-		if px_count < 640 and line_count >= 20 and line_count < 497 then
+		if px_count < 639 and line_count >= 20 and line_count < 497 then
 			hsync <= '0' ;
 			pixel <= pixel + 1;
 		else
