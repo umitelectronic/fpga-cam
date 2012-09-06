@@ -65,7 +65,7 @@ architecture Behavioral of sobel3x3 is
 	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
 begin
 
-		block0:  block3X3v2 
+		block0:  block3X3 
 		generic map(WIDTH =>  WIDTH, HEIGHT => HEIGHT)
 		port map(
 			clk => clk ,

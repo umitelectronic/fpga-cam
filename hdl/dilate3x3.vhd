@@ -57,7 +57,7 @@ architecture Behavioral of dilate3x3 is
 	signal new_block : std_logic ;
 begin
 
-		block0:  block3X3v2 
+		block0:  block3X3 
 		generic map(WIDTH =>  WIDTH, HEIGHT =>  HEIGHT)
 		port map(
 			clk => clk ,

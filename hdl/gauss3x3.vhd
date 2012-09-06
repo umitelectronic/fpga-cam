@@ -59,7 +59,7 @@ architecture Behavioral of gauss3x3 is
 	signal conv : std_logic_vector(15 downto 0);
 begin
 
-		block0:  block3X3v2 
+		block0:  block3X3 
 		generic map(WIDTH =>  WIDTH, HEIGHT => HEIGHT)
 		port map(
 			clk => clk ,
