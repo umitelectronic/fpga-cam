@@ -172,6 +172,27 @@ component block3X3 is
 			block_out : out mat3);
 end component;
 
+component block3X3v2 is
+		generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
+		port(
+			clk : in std_logic; 
+			resetn : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic; 
+			pixel_data_in : in std_logic_vector(7 downto 0 ); 
+			new_block : out std_logic ;
+			block_out : out mat3);
+end component;
+
+component mat3x3_latch is
+    Port ( clk : in  STD_LOGIC;
+           resetn : in  STD_LOGIC;
+           sraz : in  STD_LOGIC;
+           en : in  STD_LOGIC;
+           d : in  mat3;
+           q : out mat3);
+end component;
+
 component block3X3_pixel_pipeline is
 		generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480);

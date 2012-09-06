@@ -38,16 +38,28 @@
   BEGIN
 
     -- Component Instantiation
-         block3X3v3_0 :  block3X3_pixel_pipeline 
+--         block3X3v3_0 :  block3X3_pixel_pipeline 
+--				port map(
+--						resetn => resetn, 
+--						pixel_clock => pxclk, 
+--						hsync => hsync, 
+--						vsync => vsync,
+--						pixel_data_in => pixel, 
+--						pixel_clock_out => pxclk_out, 
+--						hsync_out => hsync_out, 
+--						vsync_out => vsync_out,
+--						block_out => block_out
+--				);
+				
+			  block3X3v3_0 :  block3X3v2
 				port map(
+						clk => clk ,
 						resetn => resetn, 
 						pixel_clock => pxclk, 
 						hsync => hsync, 
 						vsync => vsync,
 						pixel_data_in => pixel, 
-						pixel_clock_out => pxclk_out, 
-						hsync_out => hsync_out, 
-						vsync_out => vsync_out,
+						new_block => new_block ,
 						block_out => block_out
 				);
 				
