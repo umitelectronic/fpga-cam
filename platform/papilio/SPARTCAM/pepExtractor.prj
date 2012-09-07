@@ -1,1 +1,7 @@
-work	"dcm_32_144.vhd"
+work	"../../../hdl/MAC16.vhd"
+work	"../../../hdl/camera.vhd"
+work	"../../../hdl/conv3x3.vhd"
+work	"../../../hdl/generic_components.vhd"
+work	"../../../hdl/generic_latch.vhd"
+work	"../../../hdl/mat3x3_latch.vhd"
+work	"../../../hdl/simple_counter.vhd"
