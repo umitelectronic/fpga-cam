@@ -114,3 +114,60 @@ begin
 
 end Behavioral;
 
+architecture RTL of gauss3x3 is
+	signal new_conv : std_logic;
+	signal busy : std_logic;
+	signal pixel_from_conv : std_logic_vector(7 downto 0);
+	signal block3x3_sig : mat3 ;
+	signal new_block, pxclk_state : std_logic ;
+	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
+	for block0 : block3X3 use entity block3X3(RTL) ;
+	for conv3x3_0 : conv3x3 use entity conv3x3(RTL) ;
+begin
+
+		block0:  block3X3 
+		generic map(WIDTH =>  WIDTH, HEIGHT => HEIGHT)
+		port map(
+			clk => clk ,
+			resetn => resetn , 
+			pixel_clock => pixel_clock , hsync => hsync , vsync => vsync,
+			pixel_data_in => pixel_data_in ,
+			new_block => new_block,
+			block_out => block3x3_sig);
+		
+		
+		conv3x3_0 :  conv3x3 
+		generic map(KERNEL =>((1, 2, 1),(2, 4, 2),(1, 2, 1)),
+		  NON_ZERO	=> ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2) ), -- (3, 3) indicate end  of non zero values
+		  IS_POWER_OF_TWO => 0
+		  )
+		port map(
+				clk => clk,
+				resetn => resetn, 
+				new_block => new_block,
+				block3x3 => block3x3_sig,
+				new_conv => new_conv,
+				busy => busy,
+				abs_res => pixel_from_conv
+		);
+	
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
+				pixel_clock_out <= '0' ;
+				hsync_out <= '0' ;
+				vsync_out <= '0' ;
+			elsif clk'event and clk = '1' and busy = '0' then
+				hsync_out <= hsync ;
+				vsync_out <= vsync ;
+				pixel_clock_out <= new_conv ;
+			end if ;
+		end process ;
+	
+	
+		pixel_data_out <= pixel_from_conv ;
+
+end RTL;
+
+
+
