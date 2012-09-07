@@ -24,6 +24,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 library WORK;
 use WORK.CAMERA.ALL;
+use WORK.generic_components.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -50,7 +51,163 @@ port(
 );
 end conv3x3;
 
-architecture Behavioral of conv3x3 is
+
+architecture RTL of conv3x3 is
+
+
+signal sraz_mac : std_logic ;
+signal MAC0_A, MAC0_B, MAC1_A, MAC1_B, MAC2_A, MAC2_B	:	signed(15 downto 0);
+signal MAC0_RES, MAC1_RES, MAC2_RES:	signed(31 downto 0);
+
+signal final_res, final_res_latched ,abs_resl : signed(31 downto 0);
+signal index : std_logic_vector(3 downto 0) := (others => '0');
+signal clock_count	:	std_logic_vector(2 downto 0);
+signal new_bloc_old, new_block_rising_edge, counter_enable, counter_enable_fast, busy_old, counter_sraz : std_logic ;
+signal block3x3_latched : mat3 ;
+begin
+
+process(clk, resetn)
+begin
+	if resetn = '0' then
+		new_bloc_old <= '0' ;
+	elsif clk'event and clk = '1' then
+		new_bloc_old <= new_block ;
+	end if ;
+end process ;
+new_block_rising_edge <= (not new_bloc_old) and new_block ;
+
+
+latch_0 : mat3x3_latch 
+		port map( clk => clk, 
+           resetn => resetn ,
+           sraz => '0',
+           en => new_block_rising_edge ,
+           d => block3x3 ,
+           q => block3x3_latched);
+
+
+counter_enable_fast <= counter_enable OR new_block_rising_edge ;
+
+clock_counter : simple_counter
+	 generic map(NBIT =>  3)
+    port map( clk => clk,
+           resetn => resetn,
+           sraz => counter_sraz, 
+           en => counter_enable_fast, 
+			  load  => '0' ,
+			  E => std_logic_vector(to_unsigned(0, 3)),
+           Q => clock_count
+			  );
+counter_sraz <= '1' when clock_count = 3 else
+					 '0' ;
+--rs lock
+process(clk, resetn)
+begin
+	if resetn = '0' then
+		counter_enable <= '0' ;
+	elsif clk'event and clk ='1' then
+		if new_block_rising_edge = '1' then
+			counter_enable <= '1' ;
+		elsif counter_sraz = '1' then
+			counter_enable <= '0' ;
+		end if ;	
+	end if ;
+end process ;			  
+			  
+
+
+final_res <= MAC0_RES + MAC1_RES + MAC2_RES ;
+
+sraz_mac <= (NOT resetn) ;
+
+mac0: MAC16
+port map(clk => clk, sraz => sraz_mac,
+	  add_subb	=> '1' ,
+	  reset_acc => new_block_rising_edge,
+	  A => MAC0_A, B => MAC0_B,
+	  RES => MAC0_RES 
+);
+
+mac1: MAC16
+port map(clk => clk, sraz => sraz_mac,
+	  add_subb	=> '1' ,
+	  reset_acc => new_block_rising_edge,
+	  A => MAC1_A, B => MAC1_B,
+	  RES => MAC1_RES 
+);
+
+mac2: MAC16
+port map(clk => clk, sraz => sraz_mac,
+	  add_subb	=> '1' ,
+	  reset_acc => new_block_rising_edge,
+	  A => MAC2_A, B => MAC2_B,
+	  RES => MAC2_RES 
+);
+
+raw_res <= FINAL_RES(15 downto 0) ; -- should not overflow
+abs_res <= std_logic_vector(abs(FINAL_RES));
+
+
+ 
+
+MAC0_A(15 downto 9) <= (others => '0');
+with clock_count select
+	MAC0_A(8 downto 0) <= block3x3(0)(0) when std_logic_vector(to_unsigned(0, 3)),
+								 block3x3_latched(0)(1) when std_logic_vector(to_unsigned(1, 3)) ,
+								 block3x3_latched(0)(2) when std_logic_vector(to_unsigned(2, 3)) ,
+								 (others => '0') when others ;
+
+MAC1_A(15 downto 9) <= (others => '0');
+with clock_count select
+	MAC1_A(8 downto 0) <= block3x3(1)(0) when std_logic_vector(to_unsigned(0, 3)),
+								 block3x3_latched(1)(1) when std_logic_vector(to_unsigned(1, 3)) ,
+								 block3x3_latched(1)(2) when std_logic_vector(to_unsigned(2, 3)) ,
+								 (others => '0') when others ;
+								 
+MAC2_A(15 downto 9) <= (others => '0');
+with clock_count select
+	MAC2_A(8 downto 0) <= block3x3(2)(0) when std_logic_vector(to_unsigned(0, 3)),
+								 block3x3_latched(2)(1) when std_logic_vector(to_unsigned(1, 3)) ,
+								 block3x3_latched(2)(2) when std_logic_vector(to_unsigned(2, 3)) ,
+								 (others => '0') when others ;
+
+
+with clock_count select
+	MAC0_B <=  to_signed(KERNEL(0)(0), 16) when std_logic_vector(to_unsigned(0, 3)),
+				  to_signed(KERNEL(0)(1), 16) when std_logic_vector(to_unsigned(1, 3)) ,
+				  to_signed(KERNEL(0)(2), 16) when std_logic_vector(to_unsigned(2, 3)) ,
+				 (others => '0') when others ;
+
+
+with clock_count select
+	MAC1_B <=  to_signed(KERNEL(1)(0), 16) when std_logic_vector(to_unsigned(0, 3)),
+				  to_signed(KERNEL(1)(1), 16) when std_logic_vector(to_unsigned(1, 3)) ,
+				  to_signed(KERNEL(1)(2), 16) when std_logic_vector(to_unsigned(2, 3)) ,
+				 (others => '0') when others ;
+								 
+with clock_count select
+	MAC2_B <=  to_signed(KERNEL(2)(0), 16) when std_logic_vector(to_unsigned(0, 3)),
+				  to_signed(KERNEL(2)(1), 16) when std_logic_vector(to_unsigned(1, 3)) ,
+				  to_signed(KERNEL(2)(2), 16) when std_logic_vector(to_unsigned(2, 3)) ,
+				 (others => '0') when others ;
+
+	process(clk, resetn)
+	begin
+		if resetn = '0' then
+			busy_old <= '0' ;
+		elsif clk'event and clk = '1' then
+			busy_old <= counter_enable ;
+		end if ;
+	end process ;
+	new_conv <= (NOT counter_enable) and busy_old  ;
+
+	busy <= counter_enable ;
+
+
+end RTL;
+
+
+architecture FSM of conv3x3 is
 
 type compute_state	is	(WAIT_PIXEL, COMPUTE, END_PIPELINE1, END_PIPELINE2);
 
@@ -84,6 +241,7 @@ is_power_of_two1 : IF IS_POWER_OF_TWO = 0 GENERATE
 mac1: MAC16
 port map(clk => clk, sraz => sraz_mac,
 	  add_subb	=> '1' ,
+	  reset_acc => '0',
 	  A => MAC1_A, B => MAC1_B,
 	  RES => MAC1_RES 
 );
@@ -91,6 +249,7 @@ port map(clk => clk, sraz => sraz_mac,
 mac2: MAC16
 port map(clk => clk, sraz => sraz_mac,
 	  add_subb	=> '1' ,
+	  reset_acc => '0',
 	  A => MAC2_A, B => MAC2_B,
 	  RES => MAC2_RES 
 );
@@ -172,5 +331,8 @@ abs_res <= std_logic_vector(abs_resl(7 downto 0));
 MAC1_A(15 downto 9) <= (others => '0');
 MAC2_A(15 downto 9) <= (others => '0');
 
-end Behavioral;
+end FSM;
+
+
+
 

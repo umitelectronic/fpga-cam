@@ -45,9 +45,27 @@ entity pixel_counter is
 end pixel_counter;
 
 architecture Behavioral of pixel_counter is
-signal pixel_clock_old : std_logic ;
+signal pixel_clock_old, pixel_clock_edge : std_logic ;
 signal pixel_count_temp : std_logic_vector((nbit(MAX) - 1) downto 0 ) ;
 begin
+
+process(clk, resetn) 
+begin
+	if resetn = '0' then 
+		pixel_clock_old <= '0' ;
+	elsif clk'event and clk = '1'  then
+		pixel_clock_old <= pixel_clock ;
+end if ;
+end process ;
+
+gen_pol_pos : if POL = '1' generate
+				pixel_clock_edge <= (NOT pixel_clock_old) AND pixel_clock ;
+			 end generate ;
+			 
+gen_pol_neg : if POL = '0' generate
+				pixel_clock_edge <= (pixel_clock_old) AND (NOT pixel_clock) ;
+			 end generate ;
+
 process(clk, resetn)
 begin
 if resetn = '0' then 
@@ -55,10 +73,9 @@ if resetn = '0' then
 elsif clk'event and clk = '1'  then
 		if hsync = '1' then
 			pixel_count_temp <= (others => '0') ;
-		elsif pixel_clock /= pixel_clock_old and pixel_clock = POL then
+		elsif pixel_clock_edge = '1' then
 			pixel_count_temp <= pixel_count_temp + 1 ;
 		end if ;
-		pixel_clock_old <= pixel_clock ;
 end if ;
 end process ;
 
