@@ -152,43 +152,43 @@ abs_res <= std_logic_vector(abs(FINAL_RES));
 
 MAC0_A(15 downto 9) <= (others => '0');
 with clock_count select
-	MAC0_A(8 downto 0) <= block3x3(0)(0) when std_logic_vector(to_unsigned(0, 3)),
-								 block3x3_latched(0)(1) when std_logic_vector(to_unsigned(1, 3)) ,
-								 block3x3_latched(0)(2) when std_logic_vector(to_unsigned(2, 3)) ,
+	MAC0_A(8 downto 0) <= block3x3(0)(0) when "000",
+								 block3x3_latched(0)(1) when "001" ,
+								 block3x3_latched(0)(2) when "010" ,
 								 (others => '0') when others ;
 
 MAC1_A(15 downto 9) <= (others => '0');
 with clock_count select
-	MAC1_A(8 downto 0) <= block3x3(1)(0) when std_logic_vector(to_unsigned(0, 3)),
-								 block3x3_latched(1)(1) when std_logic_vector(to_unsigned(1, 3)) ,
-								 block3x3_latched(1)(2) when std_logic_vector(to_unsigned(2, 3)) ,
+	MAC1_A(8 downto 0) <= block3x3(1)(0) when "000",
+								 block3x3_latched(1)(1) when "001" ,
+								 block3x3_latched(1)(2) when "010" ,
 								 (others => '0') when others ;
 								 
 MAC2_A(15 downto 9) <= (others => '0');
 with clock_count select
-	MAC2_A(8 downto 0) <= block3x3(2)(0) when std_logic_vector(to_unsigned(0, 3)),
-								 block3x3_latched(2)(1) when std_logic_vector(to_unsigned(1, 3)) ,
-								 block3x3_latched(2)(2) when std_logic_vector(to_unsigned(2, 3)) ,
+	MAC2_A(8 downto 0) <= block3x3(2)(0) when "000",
+								 block3x3_latched(2)(1) when "001" ,
+								 block3x3_latched(2)(2) when "010" ,
 								 (others => '0') when others ;
 
 
 with clock_count select
-	MAC0_B <=  to_signed(KERNEL(0)(0), 16) when std_logic_vector(to_unsigned(0, 3)),
-				  to_signed(KERNEL(0)(1), 16) when std_logic_vector(to_unsigned(1, 3)) ,
-				  to_signed(KERNEL(0)(2), 16) when std_logic_vector(to_unsigned(2, 3)) ,
+	MAC0_B <=  to_signed(KERNEL(0)(0), 16) when "000",
+				  to_signed(KERNEL(0)(1), 16) when "001" ,
+				  to_signed(KERNEL(0)(2), 16) when "010" ,
 				 (others => '0') when others ;
 
 
 with clock_count select
-	MAC1_B <=  to_signed(KERNEL(1)(0), 16) when std_logic_vector(to_unsigned(0, 3)),
-				  to_signed(KERNEL(1)(1), 16) when std_logic_vector(to_unsigned(1, 3)) ,
-				  to_signed(KERNEL(1)(2), 16) when std_logic_vector(to_unsigned(2, 3)) ,
+	MAC1_B <=  to_signed(KERNEL(1)(0), 16) when "000",
+				  to_signed(KERNEL(1)(1), 16) when "001" ,
+				  to_signed(KERNEL(1)(2), 16) when "010" ,
 				 (others => '0') when others ;
 								 
 with clock_count select
-	MAC2_B <=  to_signed(KERNEL(2)(0), 16) when std_logic_vector(to_unsigned(0, 3)),
-				  to_signed(KERNEL(2)(1), 16) when std_logic_vector(to_unsigned(1, 3)) ,
-				  to_signed(KERNEL(2)(2), 16) when std_logic_vector(to_unsigned(2, 3)) ,
+	MAC2_B <=  to_signed(KERNEL(2)(0), 16) when "000",
+				  to_signed(KERNEL(2)(1), 16) when "001" ,
+				  to_signed(KERNEL(2)(2), 16) when "010" ,
 				 (others => '0') when others ;
 
 	process(clk, resetn)
