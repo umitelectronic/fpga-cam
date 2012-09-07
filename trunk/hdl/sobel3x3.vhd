@@ -63,6 +63,8 @@ architecture Behavioral of sobel3x3 is
 	signal block3x3_sig : mat3 ;
 	signal new_block, pxclk_state : std_logic ;
 	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
+	for block0 : block3X3 use entity block3X3(RTL) ;
+	for conv3x3_0 : conv3x3 use entity conv3x3(RTL) ;
 begin
 
 		block0:  block3X3 

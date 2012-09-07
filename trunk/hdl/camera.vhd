@@ -132,7 +132,7 @@ end component;
 
 component MAC16 is
 port(clk, sraz : in std_logic;
-	  add_subb	:	in std_logic;
+	  add_subb, reset_acc	:	in std_logic;
 	  A, B	:	in signed(15 downto 0);
 	  RES	:	out signed(31 downto 0) 
 );

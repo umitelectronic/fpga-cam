@@ -55,6 +55,7 @@ end dilate3x3 ;
 architecture Behavioral of dilate3x3 is
 	signal block3x3_sig : mat3 ;
 	signal new_block : std_logic ;
+	for block0 : block3X3 use entity block3X3(RTL) ;
 begin
 
 		block0:  block3X3 

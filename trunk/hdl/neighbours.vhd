@@ -127,43 +127,6 @@ line_counter0: line_counter
 			hsync => next_line, vsync => sraz, 
 			line_count => line_count
 			);
-
-
---process(clk, resetn)
---begin
---	if resetn = '0' then
---		pixel_state <= LOAD_VALUE ;
---	elsif clk'event and clk = '1' then
---		if sraz = '1' then
---			pixel_state <= LOAD_VALUE ;
---		else
---			pixel_state <= next_pixel_state ;
---		end if ;
---	end if;
---end process ;	
---
---process(clk, resetn)
---begin
---	next_pixel_state <= pixel_state ;
---	case pixel_state is
---			when WRITE_VALUE => -- load value from fifos into buffer
---				next_pixel_state <= LOAD_VALUE ;
---			when LOAD_VALUE => -- load value from fifos into buffer
---				next_pixel_state <= WAIT_NEIGHBOUR ;
---			when WAIT_NEIGHBOUR =>
---				if add_neighbour = '1' then
---					next_pixel_state <= WRITE_VALUE ;
---				elsif  next_line = '1' then
---					next_pixel_state <= WAIT_END_NEW_LINE ;
---				end if;
---			when WAIT_END_NEW_LINE =>
---				if  next_line = '0' then
---					next_pixel_state <= LOAD_VALUE ;
---				end if;
---			when others =>
---				next_pixel_state <= WAIT_NEIGHBOUR ;
---	end case ;
---end process ;
 							
 
 -- actualize matrix with values

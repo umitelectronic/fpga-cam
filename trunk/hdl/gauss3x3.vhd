@@ -57,6 +57,7 @@ architecture Behavioral of gauss3x3 is
 	signal line_1, line_2, line_3 : std_logic_vector(15 downto 0);
 	signal m00, m01, m02, m10, m11, m12, m20, m21, m22: std_logic_vector(15 downto 0);
 	signal conv : std_logic_vector(15 downto 0);
+	for block0 : block3X3 use entity block3X3(RTL) ;
 begin
 
 		block0:  block3X3 
