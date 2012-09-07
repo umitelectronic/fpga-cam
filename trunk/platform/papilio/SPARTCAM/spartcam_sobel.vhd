@@ -94,6 +94,8 @@ architecture Structural of spartcam_sobel is
 	signal pxclk_from_erode, href_from_erode, vsync_from_erode : std_logic ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
+	
+	for gauss3x3_0 : gauss3x3 use entity gauss3x3(RTL) ;
 	begin
 	
 	
