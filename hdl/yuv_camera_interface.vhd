@@ -43,6 +43,9 @@ architecture systemc of yuv_camera_interface is
 	signal en_ylatch, en_ulatch, en_vlatch : std_logic ;
 	signal hsynct, vsynct, pxclkt, pixel_clock_out_t  : std_logic ;
 	
+	signal pclk_set, pclk_reset, first_pixeln : std_logic ;
+	signal cpt_nb_pixel : std_logic_vector(1 downto 0);
+	
 	for register_rom_ov7670_vga : yuv_register_rom use entity yuv_register_rom(ov7670_vga) ;
 	for register_rom_ov7670_qvga : yuv_register_rom use entity yuv_register_rom(ov7670_qvga) ;
 	for register_rom_ov7725_vga : yuv_register_rom use entity yuv_register_rom(ov7725_vga) ;
@@ -97,27 +100,27 @@ end generate ;
 
 
 	
-y_latch : edge_triggered_latch 
+y_latch : generic_latch 
 	 generic map( NBIT => 8)
-    port map( clk =>clock,
+    port map( clk =>pxclk,
            resetn => resetn ,
            sraz => '0' ,
            en => en_ylatch ,
            d => pixel_data , 
            q => y_data);
 			  
-u_latch : edge_triggered_latch 
+u_latch : generic_latch 
 	 generic map( NBIT => 8)
-    port map( clk => clock,
+    port map( clk => pxclk,
            resetn => resetn ,
            sraz => '0' ,
            en => en_ulatch ,
            d => pixel_data , 
            q => u_data);
 
-v_latch : edge_triggered_latch 
+v_latch : generic_latch 
 	 generic map( NBIT => 8)
-    port map( clk => clock,
+    port map( clk => pxclk,
            resetn => resetn ,
            sraz => '0' ,
            en => en_vlatch ,
@@ -214,97 +217,52 @@ v_latch : edge_triggered_latch
 				pxclkt <= pxclk ;
 			end if ;
 	end process ;
-	
-	
-	--pxclk rising and falling edge
-	process(clock, resetn)
-		 begin
-			if resetn = '0' then
-				pxclk_rising_edge <= '0' ;
-				pxclk_falling_edge <= '0' ;
-				pxclk_old <= '0' ;
-		 	elsif  clock'event and clock = '1' then
-				pxclk_old <= pxclk ;
-				if pxclk /= pxclk_old and hsynct = '0' and vsynct = '0' then
-					pxclk_rising_edge <= pxclk ;
-					pxclk_falling_edge <= NOT pxclk ;
-				else
-					pxclk_rising_edge <= '0' ;
-					pxclk_falling_edge <= '0' ;
-				end if ;
-			end if ;
-	end process ;
 
 	
+	 
+pixel_counter : simple_counter
+	 generic map(NBIT => 2)
+    port map( clk => pxclkt, 
+           resetn => resetn, 
+           sraz => NOT href,
+           en => '1',
+			  load => '0',
+			  E => "00",
+           Q => cpt_nb_pixel
+			  );
 	
-	
-	
-	
-	
+
 	process(clock, resetn)
-		begin
-		if resetn = '0'  then
-		 		pix_state <= WAIT_LINE ;
-		elsif clock'event and clock = '1'  then
-				pix_state <= next_state ;
+	begin
+		if resetn = '0' then
+			first_pixeln <= '0' ;
+		elsif clock'event and clock = '1' then
+			if href = '0' then
+				first_pixeln <= '0' ;
+			elsif cpt_nb_pixel /= "00"  then
+				first_pixeln <= '1' ;
+			end if ;
 		end if ;
 	end process ;
 
 
-	process(hsynct, vsynct, pix_state, pxclk_rising_edge)
-		begin
-			next_state <= pix_state ;
-			case pix_state is
-				when WAIT_LINE =>
-					if hsynct = '0' and vsynct = '0' then
-						next_state <= Y1 ;
-					end if ;
-				when Y1 => 
-					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_LINE ;
-					elsif pxclk_falling_edge = '1' then
-						next_state <= U1 ;
-					end if ;
-				when U1 => 
-					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_LINE ;
-					elsif pxclk_falling_edge = '1' then
-						next_state <= Y2 ;
-					end if ;
-				when Y2 => 
-					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_LINE ;
-					elsif pxclk_falling_edge = '1' then
-						next_state <= V1 ;
-					end if ;
-				when V1 => 
-					if hsynct = '1' or vsynct = '1' then
-						next_state <= WAIT_LINE ;
-					elsif pxclk_falling_edge = '1' then
-						next_state <= Y1 ;
-					end if ;
-				when others => 
-					next_state <= WAIT_LINE ;
-			end case ;
-	 end process;  
-	 
-	 
-	 with pix_state select
-		pixel_clock_out_t <=  pxclkt when  U1 , 
-									 pxclkt when  V1 , 
-									 '0' when others ;
+	 with cpt_nb_pixel select
+		pixel_clock_out_t <=  first_pixeln when "00" , 
+									 '1' when  "10" , 
+									 '0' when others ;	 
 	
-	 with pix_state select
-		en_ylatch <=  pxclk when  Y1 ,
-						  pxclk when  Y2 ,
+	 with cpt_nb_pixel select
+		en_ylatch <=  (href)when  "00" ,
+						  '1' when  "10" ,
 						  '0' when others ;
-	 with pix_state select
-		en_ulatch <=  pxclk when  U1 ,
+						  
+	 with cpt_nb_pixel select
+		en_ulatch <=  '1' when  "01" ,
 						  '0' when others ;
-	 with pix_state select
-		en_vlatch <=  pxclk when  V1 ,
+						  
+	 with cpt_nb_pixel select
+		en_vlatch <=  '1' when "11"  ,
 						  '0' when others ;
-
 
 	
     hsync_out <= hsynct AND (NOT pixel_clock_out_t) ;	
