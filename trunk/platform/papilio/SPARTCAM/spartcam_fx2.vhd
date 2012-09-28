@@ -51,10 +51,11 @@ port( CLK : in std_logic;
 		CAM_RESET	:	out std_logic ;
 		
 		--FX2 INTERFACE
-		FX2_SLOE, FX2_SLWR, FX2_SLRD:	out std_logic;
+		FX2_SLOE, FX2_SLWR, FX2_SLRD :	out std_logic;
+		FX2_FLAGA : in std_logic ;
 		FX2_FD :	inout std_logic_vector(7 downto 0);
 		FX2_ADDR :	out std_logic_vector(1 downto 0);
-		FX2_IFCLK:	in std_logic;
+		FX2_IFCLK:	out std_logic;
 		
 		--FIFO interface
 		FIFO_CS, FIFO_WR, FIFO_RD, FIFO_A0:	out std_logic;
@@ -92,9 +93,11 @@ architecture Structural of spartcam_fx2 is
 	
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 
+	signal vsync_old, vsync_rising_edge : std_logic ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
-	
+	signal fifo_data_input : std_logic_vector(7 downto 0);
+	signal fifo_wr_data : std_logic ;
 	begin
 
 
@@ -104,7 +107,7 @@ architecture Structural of spartcam_fx2 is
 	FIFO_RD <= 'Z' ; 
 	FIFO_A0 <= 'Z' ;
 	FIFO_DATA <= (others => 'Z')  ;
-	FX2_ADDR <= "00" ;
+	FX2_ADDR <= "10" ;
 	TXD <= 'Z' ;
 
 
@@ -176,24 +179,39 @@ architecture Structural of spartcam_fx2 is
 		v_data => pixel_v_from_interface
 		);
 		
+	process(clk_96, resetn_delayed)
+	begin
+		if resetn_delayed = '0' then
+			vsync_old <= '0' ;
+		elsif clk_96'event and clk_96 = '1' then
+			vsync_old <= vsync_from_interface ;
+		end if ;
+	end process ;
+	vsync_rising_edge <= (not vsync_old) and vsync_from_interface ;
+	
+	fifo_data_input <= pixel_y_from_interface when vsync_from_interface = '0' and pixel_y_from_interface /= X"A5" else
+							 (pixel_y_from_interface(7 downto 1) & '0') when vsync_from_interface = '0'  else
+							 X"A5";
+	
+	fifo_wr_data <= pxclk_from_interface when href_from_interface = '0' else
+						 vsync_rising_edge ;
+	
+	FX2_IFCLK <= clk_24 ;	
 	fx2_interfaec0 : fx2_interface
 		port map(
 				-- logic interface
 				resetn => resetn_delayed,
-				clk => clk_96, ext_clk => FX2_IFCLK ,
-				wr => pxclk_from_interface, rd => '0', cs => '1' ,
-				data_in =>  pixel_y_from_interface ,
+				clk => clk_96,
+				wr => fifo_wr_data, rd => '0', cs => '1' ,
+				data_in => fifo_data_input ,
 
 				-- fx2 interface
-				fx2_wr => FX2_SLWR, fx2_oe => FX2_SLOE ,
-				fx2_full => '0', fx2_empty => '0',
-				fx2_data	=> FX2_FD,
-				latch_enable =>  FX2_SLRD
+				fx2_clk => clk_24 ,
+				fx2_wr => FX2_SLWR, fx2_rd => FX2_SLRD,fx2_oe => FX2_SLOE ,
+				fx2_full => FX2_FLAGA , fx2_empty => '0',
+				fx2_data	=> FX2_FD
 		);
-		
-		--FX2_SLWR <= pxclk_from_interface ;
-		--FX2_SLOE <= pxclk_from_interface ;
-		---FX2_SLRD <= CAM_PCLK ;
+	
 
 
 end Structural;
