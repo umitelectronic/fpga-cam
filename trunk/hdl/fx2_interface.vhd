@@ -36,13 +36,14 @@ use work.generic_components.ALL;
 entity fx2_interface is
 port(
 	-- logic interface
-	clk, ext_clk, resetn : in std_logic ;
+	clk, resetn : in std_logic ;
 	wr, rd, cs	: in std_logic ;
 	dv	: out std_logic ;
 	data_in : in std_logic_vector(7 downto 0 ); 
 	data_out : out std_logic_vector(7 downto 0 );
 	
 	-- fx2 interface
+	fx2_clk	: in std_logic ;
 	fx2_wr, fx2_rd, fx2_oe : out std_logic ;
 	fx2_full, fx2_empty : in std_logic ;
 	fx2_data	: inout	std_logic_vector(7 downto 0 );
@@ -55,9 +56,6 @@ end fx2_interface;
 
 architecture Behavioral of fx2_interface is
 
-TYPE master_state IS (IDLE, SEND) ; 
-signal state, next_state : master_state ; 
-
 signal data_int : std_logic_vector(7 downto 0 ); 
 signal wrt, rdt, cst	: std_logic ;
 signal fx2_wrt, fx2_rdt, fx2_oet : std_logic ;
@@ -65,8 +63,8 @@ signal fx2_data_out, fx2_data_in, fx2_data_int : std_logic_vector(7 downto 0 );
 
 signal int_latch_input, ext_latch_input, ext_latch_output : std_logic_vector(18 downto 0 ); 
 signal en_input_latch : std_logic ;
-signal ext_clk_rising_edge, ext_clk_falling_edge, ext_clk_old : std_logic ;
-signal wr_rising_edge, wr_old : std_logic ;
+signal fx2_clk_rising_edge, fx2_clk_falling_edge, fx2_clk_old : std_logic ;
+signal wr_rising_edge, wr_falling_edge, wr_old : std_logic ;
 
 begin
 
@@ -90,7 +88,7 @@ fx2_data_in <=  ext_latch_input(7 downto 0) ;
 	
 ext_clk_data_latch: generic_latch 
 	 generic map(NBIT => 19)
-    port map ( clk => (NOT ext_clk),
+    port map ( clk => (NOT fx2_clk),
            resetn => resetn ,
            sraz => '0' ,
            en => '1' ,
@@ -104,27 +102,29 @@ fx2_data_out <= ext_latch_output(15 downto 8) ;
 fx2_data_int <= 	ext_latch_output(7 downto 0) ;		  
 			  
 
-fx2_wr <= fx2_wrt ;
-fx2_rd <= fx2_rdt ;	
-fx2_oe <= fx2_oet ;		  
+fx2_wr <= (NOT fx2_wrt) when fx2_full = '1' else
+			'1' ;
+fx2_rd <= (NOT fx2_rdt) ;	
+--fx2_oe <= (NOT fx2_oet) ;
+fx2_oe <= '1' ;		  
 			  
-fx2_data <=  fx2_data_out when fx2_wrt = '1' and fx2_oet = '1' else
+fx2_data <=  fx2_data_out when fx2_wrt = '1'  else
 				 (others => 'Z') ;
 				 
-data_out <=  fx2_data_in when  fx2_oet = '1' and fx2_rdt = '1' else
+data_out <=  fx2_data_in when  fx2_rdt = '1' else
 				 (others => 'Z') ;
 
 
 process(clk, resetn)
 begin
 if resetn = '0' then
-	ext_clk_old <= '0' ;
+	fx2_clk_old <= '0' ;
 elsif clk'event and clk = '1' then
-	ext_clk_old <= ext_clk ;
+	fx2_clk_old <= fx2_clk ;
 end if ;
 end process ;
-ext_clk_rising_edge <= ext_clk and (NOT ext_clk_old) ;
-ext_clk_falling_edge <= (NOT ext_clk) and ext_clk_old ;
+fx2_clk_rising_edge <= fx2_clk and (NOT fx2_clk_old) ;
+fx2_clk_falling_edge <= (NOT fx2_clk) and fx2_clk_old ;
 
 process(clk, resetn)
 begin
@@ -135,14 +135,17 @@ begin
 	end if ;
 end process ;
 wr_rising_edge <= wr and (not wr_old) ;
+wr_falling_edge <= (NOT wr) and wr_old ;
 
 
-process(clk)
+process(clk, resetn)
 begin
-	if clk'event and clk = '1' then
+	if resetn = '0' then
+		en_input_latch <= '1' ;
+	elsif clk'event and clk = '1' then
 		if wr_rising_edge = '1' then
 			en_input_latch <= '0' ;
-		elsif ext_clk_falling_edge = '1' then
+		elsif fx2_clk_rising_edge = '1' then
 			en_input_latch <= '1' ;
 		end if ;
 	end if ;
