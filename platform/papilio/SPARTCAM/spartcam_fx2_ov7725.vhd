@@ -36,7 +36,7 @@ use WORK.interface_components.ALL ;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity spartcam_fx2 is
+entity spartcam_fx2_ov7725 is
 port( CLK : in std_logic;
 		RESETN	:	in std_logic;
 		TXD	:	out std_logic;
@@ -62,10 +62,10 @@ port( CLK : in std_logic;
 		FIFO_DATA :	out std_logic_vector(7 downto 0)
 		
 );
-end spartcam_fx2;
+end spartcam_fx2_ov7725;
 
 
-architecture Structural of spartcam_fx2 is
+architecture Structural of spartcam_fx2_ov7725 is
 
 	COMPONENT dcm24
 	PORT(
@@ -108,9 +108,12 @@ architecture Structural of spartcam_fx2 is
 
 
 --comment connections below when using pins
-	FIFO_CS <= 'Z' ;
-	FIFO_WR <= 'Z' ; 
-	FIFO_RD <= 'Z' ; 
+	--FIFO_CS <= 'Z' ;
+	--FIFO_WR <= 'Z' ; 
+	--FIFO_RD <= 'Z' ; 
+	FIFO_CS <= CAM_PCLK ;
+	FIFO_WR <= CAM_HREF ; 
+	FIFO_RD <= CAM_VSYNC ; 
 	FIFO_A0 <= 'Z' ;
 	FIFO_DATA <= (others => 'Z')  ;
 	FX2_ADDR <= "10" ;
@@ -151,8 +154,8 @@ architecture Structural of spartcam_fx2 is
 			end if;
 	end process;
 
-	CAM_RESET <= RESETN ; --only for ov7670
-	--CAM_RESET <= '0' ; -- tied to fsin and ground ... on ov7725
+	--CAM_RESET <= RESETN ; --only for ov7670
+	CAM_RESET <= '0' ; -- tied to fsin and ground ... on ov7725
 	CAM_XCLK <= clk_24 ;
 	
 	CAM_SIOC <= i2c_scl ;
@@ -172,7 +175,7 @@ architecture Structural of spartcam_fx2 is
 	
 	
 	camera0: yuv_camera_interface
-		generic map(FORMAT => QVGA, CAMERA => ov7670)
+		generic map(FORMAT => QVGA, CAMERA => ov7725)
 		port map(clock => clk_96,
 		pixel_data => CAM_DATA, 
  		i2c_clk => clk_24,
