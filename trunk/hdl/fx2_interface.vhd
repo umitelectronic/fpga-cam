@@ -38,7 +38,7 @@ port(
 	-- logic interface
 	clk, resetn : in std_logic ;
 	wr, rd, cs	: in std_logic ;
-	dv	: out std_logic ;
+	dv, busy	: out std_logic ;
 	data_in : in std_logic_vector(7 downto 0 ); 
 	data_out : out std_logic_vector(7 downto 0 );
 	
@@ -66,10 +66,11 @@ signal en_input_latch : std_logic ;
 signal fx2_clk_rising_edge, fx2_clk_falling_edge, fx2_clk_old : std_logic ;
 signal wr_rising_edge, wr_falling_edge, wr_old : std_logic ;
 
+signal dv_t : std_logic ;
 begin
 
 
-int_latch_input <= (wr_rising_edge & rd & cs & data_in & fx2_data_int) ;
+int_latch_input <= (wr_rising_edge & rd & cs & data_in & fx2_data_int ) ;
 
 in_clk_latch: generic_latch 
 	 generic map(NBIT => 19)
@@ -153,6 +154,7 @@ end process ;
 
 
 latch_enable <= en_input_latch ;
+busy <= (NOT en_input_latch) ;
 
 end Behavioral;
 

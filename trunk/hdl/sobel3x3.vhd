@@ -110,6 +110,7 @@ begin
 		);
 		
 	
+		-- todo convolution takes 4 cycles, block takes one, hsync, vsync signals should be delayed by 5 cycles
 		process(clk, resetn)
 		begin
 			if resetn = '0' then
