@@ -25,9 +25,12 @@ architecture ov7670_qvga of yuv_register_rom is
 	(X"3a" & X"04"), -- OV
 	(X"12" & X"10"), -- QVGA
 	(X"8C" & X"00"), -- 
-	(X"17" & X"15"), -- HSTART
-	(X"18" & X"03"), -- HSTOP
-	(X"32" & X"A0"), -- HREF
+--	(X"17" & X"15"), -- HSTART -- these lines gives 322*240
+--	(X"18" & X"03"), -- HSTOP
+--	(X"32" & X"A0"), -- HREF
+	(X"17" & X"14"), -- HSTART
+	(X"18" & X"02"), -- HSTOP
+	(X"32" & X"A4"), -- HREF
 	(X"19" & X"03"), -- VSTART
 	(X"1A" & X"7b"), -- VSTOP
 	(X"03" & X"0a"), -- VREF
@@ -398,12 +401,12 @@ end ov7670_vga ;
 
 architecture ov7725_qvga of yuv_register_rom is
  
-	type array_72 is array (0 to 71) of std_logic_vector(15 downto 0 ); 
-	
+	type array_73 is array (0 to 72) of std_logic_vector(15 downto 0 ); 
 	
 	
 	-- CONFIGURATION TAKEN FROM ov534.c IN LINUX KERNEL DRIVERS
-	signal rom : array_72 :=( 
+	signal rom : array_73 :=( 
+	( X"12" & X"80"), -- reset all registers
 	( X"12" & X"40"),
 	( X"11" & X"01" ),
 	( X"17" & X"3f"),
@@ -466,11 +469,13 @@ architecture ov7725_qvga of yuv_register_rom is
 	( X"2b" & X"00"),
 	( X"22" & X"7f"),
 	( X"23" & X"03"),
-	--( X"11" & X"01"), -- double check value fint = fxclk * (PLL/((val + 1)*2) linux driver uses 12mhz i'am using 24mhz ...
-	( X"11" & X"09"), -- should work for 30fps fint = 24 * (4/(10)*2) = 4.8mhz
+	--( X"11" & X"09"), -- should work for 15fps fint = 24 * (4/(10)*2) = 4.8mhz
+	( X"11" & X"04"), -- should work for 30fps fint = 24 * (4/(10)*2) = 4.8mhz
+	--( X"11" & X"01"), -- should work for 75fps fint = 24 * (4/(10)*2) = 4.8mhz
+	--( X"11" & X"02"), -- should work for 50fps fint = 24 * (4/(10)*2) = 4.8mhz
 	( X"0c" & X"d0"),
 	( X"64" & X"ff"),
-	( X"0d" & X"41"), -- double check value (4 = 4X, 8 = 6X, C = 8X)
+	( X"0d" & X"41"),
 	( X"14" & X"41"),
 	( X"0e" & X"cd"),
 	( X"ac" & X"bf"),
@@ -496,14 +501,15 @@ end ov7725_qvga ;
 
 architecture ov7725_vga of yuv_register_rom is
  
-	type array_72 is array (0 to 71) of std_logic_vector(15 downto 0 ); 
+	type array_73 is array (0 to 72) of std_logic_vector(15 downto 0 ); 
 	
 	
 	
 	-- CONFIGURATION TAKEN FROM OV534.c IN LINUX KERNEL DRIVERS
-	signal rom : array_72 :=( 
+	signal rom : array_73 :=( 
 	( X"12" & X"00"),
 	( X"11" & X"01" ),
+	( X"15" & X"40"), -- COM10, enable HREF change on HSYNC
 	( X"17" & X"26"),
 	( X"18" & X"a0"),
 	( X"19" & X"07"),
@@ -564,8 +570,8 @@ architecture ov7725_vga of yuv_register_rom is
 	( X"2b" & X"00"),
 	( X"22" & X"7f"),
 	( X"23" & X"03"),
-	--( X"11" & X"01"), -- double check value fint = fxclk * (PLL/((val + 1)*2) linux driver uses 12mhz fint = 12 * (4/(2*2)) = 12
-	( X"11" & X"03"), -- should work for 30fps fint = 24 * (4/(4*2)) = 12mhz
+	( X"11" & X"01"), -- double check value fint = fxclk * (PLL/((val + 1)*2) linux driver uses 12mhz fint = 12 * (4/(2*2)) = 12
+	--( X"11" & X"03"), -- should work for 30fps fint = 24 * (4/(4*2)) = 12mhz
 	( X"0c" & X"d0"),
 	( X"64" & X"ff"),
 	( X"0d" & X"41"),
