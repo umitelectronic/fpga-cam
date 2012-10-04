@@ -56,7 +56,7 @@ architecture RTL of gauss3x3 is
 	signal new_conv : std_logic;
 	signal busy : std_logic;
 	signal pixel_from_conv : signed(15 downto 0);
-	signal block3x3_sig : mat3 ;
+	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
 	signal new_block, pxclk_state : std_logic ;
 	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
 	for block0 : block3X3 use entity block3X3(RTL) ;
@@ -119,7 +119,7 @@ end RTL;
 
 
 architecture Behavioral of gauss3x3 is
-	signal block3x3_sig : mat3 ;
+	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
 	signal new_block : std_logic ;
 	signal line_1, line_2, line_3 : std_logic_vector(15 downto 0);
 	signal m00, m01, m02, m10, m11, m12, m20, m21, m22: std_logic_vector(15 downto 0);
@@ -137,15 +137,15 @@ begin
 			new_block => new_block,
 			block_out => block3x3_sig);
 		
-		m00 <= "0000000" & std_logic_vector(block3x3_sig(0)(0)) ;
-		m01 <= "0000000" & std_logic_vector(block3x3_sig(0)(1)) ;
-		m02 <= "0000000" & std_logic_vector(block3x3_sig(0)(2)) ;
-		m10 <= "0000000" & std_logic_vector(block3x3_sig(1)(0)) ;
-		m11 <= "0000000" & std_logic_vector(block3x3_sig(1)(1)) ;
-		m12 <= "0000000" & std_logic_vector(block3x3_sig(1)(2)) ;
-		m20 <= "0000000" & std_logic_vector(block3x3_sig(2)(0)) ;
-		m21 <= "0000000" & std_logic_vector(block3x3_sig(2)(1)) ;
-		m22 <= "0000000" & std_logic_vector(block3x3_sig(2)(2)) ;
+		m00 <= "0000000" & std_logic_vector(block3x3_sig(0,0)) ;
+		m01 <= "0000000" & std_logic_vector(block3x3_sig(0,1)) ;
+		m02 <= "0000000" & std_logic_vector(block3x3_sig(0,2)) ;
+		m10 <= "0000000" & std_logic_vector(block3x3_sig(1,0)) ;
+		m11 <= "0000000" & std_logic_vector(block3x3_sig(1,1)) ;
+		m12 <= "0000000" & std_logic_vector(block3x3_sig(1,2)) ;
+		m20 <= "0000000" & std_logic_vector(block3x3_sig(2,0)) ;
+		m21 <= "0000000" & std_logic_vector(block3x3_sig(2,1)) ;
+		m22 <= "0000000" & std_logic_vector(block3x3_sig(2,2)) ;
 		
 	
 		line_1 <= m00 + (m01(15 downto 1) & '0') + m02 ;

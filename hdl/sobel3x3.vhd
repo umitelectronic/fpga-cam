@@ -58,7 +58,7 @@ architecture RTL of sobel3x3 is
 	signal new_conv1, new_conv2, new_conv : std_logic;
 	signal busy1, busy2, busy : std_logic;
 	signal pixel_from_conv1, pixel_from_conv2, pixel_from_conv : std_logic_vector(7 downto 0);
-	signal block3x3_sig : mat3 ;
+	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
 	signal new_block, pxclk_state : std_logic ;
 	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
 	for block0 : block3X3 use entity block3X3(RTL) ;

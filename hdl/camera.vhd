@@ -149,14 +149,14 @@ end component;
 
 type register_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
-type row3 is array (0 to 2) of signed(8 downto 0);
-type mat3 is array (0 to 2) of row3;
+--type row3 is array (0 to 2) of signed(8 downto 0);
+--type mat3 is array (0 to 2) of row3;
 
 type matNM is array (natural range<>, natural range<>) of signed(8 downto 0);
 type imatNM is array (natural range<>, natural range<>) of integer range -256 to 255;
 
-type irow3 is array (0 to 2) of integer range -256 to 255;
-type imat3 is array (0 to 2) of irow3;
+--type irow3 is array (0 to 2) of integer range -256 to 255;
+--type imat3 is array (0 to 2) of irow3;
 
 
 type duplet is array (0 to 1) of integer range 0 to 3;
@@ -175,18 +175,6 @@ component block3X3 is
 			block_out : out matNM(0 to 2, 0 to 2));
 end component;
 
---component block3X3v2 is
---		generic(WIDTH: natural := 640;
---		  HEIGHT: natural := 480);
---		port(
---			clk : in std_logic; 
---			resetn : in std_logic; 
---			pixel_clock, hsync, vsync : in std_logic; 
---			pixel_data_in : in std_logic_vector(7 downto 0 ); 
---			new_block : out std_logic ;
---			block_out : out mat3);
---end component;
-
 component blockNxN is
 		generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480;
@@ -200,28 +188,19 @@ component blockNxN is
 			block_out : out matNM(0 to N-1, 0 to N-1));
 end component;
 
-component mat3x3_latch is
+component matNxM_latch is
+	 generic(N : natural := 3 ; M : natural := 3);
     Port ( clk : in  STD_LOGIC;
            resetn : in  STD_LOGIC;
            sraz : in  STD_LOGIC;
            en : in  STD_LOGIC;
-           d : in  mat3;
-           q : out mat3);
+           d : in  matNM(0 to N-1, 0 to  M-1);
+           q : out matNM(0 to N-1, 0 to  M-1));
 end component;
 
-component block3X3_pixel_pipeline is
-		generic(WIDTH: natural := 640;
-		  HEIGHT: natural := 480);
-		port(
-			resetn : in std_logic; 
-			pixel_clock, hsync, vsync : in std_logic;
-			pixel_clock_out, hsync_out, vsync_out : out std_logic;
-			pixel_data_in : in std_logic_vector(7 downto 0 ); 
-			block_out : out mat3);
-end component;
 
 component conv3x3 is
-generic(KERNEL : imat3 := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
+generic(KERNEL : imatNM(0 to 2, 0 to 2) := ((1, 2, 1),(0, 0, 0),(-1, -2, -1));
 		  NON_ZERO	: index_array := ((0, 0), (0, 1), (0, 2), (2, 0), (2, 1), (2, 2), (3, 3), (3, 3), (3, 3) ); -- (3, 3) indicate end  of non zero values
 		  IS_POWER_OF_TWO : natural := 0 -- (3, 3) indicate end  of non zero values
 		  );
@@ -229,7 +208,7 @@ port(
  		clk : in std_logic; 
  		resetn : in std_logic; 
  		new_block : in std_logic ;
-		block3x3 : in mat3;
+		block3x3 : in matNM(0 to 2, 0 to 2);
 		new_conv : out std_logic ;
 		busy : out std_logic ;
  		abs_res : out std_logic_vector(7 downto 0 );
