@@ -152,6 +152,9 @@ type register_array is array (natural range <>) of std_logic_vector(7 downto 0);
 type row3 is array (0 to 2) of signed(8 downto 0);
 type mat3 is array (0 to 2) of row3;
 
+type matNM is array (natural range<>, natural range<>) of signed(8 downto 0);
+type imatNM is array (natural range<>, natural range<>) of integer range -256 to 255;
+
 type irow3 is array (0 to 2) of integer range -256 to 255;
 type imat3 is array (0 to 2) of irow3;
 
@@ -169,19 +172,32 @@ component block3X3 is
 			pixel_clock, hsync, vsync : in std_logic; 
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
 			new_block : out std_logic ;
-			block_out : out mat3);
+			block_out : out matNM(0 to 2, 0 to 2));
 end component;
 
-component block3X3v2 is
+--component block3X3v2 is
+--		generic(WIDTH: natural := 640;
+--		  HEIGHT: natural := 480);
+--		port(
+--			clk : in std_logic; 
+--			resetn : in std_logic; 
+--			pixel_clock, hsync, vsync : in std_logic; 
+--			pixel_data_in : in std_logic_vector(7 downto 0 ); 
+--			new_block : out std_logic ;
+--			block_out : out mat3);
+--end component;
+
+component blockNxN is
 		generic(WIDTH: natural := 640;
-		  HEIGHT: natural := 480);
+		  HEIGHT: natural := 480;
+		  N: natural :=3);
 		port(
 			clk : in std_logic; 
 			resetn : in std_logic; 
 			pixel_clock, hsync, vsync : in std_logic; 
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
 			new_block : out std_logic ;
-			block_out : out mat3);
+			block_out : out matNM(0 to N-1, 0 to N-1));
 end component;
 
 component mat3x3_latch is

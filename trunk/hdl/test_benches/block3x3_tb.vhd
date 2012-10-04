@@ -32,7 +32,8 @@
 			signal pxclk, hsync, vsync : std_logic ;
 			signal pxclk_out, hsync_out, vsync_out : std_logic ;
 			signal new_block : std_logic ;
-			signal block_out :  mat3 ;
+			--signal block_out :  mat3 ;
+			signal block_out : matNM(0 to 2, 0 to 2) ;
 			signal pixel : std_logic_vector(7 downto 0 ) := (others => '0');
 
   BEGIN
@@ -51,7 +52,7 @@
 --						block_out => block_out
 --				);
 				
-			  block3X3v3_0 :  block3X3v2
+			  block3X3v3_0 :  block3X3
 				port map(
 						clk => clk ,
 						resetn => resetn, 
@@ -63,6 +64,18 @@
 						block_out => block_out
 				);
 				
+--				block3X3v3_0 :  blockNxN
+--				generic map (N => 5)
+--				port map(
+--						clk => clk ,
+--						resetn => resetn, 
+--						pixel_clock => pxclk, 
+--						hsync => hsync, 
+--						vsync => vsync,
+--						pixel_data_in => pixel, 
+--						new_block => new_block ,
+--						block_out => block_out
+--				);
 				
 
 	process
