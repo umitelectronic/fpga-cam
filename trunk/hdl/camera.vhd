@@ -162,6 +162,8 @@ type imatNM is array (natural range<>, natural range<>) of integer range -256 to
 type duplet is array (0 to 1) of integer range 0 to 3;
 type index_array is array (0 to 8) of duplet ;
 
+type brief_pattern is array (natural range<>, 0 to 1) of integer ;
+
 
 component block3X3 is
 		generic(WIDTH: natural := 640;
