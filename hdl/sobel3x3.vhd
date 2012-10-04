@@ -24,6 +24,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library WORK ;
 USE WORK.CAMERA.ALL ;
+USE WORK.GENERIC_COMPONENTS.ALL ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -50,11 +51,8 @@ end sobel3x3;
 
 
 
-architecture Behavioral of sobel3x3 is
-	type clock_state is (LOW, HIGH);
-	constant clock_stretch_cycle : integer range 0 to 4 := 2 ;
-	signal clock_stretch : integer range 0 to 4 := 0 ;
-	signal conv_state : clock_state ;
+architecture RTL of sobel3x3 is
+	
 	signal pxclk_from_conv1, hsync_from_conv1, vsync_from_conv1 : std_logic ;
 	signal pxclk_from_conv2, hsync_from_conv2, vsync_from_conv2 : std_logic ;
 	signal new_conv1, new_conv2, new_conv : std_logic;
@@ -110,16 +108,26 @@ begin
 		);
 		
 	
+		delay_sync: generic_delay
+		generic map( WIDTH =>  2 , DELAY => 4)
+		port map(
+			clk => clk, resetn => resetn ,
+			input(0) => hsync ,
+			input(1) => vsync ,
+			output(0) => hsync_out ,
+			output(1) => vsync_out
+		);		
+	
 		-- todo convolution takes 4 cycles, block takes one, hsync, vsync signals should be delayed by 5 cycles
 		process(clk, resetn)
 		begin
 			if resetn = '0' then
 				pixel_clock_out <= '0' ;
-				hsync_out <= '0' ;
-				vsync_out <= '0' ;
+				--hsync_out <= '0' ;
+				--vsync_out <= '0' ;
 			elsif clk'event and clk = '1' and busy = '0' then
-				hsync_out <= hsync ;
-				vsync_out <= vsync ;
+				--hsync_out <= hsync ;
+				--vsync_out <= vsync ;
 				pixel_clock_out <= new_conv ;
 			end if ;
 		end process ;
@@ -130,5 +138,5 @@ begin
 		busy <= (busy1 AND busy2) ;
 	
 
-end Behavioral;
+end RTL;
 
