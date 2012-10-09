@@ -40,7 +40,7 @@ generic(WIDTH: natural := 640;
 			resetn : in std_logic; 
 			pixel_clock, hsync, vsync : in std_logic; 
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
-			new_desc : out std_logic ;
+			pixel_clock_out, hsync_out, vsync_out : out std_logic; 
 			descriptor :  out std_logic_vector((DESCRIPTOR_LENGTH - 1) downto 0) );
 end BRIEF;
 
@@ -70,7 +70,17 @@ gen_pattern_comp : for I in 0 to DESCRIPTOR_LENGTH generate
 end generate gen_pattern_comp ;
 
 
-new_desc <= new_block ;
+delay_sync: generic_delay
+		generic map( WIDTH =>  2 , DELAY => 1)
+		port map(
+			clk => clk, resetn => resetn ,
+			input(0) => hsync ,
+			input(1) => vsync ,
+			output(0) => hsync_out ,
+			output(1) => vsync_out
+		);
+
+pixel_clock_out <= new_block ;
 
 end Behavioral;
 

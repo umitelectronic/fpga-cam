@@ -487,4 +487,19 @@ port( clk	:	in std_logic ;
 );
 end component;
 
+component BRIEF is
+generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480;
+		  WINDOW_SIZE : positive := 8;
+		  DESCRIPTOR_LENGTH : positive := 64;
+		  PATTERN : brief_pattern );
+		port(
+			clk : in std_logic; 
+			resetn : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic; 
+			pixel_data_in : in std_logic_vector(7 downto 0 ); 
+			pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+			descriptor :  out std_logic_vector((DESCRIPTOR_LENGTH - 1) downto 0) );
+end component;
+
 END camera;
