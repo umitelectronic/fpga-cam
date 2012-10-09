@@ -225,6 +225,29 @@ port(clk, resetn : in std_logic ;
 	  );
 end component;
 
+
+
+component HAMMING_DIST4 is
+		port(
+			clk : in std_logic; 
+			resetn : in std_logic; 
+			en : in std_logic ;
+			vec1, vec2 :  in std_logic_vector(3 downto 0);
+			distance : out std_logic_vector(3 downto 0));
+end component;
+
+component HAMMING_DIST is
+generic(WIDTH: natural := 64; CYCLES : natural := 4);
+		port(
+			clk : in std_logic; 
+			resetn : in std_logic; 
+			en : in std_logic ;
+			vec1, vec2 :  in std_logic_vector((WIDTH - 1) downto 0);
+			
+			dv : out std_logic ;
+			distance : out std_logic_vector(nbit(WIDTH)-1 downto 0 ) );
+end component;
+
 end generic_components;
 
 Package body generic_components is
