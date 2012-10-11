@@ -44,8 +44,9 @@ port(
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
- 		pixel_data_out : out std_logic_vector(7 downto 0 )
-
+ 		pixel_data_out : out std_logic_vector(7 downto 0 );
+		x_grad	:	out std_logic_vector(7 downto 0);
+		y_grad	:	out std_logic_vector(7 downto 0)
 );
 end sobel3x3;
 
@@ -134,6 +135,8 @@ begin
 	
 	
 		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
+		xgrad <= pixel_from_conv1 ;
+		ygrad <= pixel_from_conv2 ;
 		new_conv <= (new_conv1 AND new_conv2) ;
 		busy <= (busy1 AND busy2) ;
 	
