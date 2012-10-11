@@ -36,7 +36,8 @@ use work.generic_components.all ;
 entity BRIEF_MANAGER is
 generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480;
-		  SIZE : natural := 64);
+		  SIZE : natural := 64;
+		  DELAY : natural := 4 );
 port(
  		clk : in std_logic; 
  		resetn : in std_logic; 
@@ -46,8 +47,7 @@ port(
 
 
 -- active search interface
-		correl_feature_posx, correl_feature_posy : in std_logic_vector((nbit(WIDTH) - 1) downto 0 );
-		correl_feature_windowx, correl_feature_windowy : in std_logic_vector((nbit(WIDTH) - 1) downto 0 );
+		correl_feature_posx0, correl_feature_posy0, correl_feature_posx1, correl_feature_posy1 : in std_logic_vector((nbit(WIDTH) - 1) downto 0 );
 		feature_to_correl : in std_logic_vector((SIZE - 1) downto 0 );
 		correl_score : out std_logic_vector((nbit(SIZE) - 1) downto 0 );
 		max_correl_posx, max_correl_posy : out std_logic_vector((nbit(WIDTH) - 1) downto 0 );
@@ -62,6 +62,10 @@ end BRIEF_MANAGER;
 
 architecture Behavioral of BRIEF_MANAGER is
 
+
+	signal pixel_clock_delayed, hsync_delayed, vsync_delayed :  std_logic; 
+ 	signal pixel_data_delayed :  std_logic_vector(7 downto 0 );
+
 	signal brief_hsync, brief_vsync : std_logic ;
 
 	signal line_count : std_logic_vector((nbit(HEIGHT) - 1) downto 0 ) ;
@@ -70,8 +74,27 @@ architecture Behavioral of BRIEF_MANAGER is
 
 	signal current_descriptor, latched_descriptor : std_logic_vector((SIZE - 1) downto 0 );
 	signal current_score, latched_score : std_logic_vector((nbit(SIZE) - 1) downto 0 ) ;
-	signal new_descriptor, hamming_done, latch_score : std_logic ;
+	signal new_descriptor, hamming_done, latch_score, valid_windowx, valid_windowy : std_logic ;
 begin
+
+
+
+-- delaying inputs to be in sync with commands
+delayed_pixels : generic_delay
+	generic map( WIDTH => 11 , DELAY => DELAY)
+	port map(
+		clk => clk, resetn => resetn,
+		input(0)	=> pixel_clock,
+		input(1) => hsync,
+		input(2) => vsync,
+		input(10 downto 3) => pixel_data_in ,	
+		output(0)	=> pixel_clock_delayed,
+		output(1) => hsync_delayed,
+		output(2) => vsync_delayed,
+		output(10 downto 3) => pixel_data_delayed 		 
+	);		
+
+
 
 
 brief_0 : BRIEF
@@ -82,8 +105,8 @@ brief_0 : BRIEF
 		port map(
 			clk => clk,
 			resetn => resetn ,
-			pixel_clock => pixel_clock, hsync => hsync, vsync => vsync, 
-			pixel_data_in => pixel_data_in ,
+			pixel_clock => pixel_clock_delayed, hsync => hsync_delayed, vsync => vsync_delayed, 
+			pixel_data_in => pixel_data_delayed ,
 			pixel_clock_out => new_descriptor,
 			descriptor => current_descriptor);
 			
@@ -130,8 +153,6 @@ brief_0 : BRIEF
 			hsync => brief_hsync, vsync => brief_vsync, 
 			line_count => line_count);
 	
-	
-	
 	process(clk, resetn)
 	begin
 		if resetn = '0' then
@@ -143,9 +164,12 @@ brief_0 : BRIEF
 		end if ;
 	end process ;
 	
-	
+	valid_windowx <=  '1' when pixel_count > correl_feature_posx0 and pixel_count < correl_feature_posx1 else
+							'0' ;
+	valid_windowy <=  '1' when line_count > correl_feature_posy0 and line_count < correl_feature_posy1 else
+							'0' ;
 	-- need to check windows is valid
-	latch_score <= '1' when current_score > latched_score and line_count > correl_feature_posx else
+	latch_score <= '1' when current_score > latched_score and valid_windowx = '1' and valid_windowy = '1' else
 						'0' ;
 
 end Behavioral;
