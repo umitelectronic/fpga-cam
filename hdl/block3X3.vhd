@@ -120,11 +120,16 @@ begin
 		old_pixel_clock <= '0' ;
 	elsif clk'event and clk = '1' then
 		old_pixel_clock <= pixel_clock ;
+		if hsync = '1' then
+			new_blockq <= '0' ;
+		else
+			new_blockq <= pixel_clock_rising_edge ;
+		end if ;		
 	end if ;
 end process ;
 pixel_clock_rising_edge <= ((NOT old_pixel_clock) AND pixel_clock) ;
-new_blockq <= pixel_clock_rising_edge when hsync = '0' else
-				 '0' ;
+--new_blockq <= pixel_clock_rising_edge when hsync = '0' else -- would rise too early
+--				 '0' ;
 new_block <= new_blockq ;
 
 

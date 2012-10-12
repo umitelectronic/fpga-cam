@@ -45,8 +45,8 @@ port(
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
  		pixel_data_out : out std_logic_vector(7 downto 0 );
-		x_grad	:	out std_logic_vector(7 downto 0);
-		y_grad	:	out std_logic_vector(7 downto 0)
+		x_grad	:	out signed(7 downto 0);
+		y_grad	:	out signed(7 downto 0)
 );
 end sobel3x3;
 
@@ -59,12 +59,13 @@ architecture RTL of sobel3x3 is
 	signal new_conv1, new_conv2, new_conv : std_logic;
 	signal busy1, busy2, busy : std_logic;
 	signal pixel_from_conv1, pixel_from_conv2, pixel_from_conv : std_logic_vector(7 downto 0);
+	signal raw_from_conv1, raw_from_conv2 : signed(15 downto 0);
 	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
 	signal new_block, pxclk_state : std_logic ;
 	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
-	for block0 : block3X3 use entity block3X3(RTL) ;
-	for conv3x3_0 : conv3x3 use entity conv3x3(RTL) ;
-	for conv3x3_1 : conv3x3 use entity conv3x3(RTL) ;
+--	for block0 : block3X3 use entity block3X3(RTL) ;
+--	for conv3x3_0 : conv3x3 use entity conv3x3(RTL) ;
+--	for conv3x3_1 : conv3x3 use entity conv3x3(RTL) ;
 begin
 
 		block0:  block3X3 
@@ -90,7 +91,8 @@ begin
 				block3x3 => block3x3_sig,
 				new_conv => new_conv1,
 				busy => busy1,
-				abs_res => pixel_from_conv1
+				abs_res => pixel_from_conv1,
+				raw_res => raw_from_conv1
 		);
 		
 		conv3x3_1 :  conv3x3 
@@ -105,7 +107,8 @@ begin
 				block3x3 => block3x3_sig,
 				new_conv => new_conv2,
 				busy => busy2,
-				abs_res => pixel_from_conv2
+				abs_res => pixel_from_conv2,
+				raw_res => raw_from_conv2
 		);
 		
 	
@@ -124,19 +127,15 @@ begin
 		begin
 			if resetn = '0' then
 				pixel_clock_out <= '0' ;
-				--hsync_out <= '0' ;
-				--vsync_out <= '0' ;
 			elsif clk'event and clk = '1' and busy = '0' then
-				--hsync_out <= hsync ;
-				--vsync_out <= vsync ;
 				pixel_clock_out <= new_conv ;
 			end if ;
 		end process ;
 	
 	
 		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
-		xgrad <= pixel_from_conv1 ;
-		ygrad <= pixel_from_conv2 ;
+		x_grad <= raw_from_conv1(15 downto 8) ;
+		y_grad <= raw_from_conv2(15 downto 8) ;
 		new_conv <= (new_conv1 AND new_conv2) ;
 		busy <= (busy1 AND busy2) ;
 	
