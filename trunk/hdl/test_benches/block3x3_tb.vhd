@@ -14,16 +14,6 @@
   ARCHITECTURE behavior OF testbench IS 
 
   -- Component Declaration
-			component block3X3_pixel_pipeline is
-				generic(WIDTH: natural := 640;
-				HEIGHT: natural := 480);
-				port(
-					resetn : in std_logic; 
-					pixel_clock, hsync, vsync : in std_logic;
-					pixel_clock_out, hsync_out, vsync_out : out std_logic;
-					pixel_data_in : in std_logic_vector(7 downto 0 ); 
-					block_out : out mat3);
-			end component;
 
          constant clk_period : time := 5 ns ;
 			constant pclk_period : time := 40 ns ;

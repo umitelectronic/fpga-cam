@@ -162,7 +162,8 @@ type imatNM is array (natural range<>, natural range<>) of integer range -256 to
 type duplet is array (0 to 1) of integer range 0 to 3;
 type index_array is array (0 to 8) of duplet ;
 
-type brief_pattern is array (natural range<>, 0 to 1) of integer ;
+type linear_coord_duplet is array (0 to 1) of integer ;
+type brief_pattern is array (natural range<>) of linear_coord_duplet ;
 
 
 component block3X3 is
@@ -228,8 +229,8 @@ port(
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
  		pixel_data_out : out std_logic_vector(7 downto 0 );
-		x_grad	:	out std_logic_vector(7 downto 0);
-		y_grad	:	out std_logic_vector(7 downto 0)
+		x_grad	:	out signed(7 downto 0);
+		y_grad	:	out signed(7 downto 0)
 );
 end component;
 
