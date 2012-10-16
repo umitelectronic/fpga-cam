@@ -59,7 +59,7 @@ architecture RTL of sobel3x3 is
 	signal new_conv1, new_conv2, new_conv : std_logic;
 	signal busy1, busy2, busy : std_logic;
 	signal pixel_from_conv1, pixel_from_conv2, pixel_from_conv : std_logic_vector(7 downto 0);
-	signal raw_from_conv1, raw_from_conv2 : signed(15 downto 0);
+	signal raw_from_conv1, raw_from_conv2, sobel_response : signed(15 downto 0);
 	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
 	signal new_block, pxclk_state : std_logic ;
 	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
@@ -133,9 +133,12 @@ begin
 		end process ;
 	
 	
-		pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
-		x_grad <= raw_from_conv1(15 downto 8) ;
-		y_grad <= raw_from_conv2(15 downto 8) ;
+		
+		sobel_response <= abs(raw_from_conv1) + abs(raw_from_conv2) ;
+		--pixel_data_out <= pixel_from_conv1 + pixel_from_conv2 ;
+		pixel_data_out <= std_logic_vector(sobel_response(9 downto 2));
+		x_grad <= raw_from_conv1(10 downto 3) ;
+		y_grad <= raw_from_conv2(10 downto 3) ;
 		new_conv <= (new_conv1 AND new_conv2) ;
 		busy <= (busy1 AND busy2) ;
 	
