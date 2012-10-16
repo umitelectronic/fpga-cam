@@ -36,7 +36,7 @@ use work.camera.all ;
 use work.generic_components.all ;
 
 
-entity HARRIS is
+entity HARRIS_FINAL is
 generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8);
 port (
 		clk : in std_logic; 
@@ -46,9 +46,15 @@ port (
  		pixel_data_in : in std_logic_vector(7 downto 0 ); 
  		harris_out : out std_logic_vector(15 downto 0 )
 );
-end HARRIS;
+end HARRIS_FINAL;
 
-architecture Behavioral of HARRIS is
+architecture Behavioral of HARRIS_FINAL is
+	type array_of_16s is array(0 to WINDOW_SIZE) of signed(15 downto 0);
+
+	signal shifting_window_xgrad_square, shifting_window_xgrad_square_latched : array_of_16s ;
+	signal shifting_window_ygrad_square, shifting_window_ygrad_square_latched : array_of_16s ;
+	signal shifting_window_xygrad, shifting_window_xygrad_latched : array_of_16s ;
+
 	signal pixel_from_sobel : std_logic_vector(7 downto 0);
 	signal pixel_from_gauss : std_logic_vector(7 downto 0);
 	
@@ -65,19 +71,28 @@ architecture Behavioral of HARRIS is
 
 	signal pixel_count : std_logic_vector((nbit(WIDTH) - 1) downto 0);
 	signal line_count : std_logic_vector((nbit(HEIGHT) - 1) downto 0);
+	signal sample_index :  std_logic_vector((nbit(WINDOW_SIZE) - 1) downto 0) ;
 	signal block_xaddress, block_xaddress_old : std_logic_vector((nbit(WIDTH/WINDOW_SIZE) - 1) downto 0);
 	signal block_xpos : std_logic_vector((nbit(WINDOW_SIZE) - 1) downto 0);
 	signal block_yaddress, block_yaddress_old : std_logic_vector((nbit(HEIGHT/WINDOW_SIZE) - 1) downto 0);
 	signal block_ypos : std_logic_vector((nbit(WINDOW_SIZE) - 1) downto 0);
 	
 	signal ram_in, ram_out : std_logic_vector(47 downto 0);
-	signal ram_address : std_logic_vector(nbit(WIDTH/WINDOW_SIZE)-1 downto 0);
+	signal ram_address : std_logic_vector(nbit(WIDTH)-1 downto 0);
 	
 	signal store_grads, store_grads_re, store_grads_old : std_logic ;
 	
 	signal pxclk_from_sobel_old, pxclk_from_sobel_re : std_logic ;
 	signal href_from_sobel_old, href_from_sobel_re : std_logic ;
 	signal end_of_window : std_logic ;
+	
+	
+	signal stage1, stage2, stage3 : std_logic ; --pipeline stages enable signal
+	signal det0, det1, det0_latched, det1_latched, det, det_latched : signed(31 downto 0);
+	signal trace, trace_latched : signed(15 downto 0);
+	signal trace_square, trace_square_latched : signed(31 downto 0);
+	signal harris_val : signed(15 downto 0);
+	signal harris_val_long : signed(31 downto 0);
 	
 begin
 
@@ -117,95 +132,105 @@ begin
 			pixel_clock => pxclk_from_sobel, hsync => href_from_sobel,
 			pixel_count => pixel_count
 			);
-	
-	process(clk, resetn)
-	begin
-		if resetn = '0' then
-			block_xaddress <= (others => '0') ;
-			block_xpos <= (others => '0') ;
-		elsif clk'event and clk = '1' then
-			if href_from_sobel = '1' then
-				block_xaddress <= (others => '0') ;
-				block_xpos <= (others => '0') ;
-			elsif pxclk_from_sobel_re = '1'  then
-					if block_xpos = (WINDOW_SIZE - 1) then
-						block_xaddress <= block_xaddress  + 1  ;
-						block_xpos <= (others => '0');
-					else
-						block_xpos <= block_xpos + 1 ;
-					end if;
-			end if ;
-		end if ;
-	end process ;
 
-	
-	line_counter0: line_counter 
-		generic map(MAX => HEIGHT)
-		port map(
-			clk => clk, 
-			resetn => resetn, 
-			hsync => href_from_sobel, vsync => vsync_from_sobel,
-			line_count => line_count );
-	
-	
-	process(clk, resetn)
-	begin
-		if resetn = '0' then
-			block_yaddress <= (others => '0') ;
-			block_ypos <= (others => '0') ;
-		elsif clk'event and clk = '1' then
-			if vsync_from_sobel = '1' then
-				block_yaddress <= (others => '0') ;
-				block_ypos <= (others => '0') ;
-			elsif href_from_sobel_re = '1' then
-				if  block_ypos = (WINDOW_SIZE - 1) then
-					block_yaddress <= block_yaddress  + 1  ;
-					block_ypos <= (others => '0');
-				else
-					block_ypos <= block_ypos + 1;
-				end if ;
-			end if ;
-		end if ;
-	end process ;	
-
-	
---		block_xaddress <= pixel_count((nbit(WIDTH) - 1) downto (nbit(WINDOW_SIZE)));
---		block_xpos <= pixel_count((nbit(WINDOW_SIZE) -1) downto 0);
---		block_yaddress <= line_count((nbit(HEIGHT) - 1) downto (nbit(WINDOW_SIZE)));
---		block_ypos <= line_count((nbit(WINDOW_SIZE) -1) downto 0);
 		
 		
 		xgrad_square <= xgrad * xgrad ;
 		ygrad_square <= ygrad * ygrad ;
 		xygrad <= xgrad * ygrad ;
+		
+		genf_window_gradx: for i in 0 to (WINDOW_SIZE - 1) generate
+			gen_allx : if i < (WINDOW_SIZE - 1) generate
+							shifting_window_xgrad_square(i) <= shifting_window_xgrad_square_latched(i+1);
+						 end generate ;
+			gen_lastx : if i = (WINDOW_SIZE - 1) generate
+							shifting_window_xgrad_square(i) <= xgrad_square;
+						 end generate ;
+		end generate ;
+		process(clk)
+		begin
+			if clk'event and clk = '1' then 
+				if pxclk_from_sobel_re = '1' then
+					shifting_window_xgrad_square_latched <= shifting_window_xgrad_square ;
+				end if ;
+			end if ;
+		end process ;		
+		
+		genf_window_grady: for i in 0 to (WINDOW_SIZE - 1) generate
+			gen_all : if i < (WINDOW_SIZE - 1) generate
+							shifting_window_ygrad_square(i) <= shifting_window_ygrad_square_latched(i+1);
+						 end generate ;
+			gen_last : if i = (WINDOW_SIZE - 1) generate
+							shifting_window_ygrad_square(i) <= ygrad_square;
+						 end generate ;
+		end generate ;
+		process(clk)
+		begin
+			if clk'event and clk = '1' then 
+				if pxclk_from_sobel_re = '1' then
+					shifting_window_ygrad_square_latched <= shifting_window_ygrad_square ;
+				end if ;
+			end if ;
+		end process ;
+		
+		genf_window_gradxy: for i in 0 to (WINDOW_SIZE - 1) generate
+			gen_all : if i < (WINDOW_SIZE - 1) generate
+							shifting_window_xygrad(i) <= shifting_window_xygrad_latched(i+1);
+						 end generate ;
+			gen_last : if i = (WINDOW_SIZE - 1) generate
+							shifting_window_xygrad(i) <= xygrad;
+						 end generate ;
+		end generate ;
+		process(clk)
+		begin
+			if clk'event and clk = '1' then 
+				if pxclk_from_sobel_re = '1' then
+					shifting_window_xygrad_latched <= shifting_window_xygrad ;
+				end if ;
+			end if ;
+		end process ;
 	
-		xgrad_square_sum <= SHIFT_RIGHT(xgrad_square,3) + xgrad_square_sum_latched ; -- accumulating in register
-		ygrad_square_sum <= SHIFT_RIGHT(ygrad_square,3) + ygrad_square_sum_latched ; -- need to control overflow
-		xygrad_sum <= SHIFT_RIGHT(xygrad,3) + xygrad_sum_latched ;
+	
+		xgrad_square_sum <=  xgrad_square_sum_latched + SHIFT_RIGHT(shifting_window_xgrad_square_latched(sample_index), 3); -- accumulating in register
+		ygrad_square_sum <=  ygrad_square_sum_latched + SHIFT_RIGHT(shifting_window_ygrad_square_latched(sample_index), 3); -- need to control overflow
+		xygrad_sum <=  xygrad_sum_latched + SHIFT_RIGHT(shifting_window_xygrad_latched(sample_index), 3);
 
 		process(clk, resetn)
 		begin
 			if resetn = '0' then
-				xgrad_square_sum_latched <= (others => '0');
-				ygrad_square_sum_latched <= (others => '0');
-				xygrad_sum_latched <= (others => '0');
+				sample_index <= (others => '0');
+			elsif clk'event and clk = '1' then 
+				if pxclk_from_sobel_re = '1' then
+					sample_index <= (others => '0');
+				elsif sample_index /= WINDOW_SIZE then
+					sample_index <= sample_index + 1 ;
+				end if ;
+			end if ;
+		end process ;
+
+
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
+				pxclk_from_sobel_old <= '0' ;
+				href_from_sobel_old <= '0' ;
 			elsif clk'event and clk = '1' then 
 				pxclk_from_sobel_old <= pxclk_from_sobel ;
 				href_from_sobel_old <= href_from_sobel ;
-				if (block_xpos = 0) then
-						xgrad_square_sum_latched <= (others => '0');
-						ygrad_square_sum_latched <= (others => '0');
-						xygrad_sum_latched <= (others => '0');
-				elsif pxclk_from_sobel_re = '1' then
-					xgrad_square_sum_latched <= xgrad_square_sum;
-					ygrad_square_sum_latched <= ygrad_square_sum;
-					xygrad_sum_latched <= xygrad_sum;
+				if pxclk_from_sobel_re = '1' then
+					xgrad_square_sum_latched <= (others => '0') ;
+					ygrad_square_sum_latched <= (others => '0') ;
+					xygrad_sum_latched <= (others => '0') ;
+				else
+					xgrad_square_sum_latched <= xgrad_square_sum ;
+					ygrad_square_sum_latched <= ygrad_square_sum ;
+					xygrad_sum_latched <= xygrad_sum ;
 				end if ;
 			end if ;
 		end process ;
 		pxclk_from_sobel_re <= pxclk_from_sobel AND (NOT pxclk_from_sobel_old);
 		href_from_sobel_re <= href_from_sobel AND (NOT href_from_sobel_old);
-
+		
 
 		xgrad_square_sum_latched_divn <= SHIFT_RIGHT(xgrad_square_sum_latched,nbit(WINDOW_SIZE));  -- need to evaluate shift dependeing on window size
 		ygrad_square_sum_latched_divn <= SHIFT_RIGHT(ygrad_square_sum_latched,nbit(WINDOW_SIZE));
@@ -229,11 +254,10 @@ begin
 		ygrad_square_sum_ram <= signed(ram_out(31 downto 16)) ;
 		xygrad_sum_ram <= signed(ram_out(15 downto 0)) ;
 		
-		ram_address <= block_xaddress_old when block_xaddress_old /= WIDTH/WINDOW_SIZE else
-						   (others => '0');
+		ram_address <= pixel_count ;
 		
 		harris_window_ram : dpram_NxN 
-			generic map(SIZE => WIDTH/WINDOW_SIZE , NBIT => 48, ADDR_WIDTH => nbit(WIDTH/WINDOW_SIZE))
+			generic map(SIZE => WIDTH , NBIT => 48, ADDR_WIDTH => nbit(WIDTH))
 			port map(
 				clk => clk,  
 				we => store_grads, 		
@@ -255,7 +279,7 @@ begin
 			end if ;
 		end process ;
 		
-		store_grads <= '1' when block_xaddress_old /= block_xaddress and href_from_sobel = '0' else
+		store_grads <= '1' when block_xaddress_old /= block_xaddress else
 							'0' ;
 		
 --		store_grads <= '1' when block_xpos = (WINDOW_SIZE - 1) else
@@ -273,28 +297,84 @@ begin
 --		end_of_window <= pxclk_from_sobel_re when block_ypos = WINDOW_SIZE - 1 else
 --						  '0' ;
 
-		end_of_window <= '1' when block_xaddress_old /= block_xaddress and block_ypos = WINDOW_SIZE - 1 and href_from_sobel = '0' else
+		end_of_window <= '1' when block_xaddress_old /= block_xaddress and block_ypos = WINDOW_SIZE - 1 else
 							  '0' ;
 		
 		
-	harris_rep0: HARRIS_RESPONSE 
-	port map(
-			clk => clk, resetn => resetn,
-			en => end_of_window,
-			xgrad_square_sum => xgrad_square_acc, ygrad_square_sum => ygrad_square_acc, xygrad_sum => xygrad_acc,
-			dv	=> pixel_clock_out,
-			harris_response => harris_out
-	);
+		-- need to work on getting thing fitting on 16 bit all the time
+		-- to avoid using multiple multipliers ...
+
+		trace <= xgrad_square_acc + ygrad_square_acc ; -- first stage --16bit
+		det0 <= xgrad_square_acc * ygrad_square_acc; --32bit, is positive
+		det1 <= xygrad_acc * xygrad_acc; -- 32 bit, is positive
+		
+		
+		
+		trace_square <= trace_latched * trace_latched ; -- second stage --32bit
+		det <= det0_latched - det1_latched ; --32 bit, must check on det range
+		
+		harris_val_long <= det_latched - SHIFT_RIGHT(trace_square_latched, 4) ; -- final stage --32 bit
+																							  -- trace is always positive
+		
+		--harris_val <= harris_val_long(25 downto 10) ; -- still need to check on range
+		
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
+				harris_val <= (others => '0') ;
+			elsif clk'event and clk ='1' then
+				if stage2 = '1' then
+					harris_val <= harris_val_long(25 downto 10) ;
+				end if ;
+			end if ;
+		end process ;
+		
+		
+		
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
+				stage1 <= '0' ;
+				stage2 <= '0' ;
+				stage3 <= '0' ;
+			elsif clk'event and clk ='1' then
+				stage1 <= end_of_window ;
+				stage2 <= stage1 ;
+				stage3 <= stage2 ;
+			end if ;
+		end process ;
+		
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
+				trace_latched <= (others => '0') ;
+				det0_latched <= (others => '0') ;
+				det1_latched <= (others => '0') ;
+				det_latched <= (others => '0') ;
+				trace_square_latched <= (others => '0') ;
+			elsif clk'event and clk ='1' then
+				trace_latched <= trace ;
+				det0_latched <= det0 ;
+				det1_latched <= det1 ;
+				det_latched <= det ;
+				trace_square_latched <= trace_square ;
+			end if ;
+		end process ;
+		
+		harris_out <= std_logic_vector(harris_val) ;
 		
 		delay_sync: generic_delay
 		generic map( WIDTH =>  2 , DELAY => 7)
 		port map(
 			clk => clk, resetn => resetn ,
-			input(0) => href_from_sobel ,
-			input(1) => vsync_from_sobel ,
+			input(0) => hsync ,
+			input(1) => vsync ,
 			output(0) => hsync_out ,
 			output(1) => vsync_out
 		);	
+		
+		
+		pixel_clock_out <= stage3 ;
 		
 
 end Behavioral;

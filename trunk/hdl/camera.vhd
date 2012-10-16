@@ -517,6 +517,15 @@ port (
 );
 end component;
 
+component HARRIS_RESPONSE is
+	port(
+	clk, resetn : in std_logic ;
+	en : in std_logic ;
+	xgrad_square_sum, ygrad_square_sum, xygrad_sum : in signed(15 downto 0);
+	dv	:	out std_logic ;
+	harris_response : out std_logic_vector(15 downto 0)
+	);
+end component;
 
 component virtual_camera is
 generic(IMAGE_PATH : string ; PERIOD : time := 10ns);
