@@ -113,7 +113,8 @@ begin
 		end process ;
 	
 	
-		pixel_data_out <= std_logic_vector(pixel_from_conv(12 downto 5)) ;
+		--pixel_data_out <= std_logic_vector(pixel_from_conv(12 downto 5)) ; -- divide by 64
+		pixel_data_out <= std_logic_vector(pixel_from_conv(11 downto 4)) ; -- divide by 16
 
 end RTL;
 
