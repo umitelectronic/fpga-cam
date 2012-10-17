@@ -506,7 +506,7 @@ end component;
 
 
 component HARRIS is
-generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8);
+generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8; DS_FACTOR : natural := 0);
 port (
 		clk : in std_logic; 
  		resetn : in std_logic; 

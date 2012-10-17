@@ -60,9 +60,13 @@ begin
 			if hsync_re = '1' then 
 				writeline (pgmfile, vDataoutline);
 			elsif pixel_clock = '1' and hsync = '0' then 
-				 vDataout := to_integer(signed(value_in)); 
+				 if signed(value_in) > 0 then
+					vDataout := to_integer(signed(value_in)); 
+				 else
+					vDataout := 0; 
+				 end if ;
 				 write (vDataoutline, vDataout);               -- write variable to line 
-				 write (vDataoutline, string'(","));               -- write variable to line
+				 write (vDataoutline, string'(", "));               -- write variable to line
 			end if ;
 		end if ;
   END PROCESS;

@@ -68,7 +68,7 @@ ARCHITECTURE behavior OF HARRIS_tb IS
 BEGIN
  
 	v_cam : virtual_camera 
-		generic map(IMAGE_PATH => "/home/jpiat/Pictures/test_sobel.pgm", PERIOD => pclk_period)
+		generic map(IMAGE_PATH => "/home/jpiat/Pictures/slam_vue_scaled.pgm", PERIOD => pclk_period)
 		port map(
 				clk => clk, 
 				resetn => resetn,
@@ -79,7 +79,7 @@ BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
    uut: HARRIS 
-		generic map(WIDTH =>  320 , HEIGHT => 240, WINDOW_SIZE => 5)
+		generic map(WIDTH =>  320 , HEIGHT => 240, WINDOW_SIZE => 4)
 		PORT MAP (
           clk => clk,
           resetn => resetn,
@@ -94,7 +94,7 @@ BEGIN
         );
 
 	writer0: pgm_writer 
-	generic map(WRITE_PATH =>  "/home/jpiat/Pictures/test_sobel.log")
+	generic map(WRITE_PATH =>  "/home/jpiat/Pictures/slam_vue_scaled.log")
 		port map(
 		clk => clk,
 		resetn=> resetn , 

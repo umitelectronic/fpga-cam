@@ -37,7 +37,7 @@ use work.generic_components.all ;
 
 
 entity HARRIS is
-generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8);
+generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8; DS_FACTOR : natural := 0);
 port (
 		clk : in std_logic; 
  		resetn : in std_logic; 
@@ -78,6 +78,8 @@ architecture Behavioral of HARRIS is
 	signal pxclk_from_sobel_old, pxclk_from_sobel_re : std_logic ;
 	signal href_from_sobel_old, href_from_sobel_re : std_logic ;
 	signal end_of_window : std_logic ;
+	
+	signal hsync_delayed, vsync_delayed : std_logic ;
 	
 begin
 
@@ -179,9 +181,9 @@ begin
 		ygrad_square <= ygrad * ygrad ;
 		xygrad <= xgrad * ygrad ;
 	
-		xgrad_square_sum <= SHIFT_RIGHT(xgrad_square,3) + xgrad_square_sum_latched ; -- accumulating in register
-		ygrad_square_sum <= SHIFT_RIGHT(ygrad_square,3) + ygrad_square_sum_latched ; -- need to control overflow
-		xygrad_sum <= SHIFT_RIGHT(xygrad,3) + xygrad_sum_latched ;
+		xgrad_square_sum <= SHIFT_RIGHT(xgrad_square,DS_FACTOR) + xgrad_square_sum_latched ; -- accumulating in register
+		ygrad_square_sum <= SHIFT_RIGHT(ygrad_square,DS_FACTOR) + ygrad_square_sum_latched ; -- need to control overflow
+		xygrad_sum <= SHIFT_RIGHT(xygrad,DS_FACTOR) + xygrad_sum_latched ;
 
 		process(clk, resetn)
 		begin
@@ -286,14 +288,19 @@ begin
 			harris_response => harris_out
 	);
 		
+	vsync_out <= vsync_delayed when 	block_yaddress = 0  and block_xaddress = 0 else
+					 '0' ;
+	hsync_out <= hsync_delayed when  block_xaddress = 0 and block_ypos = 0 else
+					 '0' ;
+		
 		delay_sync: generic_delay
 		generic map( WIDTH =>  2 , DELAY => 7)
 		port map(
 			clk => clk, resetn => resetn ,
 			input(0) => href_from_sobel ,
 			input(1) => vsync_from_sobel ,
-			output(0) => hsync_out ,
-			output(1) => vsync_out
+			output(0) => hsync_delayed ,
+			output(1) => vsync_delayed
 		);	
 		
 
