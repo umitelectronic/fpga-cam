@@ -70,7 +70,7 @@ begin
 		we => wr_acc,  
 		di =>  gradx_square_ram_in,
 		a	=> pixel_address,
-		dpra => (others => '0'),
+		dpra => std_logic_vector(to_unsigned(0, nbit(WIDTH))),
 		spo => gradx_square_ram_out,
 		dpo => open	
 	); 
@@ -82,7 +82,7 @@ begin
 		we => wr_acc,  
 		di =>  grady_square_ram_in,
 		a	=> pixel_address,
-		dpra => (others => '0'),
+		dpra => std_logic_vector(to_unsigned(0, nbit(WIDTH))),
 		spo => grady_square_ram_out,
 		dpo =>  open		
 	); 
@@ -95,7 +95,7 @@ begin
 		we => wr_acc,  
 		di =>  gradxy_ram_in,
 		a	=> pixel_address,
-		dpra => (others => '0'),
+		dpra => std_logic_vector(to_unsigned(0, nbit(WIDTH))),
 		spo => gradxy_ram_out	,
 		dpo =>  open		
 	); 
