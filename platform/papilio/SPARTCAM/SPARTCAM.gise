@@ -23,7 +23,6 @@
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
-    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/bitgen.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
@@ -45,81 +44,46 @@
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_conf_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_conf_y_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_erode_guide.ncd" xil_pn:origination="imported"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spartcam_fx2.bgn" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="spartcam_fx2.bit" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="spartcam_fx2.bld"/>
-    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="spartcam_fx2.cmd_log"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_DRC" xil_pn:name="spartcam_fx2.drc" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="spartcam_fx2.lso"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2.ncd" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="spartcam_fx2.ngc"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGD" xil_pn:name="spartcam_fx2.ngd"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="spartcam_fx2.ngr"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAR_REPORT" xil_pn:name="spartcam_fx2.par" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PCF" xil_pn:name="spartcam_fx2.pcf" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spartcam_fx2.prj"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="spartcam_fx2.stx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="spartcam_fx2.syr"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="spartcam_fx2.twr" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="spartcam_fx2.twx" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="spartcam_fx2.unroutes" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spartcam_fx2.ut" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="spartcam_fx2.xst"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_fx2_envsettings.html"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_guide.ncd" xil_pn:origination="imported"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_fx2_map.map" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_fx2_map.mrp" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_map.ncd" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGM" xil_pn:name="spartcam_fx2_map.ngm" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spartcam_fx2_ov7725.bgn" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="spartcam_fx2_ov7725.bit" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="spartcam_fx2_ov7725.bld"/>
-    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="spartcam_fx2_ov7725.cmd_log"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_DRC" xil_pn:name="spartcam_fx2_ov7725.drc" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="spartcam_fx2_ov7725.lso"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_ov7725.ncd" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="spartcam_fx2_ov7725.ngc"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGD" xil_pn:name="spartcam_fx2_ov7725.ngd"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="spartcam_fx2_ov7725.ngr"/>
-    <file xil_pn:fileType="FILE_PAD_MISC" xil_pn:name="spartcam_fx2_ov7725.pad"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAR_REPORT" xil_pn:name="spartcam_fx2_ov7725.par" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PCF" xil_pn:name="spartcam_fx2_ov7725.pcf" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spartcam_fx2_ov7725.prj"/>
-    <file xil_pn:fileType="FILE_TRCE_MISC" xil_pn:name="spartcam_fx2_ov7725.ptwx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="spartcam_fx2_ov7725.stx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="spartcam_fx2_ov7725.syr"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="spartcam_fx2_ov7725.twr" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="spartcam_fx2_ov7725.twx" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="spartcam_fx2_ov7725.unroutes" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="spartcam_fx2_ov7725.ut" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:fileType="FILE_XPI" xil_pn:name="spartcam_fx2_ov7725.xpi"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="spartcam_fx2_ov7725.xst"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_fx2_ov7725_envsettings.html"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_ov7725_guide.ncd" xil_pn:origination="imported"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_fx2_ov7725_map.map" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_fx2_ov7725_map.mrp" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_ov7725_map.ncd" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGM" xil_pn:name="spartcam_fx2_ov7725_map.ngm" xil_pn:subbranch="Map"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_map.xrpt"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_ngdbuild.xrpt"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_EXCEL_REPORT" xil_pn:name="spartcam_fx2_ov7725_pad.csv" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_TXT_REPORT" xil_pn:name="spartcam_fx2_ov7725_pad.txt" xil_pn:subbranch="Par"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_par.xrpt"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_fx2_ov7725_summary.html"/>
-    <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="spartcam_fx2_ov7725_summary.xml"/>
-    <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="spartcam_fx2_ov7725_usage.xml"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_xst.xrpt"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_EXCEL_REPORT" xil_pn:name="spartcam_fx2_pad.csv" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_TXT_REPORT" xil_pn:name="spartcam_fx2_pad.txt" xil_pn:subbranch="Par"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_fx2_summary.html"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spartcam_fx2_vhdl.prj"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_xst.xrpt"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="spartcam_fx2_ov7725_harris.bld"/>
+    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="spartcam_fx2_ov7725_harris.cmd_log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="spartcam_fx2_ov7725_harris.lso"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_ov7725_harris.ncd" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="spartcam_fx2_ov7725_harris.ngc"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGD" xil_pn:name="spartcam_fx2_ov7725_harris.ngd"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="spartcam_fx2_ov7725_harris.ngr"/>
+    <file xil_pn:fileType="FILE_PAD_MISC" xil_pn:name="spartcam_fx2_ov7725_harris.pad"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAR_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris.par" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PCF" xil_pn:name="spartcam_fx2_ov7725_harris.pcf" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spartcam_fx2_ov7725_harris.prj"/>
+    <file xil_pn:fileType="FILE_TRCE_MISC" xil_pn:name="spartcam_fx2_ov7725_harris.ptwx"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="spartcam_fx2_ov7725_harris.stx"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris.syr"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris.twr" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris.twx" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="spartcam_fx2_ov7725_harris.unroutes" xil_pn:subbranch="Par"/>
+    <file xil_pn:fileType="FILE_XPI" xil_pn:name="spartcam_fx2_ov7725_harris.xpi"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="spartcam_fx2_ov7725_harris.xst"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_fx2_ov7725_harris_envsettings.html"/>
+    <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_ov7725_harris_guide.ncd" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris_map.map" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris_map.mrp" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_fx2_ov7725_harris_map.ncd" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGM" xil_pn:name="spartcam_fx2_ov7725_harris_map.ngm" xil_pn:subbranch="Map"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_harris_map.xrpt"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_harris_ngdbuild.xrpt"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_EXCEL_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris_pad.csv" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_TXT_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris_pad.txt" xil_pn:subbranch="Par"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_harris_par.xrpt"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_fx2_ov7725_harris_summary.html"/>
+    <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="spartcam_fx2_ov7725_harris_summary.xml"/>
+    <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="spartcam_fx2_ov7725_harris_usage.xml"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_fx2_ov7725_harris_xst.xrpt"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_lcd_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_sobel_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_square_guide.ncd" xil_pn:origination="imported"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
-    <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="xaw2vhdl.log"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
@@ -127,115 +91,98 @@
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
-    <transform xil_pn:end_ts="1348817149" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1348817149">
+    <transform xil_pn:end_ts="1350575627" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="472061264266660876" xil_pn:start_ts="1350575627">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1349167078" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="-6447797081909215100" xil_pn:start_ts="1349167078">
+    <transform xil_pn:end_ts="1350575627" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="-1147652978407737526" xil_pn:start_ts="1350575627">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1349167078" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="4522875273178269986" xil_pn:start_ts="1349167078">
+    <transform xil_pn:end_ts="1350575627" xil_pn:name="TRAN_SubProjectAbstractToPreProxy" xil_pn:start_ts="1350575627">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1349167078" xil_pn:name="TRAN_SubProjectAbstractToPreProxy" xil_pn:start_ts="1349167078">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1349167078" xil_pn:in_ck="347824255232305953" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="396727004323732226" xil_pn:start_ts="1349167078">
+    <transform xil_pn:end_ts="1350575630" xil_pn:in_ck="347824255232305953" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="2287919462445264074" xil_pn:start_ts="1350575627">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="dcm24.vhd"/>
       <outfile xil_pn:name="dcm96.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1349167078" xil_pn:name="TRAN_SubProjectPreToStructuralProxy" xil_pn:prop_ck="5199527252420087910" xil_pn:start_ts="1349167078">
+    <transform xil_pn:end_ts="1350575630" xil_pn:name="TRAN_SubProjectPreToStructuralProxy" xil_pn:prop_ck="5199527252420087910" xil_pn:start_ts="1350575630">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1349167078" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="8806472636241020268" xil_pn:start_ts="1349167078">
+    <transform xil_pn:end_ts="1350575630" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="7845858134017588308" xil_pn:start_ts="1350575630">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1349178224" xil_pn:in_ck="-7330350375785300985" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="2703485976751772195" xil_pn:start_ts="1349178206">
+    <transform xil_pn:end_ts="1350575787" xil_pn:in_ck="2875546869051325240" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="2931680670976545163" xil_pn:start_ts="1350575762">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.lso"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.ngc"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.ngr"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.prj"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.stx"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.syr"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.xst"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_xst.xrpt"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.lso"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.ngc"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.ngr"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.prj"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.stx"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.syr"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.xst"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_xst.xrpt"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
       <outfile xil_pn:name="xst"/>
     </transform>
-    <transform xil_pn:end_ts="1349167105" xil_pn:in_ck="6039396653219142755" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="3524746148764404983" xil_pn:start_ts="1349167105">
+    <transform xil_pn:end_ts="1350575634" xil_pn:in_ck="6039396653219142755" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="8352495845770964415" xil_pn:start_ts="1350575634">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1349178229" xil_pn:in_ck="3379734495913111228" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="6670865264023230703" xil_pn:start_ts="1349178224">
+    <transform xil_pn:end_ts="1350575795" xil_pn:in_ck="-7452014427738598668" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-7878174176058832969" xil_pn:start_ts="1350575787">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.bld"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.ngd"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_ngdbuild.xrpt"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.bld"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.ngd"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1349178235" xil_pn:in_ck="4651538246318319006" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="2327475146552349993" xil_pn:start_ts="1349178229">
+    <transform xil_pn:end_ts="1350575807" xil_pn:in_ck="-7452014427738598667" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="2327475146552349993" xil_pn:start_ts="1350575795">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.pcf"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_map.map"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_map.mrp"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_map.ncd"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_map.ngm"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_map.xrpt"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_summary.xml"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_usage.xml"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.pcf"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_map.map"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_map.mrp"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_map.ncd"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_map.ngm"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_map.xrpt"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_summary.xml"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1349178287" xil_pn:in_ck="5905795976933182768" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1349178235">
+    <transform xil_pn:end_ts="1350575857" xil_pn:in_ck="2642164819530962062" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1350575807">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.ncd"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.pad"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.par"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.ptwx"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.unroutes"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.xpi"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_pad.csv"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_pad.txt"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725_par.xrpt"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.ncd"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.pad"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.par"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.ptwx"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.unroutes"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.xpi"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_pad.csv"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_pad.txt"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1349178294" xil_pn:in_ck="7811271390954823187" xil_pn:name="TRANEXT_bitFile_spartan3e" xil_pn:prop_ck="287829442711806529" xil_pn:start_ts="1349178287">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="WarningsGenerated"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.bgn"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.bit"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.drc"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.ut"/>
-      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
-      <outfile xil_pn:name="webtalk.log"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
-    </transform>
-    <transform xil_pn:end_ts="1349178287" xil_pn:in_ck="2794139856216856854" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1349178284">
+    <transform xil_pn:end_ts="1350575857" xil_pn:in_ck="-7452014427738598799" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1350575852">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.twr"/>
-      <outfile xil_pn:name="spartcam_fx2_ov7725.twx"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.twr"/>
+      <outfile xil_pn:name="spartcam_fx2_ov7725_harris.twx"/>
     </transform>
   </transforms>
 
