@@ -29,7 +29,7 @@ port (
 end component;
 
 component HARRIS_FINAL is
-generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 5);
+generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 5; DS_FACTOR : natural := 0);
 port (
 		clk : in std_logic; 
  		resetn : in std_logic; 

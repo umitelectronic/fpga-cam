@@ -65,6 +65,7 @@ architecture Behavioral of HARRIS_FINAL is
 	signal gradx_square_sum_line, grady_square_sum_line, gradxy_sum_line : signed(15 downto 0);
 	
 	signal xgrad_square_sum, ygrad_square_sum, xygrad_sum : signed(15 downto 0);
+	signal xgrad_square_sum_divn, ygrad_square_sum_divn, xygrad_sum_divn : signed(15 downto 0);
 
 	signal pixel_count : std_logic_vector((nbit(WIDTH) - 1) downto 0);
 	signal line_count : std_logic_vector((nbit(HEIGHT) - 1) downto 0);
@@ -95,6 +96,20 @@ begin
 		);		
 		
 		
+--	sobel0: sobel3x3
+--		generic map(
+--		  WIDTH => WIDTH,
+--		  HEIGHT => HEIGHT)
+--		port map(
+--			clk => clk ,
+--			resetn => resetn ,
+--			pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync =>  vsync_from_gauss,
+--			pixel_clock_out => pxclk_from_sobel, hsync_out => href_from_sobel, vsync_out => vsync_from_sobel, 
+--			pixel_data_in => pixel_from_gauss,  
+--			pixel_data_out => pixel_from_sobel,
+--			x_grad => xgrad ,
+--			y_grad => ygrad
+--		);	
 	sobel0: sobel3x3
 		generic map(
 		  WIDTH => WIDTH,
@@ -102,13 +117,15 @@ begin
 		port map(
 			clk => clk ,
 			resetn => resetn ,
-			pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync =>  vsync_from_gauss,
+			pixel_clock => pixel_clock, hsync => hsync, vsync =>  vsync,
 			pixel_clock_out => pxclk_from_sobel, hsync_out => href_from_sobel, vsync_out => vsync_from_sobel, 
-			pixel_data_in => pixel_from_gauss,  
+			pixel_data_in => pixel_data_in,  
 			pixel_data_out => pixel_from_sobel,
 			x_grad => xgrad ,
 			y_grad => ygrad
 		);	
+	
+	
 	
 	xgrad_square <= xgrad * xgrad ;
 	ygrad_square <= ygrad * ygrad ;
@@ -160,7 +177,7 @@ begin
 		
 		
 		delay_pclk: generic_delay
-		generic map( WIDTH =>  1 , DELAY => 3)
+		generic map( WIDTH =>  1 , DELAY => WINDOW_SIZE - 2)
 		port map(
 			clk => clk, resetn => resetn ,
 			input(0) => pxclk_from_sobel_re,
@@ -255,7 +272,7 @@ begin
 		
 		
 		delay_pclk_bis: generic_delay
-		generic map( WIDTH =>  1 , DELAY => 3)
+		generic map( WIDTH =>  1 , DELAY => WINDOW_SIZE - 2)
 		port map(
 			clk => clk, resetn => resetn ,
 			input(0) => pxclk_from_sobel_re_delayed,
@@ -276,11 +293,16 @@ begin
 		pxclk_from_sobel_re <= pxclk_from_sobel AND (NOT pxclk_from_sobel_old);
 		href_from_sobel_re <= href_from_sobel AND (NOT href_from_sobel_old);	
 		
+		xgrad_square_sum_divn <= SHIFT_RIGHT(xgrad_square_sum, DS_FACTOR) ;
+		ygrad_square_sum_divn <= SHIFT_RIGHT(ygrad_square_sum, DS_FACTOR) ;
+		xygrad_sum_divn <= SHIFT_RIGHT(xygrad_sum, DS_FACTOR);
+		
+		
 		harris_rep0: HARRIS_RESPONSE 
 		port map(
 				clk => clk, resetn => resetn,
 				en => pxclk_from_sobel_re_delayed_bis,
-				xgrad_square_sum => SHIFT_RIGHT(xgrad_square_sum, DS_FACTOR), ygrad_square_sum => SHIFT_RIGHT(ygrad_square_sum, DS_FACTOR), xygrad_sum => SHIFT_RIGHT(xygrad_sum, DS_FACTOR),
+				xgrad_square_sum => xgrad_square_sum_divn, ygrad_square_sum => ygrad_square_sum_divn, xygrad_sum => xygrad_sum_divn,
 				dv	=> pixel_clock_out,
 				harris_response => harris_out
 		);
@@ -289,7 +311,7 @@ begin
 		hsync_out <= hsync_delayed ;
 		
 		delay_sync: generic_delay
-		generic map( WIDTH =>  2 , DELAY => 11)
+		generic map( WIDTH =>  2 , DELAY => ((2*(WINDOW_SIZE - 2))+3))
 		port map(
 			clk => clk, resetn => resetn ,
 			input(0) => href_from_sobel ,
