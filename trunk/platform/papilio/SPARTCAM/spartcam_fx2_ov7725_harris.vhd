@@ -37,7 +37,7 @@ use WORK.harris_pack.ALL ;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity spartcam_fx2_ov7725 is
+entity spartcam_fx2_ov7725_harris is
 port( CLK : in std_logic;
 		RESETN	:	in std_logic;
 		TXD	:	out std_logic;
@@ -63,10 +63,10 @@ port( CLK : in std_logic;
 		FIFO_DATA :	out std_logic_vector(7 downto 0)
 		
 );
-end spartcam_fx2_ov7725;
+end spartcam_fx2_ov7725_harris;
 
 
-architecture Structural of spartcam_fx2_ov7725 is
+architecture Structural of spartcam_fx2_ov7725_harris is
 
 	COMPONENT dcm24
 	PORT(
@@ -91,13 +91,12 @@ architecture Structural of spartcam_fx2_ov7725 is
 	signal baud_rate_divider : integer range 0 to 53 := 0 ;
 
 	signal pixel_y_from_interface, pixel_u_from_interface, pixel_v_from_interface : std_logic_vector(7 downto 0);
-	signal pixel_from_conv : std_logic_vector(7 downto 0);
-	signal pixel_from_gauss : std_logic_vector(7 downto 0);
+	signal pixel_from_harris : std_logic_vector(7 downto 0);
+	signal pixel_from_harris_raw : std_logic_vector(15 downto 0);
 	
 	
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
-	signal pxclk_from_gauss, href_from_gauss, vsync_from_gauss : std_logic ;
-	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
+	signal pxclk_from_harris, href_from_harris, vsync_from_harris : std_logic ;
 	
 	
 	signal vsync_old, vsync_rising_edge : std_logic ;
@@ -106,8 +105,6 @@ architecture Structural of spartcam_fx2_ov7725 is
 	signal fifo_data_input : std_logic_vector(7 downto 0);
 	signal fifo_wr_data : std_logic ;
 	
-	
-	for gauss3x3_0 : gauss3x3 use entity gauss3x3(RTL) ;
 	
 	begin
 
@@ -180,55 +177,42 @@ architecture Structural of spartcam_fx2_ov7725 is
 		u_data => pixel_u_from_interface,
 		v_data => pixel_v_from_interface
 		);
+	
+	harris0 : HARRIS_FINAL
+	generic map(WIDTH => 320, HEIGHT => 240, WINDOW_SIZE => 4, DS_FACTOR => 1)
+	port map(
+			clk => clk_96,
+			resetn => resetn_delayed, 
+			pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync =>  vsync_from_interface,
+			pixel_clock_out => pxclk_from_harris, hsync_out => href_from_harris, vsync_out => vsync_from_harris,
+			pixel_data_in => pixel_y_from_interface,
+			harris_out => pixel_from_harris_raw
+	);
 		
-gauss3x3_0	: gauss3x3 
-		generic map(WIDTH => 320,
-				  HEIGHT => 240)
-		port map(
-					clk => clk_96 ,
-					resetn => resetn_delayed ,
-					pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync =>  vsync_from_interface,
-					pixel_clock_out => pxclk_from_gauss, hsync_out => href_from_gauss, vsync_out => vsync_from_gauss, 
-					pixel_data_in => pixel_y_from_interface,  
-					pixel_data_out => pixel_from_gauss
-		);		
-		
-		
-sobel0: sobel3x3
-		generic map(
-		  WIDTH => 320,
-		  HEIGHT => 240)
-		port map(
-			clk => clk_96 ,
-			resetn => resetn_delayed ,
-			pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync =>  vsync_from_gauss,
-			pixel_clock_out => pxclk_from_conv, hsync_out => href_from_conv, vsync_out => vsync_from_conv, 
-			pixel_data_in => pixel_from_gauss,  
-			pixel_data_out => pixel_from_conv
-		);	
-		
-		
+	pixel_from_harris <= (others => '0') when 	signed(pixel_from_harris_raw) < 0 else
+								pixel_from_harris_raw(7 downto 0) when signed(pixel_from_harris_raw) < 256 else
+								(others => '1');
 		
 	process(clk_96, resetn_delayed)
 	begin
 		if resetn_delayed = '0' then
 			vsync_old <= '0' ;
 		elsif clk_96'event and clk_96 = '1' then
-			vsync_old <= vsync_from_conv ;
+			vsync_old <= vsync_from_harris ;
 		end if ;
 	end process ;
-	vsync_rising_edge <= (not vsync_old) and vsync_from_conv ;
+	vsync_rising_edge <= (not vsync_old) and vsync_from_harris ;
 	
-	fifo_data_input <= pixel_from_conv when vsync_from_conv = '0' and pixel_from_conv /= X"A5" else
-							 (pixel_from_conv(7 downto 1) & '0') when vsync_from_conv = '0'  else
+	fifo_data_input <= pixel_from_harris when vsync_from_harris = '0' and pixel_from_harris /= X"A5" else
+							 (pixel_from_harris(7 downto 1) & '0') when vsync_from_harris = '0'  else
 							 X"A5";
 	
-	fifo_wr_data <= pxclk_from_conv when href_from_conv = '0' else
+	fifo_wr_data <= pxclk_from_harris when href_from_harris = '0' else
 						 vsync_rising_edge ;
 	
 	FX2_IFCLK <= clk_24 ;	
 	--FX2_IFCLK <= clk_48 ;	
-	fx2_interfaec0 : fx2_interface
+	fx2_interface0 : fx2_interface
 		port map(
 				-- logic interface
 				resetn => resetn_delayed,
