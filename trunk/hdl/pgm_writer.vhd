@@ -35,7 +35,7 @@ use IEEE.std_logic_textio.all;          -- I/O for logic types
 --use UNISIM.VComponents.all;
 
 entity pgm_writer is
-	generic(WRITE_PATH : STRING );
+	generic(WRITE_PATH : STRING; HEIGHT : positive := 60; WIDTH : positive := 80 );
 port(
  		clk : in std_logic; 
  		resetn : in std_logic; 
@@ -48,25 +48,45 @@ architecture Behavioral of pgm_writer is
 file pgmfile           : text OPEN write_mode IS WRITE_PATH;
 
 signal hsync_old, hsync_re : std_logic ;
+
 begin
 
 	PROCESS (clk, resetn)
     VARIABLE vDataout     : integer;   -- variable written to line 
     VARIABLE vDataoutline : line;                     -- line variable written to file
+	 variable isInitialized	:	boolean := false ;
 	 BEGIN
 		if resetn = '0' then
-			
+			if NOT isInitialized then
+				write(vDataoutline, string'("P2"));
+				writeline (pgmfile, vDataoutline);
+				write(vDataoutline, string'("#create from PGM writer"));
+				writeline (pgmfile, vDataoutline);
+				write(vDataoutline, WIDTH);
+				write(vDataoutline, string'(" "));
+				write(vDataoutline, HEIGHT);
+				writeline (pgmfile, vDataoutline);
+				write(vDataoutline, string'("255"));
+				writeline (pgmfile, vDataoutline);
+				isInitialized := TRUE ;
+			end if ;
 		elsif clk'event and clk = '1' then 
 			if hsync_re = '1' then 
-				writeline (pgmfile, vDataoutline);
+				--writeline (pgmfile, vDataoutline);
 			elsif pixel_clock = '1' and hsync = '0' then 
 				 if signed(value_in) > 0 then
-					vDataout := to_integer(signed(value_in)); 
+					if signed(value_in) > 255 then
+						vDataout := 255; 
+					else
+						vDataout := to_integer(signed(value_in)); 
+					end if ;
+--					vDataout := 255; 
 				 else
 					vDataout := 0; 
 				 end if ;
 				 write (vDataoutline, vDataout);               -- write variable to line 
-				 write (vDataoutline, string'(", "));               -- write variable to line
+				 --write (vDataoutline, string'(", "));               -- write variable to line
+				 writeline (pgmfile, vDataoutline);
 			end if ;
 		end if ;
   END PROCESS;

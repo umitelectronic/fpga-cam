@@ -166,6 +166,7 @@ type linear_coord_duplet is array (0 to 1) of integer ;
 type brief_pattern is array (natural range<>) of linear_coord_duplet ;
 
 
+
 component block3X3 is
 		generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480);
@@ -505,28 +506,6 @@ generic(WIDTH: natural := 640;
 end component;
 
 
-component HARRIS is
-generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8; DS_FACTOR : natural := 0);
-port (
-		clk : in std_logic; 
- 		resetn : in std_logic; 
- 		pixel_clock, hsync, vsync : in std_logic; 
- 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
- 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
- 		harris_out : out std_logic_vector(15 downto 0 )
-);
-end component;
-
-component HARRIS_RESPONSE is
-	port(
-	clk, resetn : in std_logic ;
-	en : in std_logic ;
-	xgrad_square_sum, ygrad_square_sum, xygrad_sum : in signed(15 downto 0);
-	dv	:	out std_logic ;
-	harris_response : out std_logic_vector(15 downto 0)
-	);
-end component;
-
 component virtual_camera is
 generic(IMAGE_PATH : string ; PERIOD : time := 10ns);
 port(
@@ -537,7 +516,7 @@ port(
 end component;
 
 component pgm_writer is
-	generic(WRITE_PATH : STRING );
+	generic(WRITE_PATH : STRING; HEIGHT : positive := 60; WIDTH : positive := 80 );
 port(
  		clk : in std_logic; 
  		resetn : in std_logic; 
