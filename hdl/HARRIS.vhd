@@ -37,7 +37,7 @@ use work.generic_components.all ;
 
 
 entity HARRIS is
-generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8; DS_FACTOR : natural := 0);
+generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8; DS_FACTOR : natural := 2);
 port (
 		clk : in std_logic; 
  		resetn : in std_logic; 
@@ -120,25 +120,25 @@ begin
 			pixel_count => pixel_count
 			);
 	
-	process(clk, resetn)
-	begin
-		if resetn = '0' then
-			block_xaddress <= (others => '0') ;
-			block_xpos <= (others => '0') ;
-		elsif clk'event and clk = '1' then
-			if href_from_sobel = '1' then
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
 				block_xaddress <= (others => '0') ;
 				block_xpos <= (others => '0') ;
-			elsif pxclk_from_sobel_re = '1'  then
-					if block_xpos = (WINDOW_SIZE - 1) then
-						block_xaddress <= block_xaddress  + 1  ;
-						block_xpos <= (others => '0');
-					else
-						block_xpos <= block_xpos + 1 ;
-					end if;
+			elsif clk'event and clk = '1' then
+				if href_from_sobel = '1' then
+					block_xaddress <= (others => '0') ;
+					block_xpos <= (others => '0') ;
+				elsif pxclk_from_sobel_re = '1'  then
+						if block_xpos = (WINDOW_SIZE - 1) then
+							block_xaddress <= block_xaddress  + 1  ;
+							block_xpos <= (others => '0');
+						else
+							block_xpos <= block_xpos + 1 ;
+						end if;
+				end if ;
 			end if ;
-		end if ;
-	end process ;
+		end process ;
 
 	
 	line_counter0: line_counter 
@@ -150,31 +150,25 @@ begin
 			line_count => line_count );
 	
 	
-	process(clk, resetn)
-	begin
-		if resetn = '0' then
-			block_yaddress <= (others => '0') ;
-			block_ypos <= (others => '0') ;
-		elsif clk'event and clk = '1' then
-			if vsync_from_sobel = '1' then
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
 				block_yaddress <= (others => '0') ;
 				block_ypos <= (others => '0') ;
-			elsif href_from_sobel_re = '1' then
-				if  block_ypos = (WINDOW_SIZE - 1) then
-					block_yaddress <= block_yaddress  + 1  ;
-					block_ypos <= (others => '0');
-				else
-					block_ypos <= block_ypos + 1;
+			elsif clk'event and clk = '1' then
+				if vsync_from_sobel = '1' then
+					block_yaddress <= (others => '0') ;
+					block_ypos <= (others => '0') ;
+				elsif href_from_sobel_re = '1' then
+					if  block_ypos = (WINDOW_SIZE - 1) then
+						block_yaddress <= block_yaddress  + 1  ;
+						block_ypos <= (others => '0');
+					else
+						block_ypos <= block_ypos + 1;
+					end if ;
 				end if ;
 			end if ;
-		end if ;
-	end process ;	
-
-	
---		block_xaddress <= pixel_count((nbit(WIDTH) - 1) downto (nbit(WINDOW_SIZE)));
---		block_xpos <= pixel_count((nbit(WINDOW_SIZE) -1) downto 0);
---		block_yaddress <= line_count((nbit(HEIGHT) - 1) downto (nbit(WINDOW_SIZE)));
---		block_ypos <= line_count((nbit(WINDOW_SIZE) -1) downto 0);
+		end process ;	
 		
 		
 		xgrad_square <= xgrad * xgrad ;

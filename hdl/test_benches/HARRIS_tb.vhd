@@ -35,6 +35,7 @@ USE ieee.std_logic_UNSIGNED.ALL;
  
 library work ;
 use work.camera.all ; 
+use work.harris_pack.all ;
  
  
 ENTITY HARRIS_tb IS
@@ -78,7 +79,7 @@ BEGIN
  
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: HARRIS 
+   uut: HARRIS_FINAL
 		generic map(WIDTH =>  320 , HEIGHT => 240, WINDOW_SIZE => 4)
 		PORT MAP (
           clk => clk,
@@ -94,7 +95,7 @@ BEGIN
         );
 
 	writer0: pgm_writer 
-	generic map(WRITE_PATH =>  "/home/jpiat/Pictures/slam_vue_scaled.log")
+	generic map(WRITE_PATH =>  "/home/jpiat/Pictures/slam_vue_scaled_harris.pgm", HEIGHT => 240, WIDTH => 320)
 		port map(
 		clk => clk,
 		resetn=> resetn , 
