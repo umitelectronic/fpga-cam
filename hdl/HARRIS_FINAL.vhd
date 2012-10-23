@@ -131,7 +131,7 @@ begin
 	ygrad_square <= ygrad * ygrad ;
 	xygrad <= xgrad * ygrad ;
 	
-	gen_square_acc:  HARRIS_LINE_ACC 
+	gen_square_acc:  HARRIS_LINE_ACC_SMALL 
 		generic map(NB_LINE => (WINDOW_SIZE - 1), WIDTH => 320) 
 		port map(clk => clk, resetn => resetn,
 		  rewind_acc => href_from_sobel,

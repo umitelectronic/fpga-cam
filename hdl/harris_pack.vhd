@@ -61,6 +61,16 @@ port(clk, resetn : in std_logic ;
 	  );
 end component;
 
+-- smaller memory footprint but slower, need 3 clock cycles to store and retrieve values
+component HARRIS_LINE_ACC_SMALL is
+generic(NB_LINE : positive := 4; WIDTH : positive :=320);
+port(clk, resetn : in std_logic ;
+	  rewind_acc	:	in std_logic ;
+	  wr_acc	:	in std_logic ;
+	  gradx_square_in, grady_square_in, gradxy_in: in signed(15 downto 0);
+	  gradx_square_out, grady_square_out, gradxy_out: out vec_16s(0 to (NB_LINE - 1))
+	  );
+end component;
 
 component HARRIS_16SADDER is
 generic(NB_VAL : positive := 5);
