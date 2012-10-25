@@ -88,7 +88,8 @@ high_score_xpos <= ram_out(((nbit(WIDTH/TILE_NBX) + 16) - 1) downto 16);
 high_score_ypos <= ram_out(((nbit(WIDTH/TILE_NBY) + (nbit(WIDTH/TILE_NBX) + 16)) - 1) downto (nbit(WIDTH/TILE_NBX) + 16));
 
 
-harris_score_out <= highest_score ;
+harris_score_out <= harris_score_in when signed(harris_score_in) > signed(highest_score) else	
+						  highest_score ;
 feature_coordx <= high_score_xpos + top_left_cornerx ;
 feature_coordy <= high_score_ypos + top_left_cornery ;
 
