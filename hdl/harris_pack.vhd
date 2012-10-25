@@ -11,6 +11,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
 
+library work ;
+use work.generic_components.all ;
+
 package harris_pack is
 
 type vec_16s is array(natural range<>) of signed(15 downto 0);
@@ -79,6 +82,23 @@ port(
 		val_array : in vec_16s(0 to (NB_VAL-1));
 		result : out signed(15 downto 0)
 );
+end component;
+
+
+
+component HARRIS_TESSELATION is
+	generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; TILE_NBX : positive := 8 ; TILE_NBY : positive := 6 );
+	port (
+			clk : in std_logic; 
+			resetn : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic; 
+			harris_score_in : in std_logic_vector(15 downto 0 ); 
+			feature_coordx	:	out std_logic_vector((nbit(WIDTH) - 1) downto 0 );
+			feature_coordy	:	out std_logic_vector((nbit(HEIGHT) - 1) downto 0 );
+			end_of_block	:	out std_logic ;
+			harris_score_out	: 	out std_logic_vector(15 downto 0 );
+			latch_maxima	:	out std_logic 
+	);
 end component;
 
 end harris_pack;
