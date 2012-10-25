@@ -60,6 +60,11 @@ ARCHITECTURE behavior OF HARRIS_tb IS
    signal vsync_out : std_logic;
    signal harris_out : std_logic_vector(15 downto 0);
 
+	signal end_of_block, latch_max : std_logic ;
+	signal coordx :	std_logic_vector(8 downto 0);
+	signal coordy	:	std_logic_vector(7 downto 0);
+	signal harris_max : std_logic_vector(15 downto 0);
+
    -- Clock period definitions
 	constant clk_period : time := 5 ns ;
 	constant pclk_period : time := 40 ns ;
@@ -93,6 +98,20 @@ BEGIN
           pixel_data_in => pixel_data_in,
           harris_out => harris_out
         );
+
+	uut2: HARRIS_TESSELATION 
+	generic map(WIDTH => 320 , HEIGHT => 240, TILE_NBX => 10 , TILE_NBY => 10 )
+	port map(
+			clk => clk,
+			resetn => resetn, 
+			pixel_clock => pixel_clock_out , hsync => hsync_out, vsync => vsync_out, 
+			harris_score_in =>  harris_out,
+			feature_coordx => coordx,
+			feature_coordy	=> coordy,
+			end_of_block	=> end_of_block,
+			harris_score_out	=> harris_max,
+			latch_maxima =>  latch_max
+	);
 
 	writer0: pgm_writer 
 	generic map(WRITE_PATH =>  "/home/jpiat/Pictures/slam_vue_scaled_harris.pgm", HEIGHT => 240, WIDTH => 320)

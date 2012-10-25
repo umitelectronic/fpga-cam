@@ -60,7 +60,7 @@ read_file:
 		image := pgm_read(IMAGE_PATH);
       loop EXIT WHEN line_count = 277;
 				pixel_clock_out <= '0';
-				if px_count < 320 and line_count > 25 and line_count < 265 then
+				if px_count < 320 and line_count > 25 and line_count < 266 then
 					hsync_out <= '0' ;					
 					pixel_data <= std_logic_vector(to_unsigned(image.all(px_count,line_count - 26), 8)) ;
 				else
