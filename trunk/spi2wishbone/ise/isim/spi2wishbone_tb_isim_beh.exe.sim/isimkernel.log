@@ -1,0 +1,28 @@
+Command line:
+   spi2wishbone_tb_isim_beh.exe
+     -simmode  gui
+     -simrunnum  0
+     -socket  49707
+
+Sat Dec 08 21:13:19 2012
+
+
+ Elaboration Time: 0.1248 sec
+
+ Current Memory Usage: 677.183 Meg
+
+ Total Signals          : 98
+ Total Nets             : 404
+ Total Signal Drivers   : 56
+ Total Blocks           : 8
+ Total Primitive Blocks : 6
+ Total Processes        : 28
+ Total Traceable Variables  : 39
+ Total Scalar Nets and Variables : 1533
+
+ Total Simulation Time: 0.1404 sec
+
+ Current Memory Usage: 834.47 Meg
+
+Sat Dec 08 21:14:40 2012
+

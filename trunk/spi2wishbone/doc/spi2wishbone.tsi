@@ -1,0 +1,104 @@
+--------------------------------------------------------------------------------
+Release 14.3 Trace  (nt64)
+Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
+ 
+C:\Xilinx\14.3\ISE_DS\ISE\bin\nt64\unwrapped\trce.exe -u 30 -v 30 -fastpaths
+-tsi ../doc/spi2wishbone.tsi -o ../doc/spi2wishbone.twr spi2wishbone.ncd
+spi2wishbone.pcf
+
+
+Design file:              spi2wishbone.ncd
+Physical constraint file: spi2wishbone.pcf
+Report level:             timespec interaction report
+--------------------------------------------------------------------------------
+********************************************************************************
+*                                                                              *
+* This timing constraint interaction report can be used to understand which    *
+* timing constraints take precedence when two or more timing constraints cover *
+* a common set of timing paths.                                                *
+*                                                                              *
+* Constraint coverage over a set of paths is based on the following precedence *
+* order (lowest to highest precedence):                                        *
+*                                                                              *
+*   Unconstrained path analysis                                                *
+*   PERIOD or FREQUENCY, allclocknets                                          *
+*   PERIOD or FREQUENCY, time group                                            *
+*   PERIOD or FREQUENCY, net                                                   *
+*   OFFSET IN/OUT, global                                                      *
+*   OFFSET IN/OUT, time group                                                  *
+*   OFFSET IN/OUT, pad                                                         *
+*   MAXDELAY path, with pre-defined FROM and TO groups                         *
+*   MAXDELAY path, with user-defined FROM or TO group                          *
+*   MAXDELAY path, with user-defined FROM and TO groups                        *
+*   MAXDELAY path, with intermediate (THRU) points                             *
+*   PATH definition                                                            *
+*   TIG path                                                                   *
+*                                                                              *
+* When two or more timing constraints have the same precedence, an optional    *
+* PRIORITY qualifier can be used to identify the constraint that should take   *
+* precedence for path coverage. If no PRIORITY qualifier exists, the last      *
+* constraint encountered in the constraint file will take precedence.          *
+*                                                                              *
+* The following report lists constraints interactions, where lower-priority    *
+* constraints had paths removed due to higher-priority constraints. For each   *
+* interaction, the higher-priority constraint and number of paths removed are  *
+* listed.                                                                      *
+*                                                                              *
+* In addition, if two or more interacting constraints have a similar type, a   *
+* set of potential constraint consolidations may be reported. It may be        *
+* possible to reduce the memory and runtime required for timing analysis by    *
+* combining similar constraints.                                               *
+*                                                                              *
+* A clock domain overlap report will be produced when multiple                 *
+* period/frequency constraints are defined to cover the same synchronous       *
+* destination elements. This overlap report displays the set of overlapping    *
+* constraints in precedence order (lowest to highest precedence) along with    *
+* the list of synchronous destination elements shared by those constraints.    *
+* The destination elements are listed using their logical resource name        *
+* followed parenthetically by their physical resource name and physical clock  *
+* pin name.                                                                    *
+*                                                                              *
+* The clock domain overlap report can be used to detect and correct            *
+* overlapping constraint specifications that may be unintentionally altering   *
+* the desired clock domain membership and resultant timing analysis of a       *
+* design.                                                                      *
+*                                                                              *
+********************************************************************************
+
+Constraint Interaction Report
+=============================
+
+Constraint interactions for Unconstrained path analysis 
+         65 paths removed by PATH "TS_TIG1_path" TIG;
+          2 paths removed by PATH "TS_TIG2_path" TIG;
+        689 paths removed by TS_PER_SPI = PERIOD TIMEGRP "spi_clk_grp" 8 ns HIGH 50%;
+        109 paths removed by TS_PER_WB = PERIOD TIMEGRP "wb_clk_grp" 8 ns HIGH 50%;
+          9 paths removed by Unconstrained OFFSET IN BEFORE analysis for clock "spi_sck_BUFGP" 
+         69 paths removed by Unconstrained OFFSET IN BEFORE analysis for clock "wb_clk_BUFGP" 
+          2 paths removed by Unconstrained OFFSET OUT AFTER analysis for clock "spi_sck_BUFGP" 
+          3 paths removed by Unconstrained OFFSET OUT AFTER analysis for clock "wb_clk_BUFGP" 
+
+  Consolidating the following similar constraints may reduce the memory and runtime required for timing analysis:
+    TS_PER_SPI = PERIOD TIMEGRP "spi_clk_grp" 8 ns HIGH 50%;
+    TS_PER_WB = PERIOD TIMEGRP "wb_clk_grp" 8 ns HIGH 50%;
+
+  Consolidating the following similar constraints may reduce the memory and runtime required for timing analysis:
+    PATH "TS_TIG1_path" TIG;
+    PATH "TS_TIG2_path" TIG;
+
+  Consolidating the following similar constraints may reduce the memory and runtime required for timing analysis:
+    Unconstrained OFFSET IN BEFORE analysis for clock "spi_sck_BUFGP" 
+    Unconstrained OFFSET IN BEFORE analysis for clock "wb_clk_BUFGP" 
+    Unconstrained OFFSET OUT AFTER analysis for clock "spi_sck_BUFGP" 
+    Unconstrained OFFSET OUT AFTER analysis for clock "wb_clk_BUFGP" 
+
+
+Clock Domain Overlap Report
+===========================
+
+No overlap to report.
+
+
+Timespec interaction analysis completed Sat Dec 08 22:31:47 2012
+--------------------------------------------------------------------------------
+

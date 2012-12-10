@@ -1,0 +1,29 @@
+Running: C:\Xilinx\14.3\ISE_DS\ISE\bin\nt64\unwrapped\fuse.exe -intstyle ise -incremental -lib secureip -o C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone_tb_isim_beh.exe -prj C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone_tb_beh.prj work.spi2wishbone_tb 
+ISim P.40xd (signature 0x7708f090)
+Number of CPUs detected in this system: 8
+Turning on mult-threading, number of parallel sub-compilation jobs: 16 
+Determining compilation order of HDL files
+Parsing VHDL file "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/../src/wb_shim.vhd" into library work
+Parsing VHDL file "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/../src/spi_slave.vhd" into library work
+WARNING:HDLCompiler:957 - "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/../src/spi_slave.vhd" Line 361: Case choice must be a locally static expression
+WARNING:HDLCompiler:957 - "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/../src/spi_slave.vhd" Line 369: Case choice must be a locally static expression
+WARNING:HDLCompiler:957 - "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/../src/spi_slave.vhd" Line 378: Case choice must be a locally static expression
+Parsing VHDL file "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/../src/spi2wishbone.vhd" into library work
+Parsing VHDL file "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/../tb/spi2wishbone_tb.vhd" into library work
+Starting static elaboration
+Completed static elaboration
+Compiling package standard
+Compiling package std_logic_1164
+Compiling package numeric_std
+Compiling package std_logic_arith
+Compiling package std_logic_unsigned
+Compiling architecture rtl of entity spi_slave [\spi_slave(32,'0','0',3)\]
+Compiling architecture behavioral of entity wb_shim [\wb_shim(32,32,('0','0','0','0',...]
+Compiling architecture behavioral of entity spi2wishbone [\spi2wishbone(32,'0','0',32,('0'...]
+Compiling architecture behavior of entity spi2wishbone_tb
+Time Resolution for simulation is 1ps.
+Waiting for 1 sub-compilation(s) to finish...
+Compiled 12 VHDL Units
+Built simulation executable C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone_tb_isim_beh.exe
+Fuse Memory Usage: 40236 KB
+Fuse CPU Usage: 748 ms

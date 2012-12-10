@@ -1,0 +1,1 @@
+-intstyle "ise" -incremental -lib "secureip" -o "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone_tb_isim_beh.exe" -prj "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone_tb_beh.prj" "work.spi2wishbone_tb" 

@@ -1,0 +1,54 @@
+INFO:sim:172 - Generating IP...
+Resolving generics for 'clk_gen'...
+Applying external generics to 'clk_gen'...
+Delivering associated files for 'clk_gen'...
+WARNING:sim - Component clk_wiz_v3_6 does not have a valid model name for VHDL
+   synthesis
+Delivering EJava files for 'clk_gen'...
+Delivered 3 files into directory
+C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_cg/c
+lk_gen
+Delivered 1 file into directory
+C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_cg/c
+lk_gen
+Generating ASY schematic symbol...
+Loading device for application Rf_Device from file '6slx9.nph' in environment
+C:\Xilinx\14.3\ISE_DS\ISE\.
+INFO:sim:949 - Finished generation of ASY schematic symbol.
+Generating SYM schematic symbol for 'clk_gen'...
+Generating ISE project...
+XCO file found: clk_gen.xco
+XMDF file found: clk_gen_xmdf.tcl
+Adding
+C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_cg/c
+lk_gen/example_design/clk_gen_exdes.ucf -view all -origin_type created
+Adding
+C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_cg/c
+lk_gen/example_design/clk_gen_exdes.vhd -view all -origin_type created
+INFO:HDLCompiler:1061 - Parsing VHDL file
+   "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_
+   cg/clk_gen/example_design/clk_gen_exdes.vhd" into library work
+INFO:ProjectMgmt - Parsing design hierarchy completed successfully.
+Adding
+C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_cg/c
+lk_gen.asy -view all -origin_type imported
+Adding
+C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_cg/c
+lk_gen.vhd -view all -origin_type created
+INFO:HDLCompiler:1061 - Parsing VHDL file
+   "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_
+   cg/clk_gen.vhd" into library work
+INFO:ProjectMgmt - Parsing design hierarchy completed successfully.
+Adding
+C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/ipcore_dir/tmp/_cg/c
+lk_gen.vho -view all -origin_type imported
+WARNING:coreutil - WARNING: This core does not have a top level called
+   "/clk_gen"
+   WARNING: Top level has been set to "/clk_gen_exdes"
+Generating README file...
+Generating FLIST file...
+INFO:sim:948 - Finished FLIST file generation.
+Launching README viewer...
+Moving files to output directory...
+Finished moving files to output directory
+Wrote CGP file for project 'clk_gen'.

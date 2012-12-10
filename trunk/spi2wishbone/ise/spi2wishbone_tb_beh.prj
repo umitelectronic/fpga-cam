@@ -1,0 +1,4 @@
+vhdl work "../src/wb_shim.vhd"
+vhdl work "../src/spi_slave.vhd"
+vhdl work "../src/spi2wishbone.vhd"
+vhdl work "../tb/spi2wishbone_tb.vhd"
