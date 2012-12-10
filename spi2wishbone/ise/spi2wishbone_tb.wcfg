@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone_tb_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="spi2wishbone_tb" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="1" />
+   <wvobject fp_name="group23" type="group">
+      <obj_property name="label">TB</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="group24" type="group">
+         <obj_property name="label">SPI</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/spi2wishbone_tb/spi_sck" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">spi_sck</obj_property>
+            <obj_property name="ObjectShortName">spi_sck</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/spi_ss" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">spi_ss</obj_property>
+            <obj_property name="ObjectShortName">spi_ss</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/spi_mosi" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">spi_mosi</obj_property>
+            <obj_property name="ObjectShortName">spi_mosi</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/spi_miso" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">spi_miso</obj_property>
+            <obj_property name="ObjectShortName">spi_miso</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group25" type="group">
+         <obj_property name="label">Wishbone</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/spi2wishbone_tb/wb_clk" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_clk</obj_property>
+            <obj_property name="ObjectShortName">wb_clk</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_rst" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_rst</obj_property>
+            <obj_property name="ObjectShortName">wb_rst</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_dat_i0" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_dat_i0[31:0]</obj_property>
+            <obj_property name="ObjectShortName">wb_dat_i0[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_ack_i" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_ack_i</obj_property>
+            <obj_property name="ObjectShortName">wb_ack_i</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_adr_o0" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_adr_o0[31:0]</obj_property>
+            <obj_property name="ObjectShortName">wb_adr_o0[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_we_o" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_we_o</obj_property>
+            <obj_property name="ObjectShortName">wb_we_o</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_sel_o0" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_sel_o0</obj_property>
+            <obj_property name="ObjectShortName">wb_sel_o0</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_stb_o" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_stb_o</obj_property>
+            <obj_property name="ObjectShortName">wb_stb_o</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_cyc_o" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_cyc_o</obj_property>
+            <obj_property name="ObjectShortName">wb_cyc_o</obj_property>
+         </wvobject>
+         <wvobject fp_name="/spi2wishbone_tb/wb_tgc_o" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">wb_tgc_o</obj_property>
+            <obj_property name="ObjectShortName">wb_tgc_o</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group35" type="group">
+         <obj_property name="label">UUT</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="group36" type="group">
+            <obj_property name="label">SPI</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_sck" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_sck</obj_property>
+               <obj_property name="ObjectShortName">spi_sck</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_ss" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_ss</obj_property>
+               <obj_property name="ObjectShortName">spi_ss</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_mosi" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_mosi</obj_property>
+               <obj_property name="ObjectShortName">spi_mosi</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_miso" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_miso</obj_property>
+               <obj_property name="ObjectShortName">spi_miso</obj_property>
+            </wvobject>
+         </wvobject>
+         <wvobject fp_name="group37" type="group">
+            <obj_property name="label">Wishbone</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_clk" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_clk</obj_property>
+               <obj_property name="ObjectShortName">wb_clk</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_rst" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_rst</obj_property>
+               <obj_property name="ObjectShortName">wb_rst</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_adr_o0" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_adr_o0[31:0]</obj_property>
+               <obj_property name="ObjectShortName">wb_adr_o0[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_dat_i0" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_dat_i0[31:0]</obj_property>
+               <obj_property name="ObjectShortName">wb_dat_i0[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_we_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_we_o</obj_property>
+               <obj_property name="ObjectShortName">wb_we_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_sel_o0" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_sel_o0</obj_property>
+               <obj_property name="ObjectShortName">wb_sel_o0</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_stb_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_stb_o</obj_property>
+               <obj_property name="ObjectShortName">wb_stb_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_ack_i" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_ack_i</obj_property>
+               <obj_property name="ObjectShortName">wb_ack_i</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_cyc_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_cyc_o</obj_property>
+               <obj_property name="ObjectShortName">wb_cyc_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wb_tgc_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wb_tgc_o</obj_property>
+               <obj_property name="ObjectShortName">wb_tgc_o</obj_property>
+            </wvobject>
+         </wvobject>
+         <wvobject fp_name="group39" type="group">
+            <obj_property name="label">INTERNAL SIGNALS</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/spi2wishbone_tb/uut/di_req" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req</obj_property>
+               <obj_property name="ObjectShortName">di_req</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/di" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">di[31:0]</obj_property>
+               <obj_property name="ObjectShortName">di[31:0]</obj_property>
+               <obj_property name="Radix">HEXRADIX</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/wren" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wren</obj_property>
+               <obj_property name="ObjectShortName">wren</obj_property>
+            </wvobject>
+         </wvobject>
+         <wvobject fp_name="group92" type="group">
+            <obj_property name="label">spi_slave_inst</obj_property>
+            <obj_property name="DisplayName">label</obj_property>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/clk_i" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">clk_i</obj_property>
+               <obj_property name="ObjectShortName">clk_i</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/spi_ssel_i" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_ssel_i</obj_property>
+               <obj_property name="ObjectShortName">spi_ssel_i</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/spi_sck_i" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_sck_i</obj_property>
+               <obj_property name="ObjectShortName">spi_sck_i</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/spi_mosi_i" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_mosi_i</obj_property>
+               <obj_property name="ObjectShortName">spi_mosi_i</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/spi_miso_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">spi_miso_o</obj_property>
+               <obj_property name="ObjectShortName">spi_miso_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_o</obj_property>
+               <obj_property name="ObjectShortName">di_req_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_i" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">di_i[31:0]</obj_property>
+               <obj_property name="ObjectShortName">di_i[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/wren_i" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wren_i</obj_property>
+               <obj_property name="ObjectShortName">wren_i</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/wr_ack_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wr_ack_o</obj_property>
+               <obj_property name="ObjectShortName">wr_ack_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_valid_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_valid_o</obj_property>
+               <obj_property name="ObjectShortName">do_valid_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_o" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">do_o[31:0]</obj_property>
+               <obj_property name="ObjectShortName">do_o[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_transfer_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_transfer_o</obj_property>
+               <obj_property name="ObjectShortName">do_transfer_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/wren_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wren_o</obj_property>
+               <obj_property name="ObjectShortName">wren_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/rx_bit_next_o" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">rx_bit_next_o</obj_property>
+               <obj_property name="ObjectShortName">rx_bit_next_o</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/state_dbg_o" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">state_dbg_o[3:0]</obj_property>
+               <obj_property name="ObjectShortName">state_dbg_o[3:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/sh_reg_dbg_o" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">sh_reg_dbg_o[31:0]</obj_property>
+               <obj_property name="ObjectShortName">sh_reg_dbg_o[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/state_next" type="other" db_ref_id="1">
+               <obj_property name="ElementShortName">state_next</obj_property>
+               <obj_property name="ObjectShortName">state_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/state_reg" type="other" db_ref_id="1">
+               <obj_property name="ElementShortName">state_reg</obj_property>
+               <obj_property name="ObjectShortName">state_reg</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/sh_next" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">sh_next[31:0]</obj_property>
+               <obj_property name="ObjectShortName">sh_next[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/sh_reg" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">sh_reg[31:0]</obj_property>
+               <obj_property name="ObjectShortName">sh_reg[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/rx_bit_next" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">rx_bit_next</obj_property>
+               <obj_property name="ObjectShortName">rx_bit_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/tx_bit_next" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">tx_bit_next</obj_property>
+               <obj_property name="ObjectShortName">tx_bit_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/tx_bit_reg" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">tx_bit_reg</obj_property>
+               <obj_property name="ObjectShortName">tx_bit_reg</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/preload_miso" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">preload_miso</obj_property>
+               <obj_property name="ObjectShortName">preload_miso</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_reg" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">di_reg[31:0]</obj_property>
+               <obj_property name="ObjectShortName">di_reg[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/wren" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wren</obj_property>
+               <obj_property name="ObjectShortName">wren</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/wr_ack_next" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wr_ack_next</obj_property>
+               <obj_property name="ObjectShortName">wr_ack_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/wr_ack_reg" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">wr_ack_reg</obj_property>
+               <obj_property name="ObjectShortName">wr_ack_reg</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_buffer_next" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">do_buffer_next[31:0]</obj_property>
+               <obj_property name="ObjectShortName">do_buffer_next[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_buffer_reg" type="array" db_ref_id="1">
+               <obj_property name="ElementShortName">do_buffer_reg[31:0]</obj_property>
+               <obj_property name="ObjectShortName">do_buffer_reg[31:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_transfer_next" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_transfer_next</obj_property>
+               <obj_property name="ObjectShortName">do_transfer_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_transfer_reg" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_transfer_reg</obj_property>
+               <obj_property name="ObjectShortName">do_transfer_reg</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_next" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_next</obj_property>
+               <obj_property name="ObjectShortName">di_req_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_reg" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_reg</obj_property>
+               <obj_property name="ObjectShortName">di_req_reg</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_valid_next" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_valid_next</obj_property>
+               <obj_property name="ObjectShortName">do_valid_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_valid_a" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_valid_a</obj_property>
+               <obj_property name="ObjectShortName">do_valid_a</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_valid_b" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_valid_b</obj_property>
+               <obj_property name="ObjectShortName">do_valid_b</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_valid_c" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_valid_c</obj_property>
+               <obj_property name="ObjectShortName">do_valid_c</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_valid_d" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_valid_d</obj_property>
+               <obj_property name="ObjectShortName">do_valid_d</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/do_valid_o_reg" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">do_valid_o_reg</obj_property>
+               <obj_property name="ObjectShortName">do_valid_o_reg</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_o_next" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_o_next</obj_property>
+               <obj_property name="ObjectShortName">di_req_o_next</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_o_a" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_o_a</obj_property>
+               <obj_property name="ObjectShortName">di_req_o_a</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_o_b" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_o_b</obj_property>
+               <obj_property name="ObjectShortName">di_req_o_b</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_o_c" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_o_c</obj_property>
+               <obj_property name="ObjectShortName">di_req_o_c</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_o_d" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_o_d</obj_property>
+               <obj_property name="ObjectShortName">di_req_o_d</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/di_req_o_reg" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">di_req_o_reg</obj_property>
+               <obj_property name="ObjectShortName">di_req_o_reg</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/n" type="other" db_ref_id="1">
+               <obj_property name="ElementShortName">n</obj_property>
+               <obj_property name="ObjectShortName">n</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/cpol" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">cpol</obj_property>
+               <obj_property name="ObjectShortName">cpol</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/cpha" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">cpha</obj_property>
+               <obj_property name="ObjectShortName">cpha</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/prefetch" type="other" db_ref_id="1">
+               <obj_property name="ElementShortName">prefetch</obj_property>
+               <obj_property name="ObjectShortName">prefetch</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/shift_edge" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">shift_edge</obj_property>
+               <obj_property name="ObjectShortName">shift_edge</obj_property>
+            </wvobject>
+            <wvobject fp_name="/spi2wishbone_tb/uut/spi_slave_inst/change_edge" type="logic" db_ref_id="1">
+               <obj_property name="ElementShortName">change_edge</obj_property>
+               <obj_property name="ObjectShortName">change_edge</obj_property>
+            </wvobject>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+</wave_config>

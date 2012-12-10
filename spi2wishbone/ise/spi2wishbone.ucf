@@ -1,0 +1,117 @@
+####################################################
+#                                                  #
+# These constraints are for Mark-1 RPI/FPGA shield #
+#                                                  #
+####################################################
+
+######################
+# Timing Constraints #
+######################
+
+##### Grouping Constraints #####
+NET "clk50"   TNM_NET = clk50_grp;
+NET "wb_clk"  TNM_NET = wb_clk_grp;
+NET "spi_sck" TNM_NET = spi_clk_grp;
+
+##### Clock Period Constraints #####
+#TIMESPEC TS_PER_WB    = PERIOD "wb_clk_grp"  8.0  ns;
+TIMESPEC TS_PER_CLK50 = PERIOD "clk50_grp"   20.0 ns;
+TIMESPEC TS_PER_SPI   = PERIOD "spi_clk_grp" 8.0  ns;
+
+##### Clock Crossing Constraints #####
+TIMESPEC TS_TIG1 = FROM "wb_clk_grp"  TO "spi_clk_grp" TIG;
+TIMESPEC TS_TIG2 = FROM "spi_clk_grp" TO "wb_clk_grp"  TIG;
+
+##### Misc Constraints #####
+NET "spi_sck" CLOCK_DEDICATED_ROUTE = FALSE; # Needed to suppress MAP errors, since signal isn't coming in on a dedicated clock pin.
+
+#######################
+# Pin LOC Constraints #
+#######################
+
+##### SPI Pins #####
+NET "spi_sck"  LOC = "P26"; # SYS_SPI_SCK - Should this be on a global clock pin?!
+NET "spi_ss"   LOC = "P30"; # SYS_SPI_SS
+NET "spi_miso" LOC = "P27"; # SYS_SPI_MISO
+NET "spi_mosi" LOC = "P29"; # SYS_SPI_MOSI
+
+##### Wishbone Pins #####
+NET "clk50" LOC = "P55"; # OSC_FPGA (50MHz)
+#NET "wb_clk" LOC = "P55"; # OSC_FPGA (50MHz)
+NET "wb_rst" LOC = "P58"; # PB0
+
+####################
+# Save Constraints #
+####################
+
+##### Prevent trimming #####
+NET "wb_adr_o0<0>" s;
+NET "wb_adr_o0<1>" s;
+NET "wb_adr_o0<2>" s;
+NET "wb_adr_o0<3>" s;
+NET "wb_adr_o0<4>" s;
+NET "wb_adr_o0<5>" s;
+NET "wb_adr_o0<6>" s;
+NET "wb_adr_o0<7>" s;
+NET "wb_adr_o0<8>" s;
+NET "wb_adr_o0<9>" s;
+NET "wb_adr_o0<10>" s;
+NET "wb_adr_o0<11>" s;
+NET "wb_adr_o0<12>" s;
+NET "wb_adr_o0<13>" s;
+NET "wb_adr_o0<14>" s;
+NET "wb_adr_o0<15>" s;
+NET "wb_adr_o0<16>" s;
+NET "wb_adr_o0<17>" s;
+NET "wb_adr_o0<18>" s;
+NET "wb_adr_o0<19>" s;
+NET "wb_adr_o0<20>" s;
+NET "wb_adr_o0<21>" s;
+NET "wb_adr_o0<22>" s;
+NET "wb_adr_o0<23>" s;
+NET "wb_adr_o0<24>" s;
+NET "wb_adr_o0<25>" s;
+NET "wb_adr_o0<26>" s;
+NET "wb_adr_o0<27>" s;
+NET "wb_adr_o0<28>" s;
+NET "wb_adr_o0<29>" s;
+NET "wb_adr_o0<30>" s;
+NET "wb_adr_o0<31>" s;
+NET "wb_dat_i0<0>" s;
+NET "wb_dat_i0<1>" s;
+NET "wb_dat_i0<2>" s;
+NET "wb_dat_i0<3>" s;
+NET "wb_dat_i0<4>" s;
+NET "wb_dat_i0<5>" s;
+NET "wb_dat_i0<6>" s;
+NET "wb_dat_i0<7>" s;
+NET "wb_dat_i0<8>" s;
+NET "wb_dat_i0<9>" s;
+NET "wb_dat_i0<10>" s;
+NET "wb_dat_i0<11>" s;
+NET "wb_dat_i0<12>" s;
+NET "wb_dat_i0<13>" s;
+NET "wb_dat_i0<14>" s;
+NET "wb_dat_i0<15>" s;
+NET "wb_dat_i0<16>" s;
+NET "wb_dat_i0<17>" s;
+NET "wb_dat_i0<18>" s;
+NET "wb_dat_i0<19>" s;
+NET "wb_dat_i0<20>" s;
+NET "wb_dat_i0<21>" s;
+NET "wb_dat_i0<22>" s;
+NET "wb_dat_i0<23>" s;
+NET "wb_dat_i0<24>" s;
+NET "wb_dat_i0<25>" s;
+NET "wb_dat_i0<26>" s;
+NET "wb_dat_i0<27>" s;
+NET "wb_dat_i0<28>" s;
+NET "wb_dat_i0<29>" s;
+NET "wb_dat_i0<30>" s;
+NET "wb_dat_i0<31>" s;
+NET "wb_we_o" s;
+NET "wb_sel_o0" s;
+NET "wb_stb_o" s;
+NET "wb_ack_i" s;
+NET "wb_cyc_o" s;
+NET "wb_tgc_o" s;

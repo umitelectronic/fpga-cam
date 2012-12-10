@@ -1,0 +1,23 @@
+#:C0     
+#Xilinx FPGA Editor Command Log File
+#Editor Version:
+#:V   NT M2.1 P.40xd
+#Current Working Directory:
+#:D   C:\Users\bwiec\Documents\cert_projects\rpi\spi2wishbone\ise
+#Date/Time:
+#:T   Sat Dec 08 22:13:37 2012
+#------------------------------
+	#Reading spi2wishbone.ncd...
+	#Loading device for application Rf_Device from file '6slx9.nph' in environment C:\Xilinx\14.3\ISE_DS\ISE\.
+	#   "spi2wishbone" is an NCD, version 3.2, device xc6slx9, package tqg144, speed -3
+	#Design creation date: 2012.12.09.05.07.42
+	#Building chip graphics...
+	#Loading speed info...
+	#1
+setattr main edit-mode no-logic-changes
+	#2
+select -k comp 'spi_slave_inst/di_reg<15>'
+	#3
+unselect comp 'spi_slave_inst/di_reg<15>'
+	#4
+select -k comp 'spi_slave_inst/di_reg<27>'

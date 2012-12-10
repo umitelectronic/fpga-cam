@@ -1,0 +1,4 @@
+vhdl isim_temp "../src/wb_shim.vhd"
+vhdl isim_temp "../src/spi_slave.vhd"
+vhdl isim_temp "../src/spi2wishbone.vhd"
+vhdl isim_temp "../tb/spi2wishbone_tb.vhd"

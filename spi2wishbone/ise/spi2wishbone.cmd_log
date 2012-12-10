@@ -1,0 +1,18 @@
+xst -intstyle ise -ifn "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone.xst" -ofn "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -i -p xc6slx9-tqg144-3 spi2wishbone.ngc spi2wishbone.ngd  
+map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o spi2wishbone_map.ncd spi2wishbone.ngd spi2wishbone.pcf 
+par -w -intstyle ise -ol high -mt off spi2wishbone_map.ncd spi2wishbone.ncd spi2wishbone.pcf 
+trce -intstyle ise -v 3 -s 3 -n 3 -fastpaths -xml spi2wishbone.twx spi2wishbone.ncd -o spi2wishbone.twr spi2wishbone.pcf 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc test.ucf -p xc6slx9-tqg144-3 spi2wishbone.ngc spi2wishbone.ngd  
+map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o spi2wishbone_map.ncd spi2wishbone.ngd spi2wishbone.pcf 
+par -w -intstyle ise -ol high -mt off spi2wishbone_map.ncd spi2wishbone.ncd spi2wishbone.pcf 
+trce -intstyle ise -v 3 -s 3 -n 3 -fastpaths -xml spi2wishbone.twx spi2wishbone.ncd -o spi2wishbone.twr spi2wishbone.pcf -ucf test.ucf 
+xst -intstyle ise -ifn "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone.xst" -ofn "C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/ise/spi2wishbone.syr" 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc test.ucf -p xc6slx9-tqg144-3 spi2wishbone.ngc spi2wishbone.ngd  
+map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o spi2wishbone_map.ncd spi2wishbone.ngd spi2wishbone.pcf 
+par -w -intstyle ise -ol high -mt off spi2wishbone_map.ncd spi2wishbone.ncd spi2wishbone.pcf 
+trce -intstyle ise -v 3 -s 3 -n 3 -fastpaths -xml spi2wishbone.twx spi2wishbone.ncd -o spi2wishbone.twr spi2wishbone.pcf -ucf test.ucf 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc test.ucf -p xc6slx9-tqg144-3 spi2wishbone_cs.ngc spi2wishbone.ngd  
+map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o spi2wishbone_map.ncd spi2wishbone.ngd spi2wishbone.pcf 
+ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc test.ucf -uc spi2wishbone.ucf -p xc6slx9-tqg144-3 spi2wishbone_cs.ngc spi2wishbone.ngd  
+map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off -pr off -lc off -power off -o spi2wishbone_map.ncd spi2wishbone.ngd spi2wishbone.pcf 

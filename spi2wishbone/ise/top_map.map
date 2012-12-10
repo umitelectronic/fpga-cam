@@ -1,0 +1,259 @@
+Release 14.3 Map P.40xd (nt64)
+Xilinx Map Application Log File for Design 'top'
+
+Design Information
+------------------
+Command Line   : map -intstyle ise -p xc6slx9-tqg144-3 -w -logic_opt off -ol
+high -t 1 -xt 0 -register_duplication off -r 4 -global_opt off -mt off -ir off
+-pr off -lc off -power off -o top_map.ncd top.ngd top.pcf 
+Target Device  : xc6slx9
+Target Package : tqg144
+Target Speed   : -3
+Mapper Version : spartan6 -- $Revision: 1.55 $
+Mapped Date    : Sun Dec 09 16:56:05 2012
+
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+INFO:Security:50 - The XILINXD_LICENSE_FILE environment variable is set to
+'2001@xcobuild116'.
+INFO:Security:52 - The LM_LICENSE_FILE environment variable is set to
+'1650@ratchet;1650@license2;1650@mayhem;2100@xcobldlic840;C:\xil_licenses'.
+INFO:Security:54 - 'xc6slx9' is a WebPack part.
+WARNING:Security:43 - No license file was found in the standard Xilinx license
+directory.
+WARNING:Security:44 - Since no license file was found,
+       please run the Xilinx License Configuration Manager
+       (xlcm or "Manage Xilinx Licenses")
+       to assist in obtaining a license.
+WARNING:Security:42 - Your software subscription period has lapsed. Your current
+version of Xilinx tools will continue to function, but you no longer qualify for
+Xilinx software updates or new releases.
+----------------------------------------------------------------------
+Mapping design into LUTs...
+Running directed packing...
+Running delay-based LUT packing...
+Updating timing models...
+INFO:Map:215 - The Interim Design Summary has been generated in the MAP Report
+   (.mrp).
+Running timing-driven placement...
+Total REAL time at the beginning of Placer: 28 secs 
+Total CPU  time at the beginning of Placer: 5 secs 
+
+Phase 1.1  Initial Placement Analysis
+Phase 1.1  Initial Placement Analysis (Checksum:9615974b) REAL time: 28 secs 
+
+Phase 2.7  Design Feasibility Check
+INFO:Place:834 - Only a subset of IOs are locked. Out of 76 IOs, 6 are locked
+   and 70 are not locked. If you would like to print the names of these IOs,
+   please set the environment variable XIL_PAR_DESIGN_CHECK_VERBOSE to 1. 
+Phase 2.7  Design Feasibility Check (Checksum:9615974b) REAL time: 28 secs 
+
+Phase 3.31  Local Placement Optimization
+Phase 3.31  Local Placement Optimization (Checksum:80834812) REAL time: 28 secs 
+
+Phase 4.2  Initial Placement for Architecture Specific Features
+....
+.......
+WARNING:Place:1109 - A clock IOB / BUFGMUX clock component pair have been found
+   that are not placed at an optimal clock IOB / BUFGMUX site pair. The clock
+   IOB component <spi_sck> is placed at site <P26>. The corresponding BUFG
+   component <spi_sck_BUFGP/BUFG> is placed at site <BUFGMUX_X2Y1>. There is
+   only a select set of IOBs that can use the fast path to the Clocker buffer,
+   and they are not being used. You may want to analyze why this problem exists
+   and correct it. This is normally an ERROR but the CLOCK_DEDICATED_ROUTE
+   constraint was applied on COMP.PIN <spi_sck.PAD> allowing your design to
+   continue. This constraint disables all clock placer rules related to the
+   specified COMP.PIN. The use of this override is highly discouraged as it may
+   lead to very poor timing results. It is recommended that this error condition
+   be corrected in the design.
+Phase 4.2  Initial Placement for Architecture Specific Features
+(Checksum:e04bd3cf) REAL time: 35 secs 
+
+Phase 5.36  Local Placement Optimization
+Phase 5.36  Local Placement Optimization (Checksum:e04bd3cf) REAL time: 35 secs 
+
+Phase 6.30  Global Clock Region Assignment
+Phase 6.30  Global Clock Region Assignment (Checksum:e04bd3cf) REAL time: 35 secs 
+
+Phase 7.3  Local Placement Optimization
+....
+Phase 7.3  Local Placement Optimization (Checksum:29336a2f) REAL time: 40 secs 
+
+Phase 8.5  Local Placement Optimization
+Phase 8.5  Local Placement Optimization (Checksum:29336a2f) REAL time: 40 secs 
+
+Phase 9.8  Global Placement
+.............
+...........
+Phase 9.8  Global Placement (Checksum:6aa37dda) REAL time: 41 secs 
+
+Phase 10.5  Local Placement Optimization
+Phase 10.5  Local Placement Optimization (Checksum:6aa37dda) REAL time: 41 secs 
+
+Phase 11.18  Placement Optimization
+Phase 11.18  Placement Optimization (Checksum:279b409e) REAL time: 42 secs 
+
+Phase 12.5  Local Placement Optimization
+Phase 12.5  Local Placement Optimization (Checksum:279b409e) REAL time: 42 secs 
+
+Phase 13.34  Placement Validation
+Phase 13.34  Placement Validation (Checksum:a26322e) REAL time: 42 secs 
+
+Total REAL time to Placer completion: 42 secs 
+Total CPU  time to Placer completion: 19 secs 
+Running post-placement packing...
+Writing output files...
+Now executing Pdr_LogDcm_DeskewExtern::DoCheck for
+block<clk_gen_inst/dcm_sp_inst>. 
+Now executing Pdr_LogDcm_DeskewExtern::DoCheck for
+block<clk_gen_inst/dcm_sp_inst> and DESKEW(5). 
+Now executing Pdr_LogDcm_DeskewExtern::DoCheck for
+block<clk_gen_inst/dcm_sp_inst> found no EXTERN driver in CLKFB path. 
+Now executing Pdr_LogDcm_DeskewExtern::DoCheck for
+block<clk_gen_inst/dcm_sp_inst> found non-EXTERN block <BUFG> in CLKFB path. 
+Now executing Pdr_LogDcm_DeskewExtern::DoCheck for
+block<clk_gen_inst/dcm_sp_inst> found NO extern 
+WARNING:PhysDesignRules:372 - Gated clock. Clock net icon_control0<13> is
+   sourced by a combinatorial pin. This is not good design practice. Use the CE
+   pin to control the loading of data into the flip-flop.
+WARNING:PhysDesignRules:774 - Unexpected DCM configuration. CLKOUT_PHASE_SHIFT
+   is not configured VARIABLE for comp clk_gen_inst/dcm_sp_inst. The PSEN pin is
+   connected to an active signal. The PSEN pin should be connected to GND to
+   guarantee the expected operation.
+WARNING:PhysDesignRules:1176 - Issue with pin connections and/or configuration
+   on
+   block:<U_ila_pro_0/U0/I_NO_D.U_ILA/U_CAPSTOR/I_CASE1.I_YES_TB.U_TRACE_BUFFER/
+   U_RAM/I_S6.U_CS_BRAM_CASCADE_S6/I_DEPTH_LTEQ_16K.U_SBRAM_0/I_B18KGT0.G_RAMB18
+   [2].u_ramb18/U_RAMB18>:<RAMB16BWER_RAMB16BWER>.  The block is configured to
+   use input parity pin DIBP0. There is dangling output for parity pin DOPB0.
+WARNING:PhysDesignRules:1176 - Issue with pin connections and/or configuration
+   on
+   block:<U_ila_pro_0/U0/I_NO_D.U_ILA/U_CAPSTOR/I_CASE1.I_YES_TB.U_TRACE_BUFFER/
+   U_RAM/I_S6.U_CS_BRAM_CASCADE_S6/I_DEPTH_LTEQ_16K.U_SBRAM_0/I_B18KGT0.G_RAMB18
+   [5].u_ramb18/U_RAMB18>:<RAMB16BWER_RAMB16BWER>.  The block is configured to
+   use input parity pin DIBP0. There is dangling output for parity pin DOPB0.
+WARNING:PhysDesignRules:1176 - Issue with pin connections and/or configuration
+   on
+   block:<U_ila_pro_0/U0/I_NO_D.U_ILA/U_CAPSTOR/I_CASE1.I_YES_TB.U_TRACE_BUFFER/
+   U_RAM/I_S6.U_CS_BRAM_CASCADE_S6/I_DEPTH_LTEQ_16K.U_SBRAM_0/I_B18KGT0.G_RAMB18
+   [0].u_ramb18/U_RAMB18>:<RAMB16BWER_RAMB16BWER>.  The block is configured to
+   use input parity pin DIBP0. There is dangling output for parity pin DOPB0.
+WARNING:PhysDesignRules:1176 - Issue with pin connections and/or configuration
+   on
+   block:<U_ila_pro_0/U0/I_NO_D.U_ILA/U_CAPSTOR/I_CASE1.I_YES_TB.U_TRACE_BUFFER/
+   U_RAM/I_S6.U_CS_BRAM_CASCADE_S6/I_DEPTH_LTEQ_16K.U_SBRAM_0/I_B18KGT0.G_RAMB18
+   [3].u_ramb18/U_RAMB18>:<RAMB16BWER_RAMB16BWER>.  The block is configured to
+   use input parity pin DIBP0. There is dangling output for parity pin DOPB0.
+WARNING:PhysDesignRules:1176 - Issue with pin connections and/or configuration
+   on
+   block:<U_ila_pro_0/U0/I_NO_D.U_ILA/U_CAPSTOR/I_CASE1.I_YES_TB.U_TRACE_BUFFER/
+   U_RAM/I_S6.U_CS_BRAM_CASCADE_S6/I_DEPTH_LTEQ_16K.U_SBRAM_0/I_B18KGT0.G_RAMB18
+   [6].u_ramb18/U_RAMB18>:<RAMB16BWER_RAMB16BWER>.  The block is configured to
+   use input parity pin DIBP0. There is dangling output for parity pin DOPB0.
+WARNING:PhysDesignRules:1176 - Issue with pin connections and/or configuration
+   on
+   block:<U_ila_pro_0/U0/I_NO_D.U_ILA/U_CAPSTOR/I_CASE1.I_YES_TB.U_TRACE_BUFFER/
+   U_RAM/I_S6.U_CS_BRAM_CASCADE_S6/I_DEPTH_LTEQ_16K.U_SBRAM_0/I_B18KGT0.G_RAMB18
+   [1].u_ramb18/U_RAMB18>:<RAMB16BWER_RAMB16BWER>.  The block is configured to
+   use input parity pin DIBP0. There is dangling output for parity pin DOPB0.
+WARNING:PhysDesignRules:1176 - Issue with pin connections and/or configuration
+   on
+   block:<U_ila_pro_0/U0/I_NO_D.U_ILA/U_CAPSTOR/I_CASE1.I_YES_TB.U_TRACE_BUFFER/
+   U_RAM/I_S6.U_CS_BRAM_CASCADE_S6/I_DEPTH_LTEQ_16K.U_SBRAM_0/I_B18KGT0.G_RAMB18
+   [4].u_ramb18/U_RAMB18>:<RAMB16BWER_RAMB16BWER>.  The block is configured to
+   use input parity pin DIBP0. There is dangling output for parity pin DOPB0.
+WARNING:PhysDesignRules:2410 - This design is using one or more 9K Block RAMs
+   (RAMB8BWER).  9K Block RAM initialization data, both user defined and
+   default, may be incorrect and should not be used.  For more information,
+   please reference Xilinx Answer Record 39999.
+
+Design Summary
+--------------
+
+Design Summary:
+Number of errors:      0
+Number of warnings:   11
+Slice Logic Utilization:
+  Number of Slice Registers:                   588 out of  11,440    5%
+    Number used as Flip Flops:                 587
+    Number used as Latches:                      1
+    Number used as Latch-thrus:                  0
+    Number used as AND/OR logics:                0
+  Number of Slice LUTs:                        416 out of   5,720    7%
+    Number used as logic:                      227 out of   5,720    3%
+      Number using O6 output only:             148
+      Number using O5 output only:              51
+      Number using O5 and O6:                   28
+      Number used as ROM:                        0
+    Number used as Memory:                     118 out of   1,440    8%
+      Number used as Dual Port RAM:              0
+      Number used as Single Port RAM:            0
+      Number used as Shift Register:           118
+        Number using O6 output only:            88
+        Number using O5 output only:             1
+        Number using O5 and O6:                 29
+    Number used exclusively as route-thrus:     71
+      Number with same-slice register load:     65
+      Number with same-slice carry load:         6
+      Number with other load:                    0
+
+Slice Logic Distribution:
+  Number of occupied Slices:                   208 out of   1,430   14%
+  Nummber of MUXCYs used:                      124 out of   2,860    4%
+  Number of LUT Flip Flop pairs used:          593
+    Number with an unused Flip Flop:           129 out of     593   21%
+    Number with an unused LUT:                 177 out of     593   29%
+    Number of fully used LUT-FF pairs:         287 out of     593   48%
+    Number of unique control sets:              60
+    Number of slice register sites lost
+      to control set restrictions:             297 out of  11,440    2%
+
+  A LUT Flip Flop pair for this architecture represents one LUT paired with
+  one Flip Flop within a slice.  A control set is a unique combination of
+  clock, reset, set, and enable signals for a registered element.
+  The Slice Logic Distribution report is not meaningful if the design is
+  over-mapped for a non-slice resource or if Placement fails.
+
+IO Utilization:
+  Number of bonded IOBs:                        76 out of     102   74%
+    Number of LOCed IOBs:                        6 out of      76    7%
+
+Specific Feature Utilization:
+  Number of RAMB16BWERs:                         7 out of      32   21%
+  Number of RAMB8BWERs:                          1 out of      64    1%
+  Number of BUFIO2/BUFIO2_2CLKs:                 1 out of      32    3%
+    Number used as BUFIO2s:                      1
+    Number used as BUFIO2_2CLKs:                 0
+  Number of BUFIO2FB/BUFIO2FB_2CLKs:             1 out of      32    3%
+    Number used as BUFIO2FBs:                    1
+    Number used as BUFIO2FB_2CLKs:               0
+  Number of BUFG/BUFGMUXs:                       3 out of      16   18%
+    Number used as BUFGs:                        3
+    Number used as BUFGMUX:                      0
+  Number of DCM/DCM_CLKGENs:                     1 out of       4   25%
+    Number used as DCMs:                         1
+    Number used as DCM_CLKGENs:                  0
+  Number of ILOGIC2/ISERDES2s:                   0 out of     200    0%
+  Number of IODELAY2/IODRP2/IODRP2_MCBs:         0 out of     200    0%
+  Number of OLOGIC2/OSERDES2s:                   0 out of     200    0%
+  Number of BSCANs:                              1 out of       4   25%
+  Number of BUFHs:                               0 out of     128    0%
+  Number of BUFPLLs:                             0 out of       8    0%
+  Number of BUFPLL_MCBs:                         0 out of       4    0%
+  Number of DSP48A1s:                            0 out of      16    0%
+  Number of ICAPs:                               0 out of       1    0%
+  Number of MCBs:                                0 out of       2    0%
+  Number of PCILOGICSEs:                         0 out of       2    0%
+  Number of PLL_ADVs:                            0 out of       2    0%
+  Number of PMVs:                                0 out of       1    0%
+  Number of STARTUPs:                            0 out of       1    0%
+  Number of SUSPEND_SYNCs:                       0 out of       1    0%
+
+  Number of RPM macros:            9
+Average Fanout of Non-Clock Nets:                2.73
+
+Peak Memory Usage:  390 MB
+Total REAL time to MAP completion:  43 secs 
+Total CPU time to MAP completion:   20 secs 
+
+Mapping completed.
+See MAP report file "top_map.mrp" for details.

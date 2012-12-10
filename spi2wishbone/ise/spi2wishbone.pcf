@@ -1,0 +1,73 @@
+//! **************************************************************************
+// Written by: Map P.40xd on Sat Dec 08 22:36:31 2012
+//! **************************************************************************
+
+SCHEMATIC START;
+TIMEGRP wb_clk_grp = BEL "wb_shim_inst/spi_di_o_31" BEL
+        "wb_shim_inst/spi_di_o_30" BEL "wb_shim_inst/spi_di_o_29" BEL
+        "wb_shim_inst/spi_di_o_28" BEL "wb_shim_inst/spi_di_o_27" BEL
+        "wb_shim_inst/spi_di_o_26" BEL "wb_shim_inst/spi_di_o_25" BEL
+        "wb_shim_inst/spi_di_o_24" BEL "wb_shim_inst/spi_di_o_23" BEL
+        "wb_shim_inst/spi_di_o_22" BEL "wb_shim_inst/spi_di_o_21" BEL
+        "wb_shim_inst/spi_di_o_20" BEL "wb_shim_inst/spi_di_o_19" BEL
+        "wb_shim_inst/spi_di_o_18" BEL "wb_shim_inst/spi_di_o_17" BEL
+        "wb_shim_inst/spi_di_o_16" BEL "wb_shim_inst/spi_di_o_15" BEL
+        "wb_shim_inst/spi_di_o_14" BEL "wb_shim_inst/spi_di_o_13" BEL
+        "wb_shim_inst/spi_di_o_12" BEL "wb_shim_inst/spi_di_o_11" BEL
+        "wb_shim_inst/spi_di_o_10" BEL "wb_shim_inst/spi_di_o_9" BEL
+        "wb_shim_inst/spi_di_o_8" BEL "wb_shim_inst/spi_di_o_7" BEL
+        "wb_shim_inst/spi_di_o_6" BEL "wb_shim_inst/spi_di_o_5" BEL
+        "wb_shim_inst/spi_di_o_4" BEL "wb_shim_inst/spi_di_o_3" BEL
+        "wb_shim_inst/spi_di_o_2" BEL "wb_shim_inst/spi_di_o_1" BEL
+        "wb_shim_inst/spi_di_o_0" BEL "spi_slave_inst/di_req_o_B" BEL
+        "spi_slave_inst/di_req_o_A" BEL "spi_slave_inst/di_req_o_reg" BEL
+        "spi_slave_inst/di_reg_31" BEL "spi_slave_inst/di_reg_30" BEL
+        "spi_slave_inst/di_reg_29" BEL "spi_slave_inst/di_reg_28" BEL
+        "spi_slave_inst/di_reg_27" BEL "spi_slave_inst/di_reg_26" BEL
+        "spi_slave_inst/di_reg_25" BEL "spi_slave_inst/di_reg_24" BEL
+        "spi_slave_inst/di_reg_23" BEL "spi_slave_inst/di_reg_22" BEL
+        "spi_slave_inst/di_reg_21" BEL "spi_slave_inst/di_reg_20" BEL
+        "spi_slave_inst/di_reg_19" BEL "spi_slave_inst/di_reg_18" BEL
+        "spi_slave_inst/di_reg_17" BEL "spi_slave_inst/di_reg_16" BEL
+        "spi_slave_inst/di_reg_15" BEL "spi_slave_inst/di_reg_14" BEL
+        "spi_slave_inst/di_reg_13" BEL "spi_slave_inst/di_reg_12" BEL
+        "spi_slave_inst/di_reg_11" BEL "spi_slave_inst/di_reg_10" BEL
+        "spi_slave_inst/di_reg_9" BEL "spi_slave_inst/di_reg_8" BEL
+        "spi_slave_inst/di_reg_7" BEL "spi_slave_inst/di_reg_6" BEL
+        "spi_slave_inst/di_reg_5" BEL "spi_slave_inst/di_reg_4" BEL
+        "spi_slave_inst/di_reg_3" BEL "spi_slave_inst/di_reg_2" BEL
+        "spi_slave_inst/di_reg_1" BEL "spi_slave_inst/di_reg_0" BEL
+        "wb_shim_inst/wb_cyc_o" BEL "wb_shim_inst/state" BEL
+        "spi_slave_inst/wren" BEL "wb_shim_inst/spi_wren_o" BEL
+        "wb_clk_BUFGP/BUFG" BEL "spi_slave_inst/Mshreg_di_req_o_D" BEL
+        "spi_slave_inst/di_req_o_D";
+TIMEGRP spi_clk_grp = BEL "spi_slave_inst/sh_reg_31" BEL
+        "spi_slave_inst/sh_reg_30" BEL "spi_slave_inst/sh_reg_29" BEL
+        "spi_slave_inst/sh_reg_28" BEL "spi_slave_inst/sh_reg_27" BEL
+        "spi_slave_inst/sh_reg_26" BEL "spi_slave_inst/sh_reg_25" BEL
+        "spi_slave_inst/sh_reg_24" BEL "spi_slave_inst/sh_reg_23" BEL
+        "spi_slave_inst/sh_reg_22" BEL "spi_slave_inst/sh_reg_21" BEL
+        "spi_slave_inst/sh_reg_20" BEL "spi_slave_inst/sh_reg_19" BEL
+        "spi_slave_inst/sh_reg_18" BEL "spi_slave_inst/sh_reg_17" BEL
+        "spi_slave_inst/sh_reg_16" BEL "spi_slave_inst/sh_reg_15" BEL
+        "spi_slave_inst/sh_reg_14" BEL "spi_slave_inst/sh_reg_13" BEL
+        "spi_slave_inst/sh_reg_12" BEL "spi_slave_inst/sh_reg_11" BEL
+        "spi_slave_inst/sh_reg_10" BEL "spi_slave_inst/sh_reg_9" BEL
+        "spi_slave_inst/sh_reg_8" BEL "spi_slave_inst/sh_reg_7" BEL
+        "spi_slave_inst/sh_reg_6" BEL "spi_slave_inst/sh_reg_5" BEL
+        "spi_slave_inst/sh_reg_4" BEL "spi_slave_inst/sh_reg_3" BEL
+        "spi_slave_inst/sh_reg_2" BEL "spi_slave_inst/sh_reg_1" BEL
+        "spi_slave_inst/sh_reg_0" BEL "spi_slave_inst/state_reg_5" BEL
+        "spi_slave_inst/state_reg_4" BEL "spi_slave_inst/state_reg_3" BEL
+        "spi_slave_inst/state_reg_2" BEL "spi_slave_inst/state_reg_1" BEL
+        "spi_slave_inst/state_reg_0" BEL "spi_slave_inst/tx_bit_reg" BEL
+        "spi_slave_inst/wr_ack_reg" BEL "spi_slave_inst/di_req_reg" BEL
+        "spi_slave_inst/preload_miso" BEL "spi_sck_BUFGP/BUFG";
+TS_PER_WB = PERIOD TIMEGRP "wb_clk_grp" 8 ns HIGH 50%;
+TS_PER_SPI = PERIOD TIMEGRP "spi_clk_grp" 8 ns HIGH 50%;
+PATH TS_TIG1_path = FROM TIMEGRP "wb_clk_grp" TO TIMEGRP "spi_clk_grp";
+PATH "TS_TIG1_path" TIG;
+PATH TS_TIG2_path = FROM TIMEGRP "spi_clk_grp" TO TIMEGRP "wb_clk_grp";
+PATH "TS_TIG2_path" TIG;
+SCHEMATIC END;
+

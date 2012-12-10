@@ -1,0 +1,6 @@
+vhdl work "ipcore_dir/clk_gen.vhd"
+vhdl work "ipcore_dir/clk_gen/example_design/clk_gen_exdes.vhd"
+vhdl work "../src/wb_shim.vhd"
+vhdl work "../src/spi_slave.vhd"
+vhdl work "../src/spi2wishbone.vhd"
+vhdl work "top.vhd"
