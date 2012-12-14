@@ -1,2 +1,0 @@
-parser grammar systemc;
-
