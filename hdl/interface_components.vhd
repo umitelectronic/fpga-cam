@@ -57,7 +57,13 @@ port(clk, resetn : in std_logic ;
 );
 end component;
 
-
+component addr_decoder is
+generic(ADDR_WIDTH	: positive := 16 ; BASE_ADDR	: natural := 0 ; ADDR_OUT_WIDTH	: positive	:= 2);
+port(addr_bus_in	: in	std_logic_vector((ADDR_WIDTH - 1) downto 0 );
+	  addr_bus_out	:	out std_logic_vector((ADDR_OUT_WIDTH - 1) downto 0 );
+	  cs	:	out std_logic
+);	
+end component;
 
 
 end interface_components;
