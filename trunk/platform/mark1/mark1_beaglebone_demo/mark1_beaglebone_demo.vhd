@@ -36,10 +36,11 @@ use work.interface_components.all ;
 
 entity mark1_beaglebone_demo is
 port( OSC_FPGA : in std_logic;
-		PB : in std_logic_vector(2 downto 0);
+		PB, DIP_SW: in std_logic_vector(3 downto 0);
+		LED : out std_logic_vector(7 downto 0);
 		--gpmc interface
 		GPMC_CSN : in std_logic_vector(2 downto 0);
-		GPMC_WRN, GPMC_OEN, GPMC_ADVN:	in std_logic;
+		GPMC_WEN, GPMC_OEN, GPMC_ADVN, GPMC_CLK, GPMC_BE0N:	in std_logic;
 		GPMC_AD :	inout std_logic_vector(15 downto 0)	
 );
 end mark1_beaglebone_demo;
@@ -79,7 +80,7 @@ generic map(ADDR_WIDTH => 8 , DATA_WIDTH =>  16)
 port map(clk => clk_sys ,
 	  resetn => sys_resetn ,
 	  data	=> GPMC_AD,
-	  wrn => GPMC_WRN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(0),
+	  wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(0),
 	  data_bus_out	=> bus_data_out,
 	  data_bus_in	=> bus_data_in ,
 	  addr_bus	=> bus_addr, 
