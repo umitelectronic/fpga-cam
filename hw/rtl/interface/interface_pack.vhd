@@ -10,6 +10,9 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
+library work ;
+use work.image_pack.all ;
+
 package interface_pack is
 
 component fx2_interface is

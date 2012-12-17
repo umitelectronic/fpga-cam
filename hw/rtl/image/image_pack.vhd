@@ -9,16 +9,35 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.all ;
+
+
+library work ;
+use work.utils_pack.all ;
 
 package image_pack is
 
---types
 
+--constant
+constant QVGA_WIDTH : natural := 320;
+constant VGA_WIDTH : natural := 640;
+constant QVGA_HEIGHT : natural := 240;
+constant VGA_HEIGHT : natural := 480;
+
+--types
+type FRAME_FORMAT is (VGA, QVGA);
+type CAMERA_TYPE is (OV7670, OV7725);
 type matNM is array (natural range<>, natural range<>) of signed(8 downto 0);
 type imatNM is array (natural range<>, natural range<>) of integer range -256 to 255;
+type row3 is array (0 to 2) of signed(8 downto 0);
+type mat3 is array (0 to 2) of row3;
+type irow3 is array (0 to 2) of integer range -256 to 255;
+type imat3 is array (0 to 2) of irow3;
 
 type duplet is array (0 to 1) of integer range 0 to 3;
 type index_array is array (0 to 8) of duplet ;
+type pix_neighbours is array (0 to 3) of unsigned(7 downto 0);
+
 
 
 
