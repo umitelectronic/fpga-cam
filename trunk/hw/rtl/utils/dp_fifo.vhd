@@ -25,6 +25,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 library work ;
 use work.primitive_pack.all ;
+use work.utils_pack.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
