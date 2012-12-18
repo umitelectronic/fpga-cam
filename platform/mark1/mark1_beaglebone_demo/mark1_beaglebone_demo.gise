@@ -29,6 +29,9 @@
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_CMD" xil_pn:name="isim.cmd"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="mark1_beaglebone_demo.bgn" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="mark1_beaglebone_demo.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="mark1_beaglebone_demo.bld"/>
@@ -65,16 +68,109 @@
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="mark1_beaglebone_demo_par.xrpt"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="mark1_beaglebone_demo_summary.html"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="mark1_beaglebone_demo_summary.xml"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="mark1_beaglebone_demo_testbench_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="mark1_beaglebone_demo_testbench_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="mark1_beaglebone_demo_testbench_isim_beh.wdb"/>
     <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="mark1_beaglebone_demo_usage.xml"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="mark1_beaglebone_demo_xst.xrpt"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_INI" xil_pn:name="xilinxsim.ini"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
+    <transform xil_pn:end_ts="1355848745" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1355848745">
+      <status xil_pn:value="SuccessfullyRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1355849218" xil_pn:in_ck="-6026852728069486033" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1355849218">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/latch_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo.vhd"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo_testbench.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1355849051" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="-842760546653318536" xil_pn:start_ts="1355849051">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1355849051" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-2664883402405636362" xil_pn:start_ts="1355849051">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1355848745" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="-8730006450106684332" xil_pn:start_ts="1355848745">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1355849218" xil_pn:in_ck="-6026852728069486033" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1355849218">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/latch_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo.vhd"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo_testbench.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1355849223" xil_pn:in_ck="-6026852728069486033" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-2216707119061227376" xil_pn:start_ts="1355849218">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="fuse.log"/>
+      <outfile xil_pn:name="isim"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo_testbench_beh.prj"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo_testbench_isim_beh.exe"/>
+      <outfile xil_pn:name="xilinxsim.ini"/>
+    </transform>
+    <transform xil_pn:end_ts="1355849223" xil_pn:in_ck="-5498211257650287855" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="-5201858527303398403" xil_pn:start_ts="1355849223">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="isim.cmd"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo_testbench_isim_beh.wdb"/>
+    </transform>
     <transform xil_pn:end_ts="1355838780" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1355838780">
       <status xil_pn:value="SuccessfullyRun"/>
     </transform>
@@ -106,19 +202,12 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="InputRemoved"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.lso"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.ngc"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.ngr"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.prj"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.stx"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.syr"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.xst"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_xst.xrpt"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
-      <outfile xil_pn:name="xst"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1355838786" xil_pn:in_ck="498710965005204907" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="3986396874834976187" xil_pn:start_ts="1355838786">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -127,59 +216,50 @@
     <transform xil_pn:end_ts="1355847502" xil_pn:in_ck="6652519495372886964" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-1486693217461743105" xil_pn:start_ts="1355847497">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_ngo"/>
-      <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.bld"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.ngd"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_ngdbuild.xrpt"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1355847512" xil_pn:in_ck="6652519495372886965" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="6093601622908603872" xil_pn:start_ts="1355847502">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.pcf"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_map.map"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_map.mrp"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_map.ncd"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_map.ngm"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_map.xrpt"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_summary.xml"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_usage.xml"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputChanged"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1355847523" xil_pn:in_ck="3726797874112066894" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1355847512">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.ncd"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.pad"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.par"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.ptwx"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.unroutes"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.xpi"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_pad.csv"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_pad.txt"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo_par.xrpt"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1355847566" xil_pn:in_ck="4083161069264654118" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1355847558">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.bgn"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.bit"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.drc"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.ut"/>
-      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
-      <outfile xil_pn:name="webtalk.log"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1355847523" xil_pn:in_ck="6652519495372886833" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416185" xil_pn:start_ts="1355847519">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.twr"/>
-      <outfile xil_pn:name="mark1_beaglebone_demo.twx"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
   </transforms>
 
