@@ -52,9 +52,10 @@ architecture Behavioral of mark1_beaglebone_demo is
 	signal clk_sys : std_logic ;
 	signal resetn , sys_resetn : std_logic ;
 	
-	
+	signal counter_output : std_logic_vector(31 downto 0);
 	signal fifo_output : std_logic_vector(15 downto 0);
 	signal fifo_input : std_logic_vector(15 downto 0);
+	signal latch_output : std_logic_vector(15 downto 0);
 	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
@@ -71,9 +72,9 @@ begin
 
 
 	reset0: reset_generator 
-	generic map(HOLD_0 => 500000)
+	generic map(HOLD_0 => 1000)
 	port map(clk => clk_sys, 
-		resetn => RESETN ,
+		resetn => resetn ,
 		resetn_0 => sys_resetn
 	 );
 
@@ -86,11 +87,9 @@ divider : simple_counter
            en => '1',
 			  load => '0' ,
 			  E => X"00000000",
-			  Q(31 downto 27) => open,
-			  Q(25 downto 0) => open,
-			  Q(26) => LED(7)
+			  Q => counter_output
 			  );
-
+LED(7) <= counter_output(26);
 
 mem_interface0 : muxed_addr_interface
 generic map(ADDR_WIDTH => 8 , DATA_WIDTH =>  16)
@@ -127,10 +126,9 @@ port map(
 	data_bus_out => bus_latch_out,
 	latch_input(3 downto 0) => DIP_SW,
 	latch_input(15 downto 4) => X"A5A",
-	latch_output(6 downto 0) => LED(6 downto 0),
-	latch_output(15 downto 7) => open
+	latch_output => latch_output
 );
-
+ LED(6 downto 0) <= latch_output(6 downto 0); 
 
 bi_fifo0 : fifo_peripheral 
 		generic map(ADDR_WIDTH => 8,WIDTH => 16, SIZE => 1024)
