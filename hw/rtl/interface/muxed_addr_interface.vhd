@@ -77,7 +77,7 @@ end process;
 wr <= wrt ;
 rd <= rdt ;
 
-data <= data_bus_in when rdt = '1' else
+data <= data_bus_in when (oen = '0' and csn = '0') else
 		  (others => 'Z');
 
 data_bus_out <= data_bus_out_t ;

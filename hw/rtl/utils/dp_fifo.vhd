@@ -26,26 +26,19 @@ use IEEE.NUMERIC_STD.ALL;
 library work ;
 use work.primitive_pack.all ;
 use work.utils_pack.all ;
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
-
--- N must be power of two
+--! dual port ram based fifo for fast logic to logic communication
 entity dp_fifo is
-	generic(N : natural := 128 ; W : positive := 16);
+	generic(N : natural := 128 ; --! depth of the fifo
+	W : positive := 16 --! width of the fifo
+	);
 	port(
- 		clk, resetn, sraz : in std_logic; 
- 		wr, rd : in std_logic; 
-		empty, full : out std_logic ;
- 		data_out : out std_logic_vector((W - 1) downto 0 ); 
- 		data_in : in std_logic_vector((W - 1) downto 0 );
-		nb_available : out unsigned(nbit(N)  downto 0 )
+ 		clk, resetn, sraz : in std_logic; --! system clock, asynchronous and synchronous reset
+ 		wr, rd : in std_logic; --! fifo write and read signal
+		empty, full : out std_logic ; --! fifo stat signals
+ 		data_out : out std_logic_vector((W - 1) downto 0 ); --! data output of fifo
+ 		data_in : in std_logic_vector((W - 1) downto 0 ); --! data input of fifo
+		nb_available : out unsigned(nbit(N)  downto 0 ) --! number of available tokens in fifo
 	); 
 end dp_fifo;
 
