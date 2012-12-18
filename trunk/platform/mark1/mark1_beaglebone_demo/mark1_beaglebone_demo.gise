@@ -23,13 +23,17 @@
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/bitgen.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="mark1_beaglebone_demo.bgn" xil_pn:subbranch="FPGAConfiguration"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="mark1_beaglebone_demo.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="mark1_beaglebone_demo.bld"/>
     <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="mark1_beaglebone_demo.cmd_log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_DRC" xil_pn:name="mark1_beaglebone_demo.drc" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="mark1_beaglebone_demo.lso"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="mark1_beaglebone_demo.ncd" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="mark1_beaglebone_demo.ngc"/>
@@ -45,6 +49,7 @@
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="mark1_beaglebone_demo.twr" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="mark1_beaglebone_demo.twx" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="mark1_beaglebone_demo.unroutes" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="mark1_beaglebone_demo.ut" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:fileType="FILE_XPI" xil_pn:name="mark1_beaglebone_demo.xpi"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="mark1_beaglebone_demo.xst"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="mark1_beaglebone_demo_envsettings.html"/>
@@ -62,6 +67,8 @@
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="mark1_beaglebone_demo_summary.xml"/>
     <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="mark1_beaglebone_demo_usage.xml"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="mark1_beaglebone_demo_xst.xrpt"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
@@ -95,7 +102,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1355839663" xil_pn:in_ck="-3342478974410425859" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-4200464706933407827" xil_pn:start_ts="1355839656">
+    <transform xil_pn:end_ts="1355846492" xil_pn:in_ck="-4742843947662030170" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-4200464706933407827" xil_pn:start_ts="1355846484">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -117,8 +124,9 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1355839668" xil_pn:in_ck="6652519495372886964" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-1486693217461743105" xil_pn:start_ts="1355839663">
+    <transform xil_pn:end_ts="1355846497" xil_pn:in_ck="6652519495372886964" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-1486693217461743105" xil_pn:start_ts="1355846492">
       <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
@@ -126,9 +134,8 @@
       <outfile xil_pn:name="mark1_beaglebone_demo.ngd"/>
       <outfile xil_pn:name="mark1_beaglebone_demo_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1355839679" xil_pn:in_ck="6652519495372886965" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="6093601622908603872" xil_pn:start_ts="1355839668">
+    <transform xil_pn:end_ts="1355846506" xil_pn:in_ck="6652519495372886965" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="6093601622908603872" xil_pn:start_ts="1355846497">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="mark1_beaglebone_demo.pcf"/>
@@ -140,7 +147,7 @@
       <outfile xil_pn:name="mark1_beaglebone_demo_summary.xml"/>
       <outfile xil_pn:name="mark1_beaglebone_demo_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1355839690" xil_pn:in_ck="3726797874112066894" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1355839679">
+    <transform xil_pn:end_ts="1355846518" xil_pn:in_ck="3726797874112066894" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1355846506">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -155,7 +162,19 @@
       <outfile xil_pn:name="mark1_beaglebone_demo_pad.txt"/>
       <outfile xil_pn:name="mark1_beaglebone_demo_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1355839690" xil_pn:in_ck="6652519495372886833" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416185" xil_pn:start_ts="1355839686">
+    <transform xil_pn:end_ts="1355846539" xil_pn:in_ck="4083161069264654118" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1355846531">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo.bgn"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo.bit"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo.drc"/>
+      <outfile xil_pn:name="mark1_beaglebone_demo.ut"/>
+      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
+      <outfile xil_pn:name="webtalk.log"/>
+      <outfile xil_pn:name="webtalk_pn.xml"/>
+    </transform>
+    <transform xil_pn:end_ts="1355846518" xil_pn:in_ck="6652519495372886833" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416185" xil_pn:start_ts="1355846513">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
