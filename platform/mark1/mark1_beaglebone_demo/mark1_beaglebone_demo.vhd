@@ -48,6 +48,7 @@ end mark1_beaglebone_demo;
 
 architecture Behavioral of mark1_beaglebone_demo is
 
+	
 	signal clk_sys : std_logic ;
 	signal resetn , sys_resetn : std_logic ;
 	
@@ -65,7 +66,7 @@ architecture Behavioral of mark1_beaglebone_demo is
 begin
 	
 	resetn <= PB(0) ;
-	clk_sys <= OSC_FPGA ;
+	clk_sys <= GPMC_CLK ;
 
 
 
@@ -77,12 +78,26 @@ begin
 	 );
 
 
+divider : simple_counter 
+	 generic map(NBIT => 32)
+    port map( clk => clk_sys, 
+           resetn => sys_resetn , 
+           sraz => '0',
+           en => '1',
+			  load => '0' ,
+			  E => X"00000000",
+			  Q(31 downto 27) => open,
+			  Q(25 downto 0) => open,
+			  Q(26) => LED(7)
+			  );
+
+
 mem_interface0 : muxed_addr_interface
 generic map(ADDR_WIDTH => 8 , DATA_WIDTH =>  16)
 port map(clk => clk_sys ,
 	  resetn => sys_resetn ,
 	  data	=> GPMC_AD,
-	  wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(0),
+	  wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(1),
 	  data_bus_out	=> bus_data_out,
 	  data_bus_in	=> bus_data_in ,
 	  addr_bus	=> bus_addr, 
@@ -112,8 +127,8 @@ port map(
 	data_bus_out => bus_latch_out,
 	latch_input(3 downto 0) => DIP_SW,
 	latch_input(15 downto 4) => X"A5A",
-	latch_output(7 downto 0) => LED,
-	latch_output(15 downto 8) => open
+	latch_output(6 downto 0) => LED(6 downto 0),
+	latch_output(15 downto 7) => open
 );
 
 
@@ -130,7 +145,7 @@ bi_fifo0 : fifo_peripheral
 			rdA => fifoA_rd,
 			data_bus_in => bus_data_out,
 			data_bus_out => bus_fifo_out,
-			inputB => fifo_output, 
+			inputB => fifo_input, 
 			outputA => fifo_output,
 			emptyA => fifoA_empty,
 			fullA => fifoA_full,
