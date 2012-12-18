@@ -21,34 +21,35 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
 library work ;
 use work.utils_pack.all ;
 use work.bus_pack.all ;
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
+
+--! peripheral with fifo interface to the logic
+--! fifo B can be written from logic and read from bus
+--! fifo A can be written from bus and read from logic
 entity fifo_peripheral is
-generic(ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
+generic(ADDR_WIDTH : positive := 8; --! width of the address bus
+			WIDTH	: positive := 16; --! width of the data bus
+			SIZE	: positive	:= 128 --! fifo depth
+			); 
 port(
-	clk, resetn : in std_logic ;
-	addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
-	wr_bus, rd_bus, cs_bus : in std_logic ;
-	wrB, rdA : in std_logic ;
-	data_bus_in	: in std_logic_vector((WIDTH - 1) downto 0); -- bus interface
-	data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); -- bus interface
-	inputB: in std_logic_vector((WIDTH - 1) downto 0); -- logic interface
-	outputA	: out std_logic_vector((WIDTH - 1) downto 0); -- logic interface
-	emptyA, fullA, emptyB, fullB	:	out std_logic 
+	clk, resetn : in std_logic ; --! system clock and asynchronous reset
+	addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0); --! address bus
+	wr_bus, rd_bus, cs_bus : in std_logic ; --! bus control signals
+	wrB, rdA : in std_logic ; --! fifo control signal
+	data_bus_in	: in std_logic_vector((WIDTH - 1) downto 0); --! input data bus
+	data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); --! output data bus
+	inputB: in std_logic_vector((WIDTH - 1) downto 0); --! data input of fifo B
+	outputA	: out std_logic_vector((WIDTH - 1) downto 0); --! data output of fifo A
+	emptyA, fullA, emptyB, fullB	:	out std_logic --! fifo state signals
 );
 end fifo_peripheral;
 
-architecture Behavioral of fifo_peripheral is
+
+
+architecture RTL of fifo_peripheral is
 signal  fifoA_wr, fifoB_rd, bus_cs, srazA, srazB : std_logic ;
 signal in_addr	:	std_logic_vector(2 downto 0);
 signal fifoA_in,  fifoB_out : std_logic_vector((WIDTH - 1) downto 0 ); 
@@ -137,5 +138,5 @@ srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(2 d
 				
 fifoA_in <= data_bus_in ;
 
-end Behavioral;
+end RTL;
 
