@@ -57,9 +57,10 @@ architecture Behavioral of mark1_beaglebone_demo is
 	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
+	signal bus_fifo_out, bus_latch_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(7 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
-	
+	signal cs_fifo, cs_latch : std_logic ;
 	
 begin
 	
@@ -88,19 +89,47 @@ port map(clk => clk_sys ,
 	  wr => bus_wr , rd => bus_rd 
 );
 
+cs_fifo <= '1' when bus_addr(7 downto 3) = "00000" else
+			  '0' ;
+
+cs_latch <= '1' when bus_addr(7 downto 4) = "0000"  and bus_addr(3) = '1' else
+			  '0' ;			  
+
+bus_data_in <= bus_latch_out when cs_latch = '1' else
+					bus_fifo_out when cs_fifo = '1' else
+					(others => '1');
+
+led_sw_latch : latch_peripheral
+generic map(ADDR_WIDTH => 8, WIDTH	=> 16)
+port map(
+	clk => clk_sys,
+	resetn => sys_resetn,
+	addr_bus => bus_addr,
+	wr_bus => bus_wr,
+	rd_bus => bus_rd,
+	cs_bus => cs_latch,
+	data_bus_in => bus_data_out,
+	data_bus_out => bus_latch_out,
+	latch_input(3 downto 0) => DIP_SW,
+	latch_input(15 downto 4) => X"A5A",
+	latch_output(7 downto 0) => LED,
+	latch_output(15 downto 8) => open
+);
+
 
 bi_fifo0 : fifo_peripheral 
-		generic map(BASE_ADDR => 0, ADDR_WIDTH => 8,WIDTH => 16, SIZE => 1024)
+		generic map(ADDR_WIDTH => 8,WIDTH => 16, SIZE => 1024)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
 			addr_bus => bus_addr,
 			wr_bus => bus_wr,
 			rd_bus => bus_rd,
+			cs_bus => cs_fifo,
 			wrB => fifoB_wr,
 			rdA => fifoA_rd,
 			data_bus_in => bus_data_out,
-			data_bus_out => bus_data_in,
+			data_bus_out => bus_fifo_out,
 			inputB => fifo_output, 
 			outputA => fifo_output,
 			emptyA => fifoA_empty,
