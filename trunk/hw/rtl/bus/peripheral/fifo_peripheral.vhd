@@ -34,11 +34,11 @@ use work.bus_pack.all ;
 --use UNISIM.VComponents.all;
 
 entity fifo_peripheral is
-generic(BASE_ADDR	:	natural	:= 0; ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
+generic(ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
 port(
 	clk, resetn : in std_logic ;
 	addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
-	wr_bus, rd_bus : in std_logic ;
+	wr_bus, rd_bus, cs_bus : in std_logic ;
 	wrB, rdA : in std_logic ;
 	data_bus_in	: in std_logic_vector((WIDTH - 1) downto 0); -- bus interface
 	data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); -- bus interface
@@ -58,13 +58,8 @@ signal data_bus_out_t	: std_logic_vector((WIDTH - 1) downto 0);
 signal latch_registers : std_logic ;
 begin
 
-fifo_addr_dec0 : addr_decoder
-generic map(ADDR_WIDTH => ADDR_WIDTH ,BASE_ADDR => BASE_ADDR , ADDR_OUT_WIDTH =>  3)
-port map(addr_bus_in	=> addr_bus ,
-	  addr_bus_out	=> in_addr ,
-	  cs => bus_cs
-);	
-
+bus_cs <= cs_bus ;
+in_addr <= addr_bus(2 downto 0 );
 
 fifo_A : dp_fifo -- write from bus, read from logic
 	generic map(N => SIZE , W => WIDTH)
@@ -117,7 +112,7 @@ nb_availableB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 nb_availableA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 
 
-data_bus_out_t <= fifoB_out when in_addr(2) = '0'  else --fifo has 2 bits address space
+data_bus_out_t <= fifoB_out when in_addr(2) = '0'  else --fifo has 3 bits address space
 				std_logic_vector(to_unsigned(SIZE, 16)) when in_addr(2 downto 0) = "100" else
 				( nb_availableA_latched) when in_addr(2 downto 0) = "101" else
 				( nb_availableB_latched) when in_addr(2 downto 0) = "110"  else
