@@ -37,7 +37,7 @@ echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn1
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn2
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn3
 echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_oen_ren
-echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_wait0
+#echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_wait0
 echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_wen
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_wpn
 
@@ -61,9 +61,9 @@ echo out > /sys/class/gpio/gpio62/direction
 echo 1 > /sys/class/gpio/gpio62/value
 #echo 62 > /sys/class/gpio/unexport
 # GPMC CLK - GPIO 2_1 - NOT USED
-#echo 65 > /sys/class/gpio/export
-#echo out > /sys/class/gpio/gpio65/direction
-#echo 1 > /sys/class/gpio/gpio65/value
+echo 65 > /sys/class/gpio/export
+echo out > /sys/class/gpio/gpio65/direction
+echo 1 > /sys/class/gpio/gpio65/value
 #echo 65 > /sys/class/gpio/unexport
 # LATCH ENABLE GPIO 2_2 
 echo 66 > /sys/class/gpio/export
