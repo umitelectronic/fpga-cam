@@ -116,6 +116,7 @@ BEGIN
 		 PB(0) <= '1' ;
 		wait for GPMC_CLK_period*2000;	
       wait for GPMC_CLK_period*10;
+		-- reading fifo size
 		GPMC_AD <= X"0004" ;
 		GPMC_CSN(1) <= '0' ;
 		GPMC_ADVN <= '0' ;
@@ -141,7 +142,34 @@ BEGIN
 		GPMC_WEN <= '1' ;
 		wait for GPMC_CLK_period*10;
 		
+		--writing to fifo
+		GPMC_AD <= X"0000" ;
+		GPMC_CSN(1) <= '0' ;
+		GPMC_ADVN <= '0' ;
+		GPMC_OEN <= '1' ;
+		GPMC_WEN <= '1' ;
+		wait for GPMC_CLK_period*2;
+		GPMC_AD <= (others => 'Z') ;
+		GPMC_CSN(1) <= '0' ;
+		GPMC_ADVN <= '1' ;
+		GPMC_OEN <= '1' ;
+		GPMC_WEN <= '1' ;
+		wait for GPMC_CLK_period;
+		GPMC_AD <= X"55AA" ;
+		GPMC_CSN(1) <= '0' ;
+		GPMC_ADVN <= '1' ;
+		GPMC_OEN <= '1' ;
+		GPMC_WEN <= '0' ;
+		wait for GPMC_CLK_period*4;
+		GPMC_AD <= (others => 'Z') ;
+		GPMC_CSN(1) <= '1' ;
+		GPMC_ADVN <= '1' ;
+		GPMC_OEN <= '1' ;
+		GPMC_WEN <= '1' ;
+		wait for GPMC_CLK_period*10;
 		
+		
+		-- writing to leds
 		GPMC_AD <= X"0008" ;
 		GPMC_CSN(1) <= '0' ;
 		GPMC_ADVN <= '0' ;
