@@ -71,7 +71,7 @@ architecture Behavioral of mark1_beaglebone_demo is
 begin
 	
 	resetn <= PB(0) ;
-	clk_sys <= GPMC_CLK ;
+	clk_sys <= OSC_FPGA ;
 
 
 
