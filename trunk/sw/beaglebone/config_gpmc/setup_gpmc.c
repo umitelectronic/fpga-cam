@@ -27,18 +27,49 @@
 #define RD_CYC	7
 #define OE_ON	3
 #define OE_OFF ((CS_ON + CS_OFF)-OE_ON)
+#define RD_ACC_TIME 6
 #define WRDATAONADMUX 3  //number of cycle before taking control of data bus (when add/data multiplexing)
 
 
-
-//		 <--7-->
+//       <--7-->
 //CS1	\_______/
-//		<-2>_____
+//	<-2>_____
 //ADV	\__/
-//		____<-4->
-//WR		\___/
-//		____<-4->
-//WR		\___/
+//	____ <-4->
+//WR	     \___/
+//	____ <-4->
+//WR	     \___/
+
+// following settings were also tested and proved to work (faster)
+/*
+#define CS_ON	0
+#define CS_OFF	4
+#define ADV_ON	0
+#define ADV_OFF	1
+#define WR_CYC	4
+#define WR_ON	2
+#define WR_OFF ((CS_ON + CS_OFF)-WR_ON)
+#define RD_CYC	4
+#define OE_ON	2
+#define OE_OFF ((CS_ON + CS_OFF)-OE_ON)
+#define RD_ACC_TIME 4
+#define WRDATAONADMUX 2  //number of cycle before taking control of data bus (when add/data multiplexing)
+
+
+//       <--4-->
+//CS1	\_______/
+//	<-1>_____
+//ADV	\__/
+//	____ <-2->
+//WR	     \___/
+//	____ <-2->
+//WR	     \___/
+*/
+
+
+
+
+
 
 
 
@@ -154,7 +185,7 @@ GPMC_SYSCONFIG/4));
     HWREG(gpmc_reg_pointer + GPMC_CONFIG5(csNum)/4) = (0x0 |
 	    (RD_CYC << GPMC_CONFIG5_0_RDCYCLETIME_SHIFT)|	//CFG_5_RD_CYCLE_TIM
 	    (WR_CYC << GPMC_CONFIG5_0_WRCYCLETIME_SHIFT)|	//CFG_5_WR_CYCLE_TIM
-	    (6 << GPMC_CONFIG5_0_RDACCESSTIME_SHIFT));  // CFG_5_RD_ACCESS_TIM
+	    (RD_ACC_TIME << GPMC_CONFIG5_0_RDACCESSTIME_SHIFT));  // CFG_5_RD_ACCESS_TIM
     
     HWREG(gpmc_reg_pointer + GPMC_CONFIG6(csNum)/4) = (0x0 |
 		(0 << //GPMC_CONFIG6_0_CYCLE2CYCLESAMECSEN_C2CDELAY
