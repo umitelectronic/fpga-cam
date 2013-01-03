@@ -19,14 +19,24 @@ echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_ad8
 echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_ad9
 
 
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data0
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data1
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data2
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data3
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data4
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data5
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data6
-echo 0x09 > /sys/kernel/debug/omap_mux/lcd_data7
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data0
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data1
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data2
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data3
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data4
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data5
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data6
+echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data7
+
+# FPGA CFG_PINS PIO2_8,10,12 set as input to allow programming from jtag
+echo 72 > /sys/class/gpio/export
+echo 74 > /sys/class/gpio/export
+echo 76 > /sys/class/gpio/export
+echo in > /sys/class/gpio/gpio72/direction
+echo in > /sys/class/gpio/gpio74/direction
+echo in > /sys/class/gpio/gpio76/direction
+
+
 
 echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_advn_ale
 #echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_ben0_cle
