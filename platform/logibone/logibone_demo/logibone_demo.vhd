@@ -40,9 +40,6 @@ port( OSC_FPGA : in std_logic;
 		PB : in std_logic_vector(1 downto 0);
 		LED : out std_logic_vector(1 downto 0);
 		
-		-- i2c interface
-		SYS_I2C_SDA : inout std_logic ;
-		SYS_I2C_SCL : inout std_logic ; 
 		--gpmc interface
 		GPMC_CSN : in std_logic_vector(2 downto 0);
 		GPMC_WEN, GPMC_OEN, GPMC_ADVN, GPMC_CLK, GPMC_BE0N, GPMC_BE1N:	in std_logic;
