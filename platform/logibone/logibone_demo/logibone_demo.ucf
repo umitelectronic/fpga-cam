@@ -61,23 +61,23 @@ NET "PB<1>"           LOC = "P75" | IOSTANDARD = LVTTL | DRIVE = 2 | SLEW = SLOW
 #NET "BB_SPI_SS"	LOC = "P48";
 #NET "BB_SPI_MOSI"	LOC = "P47";
 #PMOD1######################################################################################
-#NET "PMOD1_1"	LOC = "P67";
-#NET "PMOD1_2"	LOC = "P62";
-#NET "PMOD1_3"	LOC = "P58";
-#NET "PMOD1_4"	LOC = "P56";
-#NET "PMOD1_7"	LOC = "P66";
-#NET "PMOD1_8"	LOC = "P61";
-#NET "PMOD1_9"	LOC = "P59";
-#NET "PMOD1_10"	LOC = "P57";
+#NET "PMOD1_<1>"	LOC = "P67";
+#NET "PMOD1_<2>"	LOC = "P62";
+#NET "PMOD1_<3>"	LOC = "P58";
+#NET "PMOD1_<4>"	LOC = "P56";
+#NET "PMOD1_<7>"	LOC = "P66";
+#NET "PMOD1_<8>"	LOC = "P61";
+#NET "PMOD1_<9>"	LOC = "P59";
+#NET "PMOD1_<10>"	LOC = "P57";
 #PMOD2########################################################################################
-#NET "PMOD2_1"	LOC = "P85";
-#NET "PMOD2_2"	LOC = "P83";
-#NET "PMOD2_3"	LOC = "P81";
-#NET "PMOD2_4"	LOC = "P79";
-#NET "PMOD2_7"	LOC = "P84";
-#NET "PMOD2_8"	LOC = "P82";
-#NET "PMOD2_9"	LOC = "P80";
-#NET "PMOD2_10"	LOC = "P78";
+#NET "PMOD2_<1>"	LOC = "P85";
+#NET "PMOD2_<2>"	LOC = "P83";
+#NET "PMOD2_<3>"	LOC = "P81";
+#NET "PMOD2_<4>"	LOC = "P79";
+#NET "PMOD2_<7>"	LOC = "P84";
+#NET "PMOD2_<8>"	LOC = "P82";
+#NET "PMOD2_<9>"	LOC = "P80";
+#NET "PMOD2_<10>"	LOC = "P78";
 #SATA##########################################################################################
 #NET "SATA_D1_P"	LOC = "P44";
 #NET "SATA_D1_N"	LOC = "P43";
