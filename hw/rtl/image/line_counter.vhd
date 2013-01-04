@@ -23,7 +23,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 
 library work ;
-use work.generic_components.all ;
+use work.utils_pack.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;

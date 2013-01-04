@@ -84,17 +84,13 @@ port(
 end component ;
 
 component yuv_camera_interface is
-generic(FORMAT : FRAME_FORMAT := QVGA; CAMERA : CAMERA_TYPE := OV7670);
 	port(
  		clock : in std_logic; 
- 		i2c_clk : in std_logic; 
  		resetn : in std_logic; 
  		pixel_data : in std_logic_vector(7 downto 0 ); 
  		y_data : out std_logic_vector(7 downto 0 ); 
  		u_data : out std_logic_vector(7 downto 0 ); 
  		v_data : out std_logic_vector(7 downto 0 ); 
- 		scl : inout std_logic; 
- 		sda : inout std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pxclk, href, vsync : in std_logic
 	); 
