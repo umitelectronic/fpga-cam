@@ -23,8 +23,8 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library WORK ;
-USE WORK.CAMERA.ALL ;
-USE WORK.GENERIC_COMPONENTS.ALL ;
+USE WORK.image_pack.ALL ;
+USE WORK.utils_pack.ALL ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values

@@ -2,7 +2,7 @@ library IEEE;
         use IEEE.std_logic_1164.all;
         use IEEE.std_logic_unsigned.all;
 library work;
-        use work.camera.all ;
+        use work.conf_pack.all ;
 
 entity yuv_register_rom is
 	port(

@@ -23,8 +23,9 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 library WORK;
-use WORK.CAMERA.ALL;
-use WORK.generic_components.ALL;
+use WORK.image_pack.ALL;
+use WORK.utils_pack.ALL;
+use WORK.primitive_pack.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -60,6 +61,7 @@ signal MAC0_A, MAC0_B, MAC1_A, MAC1_B, MAC2_A, MAC2_B	:	signed(15 downto 0);
 signal MAC0_RES, MAC1_RES, MAC2_RES:	signed(31 downto 0);
 
 signal final_res, final_res_latched ,abs_resl : signed(31 downto 0);
+signal std_abs_resl : std_logic_vector(31 downto 0);
 signal index : std_logic_vector(3 downto 0) := (others => '0');
 signal clock_count	:	std_logic_vector(2 downto 0);
 signal new_bloc_old, new_block_rising_edge, counter_enable, counter_enable_fast, busy_old, counter_sraz : std_logic ;
@@ -146,8 +148,8 @@ port map(clk => clk, sraz => sraz_mac,
 );
 
 raw_res <= FINAL_RES(15 downto 0) ; -- should not overflow
-abs_res <= std_logic_vector(abs(FINAL_RES));
-
+std_abs_resl <= std_logic_vector(abs(FINAL_RES));
+abs_res <= std_abs_resl(10 downto 3); -- need to check division factor
 
  
 

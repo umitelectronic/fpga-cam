@@ -12,6 +12,7 @@ use IEEE.STD_LOGIC_1164.all;
 
 package conf_pack is
 
+type register_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
 component lcd_register_rom is
 	port(
@@ -49,6 +50,19 @@ component yuv_register_rom is
 	); 
 end component;
 
+
+component i2c_conf is
+	generic(ADD_WIDTH : positive := 8 ; SLAVE_ADD : std_logic_vector(6 downto 0) := "0100001");
+	port(
+		clock : in std_logic;
+		resetn : in std_logic; 		
+ 		i2c_clk : in std_logic; 
+		scl : inout std_logic; 
+ 		sda : inout std_logic; 
+		reg_addr : out std_logic_vector(ADD_WIDTH - 1 downto 0);
+		reg_data : in std_logic_vector(15 downto 0)
+	);
+end component;
 
 end conf_pack;
 
