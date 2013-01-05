@@ -47,9 +47,10 @@ int write_jpegfile(char * frame, unsigned short width, unsigned short height, FI
   return 1;
 }
 
-int write_jpegmem(char * frame, unsigned short width, unsigned short height, unsigned short nbChannels, unsigned char **outbuffer, long unsigned int *outlen, int quality)
+int write_jpegmem_gray(char * frame, unsigned short width, unsigned short height, unsigned char **outbuffer, long unsigned int *outlen, int quality)
 {
   JSAMPROW row_ptr[1];
+  unsigned short nbChannels = 1 ;
   struct jpeg_compress_struct jpeg;
   struct jpeg_error_mgr jerr;
   char *line, *image;
@@ -64,7 +65,7 @@ int write_jpegmem(char * frame, unsigned short width, unsigned short height, uns
   jpeg.image_width = width;
   jpeg.image_height= height;
   jpeg.input_components = nbChannels;
-  jpeg.in_color_space = JCS_RGB;
+  jpeg.in_color_space = JCS_GRAYSCALE;
   jpeg_set_defaults (&jpeg);
   jpeg_set_quality (&jpeg, quality, TRUE);
   jpeg.dct_method = JDCT_FASTEST;
@@ -81,7 +82,7 @@ int write_jpegmem(char * frame, unsigned short width, unsigned short height, uns
       free (line);
       return 0;
     }
-    image += line_width;
+    frame += line_width;
   }
   jpeg_finish_compress (&jpeg);
   jpeg_destroy_compress (&jpeg);
