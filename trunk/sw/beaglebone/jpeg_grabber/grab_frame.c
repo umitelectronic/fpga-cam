@@ -15,14 +15,14 @@
 
 
 /* Use 'p' as magic number */
-#define PAPILIO_FIFO_IOC_MAGIC 'p'
+#define LOGIBONE_FIFO_IOC_MAGIC 'p'
 /* Please use a different 8-bit number in your code */
-#define PAPILIO_FIFO_RESET _IO(PAPILIO_FIFO_IOC_MAGIC, 0)
+#define LOGIBONE_FIFO_RESET _IO(LOGIBONE_FIFO_IOC_MAGIC, 0)
 
 
-#define PAPILIO_FIFO_PEEK _IOR(PAPILIO_FIFO_IOC_MAGIC, 1, short)
-#define PAPILIO_FIFO_NB_FREE _IOR(PAPILIO_FIFO_IOC_MAGIC, 2, short)
-#define PAPILIO_FIFO_NB_AVAILABLE _IOR(PAPILIO_FIFO_IOC_MAGIC, 3, short)
+#define LOGIBONE_FIFO_PEEK _IOR(LOGIBONE_FIFO_IOC_MAGIC, 1, short)
+#define LOGIBONE_FIFO_NB_FREE _IOR(LOGIBONE_FIFO_IOC_MAGIC, 2, short)
+#define LOGIBONE_FIFO_NB_AVAILABLE _IOR(LOGIBONE_FIFO_IOC_MAGIC, 3, short)
 
 
 #define GRAB_SIZE ((320*240) * 2)
@@ -52,16 +52,16 @@ int main(int argc, char ** argv){
 	unsigned char image_buffer[(320*240)] ; //monochrome frame buffer
 	
 
-	fd = open("/dev/papilio0", O_RDWR | O_SYNC);
+	fd = open("/dev/logibone0", O_RDWR | O_SYNC);
 	jpeg_fd  = fopen("./grabbed_frame.jpg", "w");
 	//raw_fd = fopen("./raw_data.txt", "w");
 	if(fd == -1 || jpeg_fd == NULL){
 		perror("Error opening file");
-		printf("error opening /dev/papilio0 \n");
+		printf("error opening /dev/LOGIBONE0 \n");
 		exit(EXIT_FAILURE);
 	}
 	printf("issuing reset to fifo \n");
-	//ioctl(fd, PAPILIO_FIFO_RESET);
+	//ioctl(fd, LOGIBONE_FIFO_RESET);
 	clock_gettime(CLOCK_REALTIME, &cpu_time);
 	start_time = cpu_time.tv_nsec ;
 	//while(pos < GRAB_SIZE){
