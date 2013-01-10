@@ -246,6 +246,27 @@ port(
 );
 end component;
 
+
+
+component fifo2pixel is
+	generic(WIDTH : positive := 320 ; HEIGHT : positive := 240);
+	port(
+		clk, resetn : in std_logic ;
+		
+		
+		-- fifo side
+		fifo_empty : in std_logic ;
+		fifo_rd : out std_logic ;
+		fifo_data : in std_logic_vector(15 downto 0);
+		
+		-- pixel side 
+		pixel_en : in std_logic ;
+		y_data : out std_logic_vector(7 downto 0 );  
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic
+	
+	);
+end component;
+
 end image_pack;
 
 package body image_pack is
