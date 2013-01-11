@@ -246,8 +246,6 @@ port(
 );
 end component;
 
-
-
 component fifo2pixel is
 	generic(WIDTH : positive := 320 ; HEIGHT : positive := 240);
 	port(
