@@ -169,10 +169,7 @@ begin
 
 
 
-  clkout2_buf : BUFG
-  port map
-   (O   => CLK_OUT2,
-    I   => clkout1);
+  CLK_OUT2 <= clkout1;
 
   clkout3_buf : BUFG
   port map
