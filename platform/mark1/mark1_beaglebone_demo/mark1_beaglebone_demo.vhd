@@ -52,15 +52,15 @@ end mark1_beaglebone_demo;
 
 architecture Behavioral of mark1_beaglebone_demo is
 
-	--COMPONENT clock_gen
-	--PORT(
-	--	CLK_IN1 : IN std_logic;          
-	--	CLK_OUT1 : OUT std_logic;
-	--	CLK_OUT2 : OUT std_logic;
-	--	CLK_OUT3 : OUT std_logic;
-	--	LOCKED : OUT std_logic
-	--	);
-	--END COMPONENT;
+	COMPONENT clock_gen
+	PORT(
+		CLK_IN1 : IN std_logic;          
+		CLK_OUT1 : OUT std_logic;
+		CLK_OUT2 : OUT std_logic;
+		CLK_OUT3 : OUT std_logic;
+		LOCKED : OUT std_logic
+		);
+	END COMPONENT;
 
 	
 	signal clk_sys, clk_100, clk_24, clk_locked : std_logic ;
@@ -81,15 +81,15 @@ architecture Behavioral of mark1_beaglebone_demo is
 begin
 	
 	resetn <= PB(0) ;
-	clk_sys <= OSC_FPGA;
-	--sys_clocks_gen: clock_gen 
-	--PORT MAP(
-	--	CLK_IN1 => OSC_FPGA,
-	--	CLK_OUT1 => clk_100,
-	--	CLK_OUT2 => clk_24,
-	--	CLK_OUT3 => clk_sys, --120Mhz system clock
-	--	LOCKED => clk_locked
-	--);
+	--clk_sys <= OSC_FPGA;
+	sys_clocks_gen: clock_gen 
+	PORT MAP(
+		CLK_IN1 => OSC_FPGA,
+		CLK_OUT1 => clk_100,
+		CLK_OUT2 => clk_24,
+		CLK_OUT3 => clk_sys, --120Mhz system clock
+		LOCKED => clk_locked
+	);
 
 
 	reset0: reset_generator 
