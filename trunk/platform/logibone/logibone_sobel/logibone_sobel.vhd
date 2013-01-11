@@ -29,33 +29,26 @@ library work ;
 use work.utils_pack.all ;
 use work.peripheral_pack.all ;
 use work.interface_pack.all ;
-use work.conf_pack.all ;
 use work.filter_pack.all ;
+use work.image_pack.all ;
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity logibone_camera is
+entity logibone_sobel is
 port( OSC_FPGA : in std_logic;
 		PB : in std_logic_vector(1 downto 0);
-		LED : out std_logic_vector(1 downto 0);
-		
-		--PMOD
-		PMOD1_1, PMOD1_2  : inout std_logic ; -- used as SCL, SDA
-		PMOD1_3 ,PMOD1_4 : out std_logic ; -- used as reset and xclk 
-		PMOD1_7, PMOD1_8, PMOD1_9, PMOD1_10 : in std_logic ; -- used as pclk, href, vsync
-		PMOD2 : in std_logic_vector(7 downto 0); -- used as cam data
-		
+		LED : out std_logic_vector(1 downto 0);	
 		
 		--gpmc interface
 		GPMC_CSN : in std_logic_vector(2 downto 0);
 		GPMC_WEN, GPMC_OEN, GPMC_ADVN, GPMC_CLK, GPMC_BE0N, GPMC_BE1N:	in std_logic;
 		GPMC_AD :	inout std_logic_vector(15 downto 0)	
 );
-end logibone_camera;
+end logibone_sobel;
 
-architecture Behavioral of logibone_camera is
+architecture Behavioral of logibone_sobel is
 
 	COMPONENT clock_gen
 	PORT(
@@ -102,8 +95,6 @@ architecture Behavioral of logibone_camera is
 	signal pixel_buffer : std_logic_vector(15 downto 0);	
 	signal pixel_count :std_logic_vector(7 downto 0);
 	signal write_pixel : std_logic ;
-	
-	for all : yuv_register_rom use entity work.yuv_register_rom(ov7670_qvga);
 	
 begin
 	
@@ -178,43 +169,25 @@ bi_fifo0 : fifo_peripheral
 		);
 		
 		
- 
- conf_rom : yuv_register_rom
+	pixel_from_fifo : fifo2pixel
+	generic map(WIDTH => 320 , HEIGHT => 240)
 	port map(
-	   clk => clk_sys, en => '1' ,
- 		data => rom_data,
- 		addr => rom_addr
-	); 
- 
- camera_conf_block : i2c_conf 
-	generic map(ADD_WIDTH => 8 , SLAVE_ADD => "0100001")
-	port map(
-		clock => clk_sys, 
-		resetn => sys_resetn ,		
- 		i2c_clk => clk_24 ,
-		scl => PMOD1_1,
- 		sda => PMOD1_2, 
-		reg_addr => rom_addr ,
-		reg_data => rom_data
-	);	
+		clk => clk_sys, resetn => sys_resetn ,
+
+		-- fifo side
+		fifo_empty => fifoA_empty ,
+		fifo_rd => fifoA_rd ,
+		fifo_data =>fifo_output,
 		
- camera0: yuv_camera_interface
-		port map(clock => clk_sys,
-					resetn => sys_resetn,
-					pixel_data => cam_data, 
-					pxclk => cam_pclk, href => cam_href, vsync => cam_vsync,
-					pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
-					y_data => pixel_from_interface
-		);	
-		
-	cam_xclk <= clk_24;
-	PMOD1_4 <= cam_xclk ;
-	cam_data <= PMOD2 ;
-	cam_pclk <= PMOD1_7 ;
-	cam_href <= PMOD1_8 ;
-	cam_vsync <= PMOD1_9 ;
-	PMOD1_3 <= cam_reset ;
-	cam_reset <= resetn ;
+		-- pixel side 
+		pixel_en => clk_24 ,
+		y_data =>  pixel_from_interface , 
+ 		pixel_clock_out => pxclk_from_interface, 
+		hsync_out => href_from_interface, 
+		vsync_out =>vsync_from_interface 
+	
+	);
+	
 
 soberl_filter : sobel3x3 
 generic map(WIDTH => 320, HEIGHT => 240)
