@@ -85,7 +85,7 @@ int main(int argc, char ** argv){
 	i = 0 ;
 	while(!vsyncFound && i < GRAB_SIZE){
 		unsigned short * shortVal ;
-		shortVal = &reception_buffer[i];
+		shortVal = (unsigned short *) &reception_buffer[i];
 		if(*shortVal == 0xAA55){
 			vsyncFound = 1 ;
 			printf("vsync found ! \n");
