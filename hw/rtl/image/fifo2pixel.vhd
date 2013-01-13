@@ -78,7 +78,7 @@ vsync_out <= vsync_outq ;
 
 hsync_outq <= '1' when hsync_count < 20 else
 				'1' when pixel_count > (WIDTH - 1) else
-				'1' when hsync_count > (HEIGHT - 1) else
+				'1' when hsync_count > (HEIGHT + 19) else
 				'0' ;
 				
 vsync_outq <= '1' when hsync_count > 1 and hsync_count < 4   else
@@ -97,7 +97,7 @@ en_pixel_count <= '1' when fifo_empty_latched = '0' else
 sraz_pixel_count <= '1' when pixel_count = (WIDTH + 45) else
 						'0' ;
 						
-sraz_hsync_count <= '1' when hsync_count = (HEIGHT + 17 ) else
+sraz_hsync_count <= '1' when hsync_count = (HEIGHT + 22 ) else
 						  '0' ;
 	
 fifo_rd <= 	pixel_en when hsync_outq = '0' and pixel_count(0) =  '1' else
@@ -124,7 +124,7 @@ hsync_counter : simple_counter
 			  E => (others => '0'),
            Q => hsync_count
 			  );
-y_data <= fifo_data(7 downto 0) when pixel_count(0) = '1' else
+y_data <= fifo_data(7 downto 0) when pixel_count(0) = '0' else
 				fifo_data(15 downto 8) ;
 
 end Behavioral;

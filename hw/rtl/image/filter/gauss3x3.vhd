@@ -23,8 +23,8 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library WORK ;
-USE WORK.CAMERA.ALL ;
-USE WORK.GENERIC_COMPONENTS.ALL ;
+USE WORK.image_pack.ALL ;
+USE WORK.utils_pack.ALL ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -52,13 +52,13 @@ end gauss3x3;
 
 
 
-architecture RTL of gauss3x3 is
+architecture Arithmetic of gauss3x3 is
 	signal new_conv : std_logic;
 	signal busy : std_logic;
-	signal pixel_from_conv : signed(15 downto 0);
+	signal pixel_from_conv, pixel_from_conv_latched : signed(15 downto 0);
 	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
 	signal new_block, pxclk_state : std_logic ;
-	signal pixel_clock_old, hsync_old, new_conv_old : std_logic ;
+	signal pixel_clock_old, hsync_old, new_conv_old, pixel_clock_en : std_logic ;
 --	for block0 : block3X3 use entity block3X3(RTL) ;
 --	for conv3x3_0 : conv3x3 use entity conv3x3(RTL) ;
 begin
@@ -89,101 +89,109 @@ begin
 				raw_res => pixel_from_conv
 		);
 	
+		pixel_clock_en <= pixel_clock and (not hsync) ;
 		delay_sync: generic_delay
-		generic map( WIDTH =>  2 , DELAY => 4)
+		generic map( WIDTH =>  3 , DELAY => 5)
 		port map(
 			clk => clk, resetn => resetn ,
 			input(0) => hsync ,
 			input(1) => vsync ,
+			input(2) => pixel_clock_en ,
 			output(0) => hsync_out ,
-			output(1) => vsync_out
-		);		
-	
+			output(1) => vsync_out,
+			output(2) => pixel_clock_out
+		);	
+		
 		process(clk, resetn)
 		begin
 			if resetn = '0' then
-				pixel_clock_out <= '0' ;
-				--hsync_out <= '0' ;
-				--vsync_out <= '0' ;
-			elsif clk'event and clk = '1' and busy = '0' then
-				--hsync_out <= hsync ;
-				--vsync_out <= vsync ;
-				pixel_clock_out <= new_conv ;
+				pixel_from_conv_latched <= (others => '0') ;
+			elsif clk'event and clk = '1' then
+				pixel_from_conv_latched <= pixel_from_conv ;
 			end if ;
 		end process ;
 	
-	
 		--pixel_data_out <= std_logic_vector(pixel_from_conv(12 downto 5)) ; -- divide by 64
-		pixel_data_out <= std_logic_vector(pixel_from_conv(11 downto 4)) ; -- divide by 16
+		pixel_data_out <= std_logic_vector(pixel_from_conv_latched(11 downto 4)) ; -- divide by 16
+
+end Arithmetic;
+
+architecture RTL of gauss3x3 is
+	signal pixel_from_conv_latched : signed(15 downto 0);
+	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
+	signal new_block, pxclk_state : std_logic ;
+	signal pixel_clock_old, hsync_old, new_conv_old, pixel_clock_en : std_logic ;
+	type mat33_16s is array (0 to 1,0 to 2) of signed(15 downto 0);
+	type vec3_16s is array (0 to 2) of signed(15 downto 0);
+	
+	signal mult_scal : mat33_16s ;
+	signal add_vec, sum_step: vec3_16s ;
+begin
+
+		block0:  block3X3 
+		generic map(WIDTH =>  WIDTH, HEIGHT => HEIGHT)
+		port map(
+			clk => clk ,
+			resetn => resetn , 
+			pixel_clock => pixel_clock , hsync => hsync , vsync => vsync,
+			pixel_data_in => pixel_data_in ,
+			new_block => new_block,
+			block_out => block3x3_sig);
+		
+		mult_scal(0, 0) <= resize(block3x3_sig(0,0), 16);
+		mult_scal(0, 1) <= SHIFT_LEFT(resize(block3x3_sig(0,1), 16),1);
+		mult_scal(0, 2) <= resize(block3x3_sig(0,2), 16);
+		
+		mult_scal(1, 0) <= SHIFT_LEFT(resize(block3x3_sig(1,0), 16),1);
+		mult_scal(1, 1) <= SHIFT_LEFT(resize(block3x3_sig(1,1), 16),2);
+		mult_scal(1, 2) <= SHIFT_LEFT(resize(block3x3_sig(1,2), 16),1);
+		
+		mult_scal(2, 0) <= resize(block3x3_sig(2,0), 16);
+		mult_scal(2, 1) <= SHIFT_LEFT(resize(block3x3_sig(2,1), 16),1);
+		mult_scal(2, 2) <= resize(block3x3_sig(2,2), 16);
+				
+		add_vec(0) <= y_mult_scal(0, 0) + y_mult_scal(1, 0) + y_mult_scal(2, 0) ;
+		add_vec(1) <=  y_mult_scal(0, 1) + y_mult_scal(1, 1) + y_mult_scal(2, 1) ;
+		add_vec(2) <=  y_mult_scal(0, 2) + y_mult_scal(1, 2) + y_mult_scal(2, 2) ;
+		
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
+				sum_step(0) <= (others => '0') ;
+				sum_step(1)<= (others => '0') ;
+				sum_step(2)<= (others => '0') ;
+			elsif clk'event and clk = '1' then
+				sum_y_step(0) <= add_vec(0) ;
+				sum_y_step(1) <= sum_step(0) + add_vec(1) ;
+				sum_y_step(2) <= sum_step(1) + add_vec(2) ;
+			end if ;
+		end process;
+	
+		pixel_clock_en <= pixel_clock and (not hsync) ;
+		delay_sync: generic_delay
+		generic map( WIDTH =>  3 , DELAY => 5)
+		port map(
+			clk => clk, resetn => resetn ,
+			input(0) => hsync ,
+			input(1) => vsync ,
+			input(2) => pixel_clock_en ,
+			output(0) => hsync_out ,
+			output(1) => vsync_out,
+			output(2) => pixel_clock_out
+		);	
+		
+		process(clk, resetn)
+		begin
+			if resetn = '0' then
+				pixel_from_conv_latched <= (others => '0') ;
+			elsif clk'event and clk = '1' then
+				pixel_from_conv_latched <= sum_y_step(2) ;
+			end if ;
+		end process ;
+		
+		
+		pixel_data_out <= std_logic_vector(pixel_from_conv_latched(11 downto 4)) ; -- divide by 16
 
 end RTL;
-
-
---architecture Behavioral of gauss3x3 is
---	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
---	signal new_block : std_logic ;
---	signal line_1, line_2, line_3 : std_logic_vector(15 downto 0);
---	signal m00, m01, m02, m10, m11, m12, m20, m21, m22: std_logic_vector(15 downto 0);
---	signal conv : std_logic_vector(15 downto 0);
-----	for block0 : block3X3 use entity block3X3(RTL) ;
---begin
---
---		block0:  block3X3 
---		generic map(WIDTH =>  WIDTH, HEIGHT => HEIGHT)
---		port map(
---			clk => clk ,
---			resetn => resetn , 
---			pixel_clock => pixel_clock , hsync => hsync , vsync => vsync,
---			pixel_data_in => pixel_data_in ,
---			new_block => new_block,
---			block_out => block3x3_sig);
---		
---		m00 <= "0000000" & std_logic_vector(block3x3_sig(0,0)) ;
---		m01 <= "0000000" & std_logic_vector(block3x3_sig(0,1)) ;
---		m02 <= "0000000" & std_logic_vector(block3x3_sig(0,2)) ;
---		m10 <= "0000000" & std_logic_vector(block3x3_sig(1,0)) ;
---		m11 <= "0000000" & std_logic_vector(block3x3_sig(1,1)) ;
---		m12 <= "0000000" & std_logic_vector(block3x3_sig(1,2)) ;
---		m20 <= "0000000" & std_logic_vector(block3x3_sig(2,0)) ;
---		m21 <= "0000000" & std_logic_vector(block3x3_sig(2,1)) ;
---		m22 <= "0000000" & std_logic_vector(block3x3_sig(2,2)) ;
---		
---	
---		line_1 <= m00 + (m01(15 downto 1) & '0') + m02 ;
---		line_2 <= (m10(15 downto 1) & '0') + (m11(15 downto 2) & "00") + (m12(15 downto 1) & '0')  ;
---		line_3 <= m20 + (m21(15 downto 1) & '0') + m22 ; 
---		conv <= line_1 + line_2 + line_3 ;
---		
---		conv_latch0 : generic_latch 
---	 generic map(NBIT => 8)
---    Port map( clk => clk ,
---           resetn => resetn ,
---           sraz => '0' ,
---           en => new_block ,
---           d => std_logic_vector(conv(11 downto 4)) ,
---           q => pixel_data_out );
---		
---
---
---		--sync signals latch
---		-- todo convolution takes 4 cycles, block takes one, hsync, vsync signals should be delayed by 5 cycles
---		process(clk, resetn)
---		begin
---		if resetn = '0' then 
---			pixel_clock_out <= '0' ;
---			hsync_out <= '0' ;
---			vsync_out <= '0' ;
---		elsif clk'event and clk = '1'  then
---			pixel_clock_out <= new_block ;
---			hsync_out <= hsync ;
---			vsync_out <= vsync ;
---		end if ;
---		end process ;
---		
---
---end Behavioral;
-
-
-
 
 
