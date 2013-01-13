@@ -36,19 +36,21 @@ use work.image_pack.all ;
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity logibone_sobel is
+entity mark1_beaglebone_sobel is
 port( OSC_FPGA : in std_logic;
-		PB : in std_logic_vector(1 downto 0);
-		LED : out std_logic_vector(1 downto 0);	
-		
+		PB : in std_logic_vector(3 downto 0);
+		DIP_SW : in  std_logic_vector(3 downto 0);
+		LED : out std_logic_vector(7 downto 0);	
+		-- i2c bus
+		SYS_I2C_SCL, SYS_I2C_SDA : inout std_logic ;
 		--gpmc interface
 		GPMC_CSN : in std_logic_vector(2 downto 0);
 		GPMC_WEN, GPMC_OEN, GPMC_ADVN, GPMC_CLK, GPMC_BE0N, GPMC_BE1N:	in std_logic;
 		GPMC_AD :	inout std_logic_vector(15 downto 0)	
 );
-end logibone_sobel;
+end mark1_beaglebone_sobel;
 
-architecture Behavioral of logibone_sobel is
+architecture Behavioral of mark1_beaglebone_sobel is
 
 	COMPONENT clock_gen
 	PORT(
@@ -97,6 +99,8 @@ architecture Behavioral of logibone_sobel is
 	signal pixel_buffer : std_logic_vector(15 downto 0);	
 	signal pixel_count :std_logic_vector(7 downto 0);
 	signal write_pixel : std_logic ;
+	signal led_cylon : std_logic_vector(7 downto 0);
+	signal cylon_dir, cylon_clk : std_logic ;
 	for all : sobel3x3 use entity work.sobel3x3(RTL) ;
 begin
 	
@@ -129,8 +133,21 @@ divider : simple_counter
 			  E => X"00000000",
 			  Q => counter_output
 			  );
-LED(0) <= counter_output(24);
-LED(1) <= cam_vsync ;
+			  
+cylon_clk <= counter_output(23);
+process(cylon_clk, sys_resetn)
+begin
+	if sys_resetn = '0' then
+		led_cylon <= "00000001" ;
+		cylon_dir <= '0' ;
+	elsif cylon_clk'event and cylon_clk = '1' then
+		led_cylon(7 downto 1) <=  led_cylon(6 downto 0);
+		led_cylon(0) <= led_cylon(7) ;
+	end if ;
+end process ;		  
+LED <= 	led_cylon ;	 
+
+ 
 mem_interface0 : muxed_addr_interface
 generic map(ADDR_WIDTH => 8 , DATA_WIDTH =>  16)
 port map(clk => clk_sys ,
@@ -211,20 +228,20 @@ port map(
  		pixel_data_in => pixel_from_interface,
  		pixel_data_out => pixel_from_sobel
 );
---output_pxclk <= pxclk_from_sobel ;
---output_href <= href_from_sobel ;
---output_vsync <= vsync_from_sobel ;
---output_pixel <= pixel_from_sobel ;
+output_pxclk <= pxclk_from_sobel ;
+output_href <= href_from_sobel ;
+output_vsync <= vsync_from_sobel ;
+output_pixel <= pixel_from_sobel ;
 
 --output_pxclk <= pxclk_from_gauss ;
 --output_href <= href_from_gauss ;
 --output_vsync <= vsync_from_gauss ;
 --output_pixel <= pixel_from_gauss ;
 
-output_pxclk <= pxclk_from_interface ;
-output_href <= href_from_interface ;
-output_vsync <= vsync_from_interface ;
-output_pixel <= pixel_from_interface ;
+--output_pxclk <= pxclk_from_interface ;
+--output_href <= href_from_interface ;
+--output_vsync <= vsync_from_interface ;
+--output_pixel <= pixel_from_interface ;
 		
 	process(clk_sys, sys_resetn)
 begin

@@ -1,4 +1,3 @@
--- file: clock_gen.vhd
 -- 
 -- (c) Copyright 2008 - 2011 Xilinx, Inc. All rights reserved.
 -- 
@@ -64,16 +63,10 @@
 ------------------------------------------------------------------------------
 -- __primary__________50.000____________0.010
 
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
-use ieee.numeric_std.all;
 
-library unisim;
-use unisim.vcomponents.all;
-
-entity clock_gen is
+-- The following code must appear in the VHDL architecture header:
+------------- Begin Cut here for COMPONENT Declaration ------ COMP_TAG
+component clock_gen
 port
  (-- Clock in ports
   CLK_IN1           : in     std_logic;
@@ -84,99 +77,20 @@ port
   -- Status and control signals
   LOCKED            : out    std_logic
  );
-end clock_gen;
+end component;
 
-architecture xilinx of clock_gen is
-  attribute CORE_GENERATION_INFO : string;
-  attribute CORE_GENERATION_INFO of xilinx : architecture is "clock_gen,clk_wiz_v4_1,{component_name=clock_gen,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,feedback_source=FDBK_AUTO,primtype_sel=PLL_BASE,num_out_clk=3,clkin1_period=20.000,clkin2_period=20.000,use_power_down=false,use_reset=false,use_locked=true,use_inclk_stopped=false,use_status=false,use_freeze=false,use_clk_valid=false,feedback_type=SINGLE,clock_mgr_type=AUTO,manual_override=false}";
-  -- Input clock buffering / unused connectors
-  signal clkin1      : std_logic;
-  -- Output clock buffering / unused connectors
-  signal clkfbout         : std_logic;
-  signal clkfbout_buf     : std_logic;
-  signal clkout0          : std_logic;
-  signal clkout1          : std_logic;
-  signal clkout2          : std_logic;
-  signal clkout3_unused   : std_logic;
-  signal clkout4_unused   : std_logic;
-  signal clkout5_unused   : std_logic;
-  -- Unused status signals
-
-begin
-
-
-  -- Input buffering
-  --------------------------------------
-  clkin1_buf : IBUFG
+-- COMP_TAG_END ------ End COMPONENT Declaration ------------
+-- The following code must appear in the VHDL architecture
+-- body. Substitute your own instance name and net names.
+------------- Begin Cut here for INSTANTIATION Template ----- INST_TAG
+your_instance_name : clock_gen
   port map
-   (O => clkin1,
-    I => CLK_IN1);
-
-
-  -- Clocking primitive
-  --------------------------------------
-  -- Instantiation of the PLL primitive
-  --    * Unused inputs are tied off
-  --    * Unused outputs are labeled unused
-
-  pll_base_inst : PLL_BASE
-  generic map
-   (BANDWIDTH            => "OPTIMIZED",
-    CLK_FEEDBACK         => "CLKFBOUT",
-    COMPENSATION         => "SYSTEM_SYNCHRONOUS",
-    DIVCLK_DIVIDE        => 1,
-    CLKFBOUT_MULT        => 12,
-    CLKFBOUT_PHASE       => 0.000,
-    CLKOUT0_DIVIDE       => 6,
-    CLKOUT0_PHASE        => 0.000,
-    CLKOUT0_DUTY_CYCLE   => 0.500,
-    CLKOUT1_DIVIDE       => 25,
-    CLKOUT1_PHASE        => 0.000,
-    CLKOUT1_DUTY_CYCLE   => 0.500,
-    CLKOUT2_DIVIDE       => 5,
-    CLKOUT2_PHASE        => 0.000,
-    CLKOUT2_DUTY_CYCLE   => 0.500,
-    CLKIN_PERIOD         => 20.000,
-    REF_JITTER           => 0.010)
-  port map
-    -- Output clocks
-   (CLKFBOUT            => clkfbout,
-    CLKOUT0             => clkout0,
-    CLKOUT1             => clkout1,
-    CLKOUT2             => clkout2,
-    CLKOUT3             => clkout3_unused,
-    CLKOUT4             => clkout4_unused,
-    CLKOUT5             => clkout5_unused,
+   (-- Clock in ports
+    CLK_IN1 => CLK_IN1,
+    -- Clock out ports
+    CLK_OUT1 => CLK_OUT1,
+    CLK_OUT2 => CLK_OUT2,
+    CLK_OUT3 => CLK_OUT3,
     -- Status and control signals
-    LOCKED              => LOCKED,
-    RST                 => '0',
-    -- Input clock control
-    CLKFBIN             => clkfbout_buf,
-    CLKIN               => clkin1);
-
-  -- Output buffering
-  -------------------------------------
-  clkf_buf : BUFG
-  port map
-   (O => clkfbout_buf,
-    I => clkfbout);
-
-
-  clkout1_buf : BUFG
-  port map
-   (O   => CLK_OUT1,
-    I   => clkout0);
-
-
-
-  clkout2_buf : BUFG
-  port map
-   (O   => CLK_OUT2,
-    I   => clkout1);
-
-  clkout3_buf : BUFG
-  port map
-   (O   => CLK_OUT3,
-    I   => clkout2);
-
-end xilinx;
+    LOCKED => LOCKED);
+-- INST_TAG_END ------ End INSTANTIATION Template ------------
