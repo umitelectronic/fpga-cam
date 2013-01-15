@@ -92,6 +92,8 @@ architecture Behavioral of mark1_beaglebone_sobel is
 	signal pxclk_from_sobel, href_from_sobel, vsync_from_sobel : std_logic ;
 	signal pixel_from_gauss : std_logic_vector(7 downto 0);
 	signal pxclk_from_gauss, href_from_gauss, vsync_from_gauss : std_logic ;
+	signal pixel_from_hyst : std_logic_vector(7 downto 0);
+	signal pxclk_from_hyst, href_from_hyst, vsync_from_hyst : std_logic ;
 	
 	signal output_pxclk, output_href , output_vsync : std_logic ;
 	signal output_pixel : std_logic_vector(7 downto 0);
@@ -102,6 +104,7 @@ architecture Behavioral of mark1_beaglebone_sobel is
 	signal led_cylon : std_logic_vector(7 downto 0);
 	signal cylon_dir, cylon_clk : std_logic ;
 	for all : sobel3x3 use entity work.sobel3x3(RTL) ;
+	for all : gauss3x3 use entity work.gauss3x3(RTL) ;
 begin
 	
 	resetn <= PB(0) ;
@@ -167,7 +170,7 @@ bus_data_in <= bus_fifo_out when cs_fifo = '1' else
 					(others => '1');
 
 bi_fifo0 : fifo_peripheral 
-		generic map(ADDR_WIDTH => 8,WIDTH => 16, SIZE => 4096)--16384)
+		generic map(ADDR_WIDTH => 8,WIDTH => 16, SIZE => 2048)--16384)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
@@ -199,7 +202,7 @@ bi_fifo0 : fifo_peripheral
 		fifo_data =>fifo_output,
 		
 		-- pixel side 
-		pixel_en => clk_24 ,
+		pixel_clk => clk_24 ,
 		y_data =>  pixel_from_interface , 
  		pixel_clock_out => pxclk_from_interface, 
 		hsync_out => href_from_interface, 
@@ -207,31 +210,44 @@ bi_fifo0 : fifo_peripheral
 	
 	);
 
---gaussian_filter : gauss3x3 
---generic map(WIDTH => 320, HEIGHT => 240)
---port map(
--- 		clk => clk_sys, 
--- 		resetn => sys_resetn ,
--- 		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
--- 		pixel_clock_out => pxclk_from_gauss, hsync_out => href_from_gauss, vsync_out => vsync_from_gauss,
--- 		pixel_data_in => pixel_from_interface,
--- 		pixel_data_out => pixel_from_gauss
---);
+gaussian_filter : gauss3x3 
+generic map(WIDTH => 320, HEIGHT => 240)
+port map(
+ 		clk => clk_sys, 
+ 		resetn => sys_resetn ,
+ 		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+ 		pixel_clock_out => pxclk_from_gauss, hsync_out => href_from_gauss, vsync_out => vsync_from_gauss,
+ 		pixel_data_in => pixel_from_interface,
+ 		pixel_data_out => pixel_from_gauss
+);
 
 sobel_filter : sobel3x3 
 generic map(WIDTH => 320, HEIGHT => 240)
 port map(
  		clk => clk_sys, 
  		resetn => sys_resetn ,
- 		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+ 		pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync => vsync_from_gauss,
  		pixel_clock_out => pxclk_from_sobel, hsync_out => href_from_sobel, vsync_out => vsync_from_sobel,
- 		pixel_data_in => pixel_from_interface,
+ 		pixel_data_in => pixel_from_gauss,
  		pixel_data_out => pixel_from_sobel
 );
-output_pxclk <= pxclk_from_sobel ;
-output_href <= href_from_sobel ;
-output_vsync <= vsync_from_sobel ;
-output_pixel <= pixel_from_sobel ;
+
+hysteresis : hyst_threshold 
+generic map(WIDTH => 320, HEIGHT => 240, LOW_THRESH => 50 , HIGH_THRESH => 90)
+port map(
+ 		clk => clk_sys, 
+ 		resetn => sys_resetn ,
+ 		pixel_clock => pxclk_from_sobel, hsync => href_from_sobel, vsync => vsync_from_sobel,
+ 		pixel_clock_out => pxclk_from_hyst, hsync_out => href_from_hyst, vsync_out => vsync_from_hyst,
+ 		pixel_data_in => pixel_from_sobel,
+ 		pixel_data_out => pixel_from_hyst
+);
+
+
+output_pxclk <= pxclk_from_hyst ;
+output_href <= href_from_hyst ;
+output_vsync <= vsync_from_hyst ;
+output_pixel <= pixel_from_hyst ;
 
 --output_pxclk <= pxclk_from_gauss ;
 --output_href <= href_from_gauss ;
