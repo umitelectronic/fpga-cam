@@ -80,16 +80,15 @@ int main(int argc, char ** argv){
 	gpmc_pointer[5] = 0x00;
 	clock_gettime(CLOCK_REALTIME, &cpu_time);
 	start_time = cpu_time.tv_nsec ;
-	memcpy((void *) gpmc_pointer, (void *) inputImage, 8);
-	for(i = 8 ; i < IMAGE_WIDTH * IMAGE_HEIGHT ; i += 8){
-		memcpy((void *) gpmc_pointer, (void *) &inputImage[i], 8);
-		memcpy((void *) &image_buffer[i-8], (void *) gpmc_pointer, 8);
-		while(gpmc_pointer[6] < 4){
-			//printf("waitin for fifo to fill \n");
-			//usleep(1000);
-		}
-	}
-	memcpy((void*) &image_buffer[i-8], (void*) gpmc_pointer, 8);
+	 for(i = 0 ; i < IMAGE_HEIGHT ; i ++){
+                for(j = 0 ; j < IMAGE_WIDTH ; j +=8){
+                        memcpy((void *) gpmc_pointer, (void *) &inputImage[(i*I$
+                }
+                while(gpmc_pointer[6] < ((IMAGE_WIDTH/2)-1));
+                for(j = 0 ; j < IMAGE_WIDTH ; j +=8){
+                        memcpy((void *) &image_buffer[(i*IMAGE_WIDTH)+j], (void$
+                }
+        }
 	clock_gettime(CLOCK_REALTIME, &cpu_time);
 	end_time = cpu_time.tv_nsec ;
 	diff_time = end_time - start_time ;
