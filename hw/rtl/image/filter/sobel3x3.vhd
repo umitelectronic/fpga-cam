@@ -227,7 +227,7 @@ begin
 		
 		pixel_clock_en <= pixel_clock and (not hsync) ;
 		delay_sync: generic_delay
-		generic map( WIDTH =>  3 , DELAY => 4)
+		generic map( WIDTH =>  3 , DELAY => 5)
 		port map(
 			clk => clk, resetn => resetn ,
 			input(0) => hsync ,

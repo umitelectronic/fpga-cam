@@ -121,7 +121,7 @@ architecture RTL of gauss3x3 is
 	signal block3x3_sig : matNM(0 to 2, 0 to 2) ;
 	signal new_block, pxclk_state : std_logic ;
 	signal pixel_clock_old, hsync_old, new_conv_old, pixel_clock_en : std_logic ;
-	type mat33_16s is array (0 to 1,0 to 2) of signed(15 downto 0);
+	type mat33_16s is array (0 to 2,0 to 2) of signed(15 downto 0);
 	type vec3_16s is array (0 to 2) of signed(15 downto 0);
 	
 	signal mult_scal : mat33_16s ;
@@ -150,9 +150,9 @@ begin
 		mult_scal(2, 1) <= SHIFT_LEFT(resize(block3x3_sig(2,1), 16),1);
 		mult_scal(2, 2) <= resize(block3x3_sig(2,2), 16);
 				
-		add_vec(0) <= y_mult_scal(0, 0) + y_mult_scal(1, 0) + y_mult_scal(2, 0) ;
-		add_vec(1) <=  y_mult_scal(0, 1) + y_mult_scal(1, 1) + y_mult_scal(2, 1) ;
-		add_vec(2) <=  y_mult_scal(0, 2) + y_mult_scal(1, 2) + y_mult_scal(2, 2) ;
+		add_vec(0) <= mult_scal(0, 0) + mult_scal(1, 0) + mult_scal(2, 0) ;
+		add_vec(1) <=  mult_scal(0, 1) + mult_scal(1, 1) + mult_scal(2, 1) ;
+		add_vec(2) <=  mult_scal(0, 2) + mult_scal(1, 2) + mult_scal(2, 2) ;
 		
 		process(clk, resetn)
 		begin
@@ -161,9 +161,9 @@ begin
 				sum_step(1)<= (others => '0') ;
 				sum_step(2)<= (others => '0') ;
 			elsif clk'event and clk = '1' then
-				sum_y_step(0) <= add_vec(0) ;
-				sum_y_step(1) <= sum_step(0) + add_vec(1) ;
-				sum_y_step(2) <= sum_step(1) + add_vec(2) ;
+				sum_step(0) <= add_vec(0) ;
+				sum_step(1) <= sum_step(0) + add_vec(1) ;
+				sum_step(2) <= sum_step(1) + add_vec(2) ;
 			end if ;
 		end process;
 	
@@ -185,7 +185,7 @@ begin
 			if resetn = '0' then
 				pixel_from_conv_latched <= (others => '0') ;
 			elsif clk'event and clk = '1' then
-				pixel_from_conv_latched <= sum_y_step(2) ;
+				pixel_from_conv_latched <= sum_step(2) ;
 			end if ;
 		end process ;
 		

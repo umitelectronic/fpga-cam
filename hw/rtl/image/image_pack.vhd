@@ -258,7 +258,7 @@ component fifo2pixel is
 		fifo_data : in std_logic_vector(15 downto 0);
 		
 		-- pixel side 
-		pixel_en : in std_logic ;
+		pixel_clk : in std_logic ;
 		y_data : out std_logic_vector(7 downto 0 );  
  		pixel_clock_out, hsync_out, vsync_out : out std_logic
 	
