@@ -29,6 +29,10 @@
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_CMD" xil_pn:name="isim.cmd"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_LOG" xil_pn:name="isim.log"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="logibone_sobel.bgn" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="logibone_sobel.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="logibone_sobel.bld"/>
@@ -65,16 +69,136 @@
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="logibone_sobel_par.xrpt"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="logibone_sobel_summary.html"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="logibone_sobel_summary.xml"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="logibone_sobel_testbench_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="logibone_sobel_testbench_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="logibone_sobel_testbench_isim_beh.wdb"/>
     <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="logibone_sobel_usage.xml"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="logibone_sobel_xst.xrpt"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_INI" xil_pn:name="xilinxsim.ini"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
+    <transform xil_pn:end_ts="1358258493" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1358258493">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1358264550" xil_pn:in_ck="5887127692032894689" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1358264550">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputAdded"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/conv3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/fifo2pixel.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/gauss3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/matNxM_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/MAC16.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="logibone_sobel.vhd"/>
+      <outfile xil_pn:name="logibone_sobel_testbench.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1358258493" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="-5248517683886711368" xil_pn:start_ts="1358258493">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1358258493" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-573825666000788938" xil_pn:start_ts="1358258493">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1358258493" xil_pn:in_ck="2088049057168484748" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="8903568316895494323" xil_pn:start_ts="1358258493">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1358264550" xil_pn:in_ck="5887127692032894689" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1358264550">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/conv3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/fifo2pixel.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/gauss3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/matNxM_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/MAC16.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="logibone_sobel.vhd"/>
+      <outfile xil_pn:name="logibone_sobel_testbench.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1358264558" xil_pn:in_ck="-542437707561104055" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-4355779243961290032" xil_pn:start_ts="1358264550">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="fuse.log"/>
+      <outfile xil_pn:name="isim"/>
+      <outfile xil_pn:name="logibone_sobel_testbench_beh.prj"/>
+      <outfile xil_pn:name="logibone_sobel_testbench_isim_beh.exe"/>
+      <outfile xil_pn:name="xilinxsim.ini"/>
+    </transform>
+    <transform xil_pn:end_ts="1358264686" xil_pn:in_ck="-173418415125766799" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="-5293745137500706531" xil_pn:start_ts="1358264685">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="isim.cmd"/>
+      <outfile xil_pn:name="isim.log"/>
+      <outfile xil_pn:name="logibone_sobel_testbench_isim_beh.wdb"/>
+    </transform>
     <transform xil_pn:end_ts="1358087531" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="3088491435625677956" xil_pn:start_ts="1358087531">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -101,14 +225,11 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358090005" xil_pn:in_ck="8022956769048916975" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="8674436096669834828" xil_pn:start_ts="1358089997">
+    <transform xil_pn:end_ts="1358270162" xil_pn:in_ck="3722643101991389650" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="8674436096669834828" xil_pn:start_ts="1358270150">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputAdded"/>
-      <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.lso"/>
@@ -118,29 +239,27 @@
       <outfile xil_pn:name="logibone_sobel.stx"/>
       <outfile xil_pn:name="logibone_sobel.syr"/>
       <outfile xil_pn:name="logibone_sobel.xst"/>
+      <outfile xil_pn:name="logibone_sobel_testbench_beh.prj"/>
       <outfile xil_pn:name="logibone_sobel_xst.xrpt"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
       <outfile xil_pn:name="xst"/>
     </transform>
-    <transform xil_pn:end_ts="1358087536" xil_pn:in_ck="-8738972537252267729" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="285014893917798651" xil_pn:start_ts="1358087536">
+    <transform xil_pn:end_ts="1358260268" xil_pn:in_ck="-8738972537252267729" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="285014893917798651" xil_pn:start_ts="1358260268">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358090010" xil_pn:in_ck="5858348203547914648" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-5918313909893007138" xil_pn:start_ts="1358090005">
+    <transform xil_pn:end_ts="1358270168" xil_pn:in_ck="5858348203547914648" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-5918313909893007138" xil_pn:start_ts="1358270162">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.bld"/>
       <outfile xil_pn:name="logibone_sobel.ngd"/>
       <outfile xil_pn:name="logibone_sobel_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1358090031" xil_pn:in_ck="9039124174737496025" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1358090010">
+    <transform xil_pn:end_ts="1358270186" xil_pn:in_ck="9039124174737496025" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1358270168">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
@@ -153,11 +272,10 @@
       <outfile xil_pn:name="logibone_sobel_summary.xml"/>
       <outfile xil_pn:name="logibone_sobel_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1358090084" xil_pn:in_ck="5039608108253928114" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1358090031">
+    <transform xil_pn:end_ts="1358270202" xil_pn:in_ck="5039608108253928114" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1358270186">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.ncd"/>
       <outfile xil_pn:name="logibone_sobel.pad"/>
@@ -169,10 +287,10 @@
       <outfile xil_pn:name="logibone_sobel_pad.txt"/>
       <outfile xil_pn:name="logibone_sobel_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1358090133" xil_pn:in_ck="-1859935212026323578" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1358090084">
+    <transform xil_pn:end_ts="1358270212" xil_pn:in_ck="-1859935212026323578" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1358270202">
       <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.bgn"/>
       <outfile xil_pn:name="logibone_sobel.bit"/>
@@ -182,10 +300,15 @@
       <outfile xil_pn:name="webtalk.log"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1358090084" xil_pn:in_ck="-4994934400677110187" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1358090079">
+    <transform xil_pn:end_ts="1358267304" xil_pn:in_ck="-1859935212026336432" xil_pn:name="TRAN_configureTargetDevice" xil_pn:prop_ck="8482462020707587906" xil_pn:start_ts="1358267303">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="InputChanged"/>
+    </transform>
+    <transform xil_pn:end_ts="1358270202" xil_pn:in_ck="-4994934400677110187" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1358270197">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.twr"/>
       <outfile xil_pn:name="logibone_sobel.twx"/>
