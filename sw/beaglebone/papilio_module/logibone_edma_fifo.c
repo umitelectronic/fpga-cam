@@ -19,31 +19,6 @@
 #include "hw_gpmc.h"
 #include "soc_AM335x.h"
 
-/*
-#define CS_ON	0
-#define CS_OFF	7
-#define ADV_ON	0
-#define ADV_OFF	2
-#define WR_CYC	7
-#define WR_ON	3
-#define WR_OFF ((CS_ON + CS_OFF)-WR_ON)
-#define RD_CYC	7
-#define OE_ON	3
-#define OE_OFF ((CS_ON + CS_OFF)-OE_ON)
-#define RD_ACC_TIME 6
-#define WRDATAONADMUX 3  //number of cycle before taking control of data bus (when add/data multiplexing)
-
-
-//       <--7-->
-//CS1	\_______/
-//	<-2>_____
-//ADV	\__/
-//	____ <-4->
-//WR	     \___/
-//	____ <-4->
-//WR	     \___/
-*/
-// following settings were also tested and proved to work (faster)
 
 #define CS_ON	0
 #define CS_OFF	5
@@ -88,14 +63,14 @@
 //writing to fifo A reading from fifo B
 
 #define FPGA_BASE_ADDR	 0x09000000
+#define FIFO_BASE_ADDR	 0x09000000
 #define FIFO_SIZE_OFFSET	4
-#define NB_AVAILABLE_A_OFFSET	5
-#define NB_AVAILABLE_B_OFFSET	6
-#define PEEK_OFFSET	7
-#define READ_OFFSET	0
-#define WRITE_OFFSET	0
-
-#define ACCESS_SIZE	4  // fifo read write register is on 2 bits address space to allow 4 word burst
+#define FIFO_NB_AVAILABLE_A_OFFSET	5
+#define FIFO_NB_AVAILABLE_B_OFFSET	6
+#define FIFO_PEEK_OFFSET	7
+#define FIFO_READ_OFFSET	0
+#define FIFO_WRITE_OFFSET	0
+#define FIFO_BLOCK_SIZE	1024 
 
 
 
@@ -107,13 +82,14 @@ unsigned char nbDevices  = 1 ;
 volatile unsigned short * gpmc_cs1_pointer ;
 volatile unsigned short * gpmc_cs1_virt ;
 
-
+int dma_ch ;
 dma_addr_t dmaphysbuf = 0;
 dma_addr_t dmapGpmcbuf = 0x09000000;
 static volatile int irqraised1 = 0;
 
 unsigned char * readBuffer ;
-unsigned char * readBuffer ;
+unsigned char * writeBuffer ;
+
 
 #define BUFFER_SIZE 2048 
 
@@ -276,50 +252,61 @@ int LOGIBONE_fifo_release(struct inode *inode, struct file *filp)
 
 unsigned short int getNbAvailable(void){
 	//printk("getting nb available \n");
-	return gpmc_cs1_virt[NB_AVAILABLE_B_OFFSET] ;  
+	return gpmc_cs1_virt[FIFO_NB_AVAILABLE_B_OFFSET] ;  
 }
 
 unsigned short int getNbFree(void){
 	//printk("getting nb free \n");
 	fifo_size = gpmc_cs1_virt[FIFO_SIZE_OFFSET] ;
-	return fifo_size - gpmc_cs1_virt[NB_AVAILABLE_A_OFFSET] ;
+	return fifo_size - gpmc_cs1_virt[FIFO_NB_AVAILABLE_A_OFFSET] ;
 }
 
 ssize_t LOGIBONE_fifo_write(struct file *filp, const char *buf, size_t count,
                        loff_t *f_pos)
 {
-	unsigned short int * writeBuffer ;
-	unsigned short int nbFree ;
+	unsigned short int transfer_size  ;
+	ssize_t transferred = 0 ;
 	unsigned long src_addr, trgt_addr ;
 	unsigned int ret = 0;
-	//printk("writing to fifo \n");
-	writeBuffer =  (unsigned short int *) dma_alloc_coherent (NULL, count,
-					&dmaphysbuf, 0);
+	if(count%2 != 0){
+		 printk("%s: LOGIBONE_fifo write: Transfer must be 16bits aligned.\n",gDrvrName);
+		 return -1;
+	}
+	if(count < FIFO_BLOCK_SIZE){
+		transfer_size = count ;
+	}else{
+		transfer_size = FIFO_BLOCK_SIZE ;
+	}
+	writeBuffer =  (unsigned char *) dma_alloc_coherent (NULL, count, &dmaphysbuf, 0);
 	trgt_addr = (unsigned long) gpmc_cs1_pointer ;
 	src_addr = (unsigned long) writeBuffer ;
 	// Now it is safe to copy the data from user space.
 	if (writeBuffer == NULL || copy_from_user(writeBuffer, buf, count) )  {
 		ret = -1;
-		printk("%s: LOGIBONE_fifo write: Failed copy to user.\n",gDrvrName);
+		printk("%s: LOGIBONE_fifo write: Failed copy from user.\n",gDrvrName);
 		goto exit;
 	}
 	if(read_mode == fifo){
-		nbFree = getNbFree();
-
-		if(nbFree == 0){
-			ret = -1 ; 
-			printk("No room to write in fifo \n");
-			goto exit;   
+		while(transferred < count){
+			while(getNbFree()*2 < transfer_size) schedule() ; 
+			if(edma_memtomemcpy(transfer_size, src_addr , trgt_addr, 0, INCR) < 0){
+				printk("%s: LOGIBONE_fifo write: Failed to trigger EDMA transfer.\n",gDrvrName);		
+				ret = -1 ;			
+				goto exit;		
+			}
+			src_addr += transfer_size ;
+			transferred += transfer_size ;
+			if((count - transferred) < FIFO_BLOCK_SIZE){
+				transfer_size = count - transferred ;
+			}else{
+				transfer_size = FIFO_BLOCK_SIZE ;
+			}
 		}
-		//printk("%d data slots are free to write \n", nbFree);
-		if(edma_memtomemcpy(nbFree, src_addr, trgt_addr, 0, INCR) < 0){
-			printk("%s: LOGIBONE_fifo write: Failed to trigger EDMA transfer.\n",gDrvrName);
-		goto exit;		
-		}
-		ret = nbFree;
+		ret = transferred;
 	}else{
 		if(edma_memtomemcpy(count, src_addr, trgt_addr, 0, INCR) < 0){
 			printk("%s: LOGIBONE_fifo write: Failed to trigger EDMA transfer.\n",gDrvrName);
+			ret = -1 ;
 			goto exit;		
 		}
 		ret = count ;
@@ -331,49 +318,50 @@ ssize_t LOGIBONE_fifo_write(struct file *filp, const char *buf, size_t count,
 }
 
 
-#define BURST_SIZE 4
-#define MIN_TRANSFER 1024
 ssize_t LOGIBONE_fifo_read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
-	unsigned short int * readBuffer ;
+	unsigned short int transfer_size ;
+	ssize_t transferred = 0 ;
 	unsigned long src_addr, trgt_addr ;
-	int nbAvailable ;
-	int nbToRead, index = 0; 
 	int ret = 0 ;
-	nbToRead = count/sizeof(unsigned short) ;
-	readBuffer = (unsigned short int *) dma_alloc_coherent (NULL, count,
-					&dmaphysbuf, 0);
+	if(count%2 != 0){
+		 printk("%s: LOGIBONE_fifo read: Transfer must be 16bits aligned.\n",gDrvrName);
+		 return -1 ;
+	}
+	if(count < FIFO_BLOCK_SIZE){
+		transfer_size = count ;
+	}else{
+		transfer_size = FIFO_BLOCK_SIZE ;
+	}
+	readBuffer = (unsigned char *) dma_alloc_coherent (NULL, count, &dmaphysbuf, 0);
 	src_addr = (unsigned long) gpmc_cs1_pointer ;
 	trgt_addr = (unsigned long) readBuffer ;
+	
 	if(read_mode == fifo){		
-		while(index < (count/sizeof(unsigned short))){
-			nbAvailable = getNbAvailable() ;
-			while(nbAvailable < MIN_TRANSFER && nbAvailable > fifo_size){			
-				if(nbAvailable >= fifo_size){
-					printk("error while reading nb available : %d \n", nbAvailable);			
-				}				
-				nbAvailable = getNbAvailable() ;
-			}
-			if(nbAvailable > (count/sizeof(unsigned short)) - index){
-				nbAvailable =  ((count/sizeof(unsigned short)) - index) ;			
-			} 
-
-			if(edma_memtomemcpy(nbAvailable*sizeof(unsigned short), src_addr, trgt_addr, 0, INCR) < 0){
+		while(transferred < count){
+			while(getNbAvailable()*2 < transfer_size) schedule() ; 
+			if(edma_memtomemcpy(transfer_size, src_addr, trgt_addr, 0, INCR) < 0){
 				printk("%s: LOGIBONE_fifo read: Failed to trigger EDMA transfer.\n",gDrvrName);
 				goto exit ;
 			}
-			index += nbAvailable ;
+			trgt_addr += transfer_size ;
+			transferred += transfer_size ;
+			if((count - transferred) < FIFO_BLOCK_SIZE){
+				transfer_size = (count - transferred) ;
+			}else{
+				transfer_size = FIFO_BLOCK_SIZE ;
+			}
 		}		
 		dma_free_coherent(NULL,  count, readBuffer,
 				dmaphysbuf);
 		// Now it is safe to copy the data to user space.
-		if (index == 0 || copy_to_user(buf, readBuffer, (index * sizeof(unsigned short))) )  {
+		if (copy_to_user(buf, readBuffer, transferred) )  {
 			ret = -1;
 			goto exit;
 		}
 
 		
-		ret = index * sizeof(unsigned short) ;
+		ret =transferred ;
 	}else{
 		if(edma_memtomemcpy(count,src_addr, trgt_addr, 0, INCR) < 0){
 			printk("%s: LOGIBONE_fifo read: Failed to trigger EDMA transfer.\n",gDrvrName);
@@ -397,12 +385,12 @@ long LOGIBONE_fifo_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	switch(cmd){
 		case LOGIBONE_FIFO_RESET :
 			printk("fifo ioctl : reset \n");
-			gpmc_cs1_virt[NB_AVAILABLE_A_OFFSET] = 0 ;
-			gpmc_cs1_virt[NB_AVAILABLE_B_OFFSET] = 0 ;
+			gpmc_cs1_virt[FIFO_NB_AVAILABLE_A_OFFSET] = 0 ;
+			gpmc_cs1_virt[FIFO_NB_AVAILABLE_B_OFFSET] = 0 ;
 			return 0 ;
 		case LOGIBONE_FIFO_PEEK :
 			printk("fifo ioctl : peek \n");
-			return  gpmc_cs1_virt[PEEK_OFFSET] ;
+			return  gpmc_cs1_virt[FIFO_PEEK_OFFSET] ;
 		case LOGIBONE_FIFO_NB_FREE :
 			printk("fifo ioctl : free \n");
 			return getNbFree() ;
@@ -493,7 +481,6 @@ int edma_memtomemcpy(int count, unsigned long src_addr, unsigned long trgt_addr,
 	struct edmacc_param param_set;
 
 	result = edma_alloc_channel (EDMA_CHANNEL_ANY, dma_callback, NULL, event_queue);
-	//result = edma_alloc_channel (AM33XX_DMA_GPM, dma_callback, NULL, event_queue);
 	if (result < 0) {
 		printk ("\nedma3_memtomemcpytest_dma::edma_alloc_channel failed for dma_ch, error:%d\n", result);
 		return result;
