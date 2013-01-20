@@ -487,8 +487,19 @@ int edma_memtomemcpy(int count, unsigned long src_addr, unsigned long trgt_addr,
 	}
 
 	dma_ch = result;
-	edma_set_src (dma_ch, src_addr, mode, W64BIT);
-	edma_set_dest (dma_ch, trgt_addr, mode, W64BIT);
+	if(count % 16 == 0){
+		edma_set_src (dma_ch, src_addr, mode, W128BIT);
+		edma_set_dest (dma_ch, trgt_addr, mode, W128BIT);
+	}else if(count % 8 == 0){
+		edma_set_src (dma_ch, src_addr, mode, W64BIT);
+		edma_set_dest (dma_ch, trgt_addr, mode, W64BIT);
+	}else if(count % 4 == 0){
+		edma_set_src (dma_ch, src_addr, mode, W32BIT);
+		edma_set_dest (dma_ch, trgt_addr, mode, W32BIT);
+	}else{
+		edma_set_src (dma_ch, src_addr, mode, W16BIT);
+		edma_set_dest (dma_ch, trgt_addr, mode, W16BIT);
+	}
 	edma_set_src_index (dma_ch, 0, 0); // always copy from same location
 	edma_set_dest_index (dma_ch, count, count); // increase by transfer size on each copy
 	/* A Sync Transfer Mode */
