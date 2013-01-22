@@ -162,7 +162,7 @@ begin
 		delay_sync: generic_delay
 		generic map( WIDTH =>  2 , DELAY => 5)
 		port map(
-			clk => (not pixel_clock), resetn => resetn ,
+			clk => (pixel_clock), resetn => resetn ,
 			input(0) => hsync ,
 			input(1) => vsync ,
 			output(0) => hsync_out ,

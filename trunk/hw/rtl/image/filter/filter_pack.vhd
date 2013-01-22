@@ -61,6 +61,19 @@ port(
 );
 end component;
 
+component gauss3x3_pixel_pipeline is
+generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
+port(
+ 		resetn : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+ 		pixel_data_out : out std_logic_vector(7 downto 0 )
+
+);
+end component ;
+
 component sobel3x3 is
 generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480);
@@ -102,6 +115,20 @@ port(
  		pixel_data_out : out std_logic_vector(7 downto 0 )
 );
 end component;
+
+component hyst_threshold_pixel_pipeline is
+generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480; LOW_THRESH: positive := 100 ; HIGH_THRESH: positive := 180);
+port(
+ 		resetn : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+ 		pixel_data_out : out std_logic_vector(7 downto 0 )
+);
+end component;
+
+
 
 end filter_pack;
 
