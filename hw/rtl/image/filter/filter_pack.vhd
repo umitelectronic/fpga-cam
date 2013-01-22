@@ -76,6 +76,20 @@ port(
 );
 end component;
 
+component sobel3x3_pixel_pipeline is
+generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
+port(
+ 		resetn : in std_logic; 
+ 		pixel_clock, hsync, vsync : in std_logic; 
+ 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
+ 		pixel_data_in : in std_logic_vector(7 downto 0 ); 
+ 		pixel_data_out : out std_logic_vector(7 downto 0 );
+		x_grad	:	out signed(7 downto 0);
+		y_grad	:	out signed(7 downto 0)
+);
+end component;
+
 component hyst_threshold is
 generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480; LOW_THRESH: positive := 100 ; HIGH_THRESH: positive := 180);

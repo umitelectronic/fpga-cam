@@ -13,7 +13,7 @@ use IEEE.STD_LOGIC_1164.all;
 package peripheral_pack is
 
 component fifo_peripheral is
-generic(ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128);
+generic(ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128 ; BURST_SIZE : positive := 4);
 port(
 	clk, resetn : in std_logic ;
 	addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);

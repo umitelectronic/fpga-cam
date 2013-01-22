@@ -6,7 +6,8 @@
   USE ieee.std_logic_unsigned.ALL;
   
   LIBRARY work ;
-  use work.camera.all ;
+  use work.image_pack.all ;
+   use work.filter_pack.all ;
 
   ENTITY testbench IS
   END testbench;
@@ -24,11 +25,9 @@
 			signal new_block : std_logic ;
 			--signal block_out :  mat3 ;
 			signal block_out : matNM(0 to 2, 0 to 2) ;
-			signal pixel : std_logic_vector(7 downto 0 ) := (others => '0');
+			signal pixel, pixel_out: std_logic_vector(7 downto 0 ) := (others => '0');
 
   BEGIN
-
-    -- Component Instantiation
 --         block3X3v3_0 :  block3X3_pixel_pipeline 
 --				port map(
 --						resetn => resetn, 
@@ -42,17 +41,30 @@
 --						block_out => block_out
 --				);
 				
-			  block3X3v3_0 :  block3X3
+			sobel0 : sobel3x3_pixel_pipeline
 				port map(
-						clk => clk ,
-						resetn => resetn, 
-						pixel_clock => pxclk, 
-						hsync => hsync, 
-						vsync => vsync,
-						pixel_data_in => pixel, 
-						new_block => new_block ,
-						block_out => block_out
+										resetn => resetn, 
+										pixel_clock => pxclk, 
+										hsync => hsync, 
+										vsync => vsync,
+										pixel_data_in => pixel, 
+										pixel_clock_out => pxclk_out, 
+										hsync_out => hsync_out, 
+										vsync_out => vsync_out,
+										pixel_data_out => pixel_out
 				);
+								
+--			  block3X3v3_0 :  block3X3
+--				port map(
+--						clk => clk ,
+--						resetn => resetn, 
+--						pixel_clock => pxclk, 
+--						hsync => hsync, 
+--						vsync => vsync,
+--						pixel_data_in => pixel, 
+--						new_block => new_block ,
+--						block_out => block_out
+--				);
 				
 --				block3X3v3_0 :  blockNxN
 --				generic map (N => 5)

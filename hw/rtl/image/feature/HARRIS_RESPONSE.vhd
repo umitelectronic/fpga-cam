@@ -32,8 +32,8 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 library work ;
-use work.camera.all ;
-use work.generic_components.all ;
+use work.utils_pack.all ;
+use work.image_pack.all ;
 
 entity HARRIS_RESPONSE is
 	port(

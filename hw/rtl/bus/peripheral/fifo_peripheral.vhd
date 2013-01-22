@@ -30,9 +30,10 @@ use work.bus_pack.all ;
 --! fifo B can be written from logic and read from bus
 --! fifo A can be written from bus and read from logic
 entity fifo_peripheral is
-generic(ADDR_WIDTH : positive := 8; --! width of the address bus
+generic(ADDR_WIDTH : positive := 16; --! width of the address bus
 			WIDTH	: positive := 16; --! width of the data bus
-			SIZE	: positive	:= 128 --! fifo depth
+			SIZE	: positive	:= 128; --! fifo depth
+			BURST_SIZE : positive := 4
 			); 
 port(
 	clk, resetn : in std_logic ; --! system clock and asynchronous reset
@@ -51,7 +52,7 @@ end fifo_peripheral;
 
 architecture RTL of fifo_peripheral is
 signal  fifoA_wr, fifoB_rd, bus_cs, srazA, srazB : std_logic ;
-signal in_addr	:	std_logic_vector(2 downto 0);
+signal in_addr	:	std_logic_vector(nbit(BURST_SIZE) downto 0);
 signal fifoA_in,  fifoB_out : std_logic_vector((WIDTH - 1) downto 0 ); 
 signal nb_availableA, nb_availableB  :  unsigned((WIDTH - 1) downto 0 ); 
 signal nb_availableA_latched, nb_availableB_latched : std_logic_vector((WIDTH - 1) downto 0  );
@@ -60,7 +61,7 @@ signal latch_registers : std_logic ;
 begin
 
 bus_cs <= cs_bus ;
-in_addr <= addr_bus(2 downto 0 );
+in_addr <= addr_bus(nbit(BURST_SIZE) downto 0 );
 
 fifo_A : dp_fifo -- write from bus, read from logic
 	generic map(N => SIZE , W => WIDTH)
@@ -113,27 +114,27 @@ nb_availableB((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 nb_availableA((WIDTH - 1) downto (nbit(SIZE) + 1)) <= (others => '0') ;
 
 
-data_bus_out_t <= fifoB_out when in_addr(2) = '0'  else --fifo has 3 bits address space
-				std_logic_vector(to_unsigned(SIZE, 16)) when in_addr(2 downto 0) = "100" else
-				( nb_availableA_latched) when in_addr(2 downto 0) = "101" else
-				( nb_availableB_latched) when in_addr(2 downto 0) = "110"  else
-				fifoB_out when in_addr(2 downto 0) = "111" else -- peek !
+data_bus_out_t <= fifoB_out when in_addr(nbit(BURST_SIZE)) = '0'  else --fifo has nbit(BURST_SIZE) bits address space
+				std_logic_vector(to_unsigned(SIZE, 16)) when in_addr(nbit(BURST_SIZE)) = '1' and in_addr(1 downto 0)= "00" else
+				( nb_availableA_latched) when in_addr(nbit(BURST_SIZE)) = '1' and in_addr(1 downto 0)= "01" else
+				( nb_availableB_latched) when in_addr(nbit(BURST_SIZE)) = '1' and in_addr(1 downto 0)= "10"  else
+				fifoB_out when in_addr(nbit(BURST_SIZE)) = '1' and in_addr(1 downto 0)= "11" else -- peek !
 				(others => '0');
 
 data_bus_out <= data_bus_out_t when bus_cs = '1' else
 					(others => 'Z');
 
 
-fifoB_rd <= '1' when in_addr(2) = '0' and bus_cs = '1' and rd_bus = '1' else
+fifoB_rd <= '1' when in_addr(nbit(BURST_SIZE)) = '0' and bus_cs = '1' and rd_bus = '1' else
 				'0' ;
 				
-fifoA_wr <= '1' when in_addr(2) = '0' and bus_cs = '1' and wr_bus = '1' else
+fifoA_wr <= '1' when in_addr(nbit(BURST_SIZE)) = '0' and bus_cs = '1' and wr_bus = '1' else
 				'0' ;
 	
-srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(2 downto 0) = "101" else
+srazA <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(nbit(BURST_SIZE)) = '1' and in_addr(1 downto 0) = "01" else
 			'0' ;
 
-srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(2 downto 0) = "110" else
+srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(nbit(BURST_SIZE)) = '1' and in_addr(1 downto 0) = "10" else
 			'0' ;
 				
 fifoA_in <= data_bus_in ;

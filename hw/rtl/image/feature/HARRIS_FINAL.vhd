@@ -32,9 +32,10 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 library work ;
-use work.camera.all ;
-use work.generic_components.all ;
-use work.harris_pack.all ;
+use work.image_pack.all ;
+use work.filter_pack.all ;
+use work.utils_pack.all ;
+use work.feature_pack.all ;
 
 
 entity HARRIS_FINAL is
@@ -80,6 +81,9 @@ architecture Behavioral of HARRIS_FINAL is
 
 	
 	signal hsync_delayed, vsync_delayed : std_logic ;
+	
+	for all : sobel3x3 use entity work.sobel3x3(RTL) ;
+	for all : gauss3x3 use entity work.gauss3x3(RTL) ;
 	
 begin
 
@@ -131,7 +135,7 @@ begin
 	ygrad_square <= ygrad * ygrad ;
 	xygrad <= xgrad * ygrad ;
 	
-	gen_square_acc:  HARRIS_LINE_ACC 
+	gen_square_acc:  HARRIS_LINE_ACC_SMALL
 		generic map(NB_LINE => (WINDOW_SIZE - 1), WIDTH => 320) 
 		port map(clk => clk, resetn => resetn,
 		  rewind_acc => href_from_sobel,

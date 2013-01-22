@@ -9,8 +9,18 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.all;
+
+
+library work;
+use work.utils_pack.all;
 
 package feature_pack is
+
+type linear_coord_duplet is array (0 to 1) of integer ;
+type brief_pattern is array (natural range<>) of linear_coord_duplet ;
+type vec_16s is array(natural range<>) of signed(15 downto 0);
+
 
 component BRIEF is
 generic(WIDTH: natural := 640;

@@ -221,7 +221,7 @@ component block3X3_pixel_pipeline is
 			pixel_clock, hsync, vsync : in std_logic;
 			pixel_clock_out, hsync_out, vsync_out : out std_logic;
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
-			block_out : out mat3);
+			block_out : out matNM(0 to 2, 0 to 2));
 end component;
 
 component block3X3 is

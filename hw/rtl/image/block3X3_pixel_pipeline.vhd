@@ -23,8 +23,9 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library WORK ;
-use WORK.CAMERA.ALL ;
-use WORK.GENERIC_COMPONENTS.ALL ;
+use WORK.image_pack.ALL ;
+use WORK.utils_pack.ALL ;
+use WORK.primitive_pack.ALL ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -43,24 +44,19 @@ entity block3X3_pixel_pipeline is
 			pixel_clock, hsync, vsync : in std_logic;
 			pixel_clock_out, hsync_out, vsync_out : out std_logic;
 			pixel_data_in : in std_logic_vector(7 downto 0 ); 
-			block_out : out mat3);
+			block_out : out matNM(0 to 2, 0 to 2));
 end block3X3_pixel_pipeline;
 
 architecture Behavioral of block3X3_pixel_pipeline is
-
-type std_row3 is array (0 to 2) of std_logic_vector(8 downto 0);
-type std_mat3 is array (0 to 2) of std_row3;
-
+type std_mat3 is array (0 to 2, 0 to 2) of std_logic_vector(8 downto 0);
+type std_vec3 is array (0 to 2) of std_logic_vector(8 downto 0);
 
 
-
-signal block3x3 : mat3 := (((others => '0'), (others => '0'), (others => '0')), 
-									((others => '0'), (others => '0'), (others => '0')), 
-									((others => '0'), (others => '0'), (others => '0')));
+signal block3x3 :  matNM(0 to 2, 0 to 2) ;
 
 signal std_block3x3	: std_mat3 ;					
 
-signal line_wr, nclk: std_logic ;
+signal line_wr: std_logic ;
 
 
 signal LINE0_INPUT, LINE0_OUTPUT, LINE1_INPUT, LINE1_OUTPUT : std_logic_vector(7 downto 0) := X"00";
@@ -74,18 +70,16 @@ signal enable_line0_latches, enable_line1_latches : std_logic ;
 
 signal nb_line : std_logic_vector((nbit(HEIGHT) - 1) downto 0) := (others => '0');
 signal pixel_counterq, pixel_counterq_m : std_logic_vector((nbit(WIDTH) - 1) downto 0) := (others => '0');
- 
+signal hsync_delayed : std_logic ;
 
 begin
-
-nclk <= NOT pixel_clock ;
 
 
 lines0: dpram_NxN
 	generic map(SIZE => WIDTH + 1 , NBIT => 16, ADDR_WIDTH => nbit(WIDTH))
 	port map(
  		clk => pixel_clock, 
- 		we => NOT hsync ,
+ 		we => NOT hsync_delayed ,
  		spo => OUTPUT_LINES,
 		dpo => 	LINE_BUFFER,
  		di => INPUT_LINES,
@@ -120,7 +114,7 @@ enable_line1_latches <= (NOT hsync) when nb_line > 1 else
 
 convert_cols_std : for C in 0 to 2 generate
 	convert_rows_std : for L in 0 to 2 generate
-		block3x3(L)(C) <= signed(std_block3x3(L)(C))  ;
+		block3x3(L,C) <= signed(std_block3x3(L,C))  ;
 	end generate convert_rows_std; 
 end generate convert_cols_std; 
 
@@ -136,12 +130,12 @@ gen_latches_row : for I in 0 to 2 generate
 							resetn => resetn ,
 							sraz => vsync ,
 							en => NOT hsync,
-							d => std_block3x3(I)(J+1), 
-							q => std_block3x3(I)(J)
+							d => std_block3x3(I,J+1), 
+							q => std_block3x3(I,J)
 						  );
 		end generate left_cols;
 		right_col_0 : if i = 0 and j = 2 generate
-			std_block3x3(0)(2) <= ('0' & LINE0_OUTPUT) ;
+			std_block3x3(0,2) <= ('0' & LINE0_OUTPUT) ;
 --			latch_i_i: generic_latch
 --						  generic map(NBIT => 9)
 --						  port map(
@@ -155,7 +149,7 @@ gen_latches_row : for I in 0 to 2 generate
 		end generate right_col_0;
 		
 		right_col_1 : if i = 1 and j = 2 generate
-			std_block3x3(1)(2) <= ('0' & LINE1_OUTPUT) ;
+			std_block3x3(1,2) <= ('0' & LINE1_OUTPUT) ;
 --			latch_i_i: generic_latch
 --						  generic map(NBIT => 9)
 --						  port map(
@@ -177,7 +171,7 @@ gen_latches_row : for I in 0 to 2 generate
 							sraz => vsync,
 							en => NOT hsync,
 							d => ( '0' & pixel_data_in), 
-							q => std_block3x3(2)(2)
+							q => std_block3x3(2,2)
 						  );
 		end generate right_col_2;
 	end generate gen_latches_col; 
@@ -199,15 +193,15 @@ pixel_counter0: simple_counter
 delay_sync_signals: generic_latch
 			  generic map(NBIT => 2)
 			  port map(
-				clk => pixel_clock ,
+				clk => (not pixel_clock) ,
 				resetn =>resetn ,
 				sraz => '0' ,
 				en => '1',
 				d => hsync & vsync, 
-				q(1) => hsync_out, 
+				q(1) => hsync_delayed, 
 				q(0) => vsync_out
 			  );
-	
+hsync_out <= hsync_delayed ;
 pixel_clock_out <= pixel_clock ;
 	
 line_counter0: simple_counter
@@ -222,26 +216,26 @@ line_counter0: simple_counter
 			Q => nb_line
 			);
 
-block_out(0)(0) <= block3x3(0)(0) when pixel_counterq > 2 and nb_line > 1 else
+block_out(0,0) <= block3x3(0,0) when pixel_counterq > 2 and nb_line > 1 else
 						 (others => '0');
-block_out(0)(1) <= block3x3(0)(1) when pixel_counterq > 1 and nb_line > 1 else
+block_out(0,1) <= block3x3(0,1) when pixel_counterq > 1 and nb_line > 1 else
 						(others => '0');
-block_out(0)(2) <= block3x3(0)(2) when nb_line > 1 else 
+block_out(0,2) <= block3x3(0,2) when nb_line > 1 else 
 						(others => '0');
 						
-block_out(1)(0) <= block3x3(1)(0) when pixel_counterq > 2 and nb_line > 0 else
+block_out(1,0) <= block3x3(1,0) when pixel_counterq > 2 and nb_line > 0 else
 						 (others => '0');
-block_out(1)(1) <= block3x3(1)(1) when pixel_counterq > 1 and nb_line > 0 else
+block_out(1,1) <= block3x3(1,1) when pixel_counterq > 1 and nb_line > 0 else
 						(others => '0');
-block_out(1)(2) <= block3x3(1)(2) when nb_line > 0 else 
+block_out(1,2) <= block3x3(1,2) when nb_line > 0 else 
 						(others => '0');
 
-block_out(2)(0) <= block3x3(2)(0) when pixel_counterq > 2 else
+block_out(2,0) <= block3x3(2,0) when pixel_counterq > 2 else
 						 (others => '0');
-block_out(2)(1) <= block3x3(2)(1) when pixel_counterq > 1  else
+block_out(2,1) <= block3x3(2,1) when pixel_counterq > 1  else
 						(others => '0');
 
-block_out(2)(2) <= block3x3(2)(2) ;
+block_out(2,2) <= block3x3(2,2) ;
 
 end Behavioral;
 
