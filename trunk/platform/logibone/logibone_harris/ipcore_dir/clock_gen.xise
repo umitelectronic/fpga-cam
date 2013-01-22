@@ -56,8 +56,8 @@
     <!--                                                                                  -->
     <property xil_pn:name="PROP_DesignName" xil_pn:value="clock_gen" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_DevFamilyPMName" xil_pn:value="spartan6" xil_pn:valueState="default"/>
-    <property xil_pn:name="PROP_intProjectCreationTimestamp" xil_pn:value="2013-01-16T10:17:57" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="PROP_intWbtProjectID" xil_pn:value="C84253A2D826D6C012C8928A79820C8B" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="PROP_intProjectCreationTimestamp" xil_pn:value="2013-01-22T15:18:54" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="PROP_intWbtProjectID" xil_pn:value="C1421786038DB859D91C6948307665B9" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_intWorkingDirLocWRTProjDir" xil_pn:value="Same" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_intWorkingDirUsed" xil_pn:value="No" xil_pn:valueState="non-default"/>
   </properties>

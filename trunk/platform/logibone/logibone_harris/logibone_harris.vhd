@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 -- Uncomment the following library declaration if using
@@ -31,12 +32,13 @@ use work.peripheral_pack.all ;
 use work.interface_pack.all ;
 use work.filter_pack.all ;
 use work.image_pack.all ;
+use work.feature_pack.all ;
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity logibone_sobel is
+entity logibone_harris is
 port( OSC_FPGA : in std_logic;
 		PB : in std_logic_vector(1 downto 0);
 		LED : out std_logic_vector(1 downto 0);	
@@ -46,9 +48,9 @@ port( OSC_FPGA : in std_logic;
 		GPMC_WEN, GPMC_OEN, GPMC_ADVN, GPMC_CLK, GPMC_BE0N, GPMC_BE1N:	in std_logic;
 		GPMC_AD :	inout std_logic_vector(15 downto 0)	
 );
-end logibone_sobel;
+end logibone_harris;
 
-architecture Behavioral of logibone_sobel is
+architecture Behavioral of logibone_harris is
 
 	COMPONENT clock_gen
 	PORT(
@@ -56,7 +58,6 @@ architecture Behavioral of logibone_sobel is
 		CLK_OUT1 : OUT std_logic;
 		CLK_OUT2 : OUT std_logic;
 		CLK_OUT3 : OUT std_logic;
-		CLK_OUT4 : OUT std_logic;
 		LOCKED : OUT std_logic
 		);
 	END COMPONENT;
@@ -87,12 +88,10 @@ architecture Behavioral of logibone_sobel is
 	
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
-	signal pixel_from_sobel : std_logic_vector(7 downto 0);
-	signal pxclk_from_sobel, href_from_sobel, vsync_from_sobel : std_logic ;
-	signal pixel_from_gauss : std_logic_vector(7 downto 0);
-	signal pxclk_from_gauss, href_from_gauss, vsync_from_gauss : std_logic ;
-	signal pixel_from_hyst : std_logic_vector(7 downto 0);
-	signal pxclk_from_hyst, href_from_hyst, vsync_from_hyst : std_logic ;
+
+	signal pixel_from_harris : std_logic_vector(7 downto 0);
+	signal raw_from_harris : std_logic_vector(15 downto 0);
+	signal pxclk_from_harris, href_from_harris, vsync_from_harris : std_logic ;
 	
 	signal output_pxclk, output_href , output_vsync : std_logic ;
 	signal output_pixel : std_logic_vector(7 downto 0);
@@ -100,8 +99,6 @@ architecture Behavioral of logibone_sobel is
 	signal pixel_buffer : std_logic_vector(15 downto 0);	
 	signal pixel_count :std_logic_vector(7 downto 0);
 	signal write_pixel : std_logic ;
-	for all : sobel3x3 use entity work.sobel3x3(RTL) ;
-	for all : gauss3x3 use entity work.gauss3x3(RTL) ;
 begin
 	
 	resetn <= PB(0) ;
@@ -111,7 +108,6 @@ begin
 		CLK_OUT1 => clk_100,
 		CLK_OUT2 => clk_24,
 		CLK_OUT3 => clk_sys, --120Mhz system clock
-		CLK_OUT4 => clk_48, --120Mhz system clock
 		LOCKED => clk_locked
 	);
 
@@ -195,60 +191,25 @@ bi_fifo0 : fifo_peripheral
 	
 	);
 
-gaussian_filter : gauss3x3 
-generic map(WIDTH => 320, HEIGHT => 240)
+harris0 : HARRIS_FINAL
+generic map(WIDTH => 320, HEIGHT => 240, WINDOW_SIZE => 5, DS_FACTOR => 0)
 port map(
- 		clk => clk_sys, 
- 		resetn => sys_resetn ,
- 		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
- 		pixel_clock_out => pxclk_from_gauss, hsync_out => href_from_gauss, vsync_out => vsync_from_gauss,
+		clk => clk_sys , 
+ 		resetn => sys_resetn,  
+ 		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface, 
+ 		pixel_clock_out => pxclk_from_harris, hsync_out => href_from_harris, vsync_out => vsync_from_harris,
  		pixel_data_in => pixel_from_interface,
- 		pixel_data_out => pixel_from_gauss
+ 		harris_out => raw_from_harris
 );
 
-sobel_filter : sobel3x3 
-generic map(WIDTH => 320, HEIGHT => 240)
-port map(
- 		clk => clk_sys, 
- 		resetn => sys_resetn ,
- 		pixel_clock => pxclk_from_gauss, hsync => href_from_gauss, vsync => vsync_from_gauss,
- 		pixel_clock_out => pxclk_from_sobel, hsync_out => href_from_sobel, vsync_out => vsync_from_sobel,
- 		pixel_data_in => pixel_from_gauss,
- 		pixel_data_out => pixel_from_sobel
-);
+pixel_from_harris <= X"00" when raw_from_harris(15) ='1' else
+							X"FF" when signed(raw_from_harris) > 255 else
+							raw_from_harris(7 downto 0);	
 
-hysteresis : hyst_threshold 
-generic map(WIDTH => 320, HEIGHT => 240, LOW_THRESH => 50 , HIGH_THRESH => 90)
-port map(
- 		clk => clk_sys, 
- 		resetn => sys_resetn ,
- 		pixel_clock => pxclk_from_sobel, hsync => href_from_sobel, vsync => vsync_from_sobel,
- 		pixel_clock_out => pxclk_from_hyst, hsync_out => href_from_hyst, vsync_out => vsync_from_hyst,
- 		pixel_data_in => pixel_from_sobel,
- 		pixel_data_out => pixel_from_hyst
-);
-
-
-output_pxclk <= pxclk_from_hyst ;
-output_href <= href_from_hyst ;
-output_vsync <= vsync_from_hyst ;
-output_pixel <= pixel_from_hyst ;
-
---output_pxclk <= pxclk_from_sobel ;
---output_href <= href_from_sobel ;
---output_vsync <= vsync_from_sobel ;
---output_pixel <= pixel_from_sobel ;
-
---output_pxclk <= pxclk_from_gauss ;
---output_href <= href_from_gauss ;
---output_vsync <= vsync_from_gauss ;
---output_pixel <= pixel_from_gauss ;
-
---output_pxclk <= pxclk_from_interface ;
---output_href <= href_from_interface ;
---output_vsync <= vsync_from_interface ;
---output_pixel <= pixel_from_interface ;
---output_pixel <= X"FF" ;
+output_pxclk <= pxclk_from_harris ;
+output_href <= href_from_harris ;
+output_vsync <= vsync_from_harris ;
+output_pixel <= pixel_from_harris ;
 		
 	process(clk_sys, sys_resetn)
 begin
