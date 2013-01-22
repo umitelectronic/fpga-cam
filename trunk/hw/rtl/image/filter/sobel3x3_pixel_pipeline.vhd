@@ -111,7 +111,7 @@ begin
 			elsif pixel_clock'event and pixel_clock = '1' then
 				pipeline_add_stages_y(0,0) <=  y_add_vec(0) ;
 				pipeline_add_stages_y(0,1) <=  y_add_vec(1) ;
-				pipeline_add_stages_y(0,2) <=  y_add_vec(1) ;
+				pipeline_add_stages_y(0,2) <=  y_add_vec(2) ;
 				
 				pipeline_add_stages_y(1,1) <=  pipeline_add_stages_y(0,0) + pipeline_add_stages_y(0,1);
 				pipeline_add_stages_y(1,2) <=  pipeline_add_stages_y(0,2) ;
@@ -135,7 +135,7 @@ begin
 			elsif pixel_clock'event and pixel_clock = '1' then
 				pipeline_add_stages_x(0,0) <=  x_add_vec(0) ;
 				pipeline_add_stages_x(0,1) <=  x_add_vec(1) ;
-				pipeline_add_stages_x(0,2) <=  x_add_vec(1) ;
+				pipeline_add_stages_x(0,2) <=  x_add_vec(2) ;
 				
 				pipeline_add_stages_x(1,1) <=  pipeline_add_stages_x(0,0) + pipeline_add_stages_x(0,1);
 				pipeline_add_stages_x(1,2) <=  pipeline_add_stages_x(0,2) ;
@@ -162,7 +162,7 @@ begin
 		delay_sync: generic_delay
 		generic map( WIDTH =>  2 , DELAY => 5)
 		port map(
-			clk => (pixel_clock), resetn => resetn ,
+			clk => (not pixel_clock), resetn => resetn ,
 			input(0) => hsync ,
 			input(1) => vsync ,
 			output(0) => hsync_out ,
