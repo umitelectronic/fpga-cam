@@ -64,6 +64,7 @@ signal fifo_data_latched : std_logic_vector(15 downto 0);
 signal vsync_out_falling_edge, vsync_out_old : std_logic ;
 signal fifo_rdq, fifo_rd_old, fifo_rd_rising_edge: std_logic ;
 signal pixel_en : std_logic ;
+signal counter_output : std_logic_vector(3 downto 0) ;
 begin
 
 
@@ -79,6 +80,10 @@ begin
 		--vsync_outq_latched <= vsync_outq ;
 	end if ;
 end process ;
+
+
+
+
 hsync_outq_latched <= hsync_outq ;
 vsync_outq_latched <= vsync_outq ;
 		

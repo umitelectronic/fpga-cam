@@ -31,9 +31,10 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 library work;
-use work.generic_components.all ;
-use work.camera.all ;
-use work.harris_pack.all ;
+use work.utils_pack.all ;
+use work.image_pack.all ;
+use work.primitive_pack.all ;
+use work.feature_pack.all ;
 
 
 entity HARRIS_LINE_ACC_SMALL is
