@@ -160,7 +160,7 @@ begin
 		y_grad <= raw_from_conv2_latched(10 downto 3) ;
 		
 		delay_sync: generic_delay
-		generic map( WIDTH =>  2 , DELAY => 5)
+		generic map( WIDTH =>  2 , DELAY => 4)
 		port map(
 			clk => (pixel_clock), resetn => resetn ,
 			input(0) => hsync ,
