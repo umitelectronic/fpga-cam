@@ -156,6 +156,16 @@ generic(WIDTH: natural := 64; CYCLES : natural := 4);
 			distance : out std_logic_vector(nbit(WIDTH)-1 downto 0 ) );
 end component;
 
+component clock_bridge is
+	generic(SIZE : positive := 1);
+	port(
+			clk_fast, clk_slow, resetn : in std_logic ;
+			clk_slow_out : out std_logic ;
+			data_in : in std_logic_vector(SIZE-1 downto 0);
+			data_out : out std_logic_vector(SIZE-1 downto 0)
+			);
+end component;
+
 end utils_pack;
 
 package body utils_pack is
