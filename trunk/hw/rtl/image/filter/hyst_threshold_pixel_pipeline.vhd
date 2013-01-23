@@ -74,18 +74,15 @@ begin
 								
 								
 		pixel_clock_out <= pixel_clock ;
-		
-		process(pixel_clock, resetn)
-		begin
-			if resetn = '0' then
-				hsync_out <= '0' ;
-				vsync_out <= '0' ;
-			elsif pixel_clock'event and pixel_clock = '1' then
-				hsync_out <= hsync ;
-				vsync_out <= vsync ;
-			end if ;
-		end process;
-		
+		delay_sync: generic_delay
+		generic map( WIDTH => 2 , DELAY => 1)
+		port map(
+			clk => pixel_clock, resetn => resetn ,
+			input(0) => hsync ,
+			input(1) => vsync ,
+			output(0) => hsync_out ,
+			output(1) => vsync_out
+		);		
 		
 end RTL;
 
