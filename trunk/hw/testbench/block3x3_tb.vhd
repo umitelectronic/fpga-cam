@@ -41,7 +41,19 @@
 --						block_out => block_out
 --				);
 				
-			sobel0 : sobel3x3_pixel_pipeline
+--			sobel0 : sobel3x3_pixel_pipeline
+--				port map(
+--										resetn => resetn, 
+--										pixel_clock => pxclk, 
+--										hsync => hsync, 
+--										vsync => vsync,
+--										pixel_data_in => pixel, 
+--										pixel_clock_out => pxclk_out, 
+--										hsync_out => hsync_out, 
+--										vsync_out => vsync_out,
+--										pixel_data_out => pixel_out
+--				);
+				hyst0 : hyst_threshold_pixel_pipeline
 				port map(
 										resetn => resetn, 
 										pixel_clock => pxclk, 
