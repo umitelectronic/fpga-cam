@@ -224,6 +224,17 @@ component block3X3_pixel_pipeline is
 			block_out : out matNM(0 to 2, 0 to 2));
 end component;
 
+component block3X3_pixel_pipeline_sp is
+		generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480);
+		port(
+			resetn : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic;
+			pixel_clock_out, hsync_out, vsync_out : out std_logic;
+			pixel_data_in : in std_logic_vector(7 downto 0 ); 
+			block_out : out matNM(0 to 2, 0 to 2));
+end component;
+
 component block3X3 is
 		generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480);
@@ -264,6 +275,19 @@ component fifo2pixel is
 	
 	);
 end component;
+
+
+component pixel2fifo is
+port(
+	clk, resetn : in std_logic ;
+	pixel_clock, hsync, vsync : in std_logic; 
+	pixel_data_in : in std_logic_vector(7 downto 0);
+	fifo_data : out std_logic_vector(15 downto 0);
+	fifo_wr : out std_logic 
+
+);
+end component;
+
 
 end image_pack;
 

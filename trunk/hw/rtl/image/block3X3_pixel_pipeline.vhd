@@ -134,32 +134,13 @@ gen_latches_row : for I in 0 to 2 generate
 							q => std_block3x3(I,J)
 						  );
 		end generate left_cols;
+		
 		right_col_0 : if i = 0 and j = 2 generate
 			std_block3x3(0,2) <= ('0' & LINE0_OUTPUT) ;
---			latch_i_i: generic_latch
---						  generic map(NBIT => 9)
---						  port map(
---							clk => pixel_clock ,
---							resetn =>resetn ,
---							sraz => vsync,
---							en => enable_line1_latches,
---							d => ('0' & LINE0_OUTPUT), 
---							q => std_block3x3(0)(2)
---						  );
 		end generate right_col_0;
 		
 		right_col_1 : if i = 1 and j = 2 generate
 			std_block3x3(1,2) <= ('0' & LINE1_OUTPUT) ;
---			latch_i_i: generic_latch
---						  generic map(NBIT => 9)
---						  port map(
---							clk => pixel_clock ,
---							resetn =>resetn ,
---							sraz => vsync ,
---							en => enable_line0_latches,
---							d => ('0' & LINE1_OUTPUT), 
---							q => std_block3x3(1)(2)
---						  );
 		end generate right_col_1;
 		
 		right_col_2 : if i = 2 and j = 2 generate

@@ -225,7 +225,7 @@ begin
 			end if ;
 		end process;
 		
-		pixel_clock_en <= pixel_clock and (not hsync) ;
+		pixel_clock_en <= pixel_clock ; --and (not hsync) ;
 		delay_sync: generic_delay
 		generic map( WIDTH =>  3 , DELAY => 5)
 		port map(
