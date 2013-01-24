@@ -30,15 +30,12 @@ library work ;
 use work.utils_pack.all ;
 use work.peripheral_pack.all ;
 use work.interface_pack.all ;
-use work.filter_pack.all ;
-use work.image_pack.all ;
-use work.feature_pack.all ;
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity logibone_harris is
+entity logibone_mining is
 port( OSC_FPGA : in std_logic;
 		PB : in std_logic_vector(1 downto 0);
 		LED : out std_logic_vector(1 downto 0);	
@@ -48,9 +45,9 @@ port( OSC_FPGA : in std_logic;
 		GPMC_WEN, GPMC_OEN, GPMC_ADVN, GPMC_CLK, GPMC_BE0N, GPMC_BE1N:	in std_logic;
 		GPMC_AD :	inout std_logic_vector(15 downto 0)	
 );
-end logibone_harris;
+end logibone_mining;
 
-architecture Behavioral of logibone_harris is
+architecture Behavioral of logibone_mining is
 
 	COMPONENT clock_gen
 	PORT(
@@ -62,6 +59,7 @@ architecture Behavioral of logibone_harris is
 		LOCKED : OUT std_logic
 		);
 	END COMPONENT;
+
 
 	
 	signal clk_sys, clk_100, clk_24, clk_48, clk_locked : std_logic ;
@@ -78,31 +76,16 @@ architecture Behavioral of logibone_harris is
 	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
 	signal cs_fifo, cs_latch : std_logic ;
-	
-	
-	signal cam_data : std_logic_vector(7 downto 0);
-	signal cam_sioc, cam_siod : std_logic ;
-	signal cam_xclk, cam_pclk, cam_vsync, cam_href, cam_reset : std_logic ;
-	
-	signal rom_addr : std_logic_vector(7 downto 0);
-	signal rom_data : std_logic_vector(15 downto 0);
-	
-	signal pixel_from_interface : std_logic_vector(7 downto 0);
-	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 
-	signal pixel_from_sobel : std_logic_vector(7 downto 0);
-	signal pxclk_from_sobel, href_from_sobel, vsync_from_sobel : std_logic ;
-
-	signal pixel_from_harris : std_logic_vector(7 downto 0);
-	signal raw_from_harris : std_logic_vector(15 downto 0);
-	signal pxclk_from_harris, href_from_harris, vsync_from_harris : std_logic ;
+	signal data : std_logic_vector(95 downto 0);
+	signal state : std_logic_vector(255 downto 0);
+	signal nonce : std_logic_vector(31 downto 0);
+	signal step : std_logic_vector(5 downto 0) := "000000";
+	signal hit : std_logic;
+	signal load : std_logic_vector(351 downto 0);
+	signal txdata : std_logic_vector(48 downto 0);
+	signal txwidth : std_logic_vector(5 downto 0);
 	
-	signal output_pxclk, output_href , output_vsync : std_logic ;
-	signal output_pixel : std_logic_vector(7 downto 0);
-	signal hsync_rising_edge, vsync_rising_edge, pxclk_rising_edge, hsync_old, vsync_old, pxclk_old, write_pixel_old : std_logic ;
-	signal pixel_buffer : std_logic_vector(15 downto 0);	
-	signal pixel_count :std_logic_vector(7 downto 0);
-	signal write_pixel : std_logic ;
 begin
 	
 	resetn <= PB(0) ;
@@ -176,53 +159,66 @@ bi_fifo0 : fifo_peripheral
 			fullB => fifoB_full
 		);
 		
+		miner0: miner
+	   generic map ( DEPTH => DEPTH )
+		port map (
+			clk => clk_sys,
+			step => step,
+			data => data,
+			state => state,
+			nonce => nonce,
+			hit => hit
+		);
 		
-	pixel_from_fifo : fifo2pixel
-	generic map(WIDTH => 320 , HEIGHT => 240)
-	port map(
-		clk => clk_sys, resetn => sys_resetn ,
-
-		-- fifo side
-		fifo_empty => fifoA_empty ,
-		fifo_rd => fifoA_rd ,
-		fifo_data =>fifo_output,
+	process(clk_sys)
+	begin
+		if rising_edge(clk_sys) then
+			step <= step + 1;
+			if conv_integer(step) = 2 ** (6 - DEPTH) - 1 then
+				step <= "000000";
+				nonce <= nonce + 1;
+			end if;
+			txdata <= "-------------------------------------------------";
+			txwidth <= "------";
+			txstrobe <= '0';
+			if fifoA_empty = '0' then
+				if loading = '1' then
+					if loadctr = "101011" then
+						state <= load(343 downto 88);
+						data <= load(87 downto 0) & rxdata;
+						nonce <= x"00000000";
+						txdata <= "1111111111111111111111111111111111111111000000010";
+						txwidth <= "001010";
+						txstrobe <= '1';
+						loading <= '0';
+					else
+						load(351 downto 16) <= load(325 downto 0);
+						load(15 downto 0) <= fifo_output; -- loading data from fifo, needs to assert fifo_rd ...
+						loadctr <= loadctr + 1; -- increase
+					end if;
+				else
+					if rxdata = "00000000" then
+						txdata <= "1111111111111111111111111111111111111111000000000";
+						txwidth <= "001010";
+						txstrobe <= '1';
+					elsif rxdata = "00000001" then
+					   loadctr <= "000000";
+						loading <= '1';
+					end if;
+				end if;
+			elsif hit = '1' then
+				txdata <= currnonce(7 downto 0) & "01" & currnonce(15 downto 8) & "01" & currnonce(23 downto 16) & "01" & currnonce(31 downto 24) & "01000000100"; -- need to transfer 32 bits of data, remove 01 (start)
+				txwidth <= "110010"; -- 
+				txstrobe <= '1'; -- need to trigger two transfers
+			elsif nonce = x"ffffffff" and step = "000000" then
+				txdata <= "1111111111111111111111111111111111111111000000110";
+				txwidth <= "110010";
+				txstrobe <= '1';
+			end if;
+		end if;
+	end process;	
 		
-		-- pixel side 
-		pixel_clk => clk_24,
-		y_data =>  pixel_from_interface , 
- 		pixel_clock_out => pxclk_from_interface, 
-		hsync_out => href_from_interface, 
-		vsync_out =>vsync_from_interface 
-	
-	);
-
-harris0 : HARRIS
-generic map(WIDTH => 320, HEIGHT => 240, WINDOW_SIZE => 5, DS_FACTOR => 2)
-port map(
-		clk => clk_sys , 
- 		resetn => sys_resetn,  
- 		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface, 
- 		pixel_clock_out => pxclk_from_harris, hsync_out => href_from_harris, vsync_out => vsync_from_harris,
- 		pixel_data_in => pixel_from_interface,
- 		harris_out => raw_from_harris
-);
-
-pixel_from_harris <= X"00" when raw_from_harris(15) ='1' else
-							raw_from_harris(14 downto 7);	
-
-output_pxclk <= pxclk_from_harris ;
-output_href <= href_from_harris ;
-output_vsync <= vsync_from_harris ;
-output_pixel <= pixel_from_harris ;
-
-pixel2fifo0 :  pixel2fifo
-port map(
-	clk => clk_sys, resetn => sys_resetn ,
-	pixel_clock => output_pxclk, hsync => output_href, vsync => output_vsync,
-	pixel_data_in => output_pixel ,
-	fifo_data => fifo_input,
-	fifo_wr => fifoB_wr
-);
+		
 
 end Behavioral;
 

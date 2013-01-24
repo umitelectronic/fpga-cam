@@ -22,7 +22,11 @@
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="logibone_harris.xise"/>
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="HARRIS_tb_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="HARRIS_tb_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="HARRIS_tb_isim_beh.wdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/bitgen.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
@@ -33,8 +37,11 @@
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_CMD" xil_pn:name="isim.cmd"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_LOG" xil_pn:name="isim.log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="logibone_harris.bgn" xil_pn:subbranch="FPGAConfiguration"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="logibone_harris.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="logibone_harris.bld"/>
     <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="logibone_harris.cmd_log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_DRC" xil_pn:name="logibone_harris.drc" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="logibone_harris.lso"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="logibone_harris.ncd" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="logibone_harris.ngc"/>
@@ -50,6 +57,7 @@
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="logibone_harris.twr" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="logibone_harris.twx" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="logibone_harris.unroutes" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="logibone_harris.ut" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:fileType="FILE_XPI" xil_pn:name="logibone_harris.xpi"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="logibone_harris.xst"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="logibone_harris_envsettings.html"/>
@@ -70,6 +78,8 @@
     <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="testbench_beh.prj"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="testbench_isim_beh.exe"/>
     <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="testbench_isim_beh.wdb"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_INI" xil_pn:name="xilinxsim.ini"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
@@ -81,98 +91,126 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358874933" xil_pn:in_ck="-3337031643378822450" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1358874933">
+    <transform xil_pn:end_ts="1359037386" xil_pn:in_ck="7783189512641617741" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1359037386">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/block3X3_pixel_pipeline.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_16SADDER.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_FINAL.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_LINE_ACC_SMALL.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_RESPONSE.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/feature_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/fifo2pixel.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/gauss3x3.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3_pixel_pipeline.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/matNxM_latch.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/testbench/block3x3_tb.vhd"/>
-      <outfile xil_pn:name="logibone_harris.vhd"/>
-    </transform>
-    <transform xil_pn:end_ts="1358872845" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="4434870115928851094" xil_pn:start_ts="1358872845">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1358872845" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-1902104842233773292" xil_pn:start_ts="1358872845">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1358872845" xil_pn:in_ck="2088049057168484748" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="-6051866846948467929" xil_pn:start_ts="1358872845">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
-      <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
-    </transform>
-    <transform xil_pn:end_ts="1358874933" xil_pn:in_ck="-3897174382546327850" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1358874933">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/block3X3_pixel_pipeline.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_16SADDER.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_FINAL.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_LINE_ACC_SMALL.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_RESPONSE.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/feature/feature_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/fifo2pixel.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/gauss3x3.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3_pixel_pipeline.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/matNxM_latch.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
-      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
-      <outfile xil_pn:name="../../../hw/testbench/block3x3_tb.vhd"/>
-      <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
-      <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
-      <outfile xil_pn:name="logibone_harris.vhd"/>
-    </transform>
-    <transform xil_pn:end_ts="1358874937" xil_pn:in_ck="-3897174382546327850" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="1459423336703152140" xil_pn:start_ts="1358874933">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3_pixel_pipeline.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3_pixel_pipeline_sp.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_16SADDER.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_LINE_ACC.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_LINE_ACC_SMALL.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_RESPONSE.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_TESSELATION.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/feature_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/fifo2pixel.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/gauss3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel2fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/camera_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/libv.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/pgm.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/pgm_writer.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/virtual_camera.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/HARRIS_tb.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/block3x3_tb.vhd"/>
+      <outfile xil_pn:name="logibone_harris.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1359035850" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="4434870115928851094" xil_pn:start_ts="1359035850">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1359035850" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-1902104842233773292" xil_pn:start_ts="1359035850">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1359035850" xil_pn:in_ck="2088049057168484748" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="-6051866846948467929" xil_pn:start_ts="1359035850">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1359037386" xil_pn:in_ck="5615823956499395957" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1359037386">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3_pixel_pipeline.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3_pixel_pipeline_sp.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_16SADDER.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_LINE_ACC.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_LINE_ACC_SMALL.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_RESPONSE.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/HARRIS_TESSELATION.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/feature/feature_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/fifo2pixel.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/gauss3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel2fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/camera_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/libv.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/pgm.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/pgm_writer.vhd"/>
+      <outfile xil_pn:name="../../../hw/simulation/camera/virtual_camera.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/HARRIS_tb.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/block3x3_tb.vhd"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
+      <outfile xil_pn:name="logibone_harris.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1359037388" xil_pn:in_ck="5615823956499395957" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="1459423336703152140" xil_pn:start_ts="1359037386">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="fuse.log"/>
       <outfile xil_pn:name="isim"/>
@@ -181,9 +219,12 @@
       <outfile xil_pn:name="testbench_isim_beh.exe"/>
       <outfile xil_pn:name="xilinxsim.ini"/>
     </transform>
-    <transform xil_pn:end_ts="1358874937" xil_pn:in_ck="7130759491340027311" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="5406838117933684601" xil_pn:start_ts="1358874937">
+    <transform xil_pn:end_ts="1359037389" xil_pn:in_ck="7130759491340027311" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="5406838117933684601" xil_pn:start_ts="1359037388">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="isim.cmd"/>
       <outfile xil_pn:name="isim.log"/>
       <outfile xil_pn:name="testbench_isim_beh.wdb"/>
@@ -196,7 +237,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358866132" xil_pn:in_ck="2088049057168484748" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="-6051866846948467929" xil_pn:start_ts="1358866132">
+    <transform xil_pn:end_ts="1359023596" xil_pn:in_ck="2088049057168484748" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="-6051866846948467929" xil_pn:start_ts="1359023596">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
@@ -218,7 +259,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358867198" xil_pn:in_ck="-7751099667272610295" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-6719489990416998976" xil_pn:start_ts="1358867183">
+    <transform xil_pn:end_ts="1359030761" xil_pn:in_ck="219985521017306969" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-6719489990416998976" xil_pn:start_ts="1359030743">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -239,11 +280,11 @@
       <outfile xil_pn:name="webtalk_pn.xml"/>
       <outfile xil_pn:name="xst"/>
     </transform>
-    <transform xil_pn:end_ts="1358866139" xil_pn:in_ck="6761281932624975619" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-8289960526263805905" xil_pn:start_ts="1358866139">
+    <transform xil_pn:end_ts="1359023617" xil_pn:in_ck="6761281932624975619" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-8289960526263805905" xil_pn:start_ts="1359023616">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358867205" xil_pn:in_ck="495424438077277664" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-3556385031355459854" xil_pn:start_ts="1358867198">
+    <transform xil_pn:end_ts="1359030768" xil_pn:in_ck="495424438077277664" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-3556385031355459854" xil_pn:start_ts="1359030761">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
@@ -253,10 +294,12 @@
       <outfile xil_pn:name="logibone_harris.ngd"/>
       <outfile xil_pn:name="logibone_harris_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1358867237" xil_pn:in_ck="-5219432954923846591" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1358867205">
+    <transform xil_pn:end_ts="1359030804" xil_pn:in_ck="-5219432954923846591" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1359030768">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="logibone_harris.pcf"/>
       <outfile xil_pn:name="logibone_harris_map.map"/>
@@ -267,7 +310,7 @@
       <outfile xil_pn:name="logibone_harris_summary.xml"/>
       <outfile xil_pn:name="logibone_harris_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1358867266" xil_pn:in_ck="-623097099318178886" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1358867237">
+    <transform xil_pn:end_ts="1359030832" xil_pn:in_ck="-623097099318178886" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1359030804">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -283,7 +326,30 @@
       <outfile xil_pn:name="logibone_harris_pad.txt"/>
       <outfile xil_pn:name="logibone_harris_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1358867266" xil_pn:in_ck="-7174764100867061187" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1358867259">
+    <transform xil_pn:end_ts="1359030845" xil_pn:in_ck="-6038159293142794406" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1359030832">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
+      <outfile xil_pn:name="logibone_harris.bgn"/>
+      <outfile xil_pn:name="logibone_harris.bit"/>
+      <outfile xil_pn:name="logibone_harris.drc"/>
+      <outfile xil_pn:name="logibone_harris.ut"/>
+      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
+      <outfile xil_pn:name="webtalk.log"/>
+      <outfile xil_pn:name="webtalk_pn.xml"/>
+    </transform>
+    <transform xil_pn:end_ts="1359023853" xil_pn:in_ck="-6038159293142807260" xil_pn:name="TRAN_configureTargetDevice" xil_pn:prop_ck="8482462020707587906" xil_pn:start_ts="1359023852">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="InputAdded"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="InputRemoved"/>
+    </transform>
+    <transform xil_pn:end_ts="1359030832" xil_pn:in_ck="-7174764100867061187" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1359030824">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
