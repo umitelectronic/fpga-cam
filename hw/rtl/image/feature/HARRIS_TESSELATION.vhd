@@ -25,8 +25,9 @@ use IEEE.NUMERIC_STD.ALL;
 
 
 library work ;
-use work.generic_components.all ;
-use work.camera.all ;
+use work.utils_pack.all ;
+use work.image_pack.all ;
+use work.primitive_pack.all ;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.

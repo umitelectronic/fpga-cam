@@ -32,12 +32,14 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 library work ;
-use work.camera.all ;
-use work.generic_components.all ;
+use work.image_pack.all ;
+use work.filter_pack.all ;
+use work.utils_pack.all ;
+use work.feature_pack.all ;
 
 
 entity HARRIS is
-generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 8; DS_FACTOR : natural := 2);
+generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 5; DS_FACTOR : natural := 1);
 port (
 		clk : in std_logic; 
  		resetn : in std_logic; 
@@ -49,6 +51,7 @@ port (
 end HARRIS;
 
 architecture Behavioral of HARRIS is
+
 	signal pixel_from_sobel : std_logic_vector(7 downto 0);
 	signal pixel_from_gauss : std_logic_vector(7 downto 0);
 	
@@ -57,29 +60,30 @@ architecture Behavioral of HARRIS is
 
 
 	signal xgrad, ygrad : signed(7 downto 0);
-	signal xgrad_square, ygrad_square, xygrad, xgrad_square_sum, ygrad_square_sum, xygrad_sum : signed(15 downto 0);
-	signal xgrad_square_sum_latched, ygrad_square_sum_latched, xygrad_sum_latched : signed(15 downto 0);
-	signal xgrad_square_sum_latched_divn, ygrad_square_sum_latched_divn, xygrad_sum_latched_divn : signed(15 downto 0);
-	signal xgrad_square_sum_ram, ygrad_square_sum_ram, xygrad_sum_ram : signed(15 downto 0);
-	signal xgrad_square_acc, ygrad_square_acc, xygrad_acc : signed(15 downto 0);
+	signal xgrad_square, ygrad_square, xygrad : signed(15 downto 0);
+	signal gradx_square_lines, grady_square_lines, gradxy_lines: vec_16s(0 to (WINDOW_SIZE-1));
+	signal gradx_square_sum_col, grady_square_sum_col, gradxy_sum_col: vec_16s(0 to (WINDOW_SIZE-1));
+	signal gradx_square_sum_line, grady_square_sum_line, gradxy_sum_line : signed(15 downto 0);
+	
+	signal xgrad_square_sum, ygrad_square_sum, xygrad_sum : signed(15 downto 0);
+	signal xgrad_square_sum_divn, ygrad_square_sum_divn, xygrad_sum_divn : signed(15 downto 0);
 
 	signal pixel_count : std_logic_vector((nbit(WIDTH) - 1) downto 0);
 	signal line_count : std_logic_vector((nbit(HEIGHT) - 1) downto 0);
-	signal block_xaddress, block_xaddress_old : std_logic_vector((nbit(WIDTH/WINDOW_SIZE) - 1) downto 0);
-	signal block_xpos : std_logic_vector((nbit(WINDOW_SIZE) - 1) downto 0);
-	signal block_yaddress, block_yaddress_old : std_logic_vector((nbit(HEIGHT/WINDOW_SIZE) - 1) downto 0);
-	signal block_ypos : std_logic_vector((nbit(WINDOW_SIZE) - 1) downto 0);
-	
-	signal ram_in, ram_out : std_logic_vector(47 downto 0);
-	signal ram_address : std_logic_vector(nbit(WIDTH/WINDOW_SIZE)-1 downto 0);
-	
-	signal store_grads, store_grads_re, store_grads_old : std_logic ;
+	signal sample_index :  std_logic_vector((nbit(WINDOW_SIZE) - 1) downto 0) ;
+
 	
 	signal pxclk_from_sobel_old, pxclk_from_sobel_re : std_logic ;
 	signal href_from_sobel_old, href_from_sobel_re : std_logic ;
+	signal pxclk_from_sobel_re_delayed, pxclk_from_sobel_re_delayed_bis : std_logic ;
 	signal end_of_window : std_logic ;
+	signal response_valid : std_logic ;
+
 	
 	signal hsync_delayed, vsync_delayed : std_logic ;
+	signal harris_result : std_logic_vector(15 downto 0);
+	for all : sobel3x3 use entity work.sobel3x3(RTL) ;
+	for all : gauss3x3 use entity work.gauss3x3(RTL) ;
 	
 begin
 
@@ -95,7 +99,7 @@ begin
 					pixel_data_out => pixel_from_gauss
 		);		
 		
-		
+	
 	sobel0: sobel3x3
 		generic map(
 		  WIDTH => WIDTH,
@@ -111,190 +115,211 @@ begin
 			y_grad => ygrad
 		);	
 	
-	pixel_counter0 : pixel_counter
-		generic map(MAX => WIDTH)
-		port map(
-			clk => clk,
-			resetn => resetn,
-			pixel_clock => pxclk_from_sobel, hsync => href_from_sobel,
-			pixel_count => pixel_count
-			);
 	
-		process(clk, resetn)
+	
+	xgrad_square <= xgrad * xgrad ;
+	ygrad_square <= ygrad * ygrad ;
+	xygrad <= xgrad * ygrad ;
+	
+	gen_square_acc:  HARRIS_LINE_ACC
+		generic map(NB_LINE => (WINDOW_SIZE - 1), WIDTH => 320) 
+		port map(clk => clk, resetn => resetn,
+		  rewind_acc => href_from_sobel,
+		  wr_acc	=> pxclk_from_sobel_re,
+		  gradx_square_in => xgrad_square, grady_square_in => ygrad_square, gradxy_in => xygrad,
+		  gradx_square_out => gradx_square_lines(1 to (WINDOW_SIZE-1)), grady_square_out => grady_square_lines(1 to (WINDOW_SIZE-1)), gradxy_out => gradxy_lines(1 to (WINDOW_SIZE-1))
+		  );	
+	process(clk)
 		begin
-			if resetn = '0' then
-				block_xaddress <= (others => '0') ;
-				block_xpos <= (others => '0') ;
-			elsif clk'event and clk = '1' then
-				if href_from_sobel = '1' then
-					block_xaddress <= (others => '0') ;
-					block_xpos <= (others => '0') ;
-				elsif pxclk_from_sobel_re = '1'  then
-						if block_xpos = (WINDOW_SIZE - 1) then
-							block_xaddress <= block_xaddress  + 1  ;
-							block_xpos <= (others => '0');
-						else
-							block_xpos <= block_xpos + 1 ;
-						end if;
+			if clk'event and clk = '1' then 
+				if pxclk_from_sobel_re = '1' then
+					gradx_square_lines(0) <= xgrad_square ;
+					grady_square_lines(0) <= ygrad_square ;
+					gradxy_lines(0) <= xygrad ;
+				end if ;
+			end if ;
+	end process ;
+	
+	add_lines_gradx : HARRIS_16SADDER -- latency NB_LINE
+		generic map(NB_VAL => WINDOW_SIZE)
+		port map(
+				clk => clk, resetn => resetn,
+				val_array => gradx_square_lines ,
+				result => gradx_square_sum_line
+		);
+
+
+	add_lines_grady : HARRIS_16SADDER  -- latency NB_LINE
+		generic map(NB_VAL => WINDOW_SIZE)
+		port map(
+				clk => clk, resetn => resetn,
+				val_array => grady_square_lines ,
+				result => grady_square_sum_line
+		);
+		
+	add_lines_gradxy : HARRIS_16SADDER  -- latency NB_LINE
+		generic map(NB_VAL => WINDOW_SIZE)
+		port map(
+				clk => clk, resetn => resetn,
+				val_array => gradxy_lines ,
+				result => gradxy_sum_line
+		);
+		
+		
+		delay_pclk: generic_delay
+		generic map( WIDTH =>  1 , DELAY => WINDOW_SIZE - 2)
+		port map(
+			clk => clk, resetn => resetn ,
+			input(0) => pxclk_from_sobel_re,
+			output(0) => pxclk_from_sobel_re_delayed 
+		);	
+		
+		
+		
+		process(clk)
+		begin
+			if clk'event and clk = '1' then 
+				if pxclk_from_sobel_re_delayed = '1' then
+					gradx_square_sum_col(0) <= SHIFT_RIGHT(gradx_square_sum_line, DS_FACTOR) ; 
 				end if ;
 			end if ;
 		end process ;
-
-	
-	line_counter0: line_counter 
-		generic map(MAX => HEIGHT)
-		port map(
-			clk => clk, 
-			resetn => resetn, 
-			hsync => href_from_sobel, vsync => vsync_from_sobel,
-			line_count => line_count );
-	
-	
-		process(clk, resetn)
-		begin
-			if resetn = '0' then
-				block_yaddress <= (others => '0') ;
-				block_ypos <= (others => '0') ;
-			elsif clk'event and clk = '1' then
-				if vsync_from_sobel = '1' then
-					block_yaddress <= (others => '0') ;
-					block_ypos <= (others => '0') ;
-				elsif href_from_sobel_re = '1' then
-					if  block_ypos = (WINDOW_SIZE - 1) then
-						block_yaddress <= block_yaddress  + 1  ;
-						block_ypos <= (others => '0');
-					else
-						block_ypos <= block_ypos + 1;
+		gen_window_gradx: for i in 1 to (WINDOW_SIZE - 1) generate
+			process(clk)
+			begin
+				if clk'event and clk = '1' then 
+					if pxclk_from_sobel_re_delayed = '1' then
+						gradx_square_sum_col(i) <= gradx_square_sum_col(i-1) ; 
 					end if ;
 				end if ;
+			end process ;
+		end generate ;
+		
+		
+		process(clk)
+		begin
+			if clk'event and clk = '1' then 
+				if pxclk_from_sobel_re_delayed = '1' then
+					grady_square_sum_col(0) <= SHIFT_RIGHT(grady_square_sum_line, DS_FACTOR) ; 
+				end if ;
 			end if ;
-		end process ;	
-		
-		
-		xgrad_square <= xgrad * xgrad ;
-		ygrad_square <= ygrad * ygrad ;
-		xygrad <= xgrad * ygrad ;
+		end process ;
+		gen_window_grady: for i in 1 to (WINDOW_SIZE - 1) generate
+			process(clk)
+			begin
+				if clk'event and clk = '1' then 
+					if pxclk_from_sobel_re_delayed = '1' then
+						grady_square_sum_col(i) <= grady_square_sum_col(i-1) ; 
+					end if ;
+				end if ;
+			end process ;
+		end generate ;
 	
-		xgrad_square_sum <= SHIFT_RIGHT(xgrad_square,DS_FACTOR) + xgrad_square_sum_latched ; -- accumulating in register
-		ygrad_square_sum <= SHIFT_RIGHT(ygrad_square,DS_FACTOR) + ygrad_square_sum_latched ; -- need to control overflow
-		xygrad_sum <= SHIFT_RIGHT(xygrad,DS_FACTOR) + xygrad_sum_latched ;
+	
+		process(clk)
+		begin
+			if clk'event and clk = '1' then 
+				if pxclk_from_sobel_re_delayed = '1' then
+					gradxy_sum_col(0) <= SHIFT_RIGHT(gradxy_sum_line, DS_FACTOR) ; 
+				end if ;
+			end if ;
+		end process ;
+		gen_window_gradxy: for i in 1 to (WINDOW_SIZE - 1) generate
+			process(clk)
+			begin
+				if clk'event and clk = '1' then 
+					if pxclk_from_sobel_re_delayed = '1' then
+						gradxy_sum_col(i) <= gradxy_sum_col(i-1) ; 
+					end if ;
+				end if ;
+			end process ;
+		end generate ;
+	
+	
+	add_cols_gradx : HARRIS_16SADDER -- latency NB_LINE
+		generic map(NB_VAL => WINDOW_SIZE)
+		port map(
+				clk => clk, resetn => resetn,
+				val_array => gradx_square_sum_col,
+				result => xgrad_square_sum
+		);
+
+	add_cols_grady : HARRIS_16SADDER  -- latency NB_LINE
+		generic map(NB_VAL => WINDOW_SIZE)
+		port map(
+				clk => clk, resetn => resetn,
+				val_array => grady_square_sum_col,
+				result => ygrad_square_sum
+		);
+		
+	add_cols_gradxy : HARRIS_16SADDER  -- latency NB_LINE
+		generic map(NB_VAL => WINDOW_SIZE)
+		port map(
+				clk => clk, resetn => resetn,
+				val_array => gradxy_sum_col,
+				result => xygrad_sum
+		);
+		
+		
+		delay_pclk_bis: generic_delay
+		generic map( WIDTH =>  1 , DELAY => WINDOW_SIZE - 2)
+		port map(
+			clk => clk, resetn => resetn ,
+			input(0) => pxclk_from_sobel_re_delayed,
+			output(0) => pxclk_from_sobel_re_delayed_bis 
+		);	
+		
 
 		process(clk, resetn)
 		begin
 			if resetn = '0' then
-				xgrad_square_sum_latched <= (others => '0');
-				ygrad_square_sum_latched <= (others => '0');
-				xygrad_sum_latched <= (others => '0');
+				pxclk_from_sobel_old <= '0' ;
+				href_from_sobel_old <= '0' ;
 			elsif clk'event and clk = '1' then 
 				pxclk_from_sobel_old <= pxclk_from_sobel ;
 				href_from_sobel_old <= href_from_sobel ;
-				if (block_xpos = 0) then
-						xgrad_square_sum_latched <= (others => '0');
-						ygrad_square_sum_latched <= (others => '0');
-						xygrad_sum_latched <= (others => '0');
-				elsif pxclk_from_sobel_re = '1' then
-					xgrad_square_sum_latched <= xgrad_square_sum;
-					ygrad_square_sum_latched <= ygrad_square_sum;
-					xygrad_sum_latched <= xygrad_sum;
-				end if ;
 			end if ;
 		end process ;
-		pxclk_from_sobel_re <= pxclk_from_sobel AND (NOT pxclk_from_sobel_old);
-		href_from_sobel_re <= href_from_sobel AND (NOT href_from_sobel_old);
-
-
-		xgrad_square_sum_latched_divn <= SHIFT_RIGHT(xgrad_square_sum_latched,nbit(WINDOW_SIZE));  -- need to evaluate shift dependeing on window size
-		ygrad_square_sum_latched_divn <= SHIFT_RIGHT(ygrad_square_sum_latched,nbit(WINDOW_SIZE));
-		xygrad_sum_latched_divn <= SHIFT_RIGHT(xygrad_sum_latched,nbit(WINDOW_SIZE)) ;
-
-		xgrad_square_acc <= xgrad_square_sum_latched_divn + xgrad_square_sum_ram when block_ypos /= 0 else -- need to consider overflow
-								xgrad_square_sum_latched_divn; -- accumulating in RAM
-
-		ygrad_square_acc  <= ygrad_square_sum_latched_divn + ygrad_square_sum_ram when block_ypos /= 0 else -- need to consider overflow
-									ygrad_square_sum_latched_divn	; 
-
-		xygrad_acc <=  xygrad_sum_latched_divn + xygrad_sum_ram  when block_ypos /= 0 else  -- need to consider overflow
-							xygrad_sum_latched_divn;
+		pxclk_from_sobel_re <= (pxclk_from_sobel AND (NOT pxclk_from_sobel_old)) and (not href_from_sobel);
+		href_from_sobel_re <= href_from_sobel AND (NOT href_from_sobel_old);	
 		
-		ram_in(47 downto 32) <= std_logic_vector(xgrad_square_acc) ;
-		ram_in(31 downto 16) <= std_logic_vector(ygrad_square_acc)	; 
-		ram_in(15 downto 0) <= std_logic_vector(xygrad_acc);
+		xgrad_square_sum_divn <= SHIFT_RIGHT(xgrad_square_sum, DS_FACTOR) ;
+		ygrad_square_sum_divn <= SHIFT_RIGHT(ygrad_square_sum, DS_FACTOR) ;
+		xygrad_sum_divn <= SHIFT_RIGHT(xygrad_sum, DS_FACTOR);
 		
 		
-		xgrad_square_sum_ram  <= signed(ram_out(47 downto 32)) ;
-		ygrad_square_sum_ram <= signed(ram_out(31 downto 16)) ;
-		xygrad_sum_ram <= signed(ram_out(15 downto 0)) ;
-		
-		ram_address <= block_xaddress_old when block_xaddress_old /= WIDTH/WINDOW_SIZE else
-						   (others => '0');
-		
-		harris_window_ram : dpram_NxN 
-			generic map(SIZE => WIDTH/WINDOW_SIZE , NBIT => 48, ADDR_WIDTH => nbit(WIDTH/WINDOW_SIZE))
-			port map(
-				clk => clk,  
-				we => store_grads, 		
-				di =>  ram_in,
-				a	=> ram_address,
-				dpra => std_logic_vector(to_unsigned(0, nbit(WIDTH/WINDOW_SIZE))),
-				spo => ram_out
-				--dpo =>  		
-			); 
+		harris_rep0: HARRIS_RESPONSE 
+		port map(
+				clk => clk, resetn => resetn,
+				en => pxclk_from_sobel_re_delayed_bis,
+				xgrad_square_sum => xgrad_square_sum_divn, ygrad_square_sum => ygrad_square_sum_divn, xygrad_sum => xygrad_sum_divn,
+				dv	=> response_valid,
+				harris_response => harris_result
+		);
+		--harris_out <= harris_result ;
+		latched_response : generic_latch
+			generic map(NBIT => 16)
+			 Port  map( clk => clk,
+           resetn => resetn,
+           sraz => '0' ,
+           en => response_valid ,
+           d => harris_result ,
+           q => harris_out
+			);
 			
-		process(clk, resetn)
-		begin
-			if resetn = '0' then
-				block_yaddress_old <= (others => '0') ;
-				block_xaddress_old <= (others => '0') ;
-			elsif clk'event and clk = '1' then
-				block_yaddress_old <= block_yaddress ;
-				block_xaddress_old <= block_xaddress ;
-			end if ;
-		end process ;
-		
-		store_grads <= '1' when block_xaddress_old /= block_xaddress and href_from_sobel = '0' else
-							'0' ;
-		
---		store_grads <= '1' when block_xpos = (WINDOW_SIZE - 1) else
---							'0' ;
---		process(clk, resetn)
---		begin
---			if resetn = '0' then
---				store_grads_old <= '0' ;
---			elsif clk'event and clk = '1' then 
---				store_grads_old <= store_grads ;
---			end if ;
---		end process ;		
---		store_grads_re <= store_grads and (NOT store_grads_old);
-		
---		end_of_window <= pxclk_from_sobel_re when block_ypos = WINDOW_SIZE - 1 else
---						  '0' ;
-
-		end_of_window <= '1' when block_xaddress_old /= block_xaddress and block_ypos = WINDOW_SIZE - 1 and href_from_sobel = '0' else
-							  '0' ;
-		
-		
-	harris_rep0: HARRIS_RESPONSE 
-	port map(
-			clk => clk, resetn => resetn,
-			en => end_of_window,
-			xgrad_square_sum => xgrad_square_acc, ygrad_square_sum => ygrad_square_acc, xygrad_sum => xygrad_acc,
-			dv	=> pixel_clock_out,
-			harris_response => harris_out
-	);
-		
-	vsync_out <= vsync_delayed when 	block_yaddress = 0  and block_xaddress = 0 else
-					 '0' ;
-	hsync_out <= hsync_delayed when  block_xaddress = 0 and block_ypos = 0 else
-					 '0' ;
-		
+		vsync_out <= vsync_delayed ;
+		hsync_out <= hsync_delayed ;
+		--pixel_clock_out <= response_valid ;
 		delay_sync: generic_delay
-		generic map( WIDTH =>  2 , DELAY => 7)
+		generic map( WIDTH =>  3 , DELAY => ((2*(WINDOW_SIZE - 2))+7))
 		port map(
 			clk => clk, resetn => resetn ,
 			input(0) => href_from_sobel ,
 			input(1) => vsync_from_sobel ,
+			input(2) => pxclk_from_sobel ,
 			output(0) => hsync_delayed ,
-			output(1) => vsync_delayed
+			output(1) => vsync_delayed ,
+			output(2) => pixel_clock_out
 		);	
 		
 

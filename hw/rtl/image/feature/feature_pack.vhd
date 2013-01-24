@@ -73,7 +73,7 @@ port(
 );
 end component;
 
-component HARRIS_FINAL is
+component HARRIS is
 generic(WIDTH : positive := 640 ; HEIGHT : positive := 480; WINDOW_SIZE : positive := 5; DS_FACTOR : natural := 1);
 port (
 		clk : in std_logic; 
