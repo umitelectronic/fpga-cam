@@ -55,7 +55,7 @@ architecture Behavioral of logibone_mining is
 		CLK_OUT1 : OUT std_logic;
 		CLK_OUT2 : OUT std_logic;
 		CLK_OUT3 : OUT std_logic;
-		CLK_OUT4 : OUT std_logic;
+		RESET             : in     std_logic;
 		LOCKED : OUT std_logic
 		);
 	END COMPONENT;
@@ -75,7 +75,7 @@ architecture Behavioral of logibone_mining is
 
 
 	
-	signal clk_sys, clk_100, clk_24, clk_60, clk_locked : std_logic ;
+	signal clk_sys, clk_100, clk_miner, clk_locked : std_logic ;
 	signal resetn , sys_resetn : std_logic ;
 	
 	signal counter_output : std_logic_vector(31 downto 0);
@@ -106,6 +106,9 @@ architecture Behavioral of logibone_mining is
 	signal en_counter : std_logic ;
 	signal count : std_logic_vector(1 downto 0);
 	signal toggle : std_logic ;
+	
+	signal hit_bridged : std_logic ;
+	signal currnonce_bridged : std_logic_vector(31 downto 0);
 begin
 	
 	resetn <= PB(0) ;
@@ -113,9 +116,9 @@ begin
 	PORT MAP(
 		CLK_IN1 => OSC_FPGA,
 		CLK_OUT1 => clk_100,
-		CLK_OUT2 => clk_24,
-		CLK_OUT3 => clk_sys, --120Mhz system clock
-		CLK_OUT4 => clk_60, --60Mhz mining clock
+		CLK_OUT2 => clk_sys,--120Mhz system clock
+		CLK_OUT3 => clk_miner, --60mhz miner clock
+		RESET => resetn ,
 		LOCKED => clk_locked
 	);
 
@@ -159,7 +162,7 @@ bus_data_in <= bus_fifo_out when cs_fifo = '1' else
 					(others => '1');
 
 bi_fifo0 : fifo_peripheral 
-		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 2048, BURST_SIZE => 512)--16384)
+		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 1024, BURST_SIZE => 512)--16384)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
@@ -182,14 +185,24 @@ bi_fifo0 : fifo_peripheral
 		miner0: miner
 	   generic map ( DEPTH => DEPTH )
 		port map (
-			clk => clk_sys,
+			clk => clk_miner,
 			step => step,
 			data => data,
 			state => state,
 			nonce => nonce,
 			hit => hit
 		);
-		
+	
+	miner_bridge : clock_bridge
+	generic map(SIZE => 33)
+	port map(
+			clk_fast => clk_sys, clk_slow => clk_miner, resetn => sys_resetn,
+			clk_slow_out => open ,
+			data_in(0) => hit ,
+			data_in(32 downto 1) => currnonce ,
+			data_out(0) => hit_bridged ,
+			data_out(32 downto 1) => currnonce_bridged
+			);
 		
 	currnonce <= nonce - 2 * 2 ** DEPTH;	
 		
@@ -201,9 +214,6 @@ bi_fifo0 : fifo_peripheral
 				step <= "000000";
 				nonce <= nonce + 1;
 			end if;
-		--	txdata <= "-------------------------------------------------";
-		--	txwidth <= "------";
-		--	txstrobe <= '0';
 			if fifoA_empty = '0' then
 				if loading = '1' and toggle = '1' then
 					if loadctr = "010110" then --22 load with the last one being with only MSB matter
@@ -252,8 +262,8 @@ bi_fifo0 : fifo_peripheral
     port map ( clk => clk_sys,
            resetn => sys_resetn,
            sraz => '0' ,
-           en => hit ,
-           d => currnonce , 
+           en => hit_bridged ,
+           d => currnonce_bridged , 
            q => result_latched );
 			  
 			  
@@ -268,7 +278,7 @@ bi_fifo0 : fifo_peripheral
            Q => count 
 			  );
 			  
-	en_counter <= '1' when hit = '1' else 
+	en_counter <= '1' when hit_bridged = '1' else 
 					  '1' when count > 0 else
 					  '0' ;
 					  
