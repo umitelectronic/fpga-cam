@@ -97,7 +97,7 @@ architecture Behavioral of logibone_mining is
 	signal nonce, currnonce : std_logic_vector(31 downto 0);
 	signal step : std_logic_vector(5 downto 0) := "000000";
 	signal hit : std_logic;
-	signal load : std_logic_vector(351 downto 0);
+	signal load : std_logic_vector(335 downto 0);
 	signal loadctr : std_logic_vector(5 downto 0);
 	signal loading : std_logic := '0';
 	signal txdata : std_logic_vector(48 downto 0);
@@ -142,7 +142,8 @@ divider : simple_counter
 			  Q => counter_output
 			  );
 LED(0) <= counter_output(24);
-LED(1) <= NOT GPMC_CSN(1) ;
+
+
 mem_interface0 : muxed_addr_interface
 generic map(ADDR_WIDTH => 16 , DATA_WIDTH =>  16)
 port map(clk => clk_sys ,
@@ -162,7 +163,7 @@ bus_data_in <= bus_fifo_out when cs_fifo = '1' else
 					(others => '1');
 
 bi_fifo0 : fifo_peripheral 
-		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 1024, BURST_SIZE => 512)--16384)
+		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 1024, BURST_SIZE => 4)--16384)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
@@ -216,9 +217,9 @@ bi_fifo0 : fifo_peripheral
 			end if;
 			if fifoA_empty = '0' then
 				if loading = '1' and toggle = '1' then
-					if loadctr = "010110" then --22 load with the last one being with only MSB matter
-						state <= load(343 downto 88);
-						data <= load(87 downto 0) & fifo_output(15 downto 8); -- last data to load
+					if loadctr = "010101" then --21 load
+						state <= load(335 downto 80);
+						data <= load(79 downto 0) & fifo_output(15 downto 0); -- last data to load
 						nonce <= x"00000000";
 						--txdata <= "1111111111111111111111111111111111111111000000010"; -- seems useless, some syncronization crap
 						--txwidth <= "001010";-- seems useless, some syncronization crap
@@ -226,7 +227,7 @@ bi_fifo0 : fifo_peripheral
 						loading <= '0';
 						toggle <= '0' ;
 					else
-						load(351 downto 16) <= load(335 downto 0);
+						load(335 downto 16) <= load(319 downto 0);
 						load(15 downto 0) <= fifo_output; -- loading data from fifo, needs to assert fifo_rd ...
 						loadctr <= loadctr + 1; -- increase
 						toggle <= '0' ;
@@ -286,6 +287,17 @@ bi_fifo0 : fifo_peripheral
 						result_latched(15 downto 0) ;
 						
 	fifoB_wr	<= count(0) ;
+						
+						
+	hit_holder:  hold
+	 generic map(HOLD_TIME => 3000000,  HOLD_LEVEL => '1')
+    Port map( clk => clk_miner, 
+           resetn => sys_resetn ,
+           sraz => '0' ,
+           input => hit ,
+			  output => LED(1)
+			  );					
+						
 						
 		
 end Behavioral;
