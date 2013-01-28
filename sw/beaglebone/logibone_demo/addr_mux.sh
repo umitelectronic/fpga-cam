@@ -28,13 +28,24 @@ echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data5
 echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data6
 echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data7
 
-# FPGA CFG_PINS PIO2_8,10,12 set as input to allow programming from jtag
+# FPGA CFG_PINS PIO2_8,10,12
 echo 72 > /sys/class/gpio/export
+echo 73 > /sys/class/gpio/export
 echo 74 > /sys/class/gpio/export
+echo 75 > /sys/class/gpio/export
 echo 76 > /sys/class/gpio/export
-echo in > /sys/class/gpio/gpio72/direction
-echo in > /sys/class/gpio/gpio74/direction
-echo in > /sys/class/gpio/gpio76/direction
+echo 77 > /sys/class/gpio/export
+
+echo in > /sys/class/gpio/gpio72/direction #CFG_DONE
+echo in > /sys/class/gpio/gpio74/direction #INIT_B
+echo out > /sys/class/gpio/gpio76/direction #PROG_B
+echo 1 > /sys/class/gpio/gpio76/value #REALEASE PROG_B
+echo in > /sys/class/gpio/gpio73/direction #SUSPEND
+echo out > /sys/class/gpio/gpio75/direction #MODE1
+echo out > /sys/class/gpio/gpio77/direction #MODE0
+echo 1 > /sys/class/gpio/gpio75/value #SLAVE SERIAL MODE '11'
+echo 1 > /sys/class/gpio/gpio77/value
+
 
 
 
