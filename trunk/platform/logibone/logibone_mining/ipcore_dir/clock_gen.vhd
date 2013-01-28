@@ -57,7 +57,7 @@
 ------------------------------------------------------------------------------
 -- CLK_OUT1___100.000______0.000______50.0______233.202____213.839
 -- CLK_OUT2___120.000______0.000______50.0______224.199____213.839
--- CLK_OUT3____60.000____-108.000______50.0______259.778____213.839
+-- CLK_OUT3____60.000______0.000______50.0______259.778____213.839
 --
 ------------------------------------------------------------------------------
 -- "Input Clock   Freq (MHz)    Input Jitter (UI)"
@@ -82,14 +82,13 @@ port
   CLK_OUT2          : out    std_logic;
   CLK_OUT3          : out    std_logic;
   -- Status and control signals
-  RESET             : in     std_logic;
   LOCKED            : out    std_logic
  );
 end clock_gen;
 
 architecture xilinx of clock_gen is
   attribute CORE_GENERATION_INFO : string;
-  attribute CORE_GENERATION_INFO of xilinx : architecture is "clock_gen,clk_wiz_v4_1,{component_name=clock_gen,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,feedback_source=FDBK_AUTO,primtype_sel=PLL_BASE,num_out_clk=3,clkin1_period=20.000,clkin2_period=20.000,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,use_status=false,use_freeze=false,use_clk_valid=false,feedback_type=SINGLE,clock_mgr_type=AUTO,manual_override=false}";
+  attribute CORE_GENERATION_INFO of xilinx : architecture is "clock_gen,clk_wiz_v4_1,{component_name=clock_gen,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,feedback_source=FDBK_AUTO,primtype_sel=PLL_BASE,num_out_clk=3,clkin1_period=20.000,clkin2_period=20.000,use_power_down=false,use_reset=false,use_locked=true,use_inclk_stopped=false,use_status=false,use_freeze=false,use_clk_valid=false,feedback_type=SINGLE,clock_mgr_type=AUTO,manual_override=false}";
   -- Input clock buffering / unused connectors
   signal clkin1      : std_logic;
   -- Output clock buffering / unused connectors
@@ -135,7 +134,7 @@ begin
     CLKOUT1_PHASE        => 0.000,
     CLKOUT1_DUTY_CYCLE   => 0.500,
     CLKOUT2_DIVIDE       => 10,
-    CLKOUT2_PHASE        => -108.000,
+    CLKOUT2_PHASE        => 0.000,
     CLKOUT2_DUTY_CYCLE   => 0.500,
     CLKIN_PERIOD         => 20.000,
     REF_JITTER           => 0.010)
@@ -150,7 +149,7 @@ begin
     CLKOUT5             => clkout5_unused,
     -- Status and control signals
     LOCKED              => LOCKED,
-    RST                 => RESET,
+    RST                 => '0',
     -- Input clock control
     CLKFBIN             => clkfbout_buf,
     CLKIN               => clkin1);
