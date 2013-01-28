@@ -55,7 +55,6 @@ architecture Behavioral of logibone_mining is
 		CLK_OUT1 : OUT std_logic;
 		CLK_OUT2 : OUT std_logic;
 		CLK_OUT3 : OUT std_logic;
-		RESET             : in     std_logic;
 		LOCKED : OUT std_logic
 		);
 	END COMPONENT;
@@ -85,7 +84,7 @@ architecture Behavioral of logibone_mining is
 	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
-	signal bus_fifo_out, bus_latch_out : std_logic_vector(15 downto 0);
+	signal bus_fifo_out, bus_latch_out, state_register : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
 	signal cs_fifo, cs_latch : std_logic ;
@@ -106,9 +105,6 @@ architecture Behavioral of logibone_mining is
 	signal en_counter : std_logic ;
 	signal count : std_logic_vector(1 downto 0);
 	signal toggle : std_logic ;
-	
-	signal hit_bridged : std_logic ;
-	signal currnonce_bridged : std_logic_vector(31 downto 0);
 begin
 	
 	resetn <= PB(0) ;
@@ -118,7 +114,6 @@ begin
 		CLK_OUT1 => clk_100,
 		CLK_OUT2 => clk_sys,--120Mhz system clock
 		CLK_OUT3 => clk_miner, --60mhz miner clock
-		RESET => resetn ,
 		LOCKED => clk_locked
 	);
 
@@ -156,11 +151,27 @@ port map(clk => clk_sys ,
 	  wr => bus_wr , rd => bus_rd 
 );
 
-cs_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
-			  '0' ;	  
+cs_fifo <= '1' when bus_addr(15 downto 3) = "0000000000000" else
+			  '0' ;
+cs_latch <= '1' when bus_addr(15 downto 3) = "0000000000001" else
+			  '0' ;				  
 
 bus_data_in <= bus_fifo_out when cs_fifo = '1' else
+					bus_latch_out when cs_latch = '1' else
 					(others => '1');
+
+state_latch :latch_peripheral
+generic map(ADDR_WIDTH => 16,  WIDTH	=> 16)
+port map(
+	clk => clk_sys, resetn => sys_resetn,
+	addr_bus => bus_addr,
+	wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_latch,
+	data_bus_in	=> bus_data_out,
+	data_bus_out => bus_latch_out,
+	latch_input => state_register,
+	latch_output => open
+);
+
 
 bi_fifo0 : fifo_peripheral 
 		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 1024, BURST_SIZE => 4)--16384)
@@ -193,84 +204,75 @@ bi_fifo0 : fifo_peripheral
 			nonce => nonce,
 			hit => hit
 		);
-	
-	miner_bridge : clock_bridge
-	generic map(SIZE => 33)
-	port map(
-			clk_fast => clk_sys, clk_slow => clk_miner, resetn => sys_resetn,
-			clk_slow_out => open ,
-			data_in(0) => hit ,
-			data_in(32 downto 1) => currnonce ,
-			data_out(0) => hit_bridged ,
-			data_out(32 downto 1) => currnonce_bridged
-			);
 		
 	currnonce <= nonce - 2 * 2 ** DEPTH;	
-		
-	process(clk_sys)
+	
+	fifoA_rd <= toggle ;
+	process(clk_miner, sys_resetn)
 	begin
-		if rising_edge(clk_sys) then
+		if sys_resetn = '0' then
+			toggle <= '0';
+			loadctr <= "000000" ;
+			state <= (others => '0');
+			step <= (others => '0') ;
+			nonce <= x"00000000";
+			loading <= '0' ;
+		elsif rising_edge(clk_miner) then
+		
 			step <= step + 1;
 			if conv_integer(step) = 2 ** (6 - DEPTH) - 1 then
 				step <= "000000";
 				nonce <= nonce + 1;
 			end if;
-			if fifoA_empty = '0' then
-				if loading = '1' and toggle = '1' then
-					if loadctr = "010101" then --21 load
-						state <= load(335 downto 80);
-						data <= load(79 downto 0) & fifo_output(15 downto 0); -- last data to load
-						nonce <= x"00000000";
-						--txdata <= "1111111111111111111111111111111111111111000000010"; -- seems useless, some syncronization crap
-						--txwidth <= "001010";-- seems useless, some syncronization crap
-						--txstrobe <= '1';-- seems useless, some syncronization crap
-						loading <= '0';
-						toggle <= '0' ;
-					else
-						load(335 downto 16) <= load(319 downto 0);
-						load(15 downto 0) <= fifo_output; -- loading data from fifo, needs to assert fifo_rd ...
-						loadctr <= loadctr + 1; -- increase
-						toggle <= '0' ;
-					end if;
-				elsif loading = '1' and toggle = '0' then
-					toggle <= '1' ;
+			if loading = '1' and toggle = '1' then
+				if loadctr = "010101" then --21 load on last
+					state <= load(335 downto 80);
+					data <= load(79 downto 0) & fifo_output(15 downto 0); -- last data to load
+					nonce <= x"00000000";
+					loadctr <= (others => '0');
+					loading <= '0' ;
 				else
-					toggle <= '0' ;
---				else -- seems to be synchronization crap ...
---					if rxdata = "00000000" then
---						txdata <= "1111111111111111111111111111111111111111000000000";
---						txwidth <= "001010";
---						txstrobe <= '1';
---					elsif rxdata = "00000001" then
---					   loadctr <= "000000";
---						loading <= '1';
---					end if;
+					load(335 downto 16) <= load(319 downto 0);
+					load(15 downto 0) <= fifo_output; -- loading data from fifo, needs to assert fifo_rd ...
+					loadctr <= loadctr + 1; -- increase
+					loading <= '1' ;
 				end if;
---			elsif hit = '1' then
---				--txdata <= currnonce(7 downto 0) & "01" & currnonce(15 downto 8) & "01" & currnonce(23 downto 16) & "01" & currnonce(31 downto 24) & "01000000100"; -- need to transfer 32 bits of data, remove 01 (start)
---				--txwidth <= "110010"; -- 
---				--txstrobe <= '1'; -- need to trigger two transfers
---			elsif nonce = x"ffffffff" and step = "000000" then
---				txdata <= "1111111111111111111111111111111111111111000000110";
---				txwidth <= "110010";
---				txstrobe <= '1';
+				toggle <= '0' ;
+			elsif fifoA_empty = '0' and toggle = '0' then
+				loading <= '1' ;
+				toggle <= '1' ;
 			end if;
 		end if;
 	end process;	
 		
+	-- manage state register
+	process(clk_miner, sys_resetn)
+	begin
+		if resetn = '0' then
+			state_register <= (others => '0') ;
+		elsif clk_miner'event and clk_miner = '1' then
+			state_register(15 downto 1) <= (others => '0') ;
+			if loading = '1' then
+				state_register(0) <= '0' ;
+			elsif nonce = X"ffffffff" and  step = "000000"then
+				state_register(0) <= '1' ;
+			end if ;
+		end if ;
+	end process ;
+		
 	result_latch : generic_latch 
 	 generic map(NBIT => 32)
-    port map ( clk => clk_sys,
+    port map ( clk => clk_miner,
            resetn => sys_resetn,
            sraz => '0' ,
-           en => hit_bridged ,
-           d => currnonce_bridged , 
+           en => hit ,
+           d => currnonce, 
            q => result_latched );
 			  
 			  
 	shift_words : simple_counter
 	 generic map(NBIT => 2)
-    Port map( clk => clk_sys, 
+    Port map( clk => clk_miner, 
            resetn => sys_resetn,
            sraz => '0' ,
            en => en_counter,
@@ -279,7 +281,7 @@ bi_fifo0 : fifo_peripheral
            Q => count 
 			  );
 			  
-	en_counter <= '1' when hit_bridged = '1' else 
+	en_counter <= '1' when hit = '1' else 
 					  '1' when count > 0 else
 					  '0' ;
 					  
@@ -288,17 +290,8 @@ bi_fifo0 : fifo_peripheral
 						
 	fifoB_wr	<= count(0) ;
 						
-						
-	hit_holder:  hold
-	 generic map(HOLD_TIME => 3000000,  HOLD_LEVEL => '1')
-    Port map( clk => clk_miner, 
-           resetn => sys_resetn ,
-           sraz => '0' ,
-           input => hit ,
-			  output => LED(1)
-			  );					
-						
-						
-		
+	LED(1) <= hit ;	
+										
+					
 end Behavioral;
 
