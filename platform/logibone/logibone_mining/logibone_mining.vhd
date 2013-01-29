@@ -95,7 +95,7 @@ architecture Behavioral of logibone_mining is
 	signal state : std_logic_vector(255 downto 0);
 	signal nonce, currnonce : std_logic_vector(31 downto 0);
 	signal step : std_logic_vector(5 downto 0) := "000000";
-	signal hit : std_logic;
+	signal hit, hit_latched : std_logic;
 	signal load : std_logic_vector(335 downto 0);
 	signal loadctr : std_logic_vector(5 downto 0);
 	signal loading : std_logic := '0';
@@ -250,16 +250,21 @@ bi_fifo0 : fifo_peripheral
 	begin
 		if resetn = '0' then
 			state_register <= (others => '0') ;
+			hit_latched <= '0' ;
 		elsif clk_miner'event and clk_miner = '1' then
-			state_register(15 downto 1) <= (others => '0') ;
+			state_register(15 downto 10) <= step ;
+			state_register(9 downto 1) <= nonce(31 downto  23);
 			if loading = '1' then
 				state_register(0) <= '0' ;
+				hit_latched <= '0' ;
 			elsif nonce = X"ffffffff" and  step = "000000"then
 				state_register(0) <= '1' ;
+			elsif hit = '1' then
+				hit_latched <= '1' ;
 			end if ;
 		end if ;
 	end process ;
-		
+	
 	result_latch : generic_latch 
 	 generic map(NBIT => 32)
     port map ( clk => clk_miner,
@@ -274,7 +279,7 @@ bi_fifo0 : fifo_peripheral
 	 generic map(NBIT => 2)
     Port map( clk => clk_miner, 
            resetn => sys_resetn,
-           sraz => '0' ,
+           sraz => loading ,
            en => en_counter,
 			  load => '0' ,
 			  E => "00",
@@ -285,12 +290,12 @@ bi_fifo0 : fifo_peripheral
 					  '1' when count > 0 else
 					  '0' ;
 					  
-	fifo_input <= result_latched(31 downto 16) when count(1) = '0' else
-						result_latched(15 downto 0) ;
+	fifo_input <= result_latched(15 downto 0) when count(1) = '0' else
+						result_latched(31 downto 16) ;
 						
 	fifoB_wr	<= count(0) ;
 						
-	LED(1) <= hit ;	
+	LED(1) <= hit_latched ;	
 										
 					
 end Behavioral;
