@@ -32,8 +32,12 @@ class Logibone:
 				available = self.getAvailable()	
 				print available
 				time.sleep(0.001)
+			result = [];
 			for i in range(nbBytes/2):
-				result.extend(struct.unpack("B", self.gpmc[0:2]))
+				longVal =  struct.unpack("<H",self.gpmc[0:2])
+				print longVal
+				result.append(longVal[0] & 0x00FF)
+				result.append((longVal[0] >> 8) & 0x00FF)
 			return result
 
 	def write(self, val):
@@ -56,6 +60,7 @@ class Logibone:
 		else:
 			self.gpmc[RESETA_INDEX:RESETA_INDEX+2] = struct.pack("<H", 0)
 			self.gpmc[RESETB_INDEX:RESETB_INDEX+2] = struct.pack("<H", 0)
+
 	def getSize(self):
 			ret = struct.unpack("<H",self.gpmc[SIZE_INDEX:SIZE_INDEX+2])
 			return ret[0]
@@ -70,7 +75,11 @@ class Logibone:
 
 	def readState(self):
 		ret = struct.unpack("<H", self.gpmc[LATCH_INDEX:LATCH_INDEX+2])	
-		return ret[0]
+		state = []		
+		state.append(ret[0]>>10)
+		state.append((ret[0]>>1) & 0x01FF)
+		state.append(ret[0] & 0x0001)		
+		return state
 
 	def close(self):
 		if self.file > 0 :
@@ -91,9 +100,13 @@ if __name__ == "__main__":
 		time.sleep(2)
 		bone.write(sha_data)
 		while bone.getAvailable() == 0:
-			print bone.getAvailable()
 			print bone.readState()
-			time.sleep(1)
+			time.sleep(5)
+		print bone.getAvailable()
+		vals=bone.read(4)
+		print vals
+		for hv in vals:
+			print "%02x" % ord(hv)
 	except KeyboardInterrupt:
 		print("Terminated by Ctrl+C")
 		exit(0)
