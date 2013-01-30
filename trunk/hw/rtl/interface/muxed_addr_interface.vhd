@@ -37,6 +37,7 @@ generic(ADDR_WIDTH : positive := 8 ; DATA_WIDTH : positive := 16);
 port(clk, resetn : in std_logic ;
 	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  wrn, oen, addr_en_n, csn : in std_logic ;
+	  be0n, be1n : in std_logic ;
 	  data_bus_out	: out	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  data_bus_in	: in	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
@@ -68,9 +69,15 @@ if resetn ='0' then
 	rdt <= '0' ;
 	data_bus_out_t <= (others => 'Z');
 elsif clk'event and clk ='1' then
-	wrt <= (NOT wrn) and (NOT csn) and (NOT latch_addr) ;
+	wrt <= (NOT wrn) and (NOT csn) and (NOT latch_addr) and (be0n); -- only write on  high bytes
 	rdt <= (NOT oen) and (NOT csn)  and (NOT latch_addr) ;
-	data_bus_out_t <= data ;
+	if latch_addr = '0' and wrn = '0' and csn = '0' and be0n = '0' and be1n = '1' then
+		data_bus_out_t(7 downto 0) <= data(7 downto 0) ;
+	elsif latch_addr = '0' and wrn = '0' and csn = '0' and be0n = '1' and be1n = '0' then
+		data_bus_out_t(15 downto 8) <= data(15 downto 8) ;
+	elsif latch_addr = '0' and wrn = '0' and csn = '0' and be0n = '1' and be1n = '1' then
+		data_bus_out_t <= data ;
+	end if;
 end if ;
 end process;
 
@@ -79,6 +86,7 @@ rd <= rdt ;
 
 data <= data_bus_in when (oen = '0' and csn = '0') else
 		  (others => 'Z');
+
 
 data_bus_out <= data_bus_out_t ;
 
