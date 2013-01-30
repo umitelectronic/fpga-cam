@@ -40,6 +40,7 @@ generic(ADDR_WIDTH : positive := 8 ; DATA_WIDTH : positive := 16);
 port(clk, resetn : in std_logic ;
 	  data	:	inout	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  wrn, oen, addr_en_n, csn : in std_logic ;
+	  be0n, be1n : in std_logic ;
 	  data_bus_out	: out	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  data_bus_in	: in	std_logic_vector((DATA_WIDTH - 1) downto 0);
 	  addr_bus	:	out	std_logic_vector((ADDR_WIDTH - 1) downto 0);
