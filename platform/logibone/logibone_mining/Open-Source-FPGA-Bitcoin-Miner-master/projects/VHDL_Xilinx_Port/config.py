@@ -1,11 +1,11 @@
 fpgaport = "/dev/ttyUSB0"
 pools = [ \
   {
-    "name": "BTC Guild", \
+    "name": "bitlc", \
     "servers": [ \
-      {"host": "btcguild.com", "port": 8332}, \
+      {"host": "pool.bitlc.net", "port": 80}, \
     ], \
-    "username": "USERNAME", \
-    "password": "PASSWORD", \
+    "username": "hwNBwG", \
+    "password": "prYxXy", \
   }, \
 ]

@@ -140,6 +140,8 @@
     <transform xil_pn:end_ts="1359549788" xil_pn:in_ck="-4550688412176713581" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1359549700">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="logibone_mining.pcf"/>
       <outfile xil_pn:name="logibone_mining_map.map"/>
