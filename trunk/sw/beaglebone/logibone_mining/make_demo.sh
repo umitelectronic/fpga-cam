@@ -9,7 +9,7 @@ cd ../
 opkg install python-json python-mmap
 #sudo apt-get install python-json python-mmap
 echo "wait for the following script to end"
-echo "result should be {21, 51, 51, 14}"
+echo "result should be : nonce :7a33330e "
 python logibone.py
 echo "complete config.py with your worker configuration"
 echo "then launch python logibone_miner.py"
