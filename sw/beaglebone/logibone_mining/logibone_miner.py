@@ -23,7 +23,7 @@ class Pool(object):
     self.__dict__ = dict
 
   def sendresult(self, job, nonce):
-    self.miner.log("Found share: %s:%s:%s:%s\n" % (self.name, binascii.hexlify(job.state), binascii.hexlify(job.data[64:76]), binascii.hexlify(nonce)), self.miner.green)
+    self.miner.log("Found share: %s:%s:%s:%s\n" % (self.name, binascii.hexlify(job.state), binascii.hexlify(job.data[64:76]), binascii.hexlify(nonce)))
     uploader = threading.Thread(None, self.uploadresult, self.name + "_uploadresult_" + binascii.hexlify(nonce), (job, nonce))
     uploader.daemon = True
     uploader.start()
@@ -38,6 +38,7 @@ class Pool(object):
           headers = {"User-Agent": "PyFPGAMiner " + miner.version, "Content-type": "application/json", "Content-Length": len(req), "Authorization": self.auth}
           conn.request("POST", s.path, req, headers)
           response = json.loads(conn.getresponse().read())
+          self.miner.log(response)
           if response["error"] != None: raise Exception("Server reported error: %s" % response["error"])
           if response["result"]:
             self.miner.log("%s accepted share %s\n" % (self.name, binascii.hexlify(nonce)))
@@ -158,9 +159,9 @@ class Miner(object):
   def showstats(self):
     self.conlock.acquire()
     versionstr = "PyFPGAMiner v. " + self.version
-    if hasattr(self, "mhps"):
-      print "FPGA speed: \n"+"%.1f MH/s" % self.mhps
-      print " - job interval: "+"%.2fs" % self.fpgajobinterval
+    #if hasattr(self, "mhps"):
+      #print "FPGA speed: \n"+"%.1f MH/s" % self.mhps
+      #print " - job interval: "+"%.2fs" % self.fpgajobinterval
     self.conlock.release()
 
   def run(self):
@@ -170,8 +171,8 @@ class Miner(object):
     self.buffer = getattr(config, "buffer", 2)
     self.fpgajobinterval = getattr(config, "fpgajobinterval", 999)
     self.fpgapollinterval = getattr(config, "fpgapollinterval", 1)
-    self.getworktimeout = getattr(config, "getworktimeout", 10)
-    self.sendsharetimeout = getattr(config, "sendsharetimeout", 10)
+    self.getworktimeout = getattr(config, "getworktimeout", 20)
+    self.sendsharetimeout = getattr(config, "sendsharetimeout", 20)
     self.longpolltimeout = getattr(config, "longpolltimeout", 120)
     self.longpollgrouptime = getattr(config, "longpollgrouptime", 20)
     self.retrystales = getattr(config, "retrystales", 1)
@@ -227,7 +228,7 @@ class Miner(object):
     self.mhps = 45.335163 / delta
     delta = min(60, delta * 94.738)
     self.log("%f MH/s\n" % self.mhps)
-    self.fpgajobinterval = min(self.fpgajobinterval, max(0.5, delta * 0.8 - 1))
+    self.fpgajobinterval = min(self.fpgajobinterval, max(0.5, delta * 0.8 - 1))*3
     self.fpgapollinterval = min(self.fpgapollinterval, self.fpgajobinterval / 5)
     self.log("FPGA job interval: ")
     self.log("%f seconds\n" % self.fpgajobinterval)
@@ -282,14 +283,15 @@ class Miner(object):
       if resp[3] == 1:
         self.fpga.timeout = 1
       	nonce = self.fpga.readResult(); # getting result
-	print "result is %s\n" % binascii.hexlify(self.job.check)
-      	if self.job.check != None and self.job.check != nonce:
+      	print "nonce = %s \n" % binascii.hexlify(nonce)
+        if self.job.check != None and self.job.check != nonce:
 		self.die(6, "FPGA is not working correctly (returned %s instead of %s)\n" % (binascii.hexlify(nonce), binascii.hexlify(self.job.check)))
 	if self.job.pool != None:
 		self.job.pool.sendresult(self.job, nonce)
+                break
 	if self.job.check != None: break
         continue
-	if resp[3] == 1:
+	if resp[2] == 1:
 	        self.log("FPGA exhausted keyspace!\n")
         break
         self.die(4, "Got bad message from FPGA: %d\n" % result)

@@ -1,4 +1,4 @@
-import fcntl, os, time, mmap, struct
+import fcntl, os, time, mmap, struct, binascii
 
 
 RESETA_INDEX = 12
@@ -138,9 +138,8 @@ if __name__ == "__main__":
 			bone.getAvailable()
 			status = bone.readState()
 			print status
-			print bone.readResult()
 			time.sleep(5)
-		print bone.readResult()
+		print "nonce :%s \n" % binascii.hexlify(bone.readResult())
 	except KeyboardInterrupt:
 		print("Terminated by Ctrl+C")
 		exit(0)

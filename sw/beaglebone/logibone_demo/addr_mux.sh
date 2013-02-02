@@ -19,14 +19,21 @@ echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_ad8
 echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_ad9
 
 
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data0
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data1
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data2
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data3
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data4
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data5
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data6
-echo 0x07 > /sys/kernel/debug/omap_mux/lcd_data7
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data0
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data1
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data2
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data3
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data4
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data5
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data6
+echo 0x27 > /sys/kernel/debug/omap_mux/lcd_data7
+
+
+#echo 0x27 > /sys/kernel/debug/omap_mux/i2c0_sda
+#echo 0x27 > /sys/kernel/debug/omap_mux/uart1_rxd
+echo 0x27 > /sys/kernel/debug/omap_mux/spi0_sclk
+echo 0x27 > /sys/kernel/debug/omap_mux/spi0_d1
+
 
 # FPGA CFG_PINS PIO2_8,10,12
 echo 72 > /sys/class/gpio/export
@@ -35,6 +42,9 @@ echo 74 > /sys/class/gpio/export
 echo 75 > /sys/class/gpio/export
 echo 76 > /sys/class/gpio/export
 echo 77 > /sys/class/gpio/export
+
+echo 02 > /sys/class/gpio/export #SERIAL CONFIG CLK
+echo 04 > /sys/class/gpio/export #SERIAL CONFIG DATA OUT
 
 echo in > /sys/class/gpio/gpio72/direction #CFG_DONE
 echo in > /sys/class/gpio/gpio74/direction #INIT_B
@@ -46,6 +56,11 @@ echo out > /sys/class/gpio/gpio77/direction #MODE0
 echo 1 > /sys/class/gpio/gpio75/value #SLAVE SERIAL MODE '11'
 echo 1 > /sys/class/gpio/gpio77/value
 
+echo out > /sys/class/gpio/gpio2/direction #clock is out
+echo 0 > /sys/class/gpio/gpio2/value #clock is zero
+
+echo out > /sys/class/gpio/gpio4/direction #data is out
+echo 0 > /sys/class/gpio/gpio4/value #data is zero
 
 
 
