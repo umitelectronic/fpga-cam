@@ -33,10 +33,10 @@ void clearProgramm();
 void setProgramm();
 char checkDone();
 char checkInit();
-void setClk();
-void clearClk();
-void setDout();
-void clearDout();
+inline void setClk();
+inline void clearClk();
+inline void setDout();
+inline void clearDout();
 void __delay_cycles(unsigned long cycles);
 
 char serialConfig(unsigned char * buffer, unsigned int length);
@@ -79,19 +79,19 @@ char checkDone(){
 char checkInit(){
 	return (map[(GPIO2-MMAP_OFFSET+GPIO_DATAIN)/4] & (1<<10))>>10;
 }
-void setClk(){
+inline void setClk(){
 	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<2);
 }
-void clearClk(){
+inline void clearClk(){
 	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<2);
 }
-void setDout(){
+inline void setDout(){
 	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<4);
 }
-void clearDout(){
+inline void clearDout(){
 	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<4);
 }
@@ -102,9 +102,9 @@ char serialConfig(unsigned char * buffer, unsigned int length){
 	unsigned long int timer = 0;
 	clearClk();
 	setProgramm();
-	__delay_cycles(CONFIG_CYCLES);	
+	__delay_cycles(10*CONFIG_CYCLES);	
 	clearProgramm();
-	__delay_cycles(CONFIG_CYCLES);	
+	__delay_cycles(5*CONFIG_CYCLES);	
 	while(checkInit() > 0 && timer < 0xFFFFFF) timer ++; // waiting for init pin to go down
 	if(timer >= 0xFFFFFF){
 		 printf("Init pin not going down !");
@@ -112,7 +112,7 @@ char serialConfig(unsigned char * buffer, unsigned int length){
 		 return -1;	
 	}
 	timer = 0;
-	__delay_cycles(CONFIG_CYCLES);
+	__delay_cycles(5*CONFIG_CYCLES);
 	setProgramm();
 	while(checkInit() == 0 && timer < 0xFFFFFF){
 		 timer ++; // waiting for init pin to go up
