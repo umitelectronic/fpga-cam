@@ -38,7 +38,7 @@ class Pool(object):
           headers = {"User-Agent": "PyFPGAMiner " + miner.version, "Content-type": "application/json", "Content-Length": len(req), "Authorization": self.auth}
           conn.request("POST", s.path, req, headers)
           response = json.loads(conn.getresponse().read())
-          self.miner.log(response)
+          self.miner.log(str(response))
           if response["error"] != None: raise Exception("Server reported error: %s" % response["error"])
           if response["result"]:
             self.miner.log("%s accepted share %s\n" % (self.name, binascii.hexlify(nonce)))
