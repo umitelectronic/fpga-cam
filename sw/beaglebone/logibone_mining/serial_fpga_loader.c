@@ -6,7 +6,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 
-#define CONFIG_CYCLES 5
+#define CONFIG_CYCLES 1
 
 
 #define MMAP_OFFSET (0x44C00000)
@@ -153,9 +153,9 @@ void serialConfigWriteByte(unsigned char val){
 				clearDout();
 			}
 			valBuf = (valBuf << 1);
-			__delay_cycles(CONFIG_CYCLES);
+			//__delay_cycles(CONFIG_CYCLES);
 			setClk();
-			__delay_cycles(CONFIG_CYCLES);		
+			//__delay_cycles(CONFIG_CYCLES);		
 		}
 }
 
