@@ -6,7 +6,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 
-#define CONFIG_CYCLES 50
+#define CONFIG_CYCLES 5
 
 
 #define MMAP_OFFSET (0x44C00000)
@@ -101,6 +101,8 @@ char serialConfig(unsigned char * buffer, unsigned int length){
 	unsigned long int i ;
 	unsigned long int timer = 0;
 	clearClk();
+	setProgramm();
+	__delay_cycles(CONFIG_CYCLES);	
 	clearProgramm();
 	__delay_cycles(CONFIG_CYCLES);	
 	while(checkInit() > 0 && timer < 0xFFFFFF) timer ++; // waiting for init pin to go down
