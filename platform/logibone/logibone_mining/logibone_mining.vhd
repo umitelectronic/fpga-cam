@@ -96,7 +96,7 @@ architecture Behavioral of logibone_mining is
 	signal nonce, currnonce : std_logic_vector(31 downto 0);
 	signal step : std_logic_vector(5 downto 0) := "000000";
 	signal hit, hit_latched : std_logic;
-	signal load : std_logic_vector(335 downto 0);
+	signal load : std_logic_vector(351 downto 0);
 	signal loadctr : std_logic_vector(5 downto 0);
 	signal loading : std_logic := '0';
 	signal txdata : std_logic_vector(48 downto 0);
@@ -105,7 +105,7 @@ architecture Behavioral of logibone_mining is
 	signal en_counter : std_logic ;
 	signal count : std_logic_vector(1 downto 0);
 	signal toggle : std_logic ;
-	
+	signal sraz_nonce, wr_rising_edge, wr_old : std_logic ;
 	signal latch_loop : std_logic_vector(15 downto 0);
 begin
 	
@@ -118,7 +118,7 @@ begin
 		CLK_OUT3 => clk_miner, --60mhz miner clock
 		LOCKED => clk_locked
 	);
-
+--clk_miner <= clk_sys ;
 
 	reset0: reset_generator 
 	generic map(HOLD_0 => 1000)
@@ -154,119 +154,90 @@ port map(clk => clk_sys ,
 	  wr => bus_wr , rd => bus_rd 
 );
 
-cs_fifo <= '1' when bus_addr(15 downto 3) = "0000000000000" else
-			  '0' ;
-			  
-cs_latch <= '1' when bus_addr(15 downto 3) = "0000000000001" else
-			  '0' ;		
-			  
---cs_latch <= '1' when bus_addr(15 downto 0) = "0000000000001000" else
---			  '0' ;		
---
---cs_nonce_MSB_latch <= '1' when bus_addr(15 downto 0) = "0000000000001010" else
---			  '0' ;		
---
---cs_nonce_LSB_latch <= '1' when bus_addr(15 downto 0) = "0000000000001001" else
---			  '0' ;					  
+	cs_fifo <= '1' when bus_addr(15 downto 3) = "0000000000000" else
+				  '0' ;
+				  
+	cs_latch <= '1' when bus_addr(15 downto 3) = "0000000000001" else
+				  '0' ;		
 
---bus_data_in <= bus_fifo_out when cs_fifo = '1' else
---					bus_latch_out when cs_latch = '1' else
---					bus_nonce_MSB_out when cs_nonce_MSB_latch = '1' else
---					bus_nonce_LSB_out when cs_nonce_LSB_latch = '1' else
---					(others => '1');
-
-bus_data_in <= bus_fifo_out when cs_fifo = '1' else
-					bus_latch_out when cs_latch = '1' else
-					(others => '1');
+	bus_data_in <= bus_fifo_out when cs_fifo = '1' else
+						bus_latch_out when cs_latch = '1' else
+						(others => '1');
 
 
-info_latches : addr_latches_peripheral
-generic map(ADDR_WIDTH => 16,  WIDTH => 16,  NB => 8)
-port map(
-	clk => clk_sys, resetn => sys_resetn,
-	addr_bus => bus_addr,
-	wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_latch,
-	data_bus_in	=> bus_data_out,
-	data_bus_out	=> bus_latch_out,
-	latch_input(0) =>  state_register,
-	latch_input(1) =>  result_latched(15 downto 0),
-	latch_input(2) =>  result_latched(31 downto 16),
-	latch_input(3) =>  data(15 downto 0),
-	latch_input(4) =>  data(31 downto 16),
-	latch_input(5) =>  data(79 downto 64),
-	latch_input(6) =>  data(95 downto 80),
-	latch_input(7) =>  latch_loop,
-	latch_output(0) => open ,
-	latch_output(1) => open ,
-	latch_output(2) => open ,
-	latch_output(3) => open ,
-	latch_output(4) => open ,
-	latch_output(5) => open ,
-	latch_output(6) => open ,
-	latch_output(7) => latch_loop
-);
+	info_latches : addr_latches_peripheral
+	generic map(ADDR_WIDTH => 16,  WIDTH => 16,  NB => 8)
+	port map(
+		clk => clk_sys, resetn => sys_resetn,
+		addr_bus => bus_addr,
+		wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_latch,
+		data_bus_in	=> bus_data_out,
+		data_bus_out	=> bus_latch_out,
+		latch_input(0) =>  state_register,
+		latch_input(1) =>  result_latched(15 downto 0),
+		latch_input(2) =>  result_latched(31 downto 16),
+		latch_input(3) =>  data(15 downto 0),
+		latch_input(4) =>  data(31 downto 16),
+		latch_input(5) =>  data(79 downto 64),
+		latch_input(6) =>  data(95 downto 80),
+		latch_input(7) =>  latch_loop,
+		latch_output(0) => open ,
+		latch_output(1) => open ,
+		latch_output(2) => open ,
+		latch_output(3) => open ,
+		latch_output(4) => open ,
+		latch_output(5) => open ,
+		latch_output(6) => open ,
+		latch_output(7) => latch_loop
+	);
 
 
---state_latch :latch_peripheral
---generic map(ADDR_WIDTH => 16,  WIDTH	=> 16)
---port map(
---	clk => clk_sys, resetn => sys_resetn,
---	addr_bus => bus_addr,
---	wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_latch,
---	data_bus_in	=> bus_data_out,
---	data_bus_out => bus_latch_out,
---	latch_input => state_register,
---	latch_output => open
---);
---
---nonce_LSB_latch :latch_peripheral
---generic map(ADDR_WIDTH => 16,  WIDTH	=> 16)
---port map(
---	clk => clk_sys, resetn => sys_resetn,
---	addr_bus => bus_addr,
---	wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_nonce_LSB_latch,
---	data_bus_in	=> bus_data_out,
---	data_bus_out => bus_nonce_LSB_out,
---	latch_input => result_latched(15 downto 0),
---	latch_output => open
---);
---
---nonce_MSB_latch :latch_peripheral
---generic map(ADDR_WIDTH => 16,  WIDTH	=> 16)
---port map(
---	clk => clk_sys, resetn => sys_resetn,
---	addr_bus => bus_addr,
---	wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_nonce_MSB_latch,
---	data_bus_in	=> bus_data_out,
---	data_bus_out => bus_nonce_MSB_out,
---	latch_input => result_latched(31 downto 16),
---	latch_output => open
---);
+	process(clk_sys, sys_resetn)
+	begin
+		if sys_resetn = '0' then
+			wr_old <= '0' ;
+		elsif clk_sys'event and clk_sys = '1' then
+			wr_old <= bus_wr ;
+		end if ;
+	end process ;
+	wr_rising_edge <= bus_wr and (not wr_old) ;
 
+	process(clk_sys, sys_resetn)
+	begin
+		if sys_resetn = '0' then
+			load <= (others => '0') ;
+			loadctr <= (others => '0') ;
+		elsif clk_sys'event and clk_sys = '1' then
+			if cs_fifo = '1' and wr_rising_edge = '1' and bus_addr(2 downto 0) = 0 then
+					load(351 downto 16) <= load(335 downto 0);
+					load(15 downto 0) <= bus_data_out;
+					loadctr <= loadctr + 1 ;
+					if loadctr = "010101" then
+						loadctr <= (others => '0') ;
+					end if ;
+			end if ;
+		end if ;
+	end process ;
+	loading <= '1' when loadctr > 0 else
+					'0' ;
+	process(clk_miner, sys_resetn)
+	begin
+	if sys_resetn = '0' then
+		nonce <= (others => '0');
+	elsif rising_edge(clk_miner) then
+		step <= step + 1;
+		if sraz_nonce = '1' then
+			nonce <= (others => '0');
+		elsif conv_integer(step) = 2 ** (6 - DEPTH) - 1 then
+			step <= "000000";
+			nonce <= nonce + 1;
+		end if;
+	end if;
+	end process ;
+	sraz_nonce <= loading ;
+	state <= load(351 downto 96);
+	data <= load(95 downto 0) ; -- last data to load
 
-
-
-bi_fifo0 : fifo_peripheral 
-		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 1024, BURST_SIZE => 4)--16384)
-		port map(
-			clk => clk_sys,
-			resetn => sys_resetn,
-			addr_bus => bus_addr,
-			wr_bus => bus_wr,
-			rd_bus => bus_rd,
-			cs_bus => cs_fifo,
-			wrB => fifoB_wr,
-			rdA => fifoA_rd,
-			data_bus_in => bus_data_out,
-			data_bus_out => bus_fifo_out,
-			inputB => fifo_input, 
-			outputA => fifo_output,
-			emptyA => fifoA_empty,
-			fullA => fifoA_full,
-			emptyB => fifoB_empty,
-			fullB => fifoB_full
-		);
-		
 		miner0: miner
 	   generic map ( DEPTH => DEPTH )
 		port map (
@@ -278,47 +249,7 @@ bi_fifo0 : fifo_peripheral
 			hit => hit
 		);
 		
-	currnonce <= nonce - 2 * 2 ** DEPTH;	
-	
-	fifoA_rd <= toggle ;
-	process(clk_miner, sys_resetn)
-	begin
-		if sys_resetn = '0' then
-			toggle <= '0';
-			loadctr <= "000000" ;
-			--state <= X"228ea4732a3c9ba860c009cda7252b9161a5e75ec8c582a5f106abb3af41f790";
-			--data <= X"2194261a9395e64dbed17115";
-			--nonce <= x"00000000";
-			state <= (others => '0');
-			data <= (others => '0');
-			nonce <= (others => '0');
-			loading <= '0' ;
-		elsif rising_edge(clk_miner) then
-			step <= step + 1;
-			if conv_integer(step) = 2 ** (6 - DEPTH) - 1 then
-				step <= "000000";
-				nonce <= nonce + 1;
-			end if;
-			if loading = '1' and toggle = '1' then
-				if loadctr = "010101" then --21 load on last
-					state <= load(335 downto 80);
-					data <= load(79 downto 0) & fifo_output(15 downto 0); -- last data to load
-					nonce <= x"00000000";
-					loadctr <= (others => '0');
-					loading <= '0' ;
-				else
-					load(335 downto 16) <= load(319 downto 0);
-					load(15 downto 0) <= fifo_output; -- loading data from fifo, needs to assert fifo_rd ...
-					loadctr <= loadctr + 1; -- increase
-					loading <= '1' ;
-				end if;
-				toggle <= '0' ;
-			elsif fifoA_empty = '0' and toggle = '0' then
-				loading <= '1' ;
-				toggle <= '1' ;
-			end if;
-		end if;
-	end process;	
+	currnonce <= nonce - 2 * 2 ** DEPTH;		
 		
 	-- manage state register
 	process(clk_miner, sys_resetn)
