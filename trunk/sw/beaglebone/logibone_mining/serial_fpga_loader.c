@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <time.h>
 
 #define CONFIG_CYCLES 1
 
@@ -23,12 +24,15 @@
 #define GPIO_DATAOUT      (0x13C)
 #define GPIO_DATAIN       (0x138)
 
+
+int fd;
 static volatile uint32_t *map;
 
 unsigned char configBits[1024*1024];
 
 
 char initGPIOs();
+void closeGPIOs();
 void clearProgramm();
 void setProgramm();
 char checkDone();
@@ -51,7 +55,6 @@ void __delay_cycles(unsigned long cycles){
 }
 
 char initGPIOs(){
-	int fd;
 	fd = open("/dev/mem", O_RDWR);
 	if(fd == -1) {
 		perror("Unable to open /dev/mem");
@@ -65,12 +68,16 @@ char initGPIOs(){
 	}
 }
 
+void closeGPIOs(){
+	close(fd);
+}
+
 void clearProgramm(){
-	map[(GPIO2-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<12);
+	//map[(GPIO2-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<12);
 	map[(GPIO2-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<12);
 }
 void setProgramm(){
-	map[(GPIO2-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<12);
+	//map[(GPIO2-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<12);
 	map[(GPIO2-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<12);
 }
 char checkDone(){
@@ -80,19 +87,19 @@ char checkInit(){
 	return (map[(GPIO2-MMAP_OFFSET+GPIO_DATAIN)/4] & (1<<10))>>10;
 }
 inline void setClk(){
-	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
+	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<2);
 }
 inline void clearClk(){
-	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
+	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<2);
 }
 inline void setDout(){
-	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
+	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<4);
 }
 inline void clearDout(){
-	map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
+	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<4);
 }
 
@@ -144,7 +151,7 @@ char serialConfig(unsigned char * buffer, unsigned int length){
 void serialConfigWriteByte(unsigned char val){
 		unsigned char i = 0 ;
 		unsigned char valBuf = val ;
-		for(i = 0 ; i < 8 ; i ++){ //MODE3
+		for(i = 0 ; i < 8 ; i ++){
 			if((valBuf & 0x80) != 0){
 				clearClk(); // clk down
 				setDout();
@@ -163,6 +170,9 @@ void serialConfigWriteByte(unsigned char val){
 int main(int argc, char ** argv){
 	char c ;
 	FILE * fr;
+	long start_time, end_time ;
+	double diff_time ;
+	struct timespec cpu_time ;
 	unsigned int size = 0 ;	
 	initGPIOs();
 	fr = fopen (argv[1], "rb");  /* open the file for reading bytes*/
@@ -171,12 +181,20 @@ int main(int argc, char ** argv){
 	}
 	size = fread(configBits, 1, 1024*1024, fr);
 	printf("bit file size : %d \n", size);
+	clock_gettime(CLOCK_REALTIME, &cpu_time);
+	start_time = cpu_time.tv_sec ;
 	if(serialConfig(configBits, size) < 0){
 		printf("config error \n");
 		exit(0);	
 	}else{
-		printf("config success ! \n");
-		return 1;	
+		printf("config success ! \n");	
 	}
+	clock_gettime(CLOCK_REALTIME, &cpu_time);
+	end_time = cpu_time.tv_sec ;
+	diff_time = end_time - start_time ;
+	//diff_time = diff_time/1000000 ;
+	printf("Configuration took %fs \n", diff_time);
+	closeGPIOs();
 	fclose(fr);
+	return 1;
 }
