@@ -8,6 +8,7 @@
   LIBRARY work ;
   use work.image_pack.all ;
    use work.filter_pack.all ;
+	use work.utils_pack.all ;
 
   ENTITY testbench IS
   END testbench;
@@ -22,24 +23,25 @@
 			signal clk, resetn : std_logic ;
 			signal pxclk, hsync, vsync : std_logic ;
 			signal pxclk_out, hsync_out, vsync_out : std_logic ;
+			signal pxclk_out_synced, hsync_out_synced, vsync_out_synced : std_logic ;
 			signal new_block : std_logic ;
 			--signal block_out :  mat3 ;
 			signal block_out : matNM(0 to 2, 0 to 2) ;
-			signal pixel, pixel_out: std_logic_vector(7 downto 0 ) := (others => '0');
+			signal pixel, pixel_out, pixel_out_synced: std_logic_vector(7 downto 0 ) := (others => '0');
 
   BEGIN
---         block3X3v3_0 :  block3X3_pixel_pipeline 
---				port map(
---						resetn => resetn, 
---						pixel_clock => pxclk, 
---						hsync => hsync, 
---						vsync => vsync,
---						pixel_data_in => pixel, 
---						pixel_clock_out => pxclk_out, 
---						hsync_out => hsync_out, 
---						vsync_out => vsync_out,
---						block_out => block_out
---				);
+         block3X3v3_0 :  block3X3_pixel_pipeline_sp 
+				port map(
+						resetn => resetn, 
+						pixel_clock => pxclk, 
+						hsync => hsync, 
+						vsync => vsync,
+						pixel_data_in => pixel, 
+						pixel_clock_out => pxclk_out, 
+						hsync_out => hsync_out, 
+						vsync_out => vsync_out,
+						block_out => block_out
+				);
 				
 --			sobel0 : sobel3x3_pixel_pipeline
 --				port map(
@@ -53,18 +55,32 @@
 --										vsync_out => vsync_out,
 --										pixel_data_out => pixel_out
 --				);
-				hyst0 : hyst_threshold_pixel_pipeline
-				port map(
-										resetn => resetn, 
-										pixel_clock => pxclk, 
-										hsync => hsync, 
-										vsync => vsync,
-										pixel_data_in => pixel, 
-										pixel_clock_out => pxclk_out, 
-										hsync_out => hsync_out, 
-										vsync_out => vsync_out,
-										pixel_data_out => pixel_out
-				);
+--				hyst0 : hyst_threshold_pixel_pipeline
+--				port map(
+--										resetn => resetn, 
+--										pixel_clock => pxclk, 
+--										hsync => hsync, 
+--										vsync => vsync,
+--										pixel_data_in => pixel, 
+--										pixel_clock_out => pxclk_out, 
+--										hsync_out => hsync_out, 
+--										vsync_out => vsync_out,
+--										pixel_data_out => pixel_out
+--				);
+--				
+--				
+--			bridge0: clock_bridge 
+--				generic map(SIZE => 10)
+--				port map(
+--						clk_fast => clk, clk_slow => pxclk_out, resetn => resetn ,
+--						clk_slow_out => pxclk_out_synced ,
+--						data_in(0) =>hsync_out,
+--						data_in(1) =>vsync_out,
+--						data_in(9 downto 2) =>pixel_out,
+--						data_out(0) =>hsync_out_synced,
+--						data_out(1) =>vsync_out_synced,
+--						data_out(9 downto 2) =>pixel_out_synced
+--						);
 								
 --			  block3X3v3_0 :  block3X3
 --				port map(

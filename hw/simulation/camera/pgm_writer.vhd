@@ -48,6 +48,7 @@ architecture Behavioral of pgm_writer is
 file pgmfile           : text OPEN write_mode IS WRITE_PATH;
 
 signal hsync_old, hsync_re : std_logic ;
+signal pclk_old, pclk_re : std_logic ;
 
 begin
 
@@ -73,7 +74,7 @@ begin
 		elsif clk'event and clk = '1' then 
 			if hsync_re = '1' then 
 				--writeline (pgmfile, vDataoutline);
-			elsif pixel_clock = '1' and hsync = '0' then 
+			elsif pclk_re = '1' and hsync = '0' then 
 				 if signed(value_in) > 0 then
 					if signed(value_in) > 255 then
 						vDataout := 255; 
@@ -95,11 +96,14 @@ begin
 	 BEGIN
 		if resetn = '0' then
 			hsync_old <= '0' ;
+			pclk_old <= '0' ;
 		elsif clk'event and clk = '1' then  
 			hsync_old <= hsync; 
+			pclk_old <= pixel_clock ;
 		end if ;
   END PROCESS;
   hsync_re <= hsync and (NOT hsync_old);
+  pclk_re <= pixel_clock and (NOT pclk_old) ;
 
 end Behavioral;
 
