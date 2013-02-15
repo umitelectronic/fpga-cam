@@ -1,8 +1,8 @@
 pools = [ \
   {
-    "name": "bitlc", \
+    "name": "btcguild", \
     "servers": [ \
-      {"host": "pool.bitlc.net", "port": 80}, \
+      {"host": "btcguild.com", "port": 8332}, \
     ], \
     "username": "USERNAME", \
     "password": "PASSWORD", \
