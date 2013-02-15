@@ -228,7 +228,7 @@ class Miner(object):
     self.mhps = 45.335163 / delta
     delta = min(60, delta * 94.738)
     self.log("%f MH/s\n" % self.mhps)
-    self.fpgajobinterval = min(self.fpgajobinterval, max(0.5, delta * 0.8 - 1))*3
+    self.fpgajobinterval = min(self.fpgajobinterval, max(0.5, delta * 0.8 - 1))
     self.fpgapollinterval = min(self.fpgapollinterval, self.fpgajobinterval / 5)
     self.log("FPGA job interval: ")
     self.log("%f seconds\n" % self.fpgajobinterval)
