@@ -35,7 +35,7 @@ int main(int argc, char ** argv){
 
 	FILE * jpeg_fd ;
 	FILE * raw_file ;
-	int i, res ;
+	int i,j, res ;
 	unsigned int pos = 0 ;
 	unsigned char image_buffer[(320*240)] ; //monochrome frame buffer
 	int page_size ;
@@ -82,11 +82,11 @@ int main(int argc, char ** argv){
 	start_time = cpu_time.tv_nsec ;
 	 for(i = 0 ; i < IMAGE_HEIGHT ; i ++){
                 for(j = 0 ; j < IMAGE_WIDTH ; j +=8){
-                        memcpy((void *) gpmc_pointer, (void *) &inputImage[(i*I$
+                        memcpy((void *) gpmc_pointer, (void *) &inputImage[(i*IMAGE_WIDTH)+j], 8);
                 }
                 while(gpmc_pointer[6] < ((IMAGE_WIDTH/2)-1));
                 for(j = 0 ; j < IMAGE_WIDTH ; j +=8){
-                        memcpy((void *) &image_buffer[(i*IMAGE_WIDTH)+j], (void$
+                        memcpy((void *) &image_buffer[(i*IMAGE_WIDTH)+j], (void *) gpmc_pointer, 8);
                 }
         }
 	clock_gettime(CLOCK_REALTIME, &cpu_time);
