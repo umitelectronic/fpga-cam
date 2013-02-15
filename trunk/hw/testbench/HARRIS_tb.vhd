@@ -34,8 +34,10 @@ USE ieee.std_logic_UNSIGNED.ALL;
 --USE ieee.numeric_std.ALL;
  
 library work ;
-use work.camera.all ; 
-use work.harris_pack.all ;
+use work.image_pack.all ; 
+use work.utils_pack.all ; 
+use work.feature_pack.all ;
+use work.camera_pack.all ;
  
  
 ENTITY HARRIS_tb IS
@@ -74,7 +76,7 @@ ARCHITECTURE behavior OF HARRIS_tb IS
 BEGIN
  
 	v_cam : virtual_camera 
-		generic map(IMAGE_PATH => "/home/jpiat/Pictures/slam_vue_scaled.pgm", PERIOD => pclk_period)
+		generic map(IMAGE_PATH => "/home/jpiat/Pictures/OpenCV_Chessboard.pgm", PERIOD => pclk_period)
 		port map(
 				clk => clk, 
 				resetn => resetn,
@@ -85,7 +87,7 @@ BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
    uut: HARRIS_FINAL
-		generic map(WIDTH =>  320 , HEIGHT => 240, WINDOW_SIZE => 4)
+		generic map(WIDTH =>  320 , HEIGHT => 240, WINDOW_SIZE => 5)
 		PORT MAP (
           clk => clk,
           resetn => resetn,
