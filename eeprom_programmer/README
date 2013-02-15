@@ -1,8 +1,0 @@
-This project is a work in progress
-
-It's aim is to allow to program the SPARTCAM I2C EEPROM through the USB communication.
-The project is divided into two parts : 
-    - the hdl project, which will be implemented in the FPGA to handle the I2C protocol and the interface with the computer
-    - a computer program to send the configuration data with to the FPGA.
-
-Currently, the HDL part is written in VHDL and uses parts of the SPARTCAM project. The PC part is written in Python which seems fine for fast prototyping.
