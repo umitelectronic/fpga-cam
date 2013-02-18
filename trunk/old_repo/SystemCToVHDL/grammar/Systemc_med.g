@@ -1,4 +1,4 @@
-grammar Systemc_basic;
+grammar Systemc_med;
 
 options {
 output=template;
