@@ -145,9 +145,10 @@ void setProgramm(){
 }
 char checkDone(){
 	#ifdef MARK1
-	unsigned int val ;
+	unsigned short int val ;
 	if(read_mark1_word(0x03, &val) > 0){
-		if(val  == 0x01e1){
+		printf("Done : %x \n", val);
+		if(val  == 0x00e1){
 			printf("Done ok !\n");
 			return 1 ;		
 		}else{
@@ -242,7 +243,7 @@ char serialConfig(unsigned char * buffer, unsigned int length){
 	for(i = 0 ; i < length ; i ++){
 		serialConfigWriteByte(buffer[i]);	
 	}
-	while(/*!checkDone() && */timer < 255){
+	while(timer < 100){
 		clearClk();
 		__delay_cycles(CONFIG_CYCLES);
 		setClk();	
@@ -250,7 +251,7 @@ char serialConfig(unsigned char * buffer, unsigned int length){
 	}
 	clearClk();
 	clearDout();
-	if(timer >= 255){
+	if(!checkDone() && timer >= 255){
 		 printf("Done pin not going high ! \n");
 		 return -1;	
 	}
