@@ -37,17 +37,14 @@ echo 0x27 > /sys/kernel/debug/omap_mux/spi0_d1
 
 
 
-echo 0x17 > /sys/kernel/debug/omap_mux/mcasp0_fsx
-echo 0x17 > /sys/kernel/debug/omap_mux/mcasp0_aclkx
+echo 02 > /sys/class/gpio/export #SERIAL CONFIG CLK
+echo 04 > /sys/class/gpio/export #SERIAL CONFIG DATA OUT
 
-echo 110 > /sys/class/gpio/export #SERIAL CONFIG CLK
-echo 111 > /sys/class/gpio/export #SERIAL CONFIG DATA OUT
+echo out > /sys/class/gpio/gpio2/direction #clock is out
+echo 0 > /sys/class/gpio/gpio2/value #clock is zero
 
-echo out > /sys/class/gpio/gpio110/direction #clock is out
-echo 0 > /sys/class/gpio/gpio110/value #clock is zero
-
-echo out > /sys/class/gpio/gpio111/direction #data is out
-echo 0 > /sys/class/gpio/gpio111/value #data is zero
+echo out > /sys/class/gpio/gpio4/direction #data is out
+echo 0 > /sys/class/gpio/gpio4/value #data is zero
 
 
 
