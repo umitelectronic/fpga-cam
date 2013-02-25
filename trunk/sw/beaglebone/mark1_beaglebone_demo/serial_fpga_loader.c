@@ -29,12 +29,8 @@
 #define MARK1
 #define MARK1_ADDR 0x70
 
-typedef struct{
-  int file ;
-  int number ;
-} i2c;
+int i2c_file ;
 
-i2c * i2c_bus ;
 
 int fd;
 static volatile uint32_t *map;
