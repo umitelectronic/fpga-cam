@@ -49,8 +49,8 @@ echo 0 > /sys/class/gpio/gpio4/value #data is zero
 
 
 echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_advn_ale
-#echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_ben0_cle
-#echo 0x04 > /sys/kernel/debug/omap_mux/gpmc_ben1
+echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_ben0_cle
+echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_ben1
 echo 0x00 > /sys/kernel/debug/omap_mux/gpmc_clk
 #echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn0
 echo 0x20 > /sys/kernel/debug/omap_mux/gpmc_csn1
