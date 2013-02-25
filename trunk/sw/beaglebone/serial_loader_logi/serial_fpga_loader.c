@@ -7,7 +7,6 @@
 #include <fcntl.h>
 #include <time.h>
 #include "i2c-dev.h"
-//#include <linux/i2c-dev.h>
 
 #define CONFIG_CYCLES 1
 
@@ -26,20 +25,14 @@
 #define GPIO_DATAOUT      (0x13C)
 #define GPIO_DATAIN       (0x138)
 
-#define MARK1
 #define MARK1_ADDR 0x70
 
-typedef struct{
-  int file ;
-  int number ;
-} i2c;
-
-i2c * i2c_bus ;
-
+int i2c_fd ;
+char isMark1 = 0 ;
 int fd;
 static volatile uint32_t *map;
 
-unsigned char configBits[1024*1024];
+unsigned char configBits[1024*1024*4];
 
 
 char initGPIOs();
@@ -54,9 +47,9 @@ inline void setDout();
 inline void clearDout();
 void __delay_cycles(unsigned long cycles);
 char write_mark1_reg(unsigned char add);
-char read_mark1_reg(unsigned char add, unsigned short * vals);
+char read_mark1_word(unsigned char add, unsigned short * vals);
 void init_i2c(int nb);
-
+char probeMark1(void);
 
 char serialConfig(unsigned char * buffer, unsigned int length);
 
@@ -70,27 +63,38 @@ void __delay_cycles(unsigned long cycles){
 }
 
 
+char probeMark1(void){
+	unsigned short res ;
+	read_mark1_word(0x06, &res);
+	if(res < 0 || (res & 0xFF) != 0xE1){
+		return 0 ;	
+	}
+	printf("Mark1 found ! \n");
+	return 1 ;
+}
+
 char write_mark1_reg(unsigned char add){
     int resp = 0 ;
-    if (ioctl(i2c_bus -> file, I2C_SLAVE, MARK1_ADDR) < 0) {
+    if (ioctl(i2c_fd, I2C_SLAVE, MARK1_ADDR) < 0) {
         /* ERROR HANDLING; you can check errno to see what went wrong */
+	printf("Wrong device addr \n");
         exit(1);
     }
-    resp = i2c_smbus_write_byte(i2c_bus -> file, add);
+    resp = i2c_smbus_write_byte(i2c_fd, add);
     if (resp < 0) {
-    	printf("error accessing i2c bus , returned :%d \n", resp);    
-	exit(-1);    
+    	printf("error accessing i2c bus , returned :%d \n", resp);       
     }
     return resp;
 }
 
 char read_mark1_word(unsigned char add, unsigned short * val){
     int res = 0 ;
-    if (ioctl(i2c_bus -> file, I2C_SLAVE, MARK1_ADDR) < 0) {
+    if (ioctl(i2c_fd, I2C_SLAVE, MARK1_ADDR) < 0) {
+	printf("Wrong device addr \n");
         /* ERROR HANDLING; you can check errno to see what went wrong */
         exit(1);
     }
-    *val = i2c_smbus_read_word_data(i2c_bus -> file, add);
+    *val = i2c_smbus_read_word_data(i2c_fd, add);
     return *val;
 }
 
@@ -100,14 +104,11 @@ void init_i2c(int nb){
   char filename[20];   
   int file ;   
   snprintf(filename, 19, "/dev/i2c-%d", nb);
-  file = open(filename, O_RDWR);
-  if (file < 0) {
+  i2c_fd = open(filename, O_RDWR);
+  if (i2c_fd < 0) {
   /* ERROR HANDLING; you can check errno to see what went wrong */
     exit(1);
   }
-  i2c_bus = malloc(sizeof(i2c)); 
-  i2c_bus -> number = nb ;
-  i2c_bus -> file = file ; 
 }
 
 
@@ -131,51 +132,51 @@ void closeGPIOs(){
 
 void clearProgramm(){
 	//map[(GPIO2-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<12);
-	#ifdef MARK1
-	write_mark1_reg(0x05);
-	#else
-	map[(GPIO2-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<12);
-	#endif
+	if(isMark1){
+		write_mark1_reg(0x05);
+	}else{
+		map[(GPIO2-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<12);
+	}
 }
 void setProgramm(){
 	//map[(GPIO2-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<12);
-	#ifndef MARK1
+	if(!isMark1){
 	map[(GPIO2-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<12);
-	#endif
+	}
 }
 char checkDone(){
-	#ifdef MARK1
-	unsigned short int val ;
-	if(read_mark1_word(0x03, &val) > 0){
-		printf("Done : %x \n", val);
-		if(val  == 0x00e1){
-			return 1 ;		
+	if(isMark1){
+		unsigned short int val ;
+		if(read_mark1_word(0x03, &val) > 0){
+			if(val  == 0x00e1){
+				printf("Done ok !\n");
+				return 1 ;		
+			}else{
+				return 0 ;		
+			}
 		}else{
-			return 0 ;		
+			return -1;
 		}
 	}else{
-		return -1;
+		return (map[(GPIO2-MMAP_OFFSET+GPIO_DATAIN)/4] & (1<<8))>>8;
 	}
-	#else
-	return (map[(GPIO2-MMAP_OFFSET+GPIO_DATAIN)/4] & (1<<8))>>8;
-	#endif
 }
 char checkInit(){
-	#ifdef MARK1
-	unsigned short int val ;
-	if(read_mark1_word(0x06, &val) > 0){
-		if(val == 0x01e1){
-			printf("Init ok !\n");
-			return 0 ;		
+	if(isMark1){
+		unsigned short int val ;
+		if(read_mark1_word(0x06, &val) > 0){
+			if(val == 0x01e1){
+				printf("Init ok !\n");
+				return 0 ;		
+			}else{
+				return 1 ;		
+			}
 		}else{
-			return 1 ;		
+			return 1;
 		}
 	}else{
-		return 1;
+		return (map[(GPIO2-MMAP_OFFSET+GPIO_DATAIN)/4] & (1<<10))>>10;
 	}
-	#else
-	return (map[(GPIO2-MMAP_OFFSET+GPIO_DATAIN)/4] & (1<<10))>>10;
-	#endif
 }
 inline void setClk(){
 	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
@@ -211,16 +212,16 @@ char serialConfig(unsigned char * buffer, unsigned int length){
 	}
 	timer = 0;
 	__delay_cycles(5*CONFIG_CYCLES);
-	#ifndef MARK1
-	setProgramm();
-	while(checkInit() == 0 && timer < 0xFFFFFF){
-		 timer ++; // waiting for init pin to go up
+	if(!isMark1){
+		setProgramm();
+		while(checkInit() == 0 && timer < 0xFFFFFF){
+			 timer ++; // waiting for init pin to go up
+		}
+		if(timer >= 0xFFFFFF){
+			 printf("Init pin not going high ! \n");	
+			 return -1;
+		}
 	}
-	if(timer >= 0xFFFFFF){
-		 printf("Init pin not going high ! \n");	
-		 return -1;
-	}
-	#endif
 	timer = 0;
 	printf("Starting configuration ! \n");
 	for(i = 0 ; i < length ; i ++){
@@ -268,9 +269,11 @@ int main(int argc, char ** argv){
 	struct timespec cpu_time ;
 	unsigned int size = 0 ;	
 	initGPIOs();
-	#ifdef MARK1
 	init_i2c(3);
-	#endif
+	isMark1 = probeMark1();
+	if(!isMark1){
+		close(i2c_fd);	
+	}
 	fr = fopen (argv[1], "rb");  /* open the file for reading bytes*/
 	if(fr < 0){
 		printf("cannot open file %s \n", argv[1]);	
@@ -292,5 +295,8 @@ int main(int argc, char ** argv){
 	//printf("Configuration took %fs \n", diff_time);
 	closeGPIOs();
 	fclose(fr);
+	if(isMark1){
+		close(i2c_fd);
+	}
 	return 1;
 }
