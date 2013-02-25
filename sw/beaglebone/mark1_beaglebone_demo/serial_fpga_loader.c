@@ -180,35 +180,19 @@ char checkInit(){
 }
 inline void setClk(){
 	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
-	#ifdef MARK1
-	map[(GPIO3-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<14);
-	#else
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<2);
-	#endif
 }
 inline void clearClk(){
 	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<2);
-	#ifdef MARK1
-	map[(GPIO3-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<14);
-	#else
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<2);
-	#endif
 }
 inline void setDout(){
 	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
-	#ifdef MARK1
-	map[(GPIO3-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<15);
-	#else
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] |= (1<<4);
-	#endif
 }
 inline void clearDout(){
 	//map[(GPIO0-MMAP_OFFSET+GPIO_OE)/4] &= ~(1<<4);
-	#ifdef MARK1
-	map[(GPIO3-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<15);
-	#else
 	map[(GPIO0-MMAP_OFFSET+GPIO_DATAOUT)/4] &= ~(1<<4);
-	#endif
 }
 
 
