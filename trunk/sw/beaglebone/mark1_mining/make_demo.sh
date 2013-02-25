@@ -7,8 +7,12 @@ cd config_gpmc
 make
 ./setup_gpmc
 cd ../
-#opkg install python-json python-mmap
-sudo apt-get install python-json python-mmap
+UBUNTU='cat /etc/issue | grep Ubuntu';
+if [ -n "$UBUNTU" ]; then
+ apt-get install python-json python-mmap
+else
+ opkg install python-json python-mmap
+fi
 echo "wait for the following script to end"
 echo "result should be : nonce :7a33330e "
 python logibone.py
