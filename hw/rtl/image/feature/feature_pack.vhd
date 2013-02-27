@@ -37,10 +37,35 @@ generic(WIDTH: natural := 640;
 			descriptor :  out std_logic_vector((DESCRIPTOR_LENGTH - 1) downto 0) );
 end component;
 
+component BRIEF_AS is
+generic(WIDTH: natural := 640;
+		  HEIGHT: natural := 480;
+		  DESCRIPTOR_SIZE : natural := 64);
+		port(
+			clk : in std_logic; 
+			resetn : in std_logic; 
+			line_count : in std_logic_vector((nbit(HEIGHT) - 1) downto 0 ) ;
+			pixel_count : in std_logic_vector((nbit(WIDTH) - 1) downto 0 ) ;
+			curr_descriptor : in std_logic_vector((DESCRIPTOR_SIZE - 1) downto 0) ;  
+			descriptor_correl :  in std_logic_vector((DESCRIPTOR_SIZE - 1) downto 0) ;
+			correl_winx0 :  in std_logic_vector(15 downto 0) ;
+			correl_winx1 :  in std_logic_vector(15 downto 0) ;
+			correl_winy0 :  in std_logic_vector(15 downto 0) ;
+			correl_winy1 :  in std_logic_vector(15 downto 0) ;
+			
+			correl_x	: out std_logic_vector(15 downto 0);
+			correl_y	: out std_logic_vector(15 downto 0);
+			correl_score : out std_logic_vector(nbit(DESCRIPTOR_SIZE)-1 downto 0);
+			correl_done :  out std_logic ;
+			correl_busy : out std_logic
+			);
+end component;
+
 component BRIEF_MANAGER is
 generic(WIDTH: natural := 640;
 		  HEIGHT: natural := 480;
-		  SIZE : natural := 64;
+		  DESC_SIZE : natural := 64;
+		  NB_LMK : natural := 1;
 		  DELAY : natural := 4 );
 port(
  		clk : in std_logic; 
@@ -48,21 +73,24 @@ port(
  		pixel_clock, hsync, vsync : in std_logic; 
  		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 );
-
-
 -- active search interface
-		correl_feature_posx0, correl_feature_posy0, correl_feature_posx1, correl_feature_posy1 : in std_logic_vector((nbit(WIDTH) - 1) downto 0 );
-		feature_to_correl : in std_logic_vector((SIZE - 1) downto 0 );
-		correl_score : out std_logic_vector((nbit(SIZE) - 1) downto 0 );
-		max_correl_posx, max_correl_posy : out std_logic_vector((nbit(WIDTH) - 1) downto 0 );
-		latch_correl : in std_logic ;
+-- each lmk to track should be registered as
+--------16bit---------
+--------desc_msb------
+---------n*desc-------
+----------xpos1-------
+----------xpos2-------
+----------ypos1-------
+----------ypos2-------
+	   as_mem_addr : out std_logic_vector((nbit(NB_LMK*(DESC_SIZE/16+2)) - 1) downto 0);
+		as_mem_data : out std_logic_vector(15 downto 0 );
 
 -- feature extractor interface
-		feature_descriptor : in std_logic_vector((SIZE - 1) downto 0 );
-		latch_feature_descriptor : in std_logic 		
+		feature_descriptor : out std_logic_vector(( DESC_SIZE - 1) downto 0 );
+		latch_feature_descriptor : in std_logic 	-- latch command 	
 
 );
-end component ;
+end component;
 
 component HARRIS_16SADDER is
 generic(NB_VAL : positive := 5);
