@@ -68,6 +68,8 @@ architecture Behavioral of HARRIS_TESSELATION is
 	signal hsync_old, hsync_fe, hsync_re : std_logic ;
 begin
 
+
+-- detecting rising edge on block change and line change
 process(clk, resetn)
 begin
 	if resetn ='0' then
@@ -81,6 +83,8 @@ end process ;
 hsync_fe <= hsync_old and (not hsync) ;
 hsync_re <= (NOT hsync_old) and hsync ;
 
+
+-- storing score (pox in bloc, posy in block , score)
 ram_in <= (std_logic_vector(to_unsigned(0, 32 - (1 + nbit(WIDTH/TILE_NBX) + nbit(WIDTH/TILE_NBY) + 16)))& '1' & block_ypos & block_xpos & harris_score_in) when block_xaddress_old = block_xaddress else
 			 (others => '0');
 
@@ -89,12 +93,15 @@ high_score_xpos <= ram_out(((nbit(WIDTH/TILE_NBX) + 16) - 1) downto 16);
 high_score_ypos <= ram_out(((nbit(WIDTH/TILE_NBY) + (nbit(WIDTH/TILE_NBX) + 16)) - 1) downto (nbit(WIDTH/TILE_NBX) + 16));
 
 
+-- score is out is highest score or new high score
 harris_score_out <= harris_score_in when signed(harris_score_in) > signed(highest_score) else	
 						  highest_score ;
+-- feature coord x, is high score pos in block + block coord 						  
 feature_coordx <= high_score_xpos + top_left_cornerx ;
 feature_coordy <= high_score_ypos + top_left_cornery ;
 
 
+-- new high score is latched if we enter new block or if current socre is higher than igher score
 new_high_score <= '1' when block_xaddress_old /= block_xaddress and block_ypos = 0	 else
 						'0' when ((unsigned(pixel_count) < IGNORE_STRIPES) OR (unsigned(line_count) < IGNORE_STRIPES)) else
 						'1' when signed(harris_score_in) > signed(highest_score) else				
@@ -102,6 +109,8 @@ new_high_score <= '1' when block_xaddress_old /= block_xaddress and block_ypos =
 						
 latch_maxima <= new_high_score ;
 
+
+-- contains current line of blocks maxima
 score_ram : dpram_NxN
 	generic map(SIZE => TILE_NBX , NBIT => 32 , ADDR_WIDTH => nbit(TILE_NBX))
 	port map(
@@ -119,6 +128,8 @@ ram_addr <=  block_xaddress when block_xaddress < TILE_NBX else
 end_of_block <= '1' when block_xpos = (WIDTH/TILE_NBX - 1) and block_ypos = (HEIGHT/TILE_NBY - 1) else
 					 '0' ;
 
+
+-- generates block y address with line counter%block_size
 pixel_counter0 : pixel_counter
 		generic map(MAX => WIDTH)
 		port map(
@@ -151,7 +162,7 @@ pixel_counter0 : pixel_counter
 			end if ;
 		end process ;
 
-	
+-- generates block y address with line counter%block_size	
 	line_counter0: line_counter 
 		generic map(MAX => HEIGHT)
 		port map(
