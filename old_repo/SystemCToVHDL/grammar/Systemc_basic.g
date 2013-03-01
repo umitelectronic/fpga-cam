@@ -720,7 +720,7 @@ NOT	:'!'
 	
 
 INCLUDE
-     : 'include' (WS)? f=STRING_LITERAL {
+     : ('include'|'INCLUDE') (WS)? f=STRING_LITERAL {
        String name = f.getText();
        name = name.substring(1,name.length()-1);
         File parentFile = new File(this.getSourceName());
@@ -752,7 +752,7 @@ INCLUDE
 
 	
 IFNDEF	:	
-	 'ifndef' (WS)? (ID)
+	 ('ifndef'|'IFNDEF') (WS)? (ID)
 	;
 	
 	

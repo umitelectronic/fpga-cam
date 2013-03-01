@@ -27,8 +27,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 
 library WORK ;
-use WORK.CAMERA.ALL ;
-use WORK.generic_components.ALL ;
+use WORK.image_pack.ALL ;
+use WORK.utils_pack.ALL ;
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
 --library UNISIM;
