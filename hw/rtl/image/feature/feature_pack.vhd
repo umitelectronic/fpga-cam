@@ -159,7 +159,20 @@ component HARRIS_TESSELATION is
 	);
 end component;
 
+component feature2fifo is
+generic(FEATURE_SIZE : positive := 128);
+port(
+	clk, resetn : in std_logic ;
+	feature_desc : in std_logic_vector((FEATURE_SIZE - 1) downto 0);
+	harris_posx, harris_posy, harris_score : in std_logic_vector(15 downto 0);
+	new_feature : in std_logic ;
+	
+	--fifo interface
+	fifo_data : out std_logic_vector(15 downto 0);
+	fifo_wr : out std_logic 
 
+);
+end component;
 
 end feature_pack;
 
