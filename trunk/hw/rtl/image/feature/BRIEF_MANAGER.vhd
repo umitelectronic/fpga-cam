@@ -256,7 +256,7 @@ end process;
 process (curr_load_state,vsync_falling_edge, cycle_counter, lmk_count)
 begin
   next_load_state <= curr_load_state ;
-  case current_s is
+  case curr_load_state is
 	when WAIT_HSYNC => 
 		if vsync_falling_edge = '1' then
 			next_load_state <= LOAD_DESC ;
@@ -319,7 +319,7 @@ begin
 if resetn = '0' then
 elsif clk'event and clk = '1' then
 	if array_of_correl_busy(to_integer(lmk_count)) = '0' then -- not loading if correl is ongoing
-		if curr_state = LOAD_DESC  and then
+		if curr_state = LOAD_DESC  then
 			array_of_desc(to_integer(lmk_count))(DESC_SIZE-1 downto 8) <= array_of_desc(to_integer(lmk_count))(DESC_SIZE-9 downto 0);
 			array_of_desc(to_integer(lmk_count))(15 downto 0) <= as_mem_data_in;
 		end if;
