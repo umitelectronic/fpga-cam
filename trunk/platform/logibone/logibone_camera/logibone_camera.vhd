@@ -138,12 +138,15 @@ divider : simple_counter
 			  );
 LED(0) <= counter_output(24);
 LED(1) <= cam_vsync ;
+
+
 mem_interface0 : muxed_addr_interface
 generic map(ADDR_WIDTH => 8 , DATA_WIDTH =>  16)
 port map(clk => clk_sys ,
 	  resetn => sys_resetn ,
 	  data	=> GPMC_AD,
 	  wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(1),
+	  be0n => GPMC_BE0N, be1n => GPMC_BE1N,
 	  data_bus_out	=> bus_data_out,
 	  data_bus_in	=> bus_data_in ,
 	  addr_bus	=> bus_addr, 
@@ -216,7 +219,7 @@ bi_fifo0 : fifo_peripheral
 	PMOD1_3 <= cam_reset ;
 	cam_reset <= resetn ;
 
-soberl_filter : sobel3x3 
+sobel_filter : sobel3x3 
 generic map(WIDTH => 320, HEIGHT => 240)
 port map(
  		clk => clk_sys, 
@@ -233,11 +236,26 @@ output_href <= href_from_sobel ;
 output_vsync <= vsync_from_sobel ;
 output_pixel <= pixel_from_sobel ;
 
+
+
+
 --output_pxclk <= pxclk_from_interface ;
 --output_href <= href_from_interface ;
 --output_vsync <= vsync_from_interface ;
 --output_pixel <= pixel_from_interface ;
-		
+	
+--pix2fifo : pixel2fifo 
+--port map(
+--	clk => clk_sys, resetn => sys_resetn,
+--	pixel_clock => output_pxclk, hsync => output_href, vsync => output_vsync,
+--	pixel_data_in => output_pixel,
+--	fifo_data => fifo_input, 
+--	fifo_wr => fifoB_wr 
+--
+--);
+
+
+	
 	process(clk_sys, sys_resetn)
 begin
 	if sys_resetn = '0' then
