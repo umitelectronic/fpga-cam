@@ -106,11 +106,10 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358780890" xil_pn:in_ck="3722643101991389650" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="8674436096669834828" xil_pn:start_ts="1358780875">
+    <transform xil_pn:end_ts="1362466319" xil_pn:in_ck="3722643101991389650" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="8674436096669834828" xil_pn:start_ts="1362466307">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
@@ -129,22 +128,18 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1358780896" xil_pn:in_ck="5858348203547914648" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-5918313909893007138" xil_pn:start_ts="1358780890">
+    <transform xil_pn:end_ts="1362466324" xil_pn:in_ck="5858348203547914648" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-5918313909893007138" xil_pn:start_ts="1362466319">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.bld"/>
       <outfile xil_pn:name="logibone_sobel.ngd"/>
       <outfile xil_pn:name="logibone_sobel_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1358780917" xil_pn:in_ck="9039124174737496025" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1358780896">
+    <transform xil_pn:end_ts="1362466341" xil_pn:in_ck="9039124174737496025" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1362466324">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.pcf"/>
       <outfile xil_pn:name="logibone_sobel_map.map"/>
@@ -155,11 +150,10 @@
       <outfile xil_pn:name="logibone_sobel_summary.xml"/>
       <outfile xil_pn:name="logibone_sobel_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1358780936" xil_pn:in_ck="5039608108253928114" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1358780917">
+    <transform xil_pn:end_ts="1362466356" xil_pn:in_ck="5039608108253928114" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1362466341">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.ncd"/>
       <outfile xil_pn:name="logibone_sobel.pad"/>
@@ -175,7 +169,10 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.bgn"/>
       <outfile xil_pn:name="logibone_sobel.bit"/>
@@ -192,10 +189,9 @@
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="InputChanged"/>
     </transform>
-    <transform xil_pn:end_ts="1358780936" xil_pn:in_ck="-4994934400677110187" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1358780930">
+    <transform xil_pn:end_ts="1362466356" xil_pn:in_ck="-4994934400677110187" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1362466351">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="logibone_sobel.twr"/>
       <outfile xil_pn:name="logibone_sobel.twx"/>

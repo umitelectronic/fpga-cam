@@ -52,6 +52,7 @@
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="logibone_demo.ut" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:fileType="FILE_XPI" xil_pn:name="logibone_demo.xpi"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="logibone_demo.xst"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="logibone_demo_envsettings.html"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="logibone_demo_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="logibone_demo_map.map" xil_pn:subbranch="Map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="logibone_demo_map.mrp" xil_pn:subbranch="Map"/>
@@ -104,7 +105,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1357322291" xil_pn:in_ck="-6822574818997485739" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-2929926591506382564" xil_pn:start_ts="1357322283">
+    <transform xil_pn:end_ts="1362593962" xil_pn:in_ck="-6822574818997485739" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-2929926591506382564" xil_pn:start_ts="1362593950">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -126,7 +127,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1357322296" xil_pn:in_ck="3117716901353784920" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="1241425811444442766" xil_pn:start_ts="1357322291">
+    <transform xil_pn:end_ts="1362593968" xil_pn:in_ck="3117716901353784920" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="1241425811444442766" xil_pn:start_ts="1362593962">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_ngo"/>
@@ -135,7 +136,7 @@
       <outfile xil_pn:name="logibone_demo.ngd"/>
       <outfile xil_pn:name="logibone_demo_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1357322316" xil_pn:in_ck="6009065275285219449" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1357322296">
+    <transform xil_pn:end_ts="1362593992" xil_pn:in_ck="6009065275285219449" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1362593968">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
@@ -150,7 +151,7 @@
       <outfile xil_pn:name="logibone_demo_summary.xml"/>
       <outfile xil_pn:name="logibone_demo_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1357322367" xil_pn:in_ck="-8614565057437225294" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1357322316">
+    <transform xil_pn:end_ts="1362594045" xil_pn:in_ck="-8614565057437225294" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1362593992">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -165,7 +166,7 @@
       <outfile xil_pn:name="logibone_demo_pad.txt"/>
       <outfile xil_pn:name="logibone_demo_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1357322415" xil_pn:in_ck="-4528300282105762954" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1357322367">
+    <transform xil_pn:end_ts="1362594099" xil_pn:in_ck="-4528300282105762954" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1362594050">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
@@ -177,7 +178,7 @@
       <outfile xil_pn:name="webtalk.log"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1357322367" xil_pn:in_ck="-6714038609473106059" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1357322363">
+    <transform xil_pn:end_ts="1362594045" xil_pn:in_ck="-6714038609473106059" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1362594040">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>

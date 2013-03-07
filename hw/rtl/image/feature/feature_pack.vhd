@@ -44,6 +44,7 @@ generic(WIDTH: natural := 640;
 		port(
 			clk : in std_logic; 
 			resetn : in std_logic; 
+			new_feature : in std_logic;
 			line_count : in std_logic_vector((nbit(HEIGHT) - 1) downto 0 ) ;
 			pixel_count : in std_logic_vector((nbit(WIDTH) - 1) downto 0 ) ;
 			curr_descriptor : in std_logic_vector((DESCRIPTOR_SIZE - 1) downto 0) ;  
@@ -82,13 +83,14 @@ port(
 ----------xpos2-------
 ----------ypos1-------
 ----------ypos2-------
-	   as_mem_addr : out std_logic_vector((nbit(NB_LMK*(DESC_SIZE/16+2)) - 1) downto 0);
-		as_mem_data : out std_logic_vector(15 downto 0 );
+	   as_mem_addr : out std_logic_vector(7 downto 0);
+		as_mem_data_in : in std_logic_vector(15 downto 0 );
+		as_mem_data_out : out std_logic_vector(15 downto 0 );
+		as_mem_wr : out std_logic ;
 
 -- feature extractor interface
 		feature_descriptor : out std_logic_vector(( DESC_SIZE - 1) downto 0 );
-		latch_feature_descriptor : in std_logic 	-- latch command 	
-
+		new_descriptor : out std_logic 	-- latch command 	
 );
 end component;
 

@@ -30,7 +30,9 @@ use work.utils_pack.all ;
 --! dual port ram based fifo for fast logic to logic communication
 entity dp_fifo is
 	generic(N : natural := 128 ; --! depth of the fifo
-	W : positive := 16 --! width of the fifo
+	W : positive := 16; --! width of the fifo
+	SYNC_WR : boolean := false;
+	SYNC_RD : boolean := false
 	);
 	port(
  		clk, resetn, sraz : in std_logic; --! system clock, asynchronous and synchronous reset
@@ -74,6 +76,7 @@ dp_ram0 : dpram_NxN
 
 data_out <= fifo_out ;
 			  
+gen_async_rd : if NOT SYNC_RD generate			  		  
 process(resetn, clk)
 begin
 	if resetn = '0' then
@@ -84,7 +87,15 @@ begin
 end process ;
 rd_rising_edge <= (rd AND (NOT rd_old));
 rd_falling_edge <= ((NOT rd) AND rd_old);
+end generate ;
 
+gen_sync_rd : if SYNC_RD generate			  		  
+rd_rising_edge <= rd;
+rd_falling_edge <= rd;
+end generate ;
+
+
+gen_async_wr : if NOT SYNC_WR generate		
 process(resetn, clk)
 begin
 	if resetn = '0' then
@@ -95,19 +106,13 @@ begin
 end process ;
 wr_rising_edge <= (wr AND (NOT wr_old)) ;
 wr_falling_edge <= ((NOT wr) AND wr_old) ;
+end generate ;
 
-process(clk, resetn)
-begin
-if resetn = '0' then
-	rd_addr <= (others => '0') ;
-elsif clk'event and clk = '1' then
-	if sraz = '1' then
-		rd_addr <= (others => '0');
-	elsif rd_falling_edge = '1' and nb_available_t /= 0 then
-			rd_addr <= rd_addr + 1;
-	end if ;
-end if ;
-end process ;
+gen_sync_wr : if SYNC_WR generate
+wr_rising_edge <= wr ;
+wr_falling_edge <= wr ;
+end generate ;
+
 
 -- wr process 
 process(clk, resetn)
@@ -122,48 +127,6 @@ elsif clk'event and clk = '1' then
 	end if ;
 end if ;
 end process ;
-
-
-
---counter_load <= sraz ;
---
---available_counter : up_down_counter 
---	 generic map(NBIT => nbit(N) + 1)
---    port map( clk => clk,
---			  resetn => resetn,
---           sraz => '0' ,
---           en =>  en_available_counter,
---			  load => counter_load,
---			  up_downn => up_downn_available_counter ,
---			  E =>  std_logic_vector(to_unsigned(0, nbit(N) + 1)),
---           Q => slv_nb_available_t
---			  );
---
---en_available_counter <= '1' when wr_falling_edge = '1'  AND (nb_available_t /= N) and rd_falling_edge = '0' else
---								'1' when rd_falling_edge = '1' AND (nb_available_t /= 0) and wr_falling_edge = '0' else
---								'0' ;
---up_downn_available_counter <= wr_falling_edge ;
---nb_available_t <= unsigned(slv_nb_available_t);
---
---										
---free_counter : up_down_counter
---	 generic map(NBIT => nbit(N) + 1)
---    port map( clk => clk,
---				resetn => resetn,
---           sraz => '0' ,
---           en =>  en_free_counter,
---			  load => counter_load,
---			  up_downn => up_downn_free_counter ,
---			  E => std_logic_vector(to_unsigned(N, nbit(N) + 1)),
---           Q => slv_nb_free_t
---			  );
---
---en_free_counter <= '1' when wr_falling_edge = '1' and nb_free_t /= 0 and rd_falling_edge = '0' else
---						 '1' when rd_falling_edge = '1' and nb_free_t /= N and wr_falling_edge = '0' else
---						 '0' ;
---up_downn_free_counter <= rd_falling_edge ;
---nb_free_t <= unsigned(slv_nb_free_t) ;
-
 
 -- nb available process
 process(clk, resetn)

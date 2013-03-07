@@ -28,7 +28,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 library work ;
-use work.generic_components.all ;
+use work.utils_pack.all ;
 
 entity HAMMING_DIST is
 generic(WIDTH: natural := 64; CYCLES : natural := 4);
