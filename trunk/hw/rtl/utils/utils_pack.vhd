@@ -109,7 +109,10 @@ component generic_delay is
 end component;
 
 component dp_fifo is
-	generic(N : natural := 128 ; W : positive := 16);
+	generic(N : natural := 128 ; 
+	W : positive := 16;	
+	SYNC_WR : boolean := false;
+	SYNC_RD : boolean := false);
 	port(
  		clk, resetn, sraz : in std_logic; 
  		wr, rd : in std_logic; 

@@ -19,11 +19,13 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
+use IEEE.NUMERIC_STD.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library work ;
-use work.camera.all ;
-use work.generic_components.all ;
+use work.image_pack.all ;
+use work.utils_pack.all ;
+use work.feature_pack.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -59,7 +61,7 @@ port(
 --corr_score---||status
 	   as_mem_addr : out std_logic_vector(7 downto 0);
 		as_mem_data_in : in std_logic_vector(15 downto 0 );
-		as_mem_data_out : in std_logic_vector(15 downto 0 );
+		as_mem_data_out : out std_logic_vector(15 downto 0 );
 		as_mem_wr : out std_logic ;
 
 -- feature extractor interface
@@ -101,8 +103,17 @@ architecture Behavioral of BRIEF_MANAGER is
 
 	signal line_count : std_logic_vector((nbit(HEIGHT) - 1) downto 0 ) ;
 	signal pixel_count : std_logic_vector((nbit(WIDTH) - 1) downto 0 ) ;
-	signal frame_count : std_logic_vector(1 downto 0);
+	signal frame_count : std_logic_vector(6 downto 0);
 
+
+	signal new_descriptor_t : std_logic ;
+	signal current_descriptor : std_logic_vector(( DESC_SIZE - 1) downto 0 );
+	
+	signal sraz_lmk_count, en_lmk_count : std_logic ;
+	signal sraz_cycle_count , en_cycle_count : std_logic ;
+	signal sraz_addr_count, en_addr_count : std_logic ;
+	signal lmk_count : std_logic_vector(3 downto 0);
+	signal cycle_count : std_logic_vector(7 downto 0);
 begin
 
 
@@ -125,21 +136,22 @@ brief_0 : BRIEF
 	generic map(WIDTH => WIDTH ,
 		  HEIGHT => HEIGHT ,
 		  WINDOW_SIZE => 8 ,
-		  DESCRIPTOR_LENGTH => DESC_SIZE)
+		  DESCRIPTOR_LENGTH => DESC_SIZE,
+		  pattern => ((32, 32), (32, 32) ))
 		port map(
 			clk => clk,
 			resetn => resetn ,
 			pixel_clock => pixel_clock_delayed, hsync => hsync_delayed, vsync => vsync_delayed, 
 			pixel_data_in => pixel_data_delayed ,
-			pixel_clock_out => new_descriptor,
+			pixel_clock_out => new_descriptor_t,
 			descriptor => feature_descriptor);
-	
+	new_descriptor <= new_descriptor_t;
 	count_pixels: pixel_counter
 		generic map(MAX => WIDTH)
 		port map(
 			clk => clk,
 			resetn=> resetn, 
-			pixel_clock => new_descriptor, hsync => brief_hsync , 
+			pixel_clock => new_descriptor_t, hsync => hsync_delayed , 
 			pixel_count => pixel_count);
 
 	count_lines: line_counter 
@@ -147,7 +159,7 @@ brief_0 : BRIEF
 		port map(
 			clk => clk,
 			resetn => resetn, 
-			hsync => brief_hsync, vsync => brief_vsync, 
+			hsync => hsync_delayed, vsync => vsync_delayed, 
 			line_count => line_count);
 
 
@@ -167,14 +179,15 @@ hsync_falling_edge <= (NOT hsync_delayed) and hsync_old ;
 hsync_rising_edge <= hsync_delayed and (NOT hsync_old) ;
 
 			
-gen_corr : for i in 0 to NB_LMK generate
+gen_corr : for i in 0 to (NB_LMK-1) generate
 	bief_as_i :  BRIEF_AS
 		generic map(WIDTH => WIDTH,
 					  HEIGHT => HEIGHT,
-					  DESCRIPTOR_SIZE => DESCRIPTOR_LENGTH)
+					  DESCRIPTOR_SIZE => DESC_SIZE)
 		port map(
 			clk => clk, 
 			resetn => resetn, 
+			new_feature => new_descriptor_t,
 			line_count => line_count,
 			pixel_count => pixel_count,
 			curr_descriptor => current_descriptor, 
@@ -199,7 +212,7 @@ end generate ;
 
 
 frame_counter : simple_counter
-	 generic map(NBIT => 2) 
+	 generic map(NBIT => 7) 
     Port map( clk => clk,
            resetn => resetn,
            sraz=> '0',
@@ -208,6 +221,8 @@ frame_counter : simple_counter
 			  E => (others => '0'),
            Q => frame_count
 			  );
+
+
 
 
 lmk_counter : simple_counter
@@ -245,7 +260,7 @@ addr_counter : simple_counter
 
 process (clk,resetn)
 begin
-	if (reset='0') then
+	if (resetn='0') then
 	  curr_load_state <= WAIT_HSYNC;  --default state on reset.
 	elsif clk'event and clk = '1' then
 	  curr_load_state <= next_load_state;   --state change.
@@ -253,7 +268,7 @@ begin
 end process;
 
 --state machine process.
-process (curr_load_state,vsync_falling_edge, cycle_counter, lmk_count)
+process (curr_load_state,vsync_falling_edge, cycle_count, lmk_count)
 begin
   next_load_state <= curr_load_state ;
   case curr_load_state is
@@ -262,7 +277,7 @@ begin
 			next_load_state <= LOAD_DESC ;
 		end if;
 	when LOAD_DESC => 
-		if cycle_counter = DESC_SIZE/16 then
+		if cycle_count = DESC_SIZE/16 then
 			next_load_state <= LOAD_X ;
 		end if;
 	when LOAD_X => 
@@ -279,7 +294,7 @@ begin
 			else
 				next_load_state <= LOAD_DESC ;
 			end if;
-			
+	when others => next_load_state <= WAIT_HSYNC ;		
   end case;
 end process;
 
@@ -304,13 +319,13 @@ en_addr_count <= '1' ;
 		
 with curr_load_state select
 			as_mem_wr <=  '1' when WRITE_SCORE ,
-							  array_of_correl_done(to_integer(lmk_count)) when WRITE_X ,
-							  array_of_correl_done(to_integer(lmk_count)) when WRITE_Y ,
+							  array_of_correl_done(conv_integer(lmk_count)) when WRITE_X ,
+							  array_of_correl_done(conv_integer(lmk_count)) when WRITE_Y ,
 							  '0' when others ;
 with curr_load_state select -- writing the frame count allow software to discriminate when was matched the feature
-			as_data_in <=  frame_count & array_of_score(to_integer(lmk_count))& array_of_correl_done(to_integer(lmk_count)) when WRITE_SCORE ,
-							   array_of_corrx(to_integer(lmk_count)) when WRITE_X ,
-							   array_of_corry(to_integer(lmk_count)) when WRITE_Y ,
+			as_mem_data_out <=  frame_count & array_of_score(conv_integer(lmk_count))& array_of_correl_done(conv_integer(lmk_count)) when WRITE_SCORE ,
+							   array_of_corrx(conv_integer(lmk_count)) when WRITE_X ,
+							   array_of_corry(conv_integer(lmk_count)) when WRITE_Y ,
 							   (others => '0') when others ;
 
 -- loading data into registers
@@ -318,20 +333,20 @@ process(clk, resetn)
 begin
 if resetn = '0' then
 elsif clk'event and clk = '1' then
-	if array_of_correl_busy(to_integer(lmk_count)) = '0' then -- not loading if correl is ongoing
-		if curr_state = LOAD_DESC  then
-			array_of_desc(to_integer(lmk_count))(DESC_SIZE-1 downto 8) <= array_of_desc(to_integer(lmk_count))(DESC_SIZE-9 downto 0);
-			array_of_desc(to_integer(lmk_count))(15 downto 0) <= as_mem_data_in;
+	if array_of_correl_busy(conv_integer(lmk_count)) = '0' then -- not loading if correl is ongoing
+		if curr_load_state = LOAD_DESC  then
+			array_of_desc(conv_integer(lmk_count))(DESC_SIZE-1 downto 8) <= array_of_desc(conv_integer(lmk_count))(DESC_SIZE-9 downto 0);
+			array_of_desc(conv_integer(lmk_count))(15 downto 0) <= as_mem_data_in;
 		end if;
-		if curr_state = LOAD_X then
-			array_of_posx0(to_integer(lmk_count)) <= as_mem_data_in ;
+		if curr_load_state = LOAD_X then
+			array_of_posx0(conv_integer(lmk_count)) <= as_mem_data_in ;
 		end if;
-		if curr_state = LOAD_Y then
-			array_of_posy0(to_integer(lmk_count)) <= as_mem_data_in ;
+		if curr_load_state = LOAD_Y then
+			array_of_posy0(conv_integer(lmk_count)) <= as_mem_data_in ;
 		end if;
-		if curr_state = LOAD_SIZE then
-			array_of_posx1(to_integer(lmk_count)) <= array_of_posx0(to_integer(lmk_count)) + as_mem_data_in(7 downto 0) ;
-			array_of_posy1(to_integer(lmk_count)) <= array_of_posy0(to_integer(lmk_count)) + as_mem_data_in(15 downto 8) ;
+		if curr_load_state = LOAD_SIZE then
+			array_of_posx1(conv_integer(lmk_count)) <= array_of_posx0(conv_integer(lmk_count)) + as_mem_data_in(7 downto 0) ;
+			array_of_posy1(conv_integer(lmk_count)) <= array_of_posy0(conv_integer(lmk_count)) + as_mem_data_in(15 downto 8) ;
 		end if;
 	end if ;
 end if ;

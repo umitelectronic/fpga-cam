@@ -19,7 +19,13 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
+
+library work ;
+use work.feature_pack.all ;
+use work.utils_pack.all ;
+use work.image_pack.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -65,8 +71,8 @@ window_mgt : blockNxN
 			new_block => new_block ,
 			block_out => window);
 
-gen_pattern_comp : for I in 0 to DESCRIPTOR_LENGTH generate 
-		desc(I) <= '1' when  (window((brief_pattern(I,0)/WINDOW_SIZE), (brief_pattern(I,0) rem WINDOW_SIZE)) < window((brief_pattern(I,1)/WINDOW_SIZE), (brief_pattern(I,1) rem WINDOW_SIZE)))  else'0' ;
+gen_pattern_comp : for I in 0 to (PATTERN'length-1) generate 
+		desc(I) <= '1' when  window((PATTERN(I)(0)/WINDOW_SIZE), (PATTERN(I)(0) rem WINDOW_SIZE)) < window((PATTERN(I)(1)/WINDOW_SIZE), (PATTERN(I)(1) rem WINDOW_SIZE))  else '0' ;
 end generate gen_pattern_comp ;
 
 

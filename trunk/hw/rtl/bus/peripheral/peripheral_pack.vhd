@@ -15,7 +15,11 @@ type reg16_array is array(natural range<>) of std_logic_vector(15 downto 0);
 
 
 component fifo_peripheral is
-generic(ADDR_WIDTH : positive := 8; WIDTH	: positive := 16; SIZE	: positive	:= 128 ; BURST_SIZE : positive := 4);
+generic(ADDR_WIDTH : positive := 8;
+		  WIDTH	: positive := 16; 
+		  SIZE	: positive	:= 128 ; 
+		  BURST_SIZE : positive := 4;
+		  SYNC_LOGIC_INTERFACE : boolean := false );
 port(
 	clk, resetn : in std_logic ;
 	addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0);

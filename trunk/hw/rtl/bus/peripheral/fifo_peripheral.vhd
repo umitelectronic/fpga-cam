@@ -33,7 +33,8 @@ entity fifo_peripheral is
 generic(ADDR_WIDTH : positive := 16; --! width of the address bus
 			WIDTH	: positive := 16; --! width of the data bus
 			SIZE	: positive	:= 128; --! fifo depth
-			BURST_SIZE : positive := 4
+			BURST_SIZE : positive := 4;
+			SYNC_LOGIC_INTERFACE : boolean := false 
 			); 
 port(
 	clk, resetn : in std_logic ; --! system clock and asynchronous reset
@@ -64,7 +65,7 @@ bus_cs <= cs_bus ;
 in_addr <= addr_bus(nbit(BURST_SIZE) downto 0 );
 
 fifo_A : dp_fifo -- write from bus, read from logic
-	generic map(N => SIZE , W => WIDTH)
+	generic map(N => SIZE , W => WIDTH, SYNC_RD => SYNC_LOGIC_INTERFACE)
 	port map(
  		clk => clk, resetn => resetn , sraz => srazA , 
  		wr => fifoA_wr, rd => rdA,
@@ -76,7 +77,7 @@ fifo_A : dp_fifo -- write from bus, read from logic
 	); 
 	
 fifo_B : dp_fifo -- read from bus, write from logic
-	generic map(N => SIZE , W => WIDTH)
+	generic map(N => SIZE , W => WIDTH, SYNC_WR => SYNC_LOGIC_INTERFACE)
 	port map(
  		clk => clk, resetn => resetn , sraz => srazB , 
  		wr => wrB, rd => fifoB_rd,

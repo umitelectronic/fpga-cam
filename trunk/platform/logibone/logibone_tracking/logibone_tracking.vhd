@@ -58,11 +58,11 @@ architecture Behavioral of logibone_tracking is
 		CLK_OUT1 : OUT std_logic;
 		CLK_OUT2 : OUT std_logic;
 		CLK_OUT3 : OUT std_logic;
-		CLK_OUT4 : OUT std_logic;
 		LOCKED : OUT std_logic
 		);
 	END COMPONENT;
 
+	constant DESC_SIZE : integer := 256 ;
 	
 	signal clk_sys, clk_100, clk_24, clk_48, clk_locked : std_logic ;
 	signal resetn , sys_resetn : std_logic ;
@@ -74,11 +74,12 @@ architecture Behavioral of logibone_tracking is
 	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
-	signal bus_fifo_out, bus_latch_out : std_logic_vector(15 downto 0);
+	signal bus_fifo_out, bus_fifo_feat_out,bus_latch_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
-	signal cs_fifo, cs_latch : std_logic ;
-	
+	signal cs_image_fifo, cs_feat_fifo, cs_latch : std_logic ;
+	signal feat_fifo_wr : std_logic ;
+	signal feat_fifo_in : std_logic_vector(15 downto 0);
 	
 	signal cam_data : std_logic_vector(7 downto 0);
 	signal cam_sioc, cam_siod : std_logic ;
@@ -92,6 +93,9 @@ architecture Behavioral of logibone_tracking is
 
 	signal pixel_from_sobel : std_logic_vector(7 downto 0);
 	signal pxclk_from_sobel, href_from_sobel, vsync_from_sobel : std_logic ;
+	
+	signal pixel_from_brief : std_logic_vector(7 downto 0);
+	signal pxclk_from_brief, href_from_brief, vsync_from_brief : std_logic ;
 
 	signal pixel_from_harris : std_logic_vector(7 downto 0);
 	signal raw_from_harris : std_logic_vector(15 downto 0);
@@ -103,6 +107,16 @@ architecture Behavioral of logibone_tracking is
 	signal pixel_buffer : std_logic_vector(15 downto 0);	
 	signal pixel_count :std_logic_vector(7 downto 0);
 	signal write_pixel : std_logic ;
+	
+	
+	signal as_mem_addr : std_logic_vector(7 downto 0);
+	signal as_mem_data_in : std_logic_vector(15 downto 0);
+	signal as_mem_data_out : std_logic_vector(15 downto 0);
+	signal as_mem_wr : std_logic ;
+	signal feat_desc, feature_descriptor : std_logic_vector((DESC_SIZE-1) downto 0);
+	
+	signal new_feature, new_desc : std_logic ;
+	signal featx, featy, feat_score : std_logic_vector(15 downto 0) ;
 begin
 	
 	resetn <= PB(0) ;
@@ -112,7 +126,6 @@ begin
 		CLK_OUT1 => clk_100,
 		CLK_OUT2 => clk_24,
 		CLK_OUT3 => clk_sys, --120Mhz system clock
-		CLK_OUT4 => clk_48, --120Mhz system clock
 		LOCKED => clk_locked
 	);
 
@@ -143,6 +156,7 @@ port map(clk => clk_sys ,
 	  resetn => sys_resetn ,
 	  data	=> GPMC_AD,
 	  wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(1),
+	  be0n => GPMC_BE0N, be1n => GPMC_BE1N,
 	  data_bus_out	=> bus_data_out,
 	  data_bus_in	=> bus_data_in ,
 	  addr_bus	=> bus_addr, 
@@ -159,7 +173,10 @@ bus_data_in <= bus_fifo_out when cs_image_fifo = '1' else
 					(others => '1');
 
 image_fifo : fifo_peripheral 
-		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 2048, BURST_SIZE => 512)
+		generic map(ADDR_WIDTH => 16,
+						WIDTH => 16, SIZE => 2048, 
+						BURST_SIZE => 512,
+						SYNC_LOGIC_INTERFACE => false)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
@@ -180,7 +197,12 @@ image_fifo : fifo_peripheral
 		);
 		
 		feat_fifo : fifo_peripheral 
-		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 1024, BURST_SIZE => 512)
+		generic map(ADDR_WIDTH => 16,
+						WIDTH => 16, 
+						SIZE => 1024, 
+						BURST_SIZE => 512,
+						SYNC_LOGIC_INTERFACE => true
+		)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
@@ -224,7 +246,7 @@ image_fifo : fifo_peripheral
 brief0: BRIEF_MANAGER 
 generic map(WIDTH => 320,
 		  HEIGHT => 240,
-		  DESC_SIZE => 128,
+		  DESC_SIZE => DESC_SIZE,
 		  NB_LMK => 1, 
 		  DELAY => 1 )
 port map(
@@ -270,14 +292,14 @@ tessel_harris: HARRIS_TESSELATION
 			hsync => href_from_harris, 
 			vsync => vsync_from_harris, 
 			harris_score_in => raw_from_harris, 
-			feature_coordx	=> featx, -- need to connect to a fifo
-			feature_coordy	=> featy, -- need to connect to a fifo
+			feature_coordx	=> featx(nbit(320)-1 downto 0), -- need to connect to a fifo
+			feature_coordy	=> featy(nbit(240)-1 downto 0), -- need to connect to a fifo
 			end_of_block	=> new_feature, -- to write to the fifo
 			harris_score_out	=> feat_score, -- fifo input
 			latch_maxima	=> open -- unused ...
 	);
 feat2fif : feature2fifo
-generic map(FEATURE_SIZE => 128)
+generic map(FEATURE_SIZE => DESC_SIZE)
 port map(
 	clk => clk_sys, resetn => sys_resetn,
 	feature_desc => feature_descriptor,
