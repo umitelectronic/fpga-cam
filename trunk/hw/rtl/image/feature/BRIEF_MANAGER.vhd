@@ -45,7 +45,6 @@ port(
  		clk : in std_logic; 
  		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
- 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 );
 -- active search interface
 -- each lmk to track should be registered as
@@ -63,6 +62,7 @@ port(
 		as_mem_data_in : in std_logic_vector(15 downto 0 );
 		as_mem_data_out : out std_logic_vector(15 downto 0 );
 		as_mem_wr : out std_logic ;
+		as_mem_wait : in std_logic ; --mem busy, cannot write
 
 -- feature extractor interface
 		feature_descriptor : out std_logic_vector(( DESC_SIZE - 1) downto 0 );
@@ -72,7 +72,23 @@ port(
 end BRIEF_MANAGER;
 
 architecture Behavioral of BRIEF_MANAGER is
-
+	constant BRIEF_COM_PATTERN :brief_pattern :=
+	((20, 25),(25, 11),(2, 2),(23, 42),(53, 21),(43, 11),(22, 23),(18, 28),(10, 24),
+(32, 32),(21, 45),(42, 29),(60, 30),(47, 34),(43, 1),(4, 63),(27, 30),
+(10, 29),(32, 33),(7, 21),(55, 50),(32, 13),(9, 50),(42, 20),(10, 10),
+(52, 31),(55, 30),(61, 51),(60, 44),(21, 39),(46, 26),(38, 9),(56, 48),
+(38, 24),(18, 46),(45, 9),(32, 13),(22, 42),(63, 0),(62, 9),(11, 50),
+(41, 2),(16, 38),(54, 12),(18, 11),(51, 0),(37, 25),(9, 29),(9, 48),
+(53, 27),(30, 34),(36, 62),(47, 59),(40, 46),(59, 38),(56, 6),(24, 33),
+(9, 40),(7, 63),(52, 25),(10, 39),(26, 48),(0, 35),(13, 10),(19, 3),
+(37, 49),(37, 10),(48, 21),(5, 24),(3, 0),(63, 59),(7, 23),(28, 16),
+(0, 35),(15, 52),(61, 25),(28, 23),(9, 28),(58, 23),(38, 14),(26, 12),
+(63, 63),(22, 47),(20, 27),(8, 24),(27, 7),(19, 34),(30, 48),(50, 30),
+(19, 1),(19, 16),(27, 47),(39, 36),(11, 34),(59, 50),(48, 21),(62, 47),
+(21, 20),(31, 41),(47, 39),(1, 10),(46, 21),(45, 12),(5, 31),(43, 24),
+(33, 62),(41, 60),(45, 16),(32, 56),(50, 28),(42, 34),(49, 40),(18, 6),
+(60, 49),(48, 43),(24, 49),(54, 6),(6, 35),(18, 11),(2, 61),(36, 35),
+(59, 13),(31, 40),(29, 0),(33, 16),(28, 11),(50, 13),(52, 4));
 
 	type loading_states is (WAIT_HSYNC, LOAD_DESC, LOAD_X, LOAD_Y, LOAD_SIZE, WRITE_X, WRITE_Y, WRITE_SCORE);
 
@@ -137,7 +153,7 @@ brief_0 : BRIEF
 		  HEIGHT => HEIGHT ,
 		  WINDOW_SIZE => 8 ,
 		  DESCRIPTOR_LENGTH => DESC_SIZE,
-		  pattern => ((32, 32), (32, 32) ))
+		  pattern => BRIEF_COM_PATTERN)
 		port map(
 			clk => clk,
 			resetn => resetn ,
@@ -268,7 +284,7 @@ begin
 end process;
 
 --state machine process.
-process (curr_load_state,vsync_falling_edge, cycle_count, lmk_count)
+process (curr_load_state,vsync_falling_edge, cycle_count, lmk_count, as_mem_wait)
 begin
   next_load_state <= curr_load_state ;
   case curr_load_state is
@@ -285,13 +301,15 @@ begin
 	when LOAD_Y => 
 			next_load_state <= WRITE_X ;
 	when WRITE_X =>
-			next_load_state <= WRITE_Y ;
+			if as_mem_wait = '0' then
+				next_load_state <= WRITE_Y ;
+			end if ;
 	when WRITE_Y =>
 			next_load_state <= WRITE_SCORE ;
 	when WRITE_SCORE =>
-			if lmk_count = NB_LMK then
+			if as_mem_wait = '0' and lmk_count = (NB_LMK-1) then
 				next_load_state <= WAIT_HSYNC ;
-			else
+			elsif as_mem_wait = '0' then
 				next_load_state <= LOAD_DESC ;
 			end if;
 	when others => next_load_state <= WAIT_HSYNC ;		
@@ -308,9 +326,10 @@ with curr_load_state select
 with curr_load_state select
 	en_cycle_count <= '0' when WAIT_HSYNC ,
 							'1' when others ;
-with curr_load_state select
-	en_lmk_count <= '1' when WRITE_SCORE ,
-						 '0' when others ;
+
+
+en_lmk_count <= (not as_mem_wait) when curr_load_state = WRITE_SCORE and lmk_count < (NB_LMK-1) else
+						 '0' ;
 
 with curr_load_state select
 	sraz_addr_count <= '1' when WAIT_HSYNC ,
@@ -323,7 +342,7 @@ with curr_load_state select
 							  array_of_correl_done(conv_integer(lmk_count)) when WRITE_Y ,
 							  '0' when others ;
 with curr_load_state select -- writing the frame count allow software to discriminate when was matched the feature
-			as_mem_data_out <=  frame_count & array_of_score(conv_integer(lmk_count))& array_of_correl_done(conv_integer(lmk_count)) when WRITE_SCORE ,
+			as_mem_data_out <=  '0' & frame_count & array_of_score(conv_integer(lmk_count))& array_of_correl_done(conv_integer(lmk_count)) when WRITE_SCORE ,
 							   array_of_corrx(conv_integer(lmk_count)) when WRITE_X ,
 							   array_of_corry(conv_integer(lmk_count)) when WRITE_Y ,
 							   (others => '0') when others ;

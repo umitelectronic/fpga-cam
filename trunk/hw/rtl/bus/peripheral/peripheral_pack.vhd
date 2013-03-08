@@ -59,6 +59,25 @@ port(
 );
 end component;
 
+component shared_mem_peripheral is
+generic(SIZE : positive := 128; 
+			DATA_WIDTH : positive := 16; 
+			ADDR_WIDTH : positive := 16;
+			LOGIC_PRIORITY : boolean := false);
+port(clk, resetn : in std_logic;
+	  addr_bus : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+	  data_in_bus : in std_logic_vector(DATA_WIDTH-1 downto 0);
+	  data_out_bus : out std_logic_vector(DATA_WIDTH-1 downto 0);
+	  wr_bus, rd_bus, cs_bus : in std_logic ;
+	  wait_bus : out std_logic ;
+	  addr_logic : in std_logic_vector(ADDR_WIDTH-1 downto 0);
+	  data_in_logic : in std_logic_vector(DATA_WIDTH-1 downto 0);
+	  data_out_logic : out std_logic_vector(DATA_WIDTH-1 downto 0);
+	  wr_logic, rd_logic, cs_logic : in std_logic;
+	  wait_logic : out std_logic 
+	);
+end component;
+
 end peripheral_pack;
 
 package body peripheral_pack is

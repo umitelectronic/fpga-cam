@@ -77,21 +77,21 @@ dp_ram0 : dpram_NxN
 data_out <= fifo_out ;
 			  
 gen_async_rd : if NOT SYNC_RD generate			  		  
-process(resetn, clk)
-begin
-	if resetn = '0' then
-		rd_old <= '0' ;
-	elsif clk'event and clk = '1' then
-		rd_old <= rd ;
-	end if ;
-end process ;
-rd_rising_edge <= (rd AND (NOT rd_old));
-rd_falling_edge <= ((NOT rd) AND rd_old);
+	process(resetn, clk)
+	begin
+		if resetn = '0' then
+			rd_old <= '0' ;
+		elsif clk'event and clk = '1' then
+			rd_old <= rd ;
+		end if ;
+	end process ;
+	rd_rising_edge <= (rd AND (NOT rd_old));
+	rd_falling_edge <= ((NOT rd) AND rd_old);
 end generate ;
 
 gen_sync_rd : if SYNC_RD generate			  		  
-rd_rising_edge <= rd;
-rd_falling_edge <= rd;
+	rd_rising_edge <= rd;
+	rd_falling_edge <= rd;
 end generate ;
 
 
@@ -113,6 +113,19 @@ wr_rising_edge <= wr ;
 wr_falling_edge <= wr ;
 end generate ;
 
+--rd process
+process(clk, resetn)
+begin
+if resetn = '0' then
+	rd_addr <= (others => '0') ;
+elsif clk'event and clk = '1' then
+	if sraz = '1' then
+		rd_addr <= (others => '0');
+	elsif rd_falling_edge = '1' and nb_available_t /= 0 then
+			rd_addr <= rd_addr + 1;
+	end if ;
+end if ;
+end process ;
 
 -- wr process 
 process(clk, resetn)

@@ -72,7 +72,6 @@ port(
  		clk : in std_logic; 
  		resetn : in std_logic; 
  		pixel_clock, hsync, vsync : in std_logic; 
- 		pixel_clock_out, hsync_out, vsync_out : out std_logic; 
  		pixel_data_in : in std_logic_vector(7 downto 0 );
 -- active search interface
 -- each lmk to track should be registered as
@@ -87,6 +86,7 @@ port(
 		as_mem_data_in : in std_logic_vector(15 downto 0 );
 		as_mem_data_out : out std_logic_vector(15 downto 0 );
 		as_mem_wr : out std_logic ;
+		as_mem_wait : in std_logic ;
 
 -- feature extractor interface
 		feature_descriptor : out std_logic_vector(( DESC_SIZE - 1) downto 0 );
@@ -166,8 +166,11 @@ generic(FEATURE_SIZE : positive := 128);
 port(
 	clk, resetn : in std_logic ;
 	feature_desc : in std_logic_vector((FEATURE_SIZE - 1) downto 0);
+	new_feature_desc : in std_logic ; 
+	
 	harris_posx, harris_posy, harris_score : in std_logic_vector(15 downto 0);
-	new_feature : in std_logic ;
+	new_max : in std_logic ;
+	write_feature : in std_logic ;
 	
 	--fifo interface
 	fifo_data : out std_logic_vector(15 downto 0);
