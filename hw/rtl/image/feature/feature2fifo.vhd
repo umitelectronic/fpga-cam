@@ -38,8 +38,11 @@ generic(FEATURE_SIZE : positive := 128);
 port(
 	clk, resetn : in std_logic ;
 	feature_desc : in std_logic_vector((FEATURE_SIZE - 1) downto 0);
+	new_feature_desc : in std_logic ; 
+	
 	harris_posx, harris_posy, harris_score : in std_logic_vector(15 downto 0);
-	new_feature : in std_logic ;
+	new_max : in std_logic ;
+	write_feature : in std_logic ;
 	
 	--fifo interface
 	fifo_data : out std_logic_vector(15 downto 0);
@@ -62,16 +65,26 @@ begin
 process(clk, resetn)
 begin
 	if resetn = '0' then
-		feature_desc_latched <= (others => '0');
 		harris_posx_latched <= (others => '0');
 		harris_posy_latched <= (others => '0');
 		harris_score_latched <= (others => '0');
 	elsif clk'event and clk = '1' then
-		if new_feature = '1' then
-		feature_desc_latched <= feature_desc;
-		harris_posx_latched <= harris_posx;
-		harris_posy_latched <= harris_posy;
-		harris_score_latched <= harris_score;
+		if new_max = '1' then
+			harris_posx_latched <= harris_posx;
+			harris_posy_latched <= harris_posy;
+			harris_score_latched <= harris_score;
+		end if ;
+	end if ;
+end process ;
+
+
+process(clk, resetn)
+begin
+	if resetn = '0' then
+		feature_desc_latched <= (others => '0');
+	elsif clk'event and clk = '1' then
+		if new_max = '1' and new_feature_desc = '1' then
+			feature_desc_latched <= feature_desc;
 		end if ;
 	end if ;
 end process ;
@@ -98,12 +111,12 @@ begin
 end process;
 
 --state machine process.
-process (curr_write_state, new_feature, cycle_count)
+process (curr_write_state, write_feature, cycle_count)
 begin
   next_write_state <= curr_write_state ;
   case curr_write_state is
 	when WAIT_NEW_FEATURE => 
-		if new_feature = '1' then
+		if write_feature = '1' then
 			next_write_state <= WRITE_SCORE ;
 		end if;
 	when WRITE_SCORE => 

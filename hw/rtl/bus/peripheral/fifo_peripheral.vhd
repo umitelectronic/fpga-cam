@@ -65,7 +65,7 @@ bus_cs <= cs_bus ;
 in_addr <= addr_bus(nbit(BURST_SIZE) downto 0 );
 
 fifo_A : dp_fifo -- write from bus, read from logic
-	generic map(N => SIZE , W => WIDTH, SYNC_RD => SYNC_LOGIC_INTERFACE)
+	generic map(N => SIZE , W => WIDTH, SYNC_RD => SYNC_LOGIC_INTERFACE, SYNC_WR => false)
 	port map(
  		clk => clk, resetn => resetn , sraz => srazA , 
  		wr => fifoA_wr, rd => rdA,
@@ -77,7 +77,7 @@ fifo_A : dp_fifo -- write from bus, read from logic
 	); 
 	
 fifo_B : dp_fifo -- read from bus, write from logic
-	generic map(N => SIZE , W => WIDTH, SYNC_WR => SYNC_LOGIC_INTERFACE)
+	generic map(N => SIZE , W => WIDTH, SYNC_WR => SYNC_LOGIC_INTERFACE, SYNC_RD => false)
 	port map(
  		clk => clk, resetn => resetn , sraz => srazB , 
  		wr => wrB, rd => fifoB_rd,
