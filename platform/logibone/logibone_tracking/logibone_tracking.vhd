@@ -62,7 +62,9 @@ architecture Behavioral of logibone_tracking is
 		);
 	END COMPONENT;
 
-	constant DESC_SIZE : integer := 256 ;
+	constant DESC_SIZE : integer := 128 ;
+	constant IMG_WIDTH : integer := 320 ;
+	constant IMG_HEIGHT : integer := 240 ;
 	
 	signal clk_sys, clk_100, clk_24, clk_48, clk_locked : std_logic ;
 	signal resetn , sys_resetn : std_logic ;
@@ -74,10 +76,10 @@ architecture Behavioral of logibone_tracking is
 	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
 	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
-	signal bus_fifo_out, bus_fifo_feat_out,bus_latch_out : std_logic_vector(15 downto 0);
+	signal bus_fifo_out, bus_fifo_feat_out,bus_latch_out, bus_as_mem_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
-	signal cs_image_fifo, cs_feat_fifo, cs_latch : std_logic ;
+	signal cs_image_fifo, cs_feat_fifo, cs_latch, cs_as_mem : std_logic ;
 	signal feat_fifo_wr : std_logic ;
 	signal feat_fifo_in : std_logic_vector(15 downto 0);
 	
@@ -113,9 +115,10 @@ architecture Behavioral of logibone_tracking is
 	signal as_mem_data_in : std_logic_vector(15 downto 0);
 	signal as_mem_data_out : std_logic_vector(15 downto 0);
 	signal as_mem_wr : std_logic ;
+	signal wait_as_mem : std_logic ;
 	signal feat_desc, feature_descriptor : std_logic_vector((DESC_SIZE-1) downto 0);
 	
-	signal new_feature, new_desc : std_logic ;
+	signal new_feature, new_desc, write_feature, latch_desc : std_logic ;
 	signal featx, featy, feat_score : std_logic_vector(15 downto 0) ;
 begin
 	
@@ -167,14 +170,17 @@ cs_image_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
 			  '0' ;	  
 cs_feat_fifo <= '1' when bus_addr(15 downto 10) = "000001" else
 			  '0' ;
+cs_as_mem <= '1' when bus_addr(15 downto 10) = "000010" else
+			  '0' ;
 
 bus_data_in <= bus_fifo_out when cs_image_fifo = '1' else
 					bus_fifo_feat_out when cs_feat_fifo = '1' else
+					bus_as_mem_out when cs_as_mem = '1' else
 					(others => '1');
 
 image_fifo : fifo_peripheral 
 		generic map(ADDR_WIDTH => 16,
-						WIDTH => 16, SIZE => 2048, 
+						WIDTH => 16, SIZE => 4096, 
 						BURST_SIZE => 512,
 						SYNC_LOGIC_INTERFACE => false)
 		port map(
@@ -222,9 +228,27 @@ image_fifo : fifo_peripheral
 			fullB => open
 		);
 
+	shared_mem: shared_mem_peripheral
+	generic map(SIZE => 1024, 
+				DATA_WIDTH => 16,
+				ADDR_WIDTH => 8,
+				LOGIC_PRIORITY => false)
+	port map(clk => clk_sys, resetn => sys_resetn,
+		  addr_bus => bus_addr(7 downto 0),
+		  data_in_bus => bus_data_out,
+		  data_out_bus => bus_as_mem_out,
+		  wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_as_mem,
+		  wait_bus => open,
+		  addr_logic => as_mem_addr,
+		  data_in_logic => as_mem_data_out,
+		  data_out_logic => as_mem_data_in, 
+		  wr_logic => as_mem_wr, rd_logic => '1', cs_logic => '1',
+		  wait_logic => wait_as_mem 
+		);
+
 
 	pixel_from_fifo : fifo2pixel
-	generic map(WIDTH => 320 , HEIGHT => 240)
+	generic map(WIDTH => IMG_WIDTH , HEIGHT => IMG_HEIGHT)
 	port map(
 		clk => clk_sys, resetn => sys_resetn ,
 
@@ -244,26 +268,24 @@ image_fifo : fifo_peripheral
 
 
 brief0: BRIEF_MANAGER 
-generic map(WIDTH => 320,
-		  HEIGHT => 240,
+generic map(WIDTH => IMG_WIDTH,
+		  HEIGHT => IMG_HEIGHT,
 		  DESC_SIZE => DESC_SIZE,
-		  NB_LMK => 1, 
+		  NB_LMK => 8, 
 		  DELAY => 1 )
 port map(
  		clk => clk_sys,
  		resetn => sys_resetn,
  		pixel_clock => pxclk_from_interface, 
 		hsync => href_from_interface, 
-		vsync => vsync_from_interface,
- 		pixel_clock_out => pxclk_from_brief, 
-		hsync_out => href_from_brief, 
-		vsync_out => vsync_from_brief,
+		vsync => vsync_from_interface, 
  		pixel_data_in => pixel_from_interface,
 -- active search interface, need two memories ...
 	   as_mem_addr => as_mem_addr,
 		as_mem_data_in => as_mem_data_in,
 		as_mem_data_out => as_mem_data_out, 
 		as_mem_wr => as_mem_wr,
+		as_mem_wait => wait_as_mem,
 
 -- feature extractor interface
 		feature_descriptor => feat_desc,
@@ -273,7 +295,7 @@ port map(
 
 
 harris0 : HARRIS
-generic map(WIDTH => 320, HEIGHT => 240, WINDOW_SIZE => 5, DS_FACTOR => 2)
+generic map(WIDTH => IMG_WIDTH, HEIGHT => IMG_HEIGHT, WINDOW_SIZE => 5, DS_FACTOR => 2)
 port map(
 		clk => clk_sys , 
  		resetn => sys_resetn,  
@@ -284,7 +306,7 @@ port map(
 );
 
 tessel_harris: HARRIS_TESSELATION
-	generic map(WIDTH => 320, HEIGHT => 240, TILE_NBX => 8, TILE_NBY => 6, IGNORE_STRIPES => 7 )
+	generic map(WIDTH => IMG_WIDTH, HEIGHT => IMG_HEIGHT, TILE_NBX => 8, TILE_NBY => 6, IGNORE_STRIPES => 7 )
 	port map(
 			clk => clk_sys, 
 			resetn => sys_resetn,
@@ -292,19 +314,22 @@ tessel_harris: HARRIS_TESSELATION
 			hsync => href_from_harris, 
 			vsync => vsync_from_harris, 
 			harris_score_in => raw_from_harris, 
-			feature_coordx	=> featx(nbit(320)-1 downto 0), -- need to connect to a fifo
-			feature_coordy	=> featy(nbit(240)-1 downto 0), -- need to connect to a fifo
-			end_of_block	=> new_feature, -- to write to the fifo
+			feature_coordx	=> featx(nbit(IMG_WIDTH)-1 downto 0), -- need to connect to a fifo
+			feature_coordy	=> featy(nbit(IMG_HEIGHT)-1 downto 0), -- need to connect to a fifo
+			end_of_block	=> write_feature, -- to write to the fifo
 			harris_score_out	=> feat_score, -- fifo input
-			latch_maxima	=> open -- unused ...
+			latch_maxima	=> latch_desc -- unused ...
 	);
 feat2fif : feature2fifo
 generic map(FEATURE_SIZE => DESC_SIZE)
 port map(
 	clk => clk_sys, resetn => sys_resetn,
-	feature_desc => feature_descriptor,
+	feature_desc => feat_desc,
+	new_feature_desc => new_desc, 
+	
 	harris_posx => featx, harris_posy => featy, harris_score => feat_score,
-	new_feature => new_feature,
+	new_max => latch_desc,
+	write_feature => write_feature,
 	
 	--fifo interface
 	fifo_data => feat_fifo_in,
