@@ -42,9 +42,9 @@ port( OSC_FPGA : in std_logic;
 		LED : out std_logic_vector(1 downto 0);
 		
 		--PMOD
-		PMOD1_1, PMOD1_2  : inout std_logic ; -- used as SCL, SDA
-		PMOD1_3 ,PMOD1_4 : out std_logic ; -- used as reset and xclk 
-		PMOD1_7, PMOD1_8, PMOD1_9, PMOD1_10 : in std_logic ; -- used as pclk, href, vsync
+		PMOD1_9, PMOD1_3  : inout std_logic ; -- used as SCL, SDA
+		PMOD1_1 ,PMOD1_4 : out std_logic ; -- used as reset and xclk 
+		PMOD1_10, PMOD1_2, PMOD1_8, PMOD1_7 : in std_logic ; -- used as pclk, href, vsync
 		PMOD2 : in std_logic_vector(7 downto 0); -- used as cam data
 		
 		
@@ -79,7 +79,7 @@ architecture Behavioral of logibone_camera is
 	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
 	signal bus_fifo_out, bus_latch_out : std_logic_vector(15 downto 0);
-	signal bus_addr : std_logic_vector(7 downto 0);
+	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
 	signal cs_fifo, cs_latch : std_logic ;
 	
@@ -103,7 +103,7 @@ architecture Behavioral of logibone_camera is
 	signal pixel_count :std_logic_vector(7 downto 0);
 	signal write_pixel : std_logic ;
 	
-	for all : yuv_register_rom use entity work.yuv_register_rom(ov7670_qvga);
+	for all : yuv_register_rom use entity work.yuv_register_rom(ov7725_qvga);
 	
 begin
 	
@@ -141,7 +141,7 @@ LED(1) <= cam_vsync ;
 
 
 mem_interface0 : muxed_addr_interface
-generic map(ADDR_WIDTH => 8 , DATA_WIDTH =>  16)
+generic map(ADDR_WIDTH => 16 , DATA_WIDTH =>  16)
 port map(clk => clk_sys ,
 	  resetn => sys_resetn ,
 	  data	=> GPMC_AD,
@@ -153,14 +153,14 @@ port map(clk => clk_sys ,
 	  wr => bus_wr , rd => bus_rd 
 );
 
-cs_fifo <= '1' when bus_addr(7 downto 3) = "00000" else
+cs_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
 			  '0' ;	  
 
 bus_data_in <= bus_fifo_out when cs_fifo = '1' else
 					(others => '1');
 
 bi_fifo0 : fifo_peripheral 
-		generic map(ADDR_WIDTH => 8,WIDTH => 16, SIZE => 2048)--16384)
+		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 8192, BURST_SIZE => 512)--16384)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
@@ -195,8 +195,8 @@ bi_fifo0 : fifo_peripheral
 		clock => clk_sys, 
 		resetn => sys_resetn ,		
  		i2c_clk => clk_24 ,
-		scl => PMOD1_1,
- 		sda => PMOD1_2, 
+		scl => PMOD1_9,
+ 		sda => PMOD1_3, 
 		reg_addr => rom_addr ,
 		reg_data => rom_data
 	);	
@@ -212,11 +212,12 @@ bi_fifo0 : fifo_peripheral
 		
 	cam_xclk <= clk_24;
 	PMOD1_4 <= cam_xclk ;
-	cam_data <= PMOD2 ;
-	cam_pclk <= PMOD1_7 ;
-	cam_href <= PMOD1_8 ;
-	cam_vsync <= PMOD1_9 ;
-	PMOD1_3 <= cam_reset ;
+	--cam_data <= PMOD2 ;
+	cam_data <= PMOD2(3) & PMOD2(7) & PMOD2(2) & PMOD2(6) & PMOD2(1) & PMOD2(5) & PMOD2(0) & PMOD2(4) ;
+	cam_pclk <= PMOD1_10 ;
+	cam_href <= PMOD1_2 ;
+	cam_vsync <= PMOD1_8 ;
+	PMOD1_1 <= cam_reset ;
 	cam_reset <= resetn ;
 
 sobel_filter : sobel3x3 
@@ -231,18 +232,18 @@ port map(
 		--x_grad	:	out signed(7 downto 0);
 		--y_grad	:	out signed(7 downto 0)
 );
-output_pxclk <= pxclk_from_sobel ;
-output_href <= href_from_sobel ;
-output_vsync <= vsync_from_sobel ;
-output_pixel <= pixel_from_sobel ;
+--output_pxclk <= pxclk_from_sobel ;
+--output_href <= href_from_sobel ;
+--output_vsync <= vsync_from_sobel ;
+--output_pixel <= pixel_from_sobel ;
 
 
 
 
---output_pxclk <= pxclk_from_interface ;
---output_href <= href_from_interface ;
---output_vsync <= vsync_from_interface ;
---output_pixel <= pixel_from_interface ;
+output_pxclk <= pxclk_from_interface ;
+output_href <= href_from_interface ;
+output_vsync <= vsync_from_interface ;
+output_pixel <= pixel_from_interface ;
 	
 --pix2fifo : pixel2fifo 
 --port map(
