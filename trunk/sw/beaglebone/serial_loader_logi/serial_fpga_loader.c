@@ -48,7 +48,7 @@ inline void clearDout();
 void __delay_cycles(unsigned long cycles);
 char write_mark1_reg(unsigned char add);
 char read_mark1_word(unsigned char add, unsigned short * vals);
-void init_i2c(int nb);
+int init_i2c(int nb);
 char probeMark1(void);
 
 char serialConfig(unsigned char * buffer, unsigned int length);
@@ -100,14 +100,14 @@ char read_mark1_word(unsigned char add, unsigned short * val){
 
 
 
-void init_i2c(int nb){
+int init_i2c(int nb){
   char filename[20];   
   int file ;   
   snprintf(filename, 19, "/dev/i2c-%d", nb);
   i2c_fd = open(filename, O_RDWR);
   if (i2c_fd < 0) {
+   	return -1 ;
   /* ERROR HANDLING; you can check errno to see what went wrong */
-    exit(1);
   }
 }
 
@@ -269,8 +269,11 @@ int main(int argc, char ** argv){
 	struct timespec cpu_time ;
 	unsigned int size = 0 ;	
 	initGPIOs();
-	init_i2c(3);
-	isMark1 = probeMark1();
+	if(init_i2c(3) < 0){	
+		isMark1 = 0 ;
+	}else{
+		isMark1 = probeMark1();
+	}
 	if(!isMark1){
 		close(i2c_fd);	
 	}
