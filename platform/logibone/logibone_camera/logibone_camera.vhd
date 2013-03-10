@@ -232,18 +232,18 @@ port map(
 		--x_grad	:	out signed(7 downto 0);
 		--y_grad	:	out signed(7 downto 0)
 );
---output_pxclk <= pxclk_from_sobel ;
---output_href <= href_from_sobel ;
---output_vsync <= vsync_from_sobel ;
---output_pixel <= pixel_from_sobel ;
+output_pxclk <= pxclk_from_sobel ;
+output_href <= href_from_sobel ;
+output_vsync <= vsync_from_sobel ;
+output_pixel <= pixel_from_sobel ;
 
 
 
 
-output_pxclk <= pxclk_from_interface ;
-output_href <= href_from_interface ;
-output_vsync <= vsync_from_interface ;
-output_pixel <= pixel_from_interface ;
+--output_pxclk <= pxclk_from_interface ;
+--output_href <= href_from_interface ;
+--output_vsync <= vsync_from_interface ;
+--output_pixel <= pixel_from_interface ;
 	
 --pix2fifo : pixel2fifo 
 --port map(
@@ -330,7 +330,8 @@ fifoB_wr <= (write_pixel and (NOT write_pixel_old)) when output_vsync = '0' and 
 				'0' ;
 				
 fifo_input <= (X"AA55") when vsync_rising_edge = '1' else
-				  (pixel_buffer(15 downto 1) & '0') ;
+				  (pixel_buffer(15 downto 1) & '0') when pixel_buffer = X"AA55" else
+				  pixel_buffer;
 
 
 

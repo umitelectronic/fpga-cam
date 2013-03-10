@@ -10,10 +10,14 @@
 
 ##### Grouping Constraints #####
 NET "OSC_FPGA" TNM_NET = clk50_grp;
+NET "GPMC_CLK" TNM_NET = clk100_grp;
+NET "PMOD1_10" TNM_NET = clkcam_grp;
 PIN "sys_clocks_gen/clkout2_buf.O" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "PMOD1_10" CLOCK_DEDICATED_ROUTE = FALSE;
 ##### Clock Period Constraints #####
 TIMESPEC TS_PER_CLK50 = PERIOD "clk50_grp" 20.0 ns;
+TIMESPEC TS_PER_CLK100 = PERIOD "clk100_grp" 10.0 ns;
+TIMESPEC TS_PER_CLK24 = PERIOD "clkcam_grp" 40.0 ns;
 
 #######################
 # Pin LOC Constraints #
