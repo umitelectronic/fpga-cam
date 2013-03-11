@@ -183,7 +183,7 @@ void *worker_thread(void *arg)
 			fPointer = &grab_buffer[i+2];	
 			break ;		
 		}
-		i ++ ;
+		i +=2 ;
 	}
 	if(vsync){
 		printf("Vsync found !\n");
