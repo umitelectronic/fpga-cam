@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 library work ;
@@ -45,7 +46,7 @@ port(
 	data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); --! output data bus
 	inputB: in std_logic_vector((WIDTH - 1) downto 0); --! data input of fifo B
 	outputA	: out std_logic_vector((WIDTH - 1) downto 0); --! data output of fifo A
-	emptyA, fullA, emptyB, fullB	:	out std_logic --! fifo state signals
+	emptyA, fullA, emptyB, fullB, burst_available_B	:	out std_logic --! fifo state signals
 );
 end fifo_peripheral;
 
@@ -139,6 +140,9 @@ srazB <= '1' when bus_cs = '1' and rd_bus = '0' and wr_bus = '1' and in_addr(nbi
 			'0' ;
 				
 fifoA_in <= data_bus_in ;
+
+burst_available_B <= '1' when nb_availableB_latched > BURST_SIZE else
+							'0' ;
 
 end RTL;
 
