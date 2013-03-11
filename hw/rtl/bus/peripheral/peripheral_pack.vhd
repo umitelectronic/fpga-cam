@@ -29,7 +29,7 @@ port(
 	data_bus_out	: out std_logic_vector((WIDTH - 1) downto 0); -- bus interface
 	inputB: in std_logic_vector((WIDTH - 1) downto 0); -- logic interface
 	outputA	: out std_logic_vector((WIDTH - 1) downto 0); -- logic interface
-	emptyA, fullA, emptyB, fullB	:	out std_logic 
+	emptyA, fullA, emptyB, fullB, burst_available_B :	out std_logic 
 );
 end component;
 
@@ -75,6 +75,24 @@ port(clk, resetn : in std_logic;
 	  data_out_logic : out std_logic_vector(DATA_WIDTH-1 downto 0);
 	  wr_logic, rd_logic, cs_logic : in std_logic;
 	  wait_logic : out std_logic 
+	);
+end component;
+
+
+component interrupt_manager_peripheral is
+generic(NB_INTERRUPT_LINES : positive := 3; 
+		  NB_INTERRUPTS : positive := 1; 
+		  ADDR_WIDTH : positive := 16;
+		  DATA_WIDTH : positive := 16);
+port(clk, resetn : in std_logic ; --! system clock and asynchronous reset
+	addr_bus : in std_logic_vector((ADDR_WIDTH - 1) downto 0); --! address bus
+	wr_bus, rd_bus, cs_bus : in std_logic ; --! bus control signals
+	data_bus_in	: in std_logic_vector((DATA_WIDTH - 1) downto 0); --! input data bus
+	data_bus_out	: out std_logic_vector((DATA_WIDTH - 1) downto 0);
+	
+	interrupt_lines : out std_logic_vector(0 to NB_INTERRUPT_LINES-1);
+	interrupts_req : in std_logic_vector(0 to NB_INTERRUPTS-1)
+	
 	);
 end component;
 

@@ -83,9 +83,11 @@ architecture Behavioral of logibone_camera is
 	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
 	signal bus_fifo_out, bus_latch_out : std_logic_vector(15 downto 0);
+	signal interrupt_manager_data_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
-	signal cs_fifo, cs_latch : std_logic ;
+	signal cs_fifo, cs_latch, cs_interrupt_manager : std_logic ;
+	signal fifo_interrupt : std_logic ;
 	
 	
 	signal cam_data : std_logic_vector(7 downto 0);
@@ -159,8 +161,11 @@ port map(clk => clk_sys ,
 
 cs_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
 			  '0' ;	  
+cs_interrupt_manager <= '1' when bus_addr(15 downto 10) = "000001" else
+			  '0' ;
 
 bus_data_in <= bus_fifo_out when cs_fifo = '1' else
+					interrupt_manager_data_out when cs_interrupt_manager = '1' else
 					(others => '1');
 
 bi_fifo0 : fifo_peripheral 
@@ -181,10 +186,9 @@ bi_fifo0 : fifo_peripheral
 			emptyA => fifoA_empty,
 			fullA => fifoA_full,
 			emptyB => fifoB_empty,
-			fullB => fifoB_full
+			fullB => fifoB_full,
+			burst_available_B => fifo_interrupt
 		);
-		
-		INIT <= PB(1);
  
  conf_rom : yuv_register_rom
 	port map(
@@ -258,6 +262,22 @@ output_pixel <= pixel_from_sobel ;
 --	fifo_wr => fifoB_wr 
 --
 --);
+
+int_gen: interrupt_manager_peripheral 
+generic map(NB_INTERRUPT_LINES => 1, 
+		  NB_INTERRUPTS => 2, 
+		  ADDR_WIDTH => 16,
+		  DATA_WIDTH => 16)
+port map(clk => clk_sys, resetn => sys_resetn,
+	addr_bus => bus_addr,
+	wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_interrupt_manager,
+	data_bus_in	=> bus_data_out,
+	data_bus_out => interrupt_manager_data_out,
+	
+	interrupt_lines(0) => INIT,
+	interrupts_req(0) => output_vsync,
+	interrupts_req(1) => PB(1)
+	);
 
 
 	
