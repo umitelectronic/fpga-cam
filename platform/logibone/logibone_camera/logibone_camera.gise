@@ -53,6 +53,7 @@
     <file xil_pn:fileType="FILE_XPI" xil_pn:name="logibone_camera.xpi"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="logibone_camera.xst"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="logibone_camera_envsettings.html"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="logibone_camera_fpga_editor.log"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="logibone_camera_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="logibone_camera_map.map" xil_pn:subbranch="Map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="logibone_camera_map.mrp" xil_pn:subbranch="Map"/>
@@ -67,6 +68,7 @@
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="logibone_camera_summary.xml"/>
     <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="logibone_camera_usage.xml"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="logibone_camera_xst.xrpt"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="planAhead_run_1"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
@@ -101,7 +103,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1362909219" xil_pn:in_ck="-3866513281477517693" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-5091840959650810240" xil_pn:start_ts="1362909207">
+    <transform xil_pn:end_ts="1363012205" xil_pn:in_ck="-3866513281477517693" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-5091840959650810240" xil_pn:start_ts="1363012193">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -119,11 +121,11 @@
       <outfile xil_pn:name="webtalk_pn.xml"/>
       <outfile xil_pn:name="xst"/>
     </transform>
-    <transform xil_pn:end_ts="1362909366" xil_pn:in_ck="6761049645652539331" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="4529280899360645359" xil_pn:start_ts="1362909366">
+    <transform xil_pn:end_ts="1363009080" xil_pn:in_ck="6761049645652539331" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="4529280899360645359" xil_pn:start_ts="1363009080">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1362909371" xil_pn:in_ck="199269817288413024" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-1047859635436390478" xil_pn:start_ts="1362909366">
+    <transform xil_pn:end_ts="1363012211" xil_pn:in_ck="199269817288413024" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-1047859635436390478" xil_pn:start_ts="1363012205">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -133,7 +135,7 @@
       <outfile xil_pn:name="logibone_camera.ngd"/>
       <outfile xil_pn:name="logibone_camera_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1362909395" xil_pn:in_ck="-5515587575712711231" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1362909371">
+    <transform xil_pn:end_ts="1363012225" xil_pn:in_ck="-5515587575712711231" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1363012211">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -147,7 +149,7 @@
       <outfile xil_pn:name="logibone_camera_summary.xml"/>
       <outfile xil_pn:name="logibone_camera_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1362909450" xil_pn:in_ck="-9046718294307695302" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1362909395">
+    <transform xil_pn:end_ts="1363012240" xil_pn:in_ck="-9046718294307695302" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1363012225">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -162,7 +164,7 @@
       <outfile xil_pn:name="logibone_camera_pad.txt"/>
       <outfile xil_pn:name="logibone_camera_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1362909500" xil_pn:in_ck="-6038391580115230694" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1362909450">
+    <transform xil_pn:end_ts="1363012250" xil_pn:in_ck="-6038391580115230694" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1363012240">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -183,12 +185,26 @@
       <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="InputRemoved"/>
     </transform>
-    <transform xil_pn:end_ts="1362909450" xil_pn:in_ck="-7470918721655925827" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1362909446">
+    <transform xil_pn:end_ts="1362997216" xil_pn:in_ck="-7470918721655925827" xil_pn:name="TRAN_fpgaFloorplanPostPAR" xil_pn:start_ts="1362997216">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="InputAdded"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="InputRemoved"/>
+    </transform>
+    <transform xil_pn:end_ts="1363012240" xil_pn:in_ck="-7470918721655925827" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1363012235">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="logibone_camera.twr"/>
       <outfile xil_pn:name="logibone_camera.twx"/>
+    </transform>
+    <transform xil_pn:end_ts="1362997413" xil_pn:in_ck="-5515587575712711231" xil_pn:name="TRAN_createTimingConstraints" xil_pn:start_ts="1362997412">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="InputChanged"/>
     </transform>
   </transforms>
 

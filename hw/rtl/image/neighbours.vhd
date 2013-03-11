@@ -23,8 +23,9 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library WORK ;
-use WORK.CAMERA.ALL ;
-use WORK.GENERIC_COMPONENTS.ALL ;
+use WORK.image_pack.ALL ;
+use WORK.utils_pack.ALL ;
+use WORK.primitive_pack.ALL ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -36,43 +37,29 @@ use WORK.GENERIC_COMPONENTS.ALL ;
 --use UNISIM.VComponents.all;
 
 entity neighbours is
-		generic(LINE_SIZE : natural := 640);
+		generic(WIDTH : natural := 640, HEIGHT : natural := 480);
 		port(
 			clk : in std_logic; 
 			resetn, sraz : in std_logic; 
-			add_neighbour, next_line : in std_logic; 
+			add_neighbour, next_line, next_frame : in std_logic; 
 			neighbour_in : in unsigned(7 downto 0 );
 			neighbours : out pix_neighbours);
 end neighbours;
 
 architecture Behavioral of neighbours is
-type read_neighbour_state is (WRITE_VALUE, LOAD_VALUE, WAIT_NEIGHBOUR, WAIT_END_NEW_LINE);
 
-
-signal pixel_state, next_pixel_state : read_neighbour_state ;
-
-signal neighbours0 : pix_neighbours := ((others => '0'), (others => '0'), (others => '0'), (others => '0')); 
-signal line_count : std_logic_vector(9 downto 0) := (others => '0');
-signal line_addr : std_logic_vector(9 downto 0) ;
-signal read_pixel_index, write_pixel_index : std_logic_vector(9 downto 0) ;
-
-signal new_neighbour, next_neighbour: std_logic_vector(7 downto 0) := X"00";
-signal nclk, first_line, neighbour_wr : std_logic;
-
-signal en_read_pixel_index, load_read_pixel_index, sraz_read_pixel_index : std_logic ;
 signal pixel_counter_sraz, en_write_pixel_index, sraz_write_pixel_index : std_logic ;
 begin
 
-nclk <= NOT clk ;
-
-line1: ram_Nx8
-	generic map(N => LINE_SIZE + 2, A => 10)
+lines0: dpram_NxN
+	generic map(SIZE => WIDTH + 1 , NBIT => 8, ADDR_WIDTH => nbit(WIDTH))
 	port map(
- 		clk => clk,  --worked with nclk, but messy ...
- 		we => neighbour_wr, en => '1' ,
- 		do => next_neighbour,
- 		di => new_neighbour,
- 		addr => line_addr
+ 		clk => clk, 
+ 		we => new_neighbour ,
+		dpo => output_neighbour,
+		dpra => pixel_counter,
+ 		di => input_neighbour,
+ 		a => pixel_counterq_delayed
 	); 
 
 

@@ -51,7 +51,11 @@ port( OSC_FPGA : in std_logic;
 		--gpmc interface
 		GPMC_CSN : in std_logic_vector(2 downto 0);
 		GPMC_WEN, GPMC_OEN, GPMC_ADVN, GPMC_CLK, GPMC_BE0N, GPMC_BE1N:	in std_logic;
-		GPMC_AD :	inout std_logic_vector(15 downto 0)	
+		GPMC_AD :	inout std_logic_vector(15 downto 0)	;
+		
+		--programming interface
+		MODE : in std_logic_vector(1 downto 0);
+		INIT : out std_logic
 );
 end logibone_camera;
 
@@ -180,7 +184,7 @@ bi_fifo0 : fifo_peripheral
 			fullB => fifoB_full
 		);
 		
-		
+		INIT <= PB(1);
  
  conf_rom : yuv_register_rom
 	port map(

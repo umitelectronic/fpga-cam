@@ -435,7 +435,6 @@ static int LOGIBONE_fifo_init(void)
 		return -1 ;
 	}
 	if(gpio_request(INTERRUPT_GPIO1, "gpio_interrupt_1")){
-		gpio_free(INTERRUPT_GPIO1);
 		printk(KERN_ALERT "Unable to request gpio %d",INTERRUPT_GPIO1);
 		return -1 ;
 	}
@@ -451,7 +450,6 @@ static int LOGIBONE_fifo_init(void)
 	}
 	if ( (irq_req_res = request_irq(pinIrqLine, gpio_interrupt_1, IRQF_TRIGGER_FALLING,"gpio_interrupt_1", NULL)) < 0){
 		gpio_free(INTERRUPT_GPIO1);
-		free_irq(pinIrqLine, NULL);
 		return -EBUSY;
 	}
 	printk("Interrupt in configured !\n");
@@ -580,7 +578,10 @@ static void dma_callback(unsigned lch, u16 ch_status, void *data)
 irqreturn_t gpio_interrupt_1(int irq, void *dev_id, struct pt_regs *regs)
 {
   printk(KERN_ALERT "Interrupt_from_fpga\n");
-
+  //can be used to signal fifo level ...
+  // this means that we need to trigger a DMA chain to empty the fifo
+  // also need to handle special case where FPGA may generate multiple edge when reading from the fifo ...
+  // We may also setup other interrupts (up to three) to handle vertical sync signal and data ready interrupts
   return IRQ_HANDLED;
 }
 
