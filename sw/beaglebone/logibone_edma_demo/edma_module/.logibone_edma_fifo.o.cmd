@@ -648,6 +648,18 @@ deps_/home/jpiat/development/FPGA/fpga-cam/sw/beaglebone/logibone_edma_demo/edma
   include/linux/aio_abi.h \
   include/linux/uio.h \
   arch/arm/mach-omap2/include/mach/edma.h \
+  include/linux/gpio.h \
+    $(wildcard include/config/generic/gpio.h) \
+  /home/jpiat/development/KERNEL/ARM/beaglebone/kernels/ti33x-psp-3.1/arch/arm/include/asm/gpio.h \
+  arch/arm/mach-omap2/include/mach/gpio.h \
+  arch/arm/plat-omap/include/plat/gpio.h \
+  include/linux/platform_device.h \
+    $(wildcard include/config/suspend.h) \
+    $(wildcard include/config/hibernate/callbacks.h) \
+  include/asm-generic/gpio.h \
+    $(wildcard include/config/gpiolib.h) \
+    $(wildcard include/config/of/gpio.h) \
+    $(wildcard include/config/gpio/sysfs.h) \
   /home/jpiat/development/FPGA/fpga-cam/sw/beaglebone/logibone_edma_demo/edma_module/hw_cm_per.h \
   /home/jpiat/development/FPGA/fpga-cam/sw/beaglebone/logibone_edma_demo/edma_module/hw_gpmc.h \
     $(wildcard include/config/autoidle.h) \

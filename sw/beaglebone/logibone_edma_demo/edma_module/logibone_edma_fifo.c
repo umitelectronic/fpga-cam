@@ -14,11 +14,14 @@
 #include <mach/hardware.h>
 #include <mach/irqs.h>
 #include <mach/edma.h>
+#include <linux/gpio.h>
 
 #include "hw_cm_per.h"
 #include "hw_gpmc.h"
 #include "soc_AM335x.h"
 
+
+#define INTERRUPT_GPIO1 74
 
 #define CS_ON	0
 #define CS_OFF	5
@@ -91,6 +94,8 @@ static volatile int irqraised1 = 0;
 unsigned char * readBuffer ;
 unsigned char * writeBuffer ;
 
+int pinIrqLine ;
+
 
 #define BUFFER_SIZE 2048 
 
@@ -102,7 +107,7 @@ unsigned short int getNbFree(void);
 unsigned short int getNbAvailable(void);
 int edma_memtomemcpy(int count, unsigned long src_addr, unsigned long trgt_addr,int event_queue,  enum address_mode mode);
 static void dma_callback(unsigned lch, u16 ch_status, void *data);
-
+irqreturn_t gpio_interrupt_1(int irq, void *dev_id, struct pt_regs *regs);
 
 
 enum LOGIBONE_fifo_read_mode{
@@ -418,11 +423,38 @@ static int LOGIBONE_fifo_init(void)
 	dev_t dev = 0;
 	struct cdev cdev ;
 	int result ;
+	int pinIrqLine, irq_req_res ;
 	setupGPMCClock();
 	if(setupGPMCNonMuxed() < 0 ){
 		printk(KERN_WARNING "%s: can't initialize gpmc \n",gDrvrName);
 		return -1;		
 	}
+
+	if (!gpio_is_valid(INTERRUPT_GPIO1)){
+		printk(KERN_ALERT "The requested GPIO is not available \n");
+		return -1 ;
+	}
+	if(gpio_request(INTERRUPT_GPIO1, "gpio_interrupt_1")){
+		gpio_free(INTERRUPT_GPIO1);
+		printk(KERN_ALERT "Unable to request gpio %d",INTERRUPT_GPIO1);
+		return -1 ;
+	}
+	if(gpio_direction_input(INTERRUPT_GPIO1) < 0 ){
+		printk(KERN_ALERT "Impossible to set input direction");
+		return -1 ;
+	}
+
+	/*install interrupt handler*/
+	if ( (pinIrqLine=gpio_to_irq(INTERRUPT_GPIO1)) < 0){
+	printk(KERN_ALERT "Gpio %d cannot be used as interrupt",INTERRUPT_GPIO1);
+	return -1 ;
+	}
+	if ( (irq_req_res = request_irq(pinIrqLine, gpio_interrupt_1, IRQF_TRIGGER_FALLING,"gpio_interrupt_1", NULL)) < 0){
+		gpio_free(INTERRUPT_GPIO1);
+		free_irq(pinIrqLine, NULL);
+		return -EBUSY;
+	}
+	printk("Interrupt in configured !\n");
 
 	if (check_mem_region(FPGA_BASE_ADDR, 256 * sizeof(short)) ){
 	    printk("%s: memory already in use\n", gDrvrName);
@@ -456,7 +488,8 @@ static int LOGIBONE_fifo_init(void)
 static void LOGIBONE_fifo_exit(void)
 {
 
-
+    gpio_free(INTERRUPT_GPIO1);
+    free_irq(pinIrqLine, NULL);
     unregister_chrdev(gDrvrMajor, gDrvrName);
     printk(/*KERN_ALERT*/ "%s driver is unloaded\n", gDrvrName);
 }
@@ -542,6 +575,13 @@ static void dma_callback(unsigned lch, u16 ch_status, void *data)
 	default:
 		break;
 	}
+}
+
+irqreturn_t gpio_interrupt_1(int irq, void *dev_id, struct pt_regs *regs)
+{
+  printk(KERN_ALERT "Interrupt_from_fpga\n");
+
+  return IRQ_HANDLED;
 }
 
 MODULE_LICENSE("Dual BSD/GPL");
