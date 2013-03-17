@@ -74,7 +74,12 @@
 #define FIFO_PEEK_OFFSET	7
 #define FIFO_READ_OFFSET	0
 #define FIFO_WRITE_OFFSET	0
-#define FIFO_BLOCK_SIZE	1024 
+#define FIFO_BLOCK_SIZE	1024  //512 * 16 bits
+
+#define INTERRUPT_MANAGER_BASE_ADDR FPGA_BASE_ADDR+0x0800
+#define INTERRUPT_MANAGER_INT1_OFFSET	0x0002
+#define INTERRUPT_MANAGER_INT2_OFFSET	0x0004
+#define INTERRUPT_MANAGER_INT3_OFFSET	0x0006
 
 
 
@@ -578,6 +583,15 @@ static void dma_callback(unsigned lch, u16 ch_status, void *data)
 irqreturn_t gpio_interrupt_1(int irq, void *dev_id, struct pt_regs *regs)
 {
   printk(KERN_ALERT "Interrupt_from_fpga\n");
+  if(gpmc_cs1_virt[INTERRUPT_MANAGER_BASE_ADDR + INTERRUPT_MANAGER_INT1_OFFSET] & 0x02){
+	 printk(KERN_ALERT "Interrupt 1 from fpga \n");
+  }
+  if(gpmc_cs1_virt[INTERRUPT_MANAGER_BASE_ADDR + INTERRUPT_MANAGER_INT2_OFFSET] & 0x02){
+	 printk(KERN_ALERT "Interrupt 2 from fpga \n");
+  }
+  if(gpmc_cs1_virt[INTERRUPT_MANAGER_BASE_ADDR + INTERRUPT_MANAGER_INT3_OFFSET] & 0x02){
+	 printk(KERN_ALERT "Interrupt 3 from fpga \n");
+  }
   //can be used to signal fifo level ...
   // this means that we need to trigger a DMA chain to empty the fifo
   // also need to handle special case where FPGA may generate multiple edge when reading from the fifo ...

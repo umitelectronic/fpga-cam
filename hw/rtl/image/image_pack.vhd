@@ -124,11 +124,11 @@ component line_counter is
 end component;
 
 component neighbours is
-		generic(LINE_SIZE : natural := 640);
+		generic(WIDTH : natural := 640; HEIGHT : natural := 480);
 		port(
 			clk : in std_logic; 
 			resetn, sraz : in std_logic; 
-			add_neighbour, next_line : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic; 
 			neighbour_in : in unsigned(7 downto 0 );
 			neighbours : out pix_neighbours);
 end component;

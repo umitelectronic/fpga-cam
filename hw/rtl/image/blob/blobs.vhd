@@ -25,8 +25,10 @@ use ieee.math_real.log2;
 use ieee.math_real.ceil;
 
 library work ;
-use work.camera.all ;
-use work.generic_components.all ;
+use work.image_pack.all ;
+use work.utils_pack.all ;
+use work.blob_pack.all ;
+use work.primitive_pack.all ;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -128,7 +130,7 @@ next_blob_index <= next_blob_index_tp when nb_free_index > 0 else -- no more fre
 		
 
 free_index_counter: up_down_counter 
-	 generic map(MODULO => 256 , NBIT => 8 )
+	 generic map(NBIT => 8 )
     port map( clk => clk,
            resetn => resetn,
            sraz => '0',
@@ -154,7 +156,7 @@ with pixel_state select
 			'1' when others ;
 
 next_free_blob_pointer: up_down_counter
-	 generic map(MODULO => 256 , NBIT => 8 )
+	 generic map(NBIT => 8 )
     port map( clk => clk,
            resetn => resetn,
 			  sraz => '0',
@@ -186,7 +188,7 @@ with pixel_state select
 
 true_blob_index <= unsigned(ram_addr) ; 
 
-blob_index_ram : DP_ram_NxN 
+blob_index_ram : dpram_NxN
 	generic map(SIZE => 256 , NBIT => 8, ADDR_WIDTH => 8)
 	port map(
  		clk => clk,
@@ -199,14 +201,15 @@ blob_index_ram : DP_ram_NxN
 	); 
 
 
-xy_pixel_ram0: ram_NxN
+xy_pixel_ram0: dpram_NxN
 	generic map(SIZE => NB_BLOB , NBIT => 40, ADDR_WIDTH => 8)
 	port map(
  		clk => clk, 
- 		we => ram_wr, en => ram_en,
- 		do => ram0_out ,
+ 		we => ram_wr,
+		dpra => (others => '0'),
+ 		spo => ram0_out ,
  		di => ram0_in,  
- 		addr => ram_addr_tp
+ 		a => ram_addr_tp
 	); 
 	
 	ram_addr_tp <= blob_addr when sender_active = '1' else
