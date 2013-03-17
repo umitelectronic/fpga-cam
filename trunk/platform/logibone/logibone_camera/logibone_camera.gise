@@ -29,6 +29,21 @@
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="blob_detection_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_tb_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="blob_detection_tb_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="blob_detection_tb_isim_beh.wdb"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_tb_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_manager_stx_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="blobs_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blobs_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="ipcore_dir/coregen.log"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_CMD" xil_pn:name="isim.cmd"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_LOG" xil_pn:name="isim.log"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="line_counter_isim_beh.exe"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="logibone_camera.bgn" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="logibone_camera.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="logibone_camera.bld"/>
@@ -72,11 +87,145 @@
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_INI" xil_pn:name="xilinxsim.ini"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
+    <transform xil_pn:end_ts="1363182351" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1363182351">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1363482155" xil_pn:in_ck="-1126057336740159480" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1363482155">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/interrupt_manager_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/conf/conf_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/conf/i2c_conf.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/conf/yuv_register_rom.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_detection.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_manager.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_sender.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blobs.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/conv3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/matNxM_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/neighbours.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel2fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/i2c_master.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/yuv_camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/MAC16.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/up_down_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/blob_detection_tb.vhd"/>
+      <outfile xil_pn:name="logibone_camera.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1363360001" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="9038420105678284648" xil_pn:start_ts="1363360001">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1363360001" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-3237436699065512986" xil_pn:start_ts="1363360001">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1363183095" xil_pn:in_ck="2088049057168484748" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="-5868335493402065945" xil_pn:start_ts="1363183095">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
+      <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1363478461" xil_pn:in_ck="-1126057336740159480" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1363478461">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/interrupt_manager_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/conf/conf_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/conf/i2c_conf.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/conf/yuv_register_rom.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_detection.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_manager.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blob_sender.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/blob/blobs.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/block3X3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/conv3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/filter_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/filter/sobel3x3.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/line_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/matNxM_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/neighbours.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel2fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/pixel_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/i2c_master.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/yuv_camera_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/MAC16.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/edge_triggered_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_delay.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/up_down_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/blob_detection_tb.vhd"/>
+      <outfile xil_pn:name="logibone_camera.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1363478466" xil_pn:in_ck="7818014050712080592" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-4313580237744140304" xil_pn:start_ts="1363478461">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="blob_detection_tb_beh.prj"/>
+      <outfile xil_pn:name="blob_detection_tb_isim_beh.exe"/>
+      <outfile xil_pn:name="fuse.log"/>
+      <outfile xil_pn:name="isim"/>
+      <outfile xil_pn:name="isim.log"/>
+      <outfile xil_pn:name="xilinxsim.ini"/>
+    </transform>
+    <transform xil_pn:end_ts="1363478466" xil_pn:in_ck="-5518327303897253884" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="-3242375774910632163" xil_pn:start_ts="1363478466">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="blob_detection_tb_isim_beh.wdb"/>
+      <outfile xil_pn:name="isim.cmd"/>
+      <outfile xil_pn:name="isim.log"/>
+    </transform>
     <transform xil_pn:end_ts="1357290870" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="-5067632604979749192" xil_pn:start_ts="1357290870">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -103,12 +252,12 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1363024000" xil_pn:in_ck="5417682396091145097" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-5091840959650810240" xil_pn:start_ts="1363023987">
+    <transform xil_pn:end_ts="1363359786" xil_pn:in_ck="-2248896829607247715" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-5091840959650810240" xil_pn:start_ts="1363359764">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="OutputChanged"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="InputChanged"/>
       <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
       <outfile xil_pn:name="logibone_camera.lso"/>
       <outfile xil_pn:name="logibone_camera.ngc"/>
@@ -125,20 +274,21 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1363024006" xil_pn:in_ck="199269817288413024" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-1047859635436390478" xil_pn:start_ts="1363024000">
+    <transform xil_pn:end_ts="1363359793" xil_pn:in_ck="199269817288413024" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-1047859635436390478" xil_pn:start_ts="1363359786">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
       <outfile xil_pn:name="logibone_camera.bld"/>
       <outfile xil_pn:name="logibone_camera.ngd"/>
       <outfile xil_pn:name="logibone_camera_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1363024021" xil_pn:in_ck="-5515587575712711231" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1363024006">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="WarningsGenerated"/>
+    <transform xil_pn:end_ts="1363359804" xil_pn:in_ck="-5515587575712711231" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1363359793">
+      <status xil_pn:value="AbortedRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="logibone_camera.pcf"/>
       <outfile xil_pn:name="logibone_camera_map.map"/>
@@ -153,6 +303,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
       <outfile xil_pn:name="logibone_camera.ncd"/>
       <outfile xil_pn:name="logibone_camera.pad"/>
@@ -168,6 +319,9 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
       <outfile xil_pn:name="logibone_camera.bgn"/>
       <outfile xil_pn:name="logibone_camera.bit"/>
@@ -181,6 +335,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="InputAdded"/>
       <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="InputRemoved"/>
@@ -189,6 +344,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="InputAdded"/>
       <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="InputRemoved"/>
@@ -196,6 +352,7 @@
     <transform xil_pn:end_ts="1363024036" xil_pn:in_ck="-7470918721655925827" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1363024031">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="logibone_camera.twr"/>
       <outfile xil_pn:name="logibone_camera.twx"/>
@@ -204,6 +361,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="InputChanged"/>
     </transform>
   </transforms>

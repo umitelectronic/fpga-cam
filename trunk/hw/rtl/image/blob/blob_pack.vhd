@@ -9,6 +9,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.all;
 
 package blob_pack is
 
@@ -48,6 +49,25 @@ port(
 		);
 end component;
 
+
+component blob_manager is
+generic(NB_BLOB : positive := 32);
+	port(
+		clk, resetn, sraz : in std_logic ; --standard signals
+		blob_index : in unsigned(7 downto 0); -- input blob_index
+		blob_index_to_merge : in unsigned(7 downto 0); -- input blob_index to merge
+		next_blob_index : out unsigned(7 downto 0); -- next available index
+		add_pixel : in std_logic ; -- add pixel to blob
+		new_blob : in std_logic ; -- initializing new blob
+		merge_blob : in std_logic ; --merging two blobs
+		pixel_posx, pixel_posy : in unsigned(9 downto 0); -- position of the pixel to add to the blob
+		
+		--memory_interface to copy results on vsync
+		mem_addr : out std_logic_vector(15 downto 0);
+		mem_data : inout std_logic_vector(15 downto 0);
+		mem_wr, mem_rd : out std_logic
+	);
+end component;
 
 component blob_sender is
 generic(NB_BLOB : positive	:=	16);

@@ -37,157 +37,129 @@ use WORK.primitive_pack.ALL ;
 --use UNISIM.VComponents.all;
 
 entity neighbours is
-		generic(WIDTH : natural := 640, HEIGHT : natural := 480);
+		generic(WIDTH : natural := 640; HEIGHT : natural := 480);
 		port(
 			clk : in std_logic; 
 			resetn, sraz : in std_logic; 
-			add_neighbour, next_line, next_frame : in std_logic; 
+			pixel_clock, hsync, vsync : in std_logic; 
 			neighbour_in : in unsigned(7 downto 0 );
 			neighbours : out pix_neighbours);
 end neighbours;
 
 architecture Behavioral of neighbours is
 
-signal pixel_counter_sraz, en_write_pixel_index, sraz_write_pixel_index : std_logic ;
+signal sraz_read_pixel_index, en_read_pixel_index, sraz_write_pixel_index : std_logic ;
+signal line_count : std_logic_vector(nbit(HEIGHT)-1 downto 0);
+signal pixel_counter_dec, pixel_counter : std_logic_vector(nbit(WIDTH)-1 downto 0);
+signal neighbours_buffer : pix_neighbours ;
+signal hsync_re, hsync_old : std_logic ;
+signal pixel_clock_re, pixel_clock_old : std_logic ;
+signal output_neighbour : std_logic_vector(7 downto 0);
 begin
 
+
 lines0: dpram_NxN
-	generic map(SIZE => WIDTH + 1 , NBIT => 8, ADDR_WIDTH => nbit(WIDTH))
+	generic map(SIZE => WIDTH , NBIT => 8, ADDR_WIDTH => nbit(WIDTH))
 	port map(
  		clk => clk, 
- 		we => new_neighbour ,
+ 		we => pixel_clock_re ,
 		dpo => output_neighbour,
-		dpra => pixel_counter,
- 		di => input_neighbour,
- 		a => pixel_counterq_delayed
+		dpra => pixel_counter_dec,
+ 		di => std_logic_vector(neighbour_in),
+ 		a => pixel_counter
 	); 
 
 
-line_addr <= write_pixel_index when neighbour_wr = '1' else
-				 read_pixel_index ;
-
-	
-
-pixel_counter_sraz <= (next_line OR sraz) ;
-	
-	
+-- read address is +1 compared to current pixel
+-- 	
 read_pixel_index0 : simple_counter 
-	 generic map(NBIT => 10)
+	 generic map(NBIT => nbit(WIDTH))
     port map( clk => clk,
            resetn => resetn,
            sraz => sraz_read_pixel_index ,
            en => en_read_pixel_index,
-			  load => load_read_pixel_index,
-			  E => std_logic_vector(to_unsigned(1, 10)),
-           Q => read_pixel_index
+			  load => vsync,
+			  E => std_logic_vector(to_unsigned(2, nbit(WIDTH))) ,
+           Q => pixel_counter_dec
 			  );
 
-sraz_read_pixel_index <= '1' when read_pixel_index = LINE_SIZE else
-							    '0' ;
-with pixel_state select
-	en_read_pixel_index <= add_neighbour when WAIT_NEIGHBOUR,
-								  '0' when others ;
-	load_read_pixel_index <= sraz ;
-	
+sraz_read_pixel_index <= '1' when pixel_counter_dec = (WIDTH-1) and pixel_clock_re = '1' else
+							    '0' ;	
+en_read_pixel_index <= pixel_clock_re when hsync = '0' else
+							  '0' ;
 	
 write_pixel_index0 : simple_counter 
-	 generic map(NBIT => 10)
+	 generic map(NBIT => nbit(WIDTH))
     port map( clk => clk,
            resetn => resetn,
            sraz => sraz_write_pixel_index ,
-           en => en_write_pixel_index,
+           en => pixel_clock_re,
 			  load => '0',
-			  E => std_logic_vector(to_unsigned(0, 10)),
-           Q => write_pixel_index
+			  E => (others => '0'),
+           Q => pixel_counter
 			  );
 
-sraz_write_pixel_index <= '1' when write_pixel_index = LINE_SIZE else
-							     pixel_counter_sraz ;
-with pixel_state select
-	en_write_pixel_index <= '1' when LOAD_VALUE,
-								  '0' when others ;
-			
-line_counter0: line_counter
-		port map(
-			clk => clk,
-			resetn => resetn, 
-			hsync => next_line, vsync => sraz, 
-			line_count => line_count
-			);
-							
-
--- actualize matrix with values
+sraz_write_pixel_index <= pixel_clock_re when pixel_counter = (WIDTH-1) else
+								  '1' when hsync =  '1' else -- should coincide ...
+							     '0' ;
+	
+line_counter : simple_counter 
+	 generic map(NBIT => nbit(HEIGHT))
+    port map( clk => clk,
+           resetn => resetn,
+           sraz => vsync ,
+           en => hsync_re,
+			  load => '0',
+			  E => (others => '0'),
+           Q => line_count
+			  );
+	
 process(clk, resetn)
 begin
 if resetn = '0' then 
-	neighbours0(0) <= (others => '0') ;
-	neighbours0(1) <= (others => '0') ; -- zeroing neighbours
-	neighbours0(2) <= (others => '0') ;
-	neighbours0(3) <= (others => '0') ;
-	neighbour_wr <= '0' ;
-	pixel_state <= WAIT_NEIGHBOUR ;
-	first_line <= '1' ;
+	hsync_old <= '0' ;
+	pixel_clock_old <= '0' ;
 elsif clk'event and clk = '1' then
-	if sraz = '1' then
-		neighbours0(0) <= (others => '0') ;
-		neighbours0(1) <= (others => '0') ; -- zeroing neighbours
-		neighbours0(2) <= (others => '0') ;
-		neighbours0(3) <= (others => '0') ;
-		neighbour_wr <= '0' ;
-		pixel_state <= WAIT_NEIGHBOUR ;
-		first_line <= '1' ;
-	else
-		case pixel_state is
-			when WRITE_VALUE => -- load value from fifos into buffer
-				neighbour_wr <= '0' ;
-				pixel_state <= LOAD_VALUE ;
-			when LOAD_VALUE => -- load value from fifos into buffer
-				neighbour_wr <= '0' ;
-				pixel_state <= WAIT_NEIGHBOUR ;
-			when WAIT_NEIGHBOUR =>
-				neighbour_wr <= '0' ;
-				if add_neighbour = '1' then
-					neighbours0(0) <=  neighbours0(1);
-					neighbours0(1) <= neighbours0(2) ; -- shifting matrix to right
-					if first_line = '0' OR write_pixel_index > (LINE_SIZE - 2) then
-						neighbours0(2) <= unsigned(next_neighbour) ;
-					else
-						neighbours0(2) <= (others => '0') ;
-					end if;
-					neighbours0(3) <= neighbour_in ;
-					
-					new_neighbour <= std_logic_vector(neighbour_in) ; -- shifting left neighbour to upper line fifo
-					neighbour_wr <= '1' ;
-					pixel_state <= WRITE_VALUE ;
-				elsif  next_line = '1' then
-					pixel_state <= WAIT_END_NEW_LINE ;
-				end if;
-			when WAIT_END_NEW_LINE =>
-				neighbour_wr <= '0' ;
-				if  next_line = '0' then
-					first_line <= '0' ;
-					pixel_state <= WAIT_NEIGHBOUR ;
-				end if;
-			when others =>
-				pixel_state <= WAIT_NEIGHBOUR ;
-		end case ;
-	end if;
-end if;
-end process;
+	hsync_old <= hsync ;
+	pixel_clock_old <= pixel_clock ;
+end if ;
+end process ;		
+hsync_re <= (NOT hsync_old) AND hsync ;
+pixel_clock_re <= (NOT pixel_clock_old) and pixel_clock ;
+		
+process(clk, resetn)
+begin
+if resetn = '0' then 
+	neighbours_buffer(0) <= (others => '0') ;
+	neighbours_buffer(1) <= (others => '0') ;
+	neighbours_buffer(2) <= (others => '0') ;
+	neighbours_buffer(3) <= (others => '0') ;
+elsif clk'event and clk = '1' then
+	if pixel_clock_re = '1' then
+		neighbours_buffer(0) <= neighbours_buffer(1);
+		neighbours_buffer(1) <= neighbours_buffer(2);
+		neighbours_buffer(2) <= unsigned(output_neighbour);
+		neighbours_buffer(3) <= unsigned(neighbour_in);
+	end if ;
+end if ;
+end process;			
 
 
+neighbours(0) <= (others => '0') when pixel_counter = 0 else
+					  (others => '0') when line_count = 0 else
+					  neighbours_buffer(0) ;
+					  
+neighbours(1) <= (others => '0')  when pixel_counter = (WIDTH-1) else
+					  (others => '0')  when line_count = 0 else
+					  neighbours_buffer(1) ;
 
+neighbours(2) <= (others => '0')  when pixel_counter = (WIDTH-1) else
+					  (others => '0')  when line_count = 0 else
+						neighbours_buffer(2) ;
 
+neighbours(3) <= (others => '0') when pixel_counter = 0  else
+					  neighbours_buffer(3) ;
 
-
-
-
-neighbours(0) <= neighbours0(0 ) when write_pixel_index > 0 else
-					  X"00" ;
-neighbours(1) <= neighbours0(1) ; -- always valid
-neighbours(3) <= neighbours0(3) ;-- always valid
-neighbours(2) <= X"00" when write_pixel_index > (LINE_SIZE - 2) else -- ul neighbour is zero when reaching end of line
-					  neighbours0(2) ;
 
 end Behavioral;
 
