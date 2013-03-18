@@ -45,7 +45,11 @@ port(
  		pixel_clock, hsync, vsync : in std_logic;
  		pixel_data_in : in std_logic_vector(7 downto 0 );
 		blob_data : out std_logic_vector(7 downto 0);
-		send_blob : out std_logic
+		
+		--memory_interface to copy results on vsync
+		mem_addr : out std_logic_vector(15 downto 0);
+		mem_data : inout std_logic_vector(15 downto 0);
+		mem_wr : out std_logic
 		);
 end blob_detection;
 
@@ -85,9 +89,9 @@ blobs0: blob_manager
 		
 		send_blobs => vsync_re,
 		--memory_interface to copy results on vsync
-		mem_addr => open,
-		mem_data => open,
-		mem_wr => open
+		mem_addr => mem_addr,
+		mem_data => mem_data,
+		mem_wr => mem_wr
 	);
 	
 update_neighbours : neighbours
