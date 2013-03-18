@@ -62,10 +62,11 @@ generic(NB_BLOB : positive := 32);
 		merge_blob : in std_logic ; --merging two blobs
 		pixel_posx, pixel_posy : in unsigned(9 downto 0); -- position of the pixel to add to the blob
 		
+		send_blobs : in std_logic ;
 		--memory_interface to copy results on vsync
 		mem_addr : out std_logic_vector(15 downto 0);
 		mem_data : inout std_logic_vector(15 downto 0);
-		mem_wr, mem_rd : out std_logic
+		mem_wr : out std_logic
 	);
 end component;
 

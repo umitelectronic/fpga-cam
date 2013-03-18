@@ -65,7 +65,7 @@ signal new_blob_index, current_blob, blob_index_to_merge, true_blob_index : unsi
 signal has_neighbour : std_logic ;
 signal is_blob_pixel : std_logic ;
 signal pixel_clock_old, pixel_clock_re : std_logic ;
-signal vsync_fe, vsync_old : std_logic ;
+signal vsync_fe, vsync_re, vsync_old : std_logic ;
 begin
 
 
@@ -83,29 +83,13 @@ blobs0: blob_manager
 		add_pixel => add_pixel,
 		pixel_posx => unsigned(pixel_x), pixel_posy => unsigned(pixel_y),
 		
+		send_blobs => vsync_re,
 		--memory_interface to copy results on vsync
 		mem_addr => open,
 		mem_data => open,
-		mem_wr => open, mem_rd => open
+		mem_wr => open
 	);
-
---blobs0 : blobs
---	port map(
---		clk => clk, resetn => resetn, sraz => sraz_blobs,
---		blob_index => current_blob,
---		next_blob_index => new_blob_index,
---		blob_index_to_merge => blob_index_to_merge ,
---		true_blob_index => true_blob_index,
---		merge_blob => merge_blob,
---		new_blob => new_blob, 
---		add_pixel => add_pixel,
---		pixel_posx => unsigned(pixel_x), pixel_posy => unsigned(pixel_y),
---		
---		blob_data => blob_data ,
---		oe => oe_blob ,
---		send_blob => send_blob
---	);
-
+	
 update_neighbours : neighbours
 		generic map(WIDTH => LINE_SIZE )
 		port map(
@@ -133,6 +117,7 @@ line_counter0: line_counter
 			line_count => pixel_y(8 downto 0)
 			);
 pixel_y(9) <= '0' ;
+
 current_blob <= neighbours0(3) when is_blob_pixel='1' and neighbours0(3) /= 0 else
 					 neighbours0(0) when is_blob_pixel='1' and neighbours0(0) /= 0 else
 					 neighbours0(1) when is_blob_pixel='1' and neighbours0(1) /= 0 else
@@ -170,6 +155,7 @@ begin
 end process ;
 pixel_clock_re <= (NOT pixel_clock_old) and pixel_clock ;
 vsync_fe <= vsync_old and (NOT vsync) ;
+vsync_re <= (NOT vsync_old) and vsync ;
 
 end Behavioral;
 
