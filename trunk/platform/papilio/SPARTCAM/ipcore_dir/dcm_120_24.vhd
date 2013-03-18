@@ -1,17 +1,17 @@
 --------------------------------------------------------------------------------
--- Copyright (c) 1995-2011 Xilinx, Inc.  All rights reserved.
+-- Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 --------------------------------------------------------------------------------
 --   ____  ____ 
 --  /   /\/   / 
 -- /___/  \  /    Vendor: Xilinx 
--- \   \   \/     Version : 13.4
+-- \   \   \/     Version : 14.1
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : dcm_120_24.vhd
--- /___/   /\     Timestamp : 07/06/2012 17:05:19
+-- /___/   /\     Timestamp : 03/18/2013 11:18:17
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
---Command: xaw2vhdl-st /home/jpiat/development/FPGA/projects/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/./dcm_120_24.xaw /home/jpiat/development/FPGA/projects/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/./dcm_120_24
+--Command: xaw2vhdl-st /home/jpiat/development/FPGA/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/dcm_120_24.xaw /home/jpiat/development/FPGA/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/dcm_120_24
 --Design Name: dcm_120_24
 --Device: xc3s250e-4vq100
 --
