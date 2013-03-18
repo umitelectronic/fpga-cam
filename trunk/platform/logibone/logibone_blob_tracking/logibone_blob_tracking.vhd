@@ -81,16 +81,16 @@ architecture Behavioral of logibone_blob_tracking is
 	signal fifo_output : std_logic_vector(15 downto 0);
 	signal fifo_input : std_logic_vector(15 downto 0);
 	signal latch_output : std_logic_vector(15 downto 0);
-	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
-	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
+	signal image_fifo_wr : std_logic ;
+	signal blob_fifo_input : std_logic_vector(15 downto 0);
+	signal bus_blob_fifo_out : std_logic_vector(15 downto 0);
+	signal blob_fifo_wr, cs_blob_fifo : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
 	signal bus_fifo_out, bus_latch_out : std_logic_vector(15 downto 0);
-	signal interrupt_manager_data_out : std_logic_vector(15 downto 0);
 	signal latches_data_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
-	signal cs_fifo, cs_latches, cs_interrupt_manager : std_logic ;
-	signal fifo_interrupt : std_logic ;
+	signal cs_image_fifo, cs_latches : std_logic ;
 	
 	
 	signal cam_data : std_logic_vector(7 downto 0);
@@ -166,39 +166,67 @@ port map(clk => clk_sys ,
 	  wr => bus_wr , rd => bus_rd 
 );
 
-cs_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
-			  '0' ;	  
-cs_interrupt_manager <= '1' when bus_addr(15 downto 3) = "000001000000" else
-			  '0' ;
-cs_latches <= '1' when bus_addr(15 downto 3) = "000001000001" else
+cs_image_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
 			  '0' ;
 
-bus_data_in <= bus_fifo_out when cs_fifo = '1' else
-					interrupt_manager_data_out when cs_interrupt_manager = '1' else
+cs_blob_fifo <= '1' when bus_addr(15 downto 8) = "00000100" else
+			  '0' ;
+			  
+cs_latches <= '1' when bus_addr(15 downto 2) = "00000101000000" else
+			  '0' ;
+
+bus_data_in <= bus_fifo_out when cs_image_fifo = '1' else
+					bus_blob_fifo_out when cs_blob_fifo = '1' else
 					latches_data_out when cs_latches = '1' else
 					(others => '1');
 
 bi_fifo0 : fifo_peripheral 
-		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 8192, BURST_SIZE => 512)--16384)
+		generic map(ADDR_WIDTH => 16,WIDTH => 16, SIZE => 4096, BURST_SIZE => 512)--16384)
 		port map(
 			clk => clk_sys,
 			resetn => sys_resetn,
 			addr_bus => bus_addr,
 			wr_bus => bus_wr,
 			rd_bus => bus_rd,
-			cs_bus => cs_fifo,
-			wrB => fifoB_wr,
-			rdA => fifoA_rd,
+			cs_bus => cs_image_fifo,
+			wrB => image_fifo_wr,
+			rdA => '0',
 			data_bus_in => bus_data_out,
 			data_bus_out => bus_fifo_out,
 			inputB => fifo_input, 
-			outputA => fifo_output,
-			emptyA => fifoA_empty,
-			fullA => fifoA_full,
-			emptyB => fifoB_empty,
-			fullB => fifoB_full,
-			burst_available_B => fifo_interrupt
+			outputA => open,
+			emptyA => open,
+			fullA => open,
+			emptyB => open,
+			fullB => open,
+			burst_available_B => open
 		);
+
+fifo_blobs : fifo_peripheral 
+		generic map(ADDR_WIDTH => 16,
+						WIDTH => 16, 
+						SIZE => 1024, 
+						BURST_SIZE => 128,
+						SYNC_LOGIC_INTERFACE => true)
+		port map(
+			clk => clk_sys,
+			resetn => sys_resetn,
+			addr_bus => bus_addr,
+			wr_bus => bus_wr,
+			rd_bus => bus_rd,
+			cs_bus => cs_blob_fifo,
+			wrB => blob_fifo_wr,
+			rdA => '0',
+			data_bus_in => bus_data_out,
+			data_bus_out => bus_blob_fifo_out,
+			inputB => blob_fifo_input, 
+			outputA => open,
+			emptyA => open,
+			fullA => open,
+			emptyB => open,
+			fullB => open,
+			burst_available_B => open
+		);		
 		
 latches0 : addr_latches_peripheral
 generic map(ADDR_WIDTH => 16,   WIDTH => 16, NB => 1)
@@ -216,8 +244,6 @@ port map(
 	latch_output(0)(7 downto 0) => pixel_low_thresh
 );
 
- 
- 
  
  conf_rom : yuv_register_rom
 	port map(
@@ -260,8 +286,9 @@ port map(
 binarization0 : synced_binarization
 port map( 		clk => clk_sys, 
  		resetn => sys_resetn ,
- 		pixel_clock => pxclk_from_bin, hsync => href_from_bin, vsync => vsync_from_bin,
- 		pixel_data_1 => pixel_from_interface,
+ 		pixel_clock => pxclk_from_interface, hsync => href_from_interface, vsync => vsync_from_interface,
+ 		pixel_clock_out => pxclk_from_bin, hsync_out => href_from_bin, vsync_out => vsync_from_bin,
+		pixel_data_1 => pixel_from_interface,
 		pixel_data_2 => x"0F",
 		pixel_data_3 => x"0F",
 		upper_bound_1	=> pixel_low_thresh,
@@ -274,7 +301,7 @@ port map( 		clk => clk_sys,
 );
 
 
-erode : erode3x3 
+erode0 : erode3x3 
 generic map(WIDTH => 320, HEIGHT => 240)
 port map(
  		clk => clk_sys, 
@@ -297,8 +324,8 @@ port map(
 		
 		--memory_interface to copy results on vsync
 		mem_addr => open,
-		mem_data =>open,
-		mem_wr => open
+		mem_data =>blob_fifo_input,
+		mem_wr => blob_fifo_wr
 );
 
 
@@ -324,25 +351,9 @@ output_pixel <= pixel_from_erode ;
 --	pixel_clock => output_pxclk, hsync => output_href, vsync => output_vsync,
 --	pixel_data_in => output_pixel,
 --	fifo_data => fifo_input, 
---	fifo_wr => fifoB_wr 
+--	fifo_wr => image_fifo_wr 
 --
 --);
-
-int_gen: interrupt_manager_peripheral 
-generic map(NB_INTERRUPT_LINES => 1, 
-		  NB_INTERRUPTS => 2, 
-		  ADDR_WIDTH => 16,
-		  DATA_WIDTH => 16)
-port map(clk => clk_sys, resetn => sys_resetn,
-	addr_bus => bus_addr,
-	wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_interrupt_manager,
-	data_bus_in	=> bus_data_out,
-	data_bus_out => interrupt_manager_data_out,
-	
-	interrupt_lines(0) => INIT,
-	interrupts_req(0) => output_vsync,
-	interrupts_req(1) => PB(1)
-	);
 
 
 	
@@ -414,7 +425,7 @@ begin
 end process ;
 
 
-fifoB_wr <= (write_pixel and (NOT write_pixel_old)) when output_vsync = '0' and output_href = '0' else
+image_fifo_wr <= (write_pixel and (NOT write_pixel_old)) when output_vsync = '0' and output_href = '0' else
 			   vsync_rising_edge when output_vsync = '1' else
 				'0' ;
 				
@@ -422,7 +433,7 @@ fifo_input <= (X"AA55") when vsync_rising_edge = '1' else
 				  (pixel_buffer(15 downto 1) & '0') when pixel_buffer = X"AA55" else
 				  pixel_buffer;
 
-
+INIT <= '1' ;
 
 end Behavioral;
 
