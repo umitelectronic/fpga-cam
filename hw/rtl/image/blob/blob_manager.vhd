@@ -77,8 +77,6 @@ signal index_wr, blob_wr : std_logic ;
 signal merge_blob_latched, new_blob_latched, add_pixel_latched : std_logic ;
 signal merge_cycle_count, new_cycle_count, add_cycle_count: std_logic_vector(1 downto 0) ;
 signal index_addr : std_logic_vector(7 downto 0);
-signal free_address : std_logic_vector(7 downto 0);
-signal one_free_address : std_logic ;
 signal done_send, sraz_blob_data_send, en_blob_data_send, sraz_blob_send_counter, en_blob_send_counter : std_logic ;
 signal blob_send_count : std_logic_vector(7 downto 0);
 signal blob_data_send_count : std_logic_vector(1 downto 0);
@@ -105,8 +103,7 @@ index_in <= current_blob_data_addr when merge_blob='1' else
 index_wr <= new_blob ;	
 
 
-index_addr <=  free_address when new_blob = '1' and one_free_address = '1' else
-				   std_logic_vector(blob_index) when new_blob = '1'  and one_free_address = '0' else
+index_addr <=  std_logic_vector(blob_index) when new_blob = '1'  else
 				   std_logic_vector(blob_index_to_merge) ;
 
 blob_index_ram : dpram_NxN
@@ -179,6 +176,7 @@ blob_data_to_write <= std_logic_vector(pixel_posx) & std_logic_vector(pixel_posy
 blob_wr <= '1' when new_blob = '1' else
 			  '1' when merge_blob_latched = '1' else
 			  '1' when add_pixel_latched = '1' else
+			  '1' when blob_data_send_count = 2 else
 			  '0' ;
 
 next_free_blob_pointer: up_down_counter
@@ -193,23 +191,6 @@ next_free_blob_pointer: up_down_counter
            Q => slv_next_blob_index_tp
 			  );
 next_blob_index <= unsigned(slv_next_blob_index_tp);
-
-
-process(clk, resetn)
-begin
-	if resetn = '0' then
-		free_address <= (others => '0') ;
-		one_free_address <= '0' ;
-	elsif clk'event and clk = '1' then
-		if merge_blob_latched = '1' then
-			one_free_address <= '1'  ;
-			free_address <= blob_to_merge_data_addr ;
-		elsif new_blob_latched = '1' then
-			one_free_address <= '0'  ;
-			free_address <= (others => '0') ;
-		end if;
-	end if ;
-end process ;
 
 
 process(clk, resetn)
@@ -261,7 +242,7 @@ blob_data_send_counter: simple_counter
 			  sraz => sraz_blob_data_send,
 			  load => '0',
 			  en => en_blob_data_send, 
-			  E => std_logic_vector(to_unsigned(1, 8)),
+			  E => "00",
            Q => blob_data_send_count
 	 ); 
 
@@ -274,15 +255,19 @@ with manager_state select
 	
 mem_data <= current_blob_data(15 downto 0) when blob_data_send_count = 0 else
 				current_blob_data(31 downto 16) when blob_data_send_count = 1 else
-				current_blob_data(47 downto 32) ;
+				X"00" & current_blob_data(39 downto 32) ;
 				
-mem_addr <= blob_send_count ;
+mem_addr <= X"00" & blob_send_count ;
 
 mem_wr <= '1' when manager_state = SEND and blob_data_send_count < 3 else
 			 '0' ;
 	
-done_send <= '1' when blob_data_send_count = 3 and blob_send_count = 32 else
+done_send <= '1' when blob_data_send_count = 2 and blob_send_count = (NB_BLOB-1) else
 		  '0' ;
+		  
+		  
+--TODO: store freed blob data addr into indexing ram
+--TODO: zeroed freed blob data
 
 end Behavioral;
 
