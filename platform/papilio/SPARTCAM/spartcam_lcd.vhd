@@ -22,8 +22,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 library work;
-use work.camera.all ;
-use work.generic_components.all ;
+use work.image_pack.all ;
+use work.utils_pack.all ;
+use work.interface_pack.all ;
+use work.conf_pack.all ;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
@@ -99,6 +101,9 @@ architecture Structural of spartcam_lcd is
 	signal pxclk_from_conv, href_from_conv, vsync_from_conv : std_logic ;
 	
 	signal i2c_scl, i2c_sda : std_logic;
+	signal rom_addr : std_logic_vector(7 downto 0);
+	signal rom_data : std_logic_vector(15 downto 0);
+	for all : yuv_register_rom use entity work.yuv_register_rom(ov7670_qvga);
 	begin
 	
 	--comment connections below when using pins
@@ -143,14 +148,29 @@ architecture Structural of spartcam_lcd is
 	);
 	
 	
+	 conf_rom : yuv_register_rom
+	port map(
+	   clk => clk_96, en => '1' ,
+ 		data => rom_data,
+ 		addr => rom_addr
+	); 
+ 
+ camera_conf_block : i2c_conf 
+	generic map(ADD_WIDTH => 8 , SLAVE_ADD => "0100001")
+	port map(
+		clock => clk_96, 
+		resetn => resetn_delayed ,		
+ 		i2c_clk => clk_24 ,
+		scl => i2c_scl,
+ 		sda => i2c_sda, 
+		reg_addr => rom_addr ,
+		reg_data => rom_data
+	);
+	
 	camera0: yuv_camera_interface
-		generic map(FORMAT => QVGA)
 		port map(clock => clk_96,
+		resetn => resetn_delayed,
 		pixel_data => CAM_DATA, 
- 		i2c_clk => clk_24,
-		scl => i2c_scl ,
-		sda => i2c_sda ,
- 		resetn => resetn_delayed,
  		pxclk => CAM_PCLK, href => CAM_HREF, vsync => CAM_VSYNC,
  		pixel_clock_out => pxclk_from_interface, hsync_out => href_from_interface, vsync_out => vsync_from_interface,
  		y_data => pixel_y_from_interface,

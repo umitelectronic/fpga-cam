@@ -1,17 +1,17 @@
 --------------------------------------------------------------------------------
--- Copyright (c) 1995-2011 Xilinx, Inc.  All rights reserved.
+-- Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 --------------------------------------------------------------------------------
 --   ____  ____ 
 --  /   /\/   / 
 -- /___/  \  /    Vendor: Xilinx 
--- \   \   \/     Version : 13.4
+-- \   \   \/     Version : 14.1
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : dcm96.vhd
--- /___/   /\     Timestamp : 02/19/2012 17:13:57
+-- /___/   /\     Timestamp : 03/18/2013 11:17:38
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
---Command: xaw2vhdl-st C:\Users\jpiat\Documents\Recherche-LAAS\development\fpga-cam\platform\papilio\SPARTCAM\ipcore_dir\.\dcm96.xaw C:\Users\jpiat\Documents\Recherche-LAAS\development\fpga-cam\platform\papilio\SPARTCAM\ipcore_dir\.\dcm96
+--Command: xaw2vhdl-st /home/jpiat/development/FPGA/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/dcm96.xaw /home/jpiat/development/FPGA/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/dcm96
 --Design Name: dcm96
 --Device: xc3s250e-4vq100
 --

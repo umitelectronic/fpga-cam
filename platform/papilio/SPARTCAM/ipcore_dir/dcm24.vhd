@@ -1,17 +1,17 @@
 --------------------------------------------------------------------------------
--- Copyright (c) 1995-2011 Xilinx, Inc.  All rights reserved.
+-- Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 --------------------------------------------------------------------------------
 --   ____  ____ 
 --  /   /\/   / 
 -- /___/  \  /    Vendor: Xilinx 
--- \   \   \/     Version : 13.4
+-- \   \   \/     Version : 14.1
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : dcm24.vhd
--- /___/   /\     Timestamp : 02/19/2012 17:15:30
+-- /___/   /\     Timestamp : 03/18/2013 11:17:44
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
---Command: xaw2vhdl-st C:\Users\jpiat\Documents\Recherche-LAAS\development\fpga-cam\platform\papilio\SPARTCAM\ipcore_dir\.\dcm24.xaw C:\Users\jpiat\Documents\Recherche-LAAS\development\fpga-cam\platform\papilio\SPARTCAM\ipcore_dir\.\dcm24
+--Command: xaw2vhdl-st /home/jpiat/development/FPGA/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/dcm24.xaw /home/jpiat/development/FPGA/fpga-cam/platform/papilio/SPARTCAM/ipcore_dir/dcm24
 --Design Name: dcm24
 --Device: xc3s250e-4vq100
 --
@@ -26,29 +26,22 @@ library UNISIM;
 use UNISIM.Vcomponents.ALL;
 
 entity dcm24 is
-   port ( CLKIN_IN        : in    std_logic; 
-          CLKDV_OUT       : out   std_logic; 
-          CLKIN_IBUFG_OUT : out   std_logic; 
-          CLK0_OUT        : out   std_logic);
+   port ( CLKIN_IN  : in    std_logic; 
+          CLKDV_OUT : out   std_logic; 
+          CLK0_OUT  : out   std_logic);
 end dcm24;
 
 architecture BEHAVIORAL of dcm24 is
-   signal CLKDV_BUF       : std_logic;
-   signal CLKFB_IN        : std_logic;
-   signal CLKIN_IBUFG     : std_logic;
-   signal CLK0_BUF        : std_logic;
-   signal GND_BIT         : std_logic;
+   signal CLKDV_BUF : std_logic;
+   signal CLKFB_IN  : std_logic;
+   signal CLK0_BUF  : std_logic;
+   signal GND_BIT   : std_logic;
 begin
    GND_BIT <= '0';
-   CLKIN_IBUFG_OUT <= CLKIN_IBUFG;
    CLK0_OUT <= CLKFB_IN;
    CLKDV_BUFG_INST : BUFG
       port map (I=>CLKDV_BUF,
                 O=>CLKDV_OUT);
-   
-   CLKIN_IBUFG_INST : IBUFG
-      port map (I=>CLKIN_IN,
-                O=>CLKIN_IBUFG);
    
    CLK0_BUFG_INST : BUFG
       port map (I=>CLK0_BUF,
@@ -70,7 +63,7 @@ begin
             PHASE_SHIFT => 0,
             STARTUP_WAIT => FALSE)
       port map (CLKFB=>CLKFB_IN,
-                CLKIN=>CLKIN_IBUFG,
+                CLKIN=>CLKIN_IN,
                 DSSEN=>GND_BIT,
                 PSCLK=>GND_BIT,
                 PSEN=>GND_BIT,
