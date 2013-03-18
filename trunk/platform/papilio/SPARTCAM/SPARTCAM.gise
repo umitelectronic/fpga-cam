@@ -23,24 +23,48 @@
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="dcm24.vhd"/>
     <file xil_pn:fileType="FILE_UCF" xil_pn:name="dcm24_arwz.ucf" xil_pn:origination="imported"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_VHDL" xil_pn:name="dcm96.vhd"/>
     <file xil_pn:fileType="FILE_UCF" xil_pn:name="dcm96_arwz.ucf" xil_pn:origination="imported"/>
-    <file xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="spartcam_lcd.bld"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="spartcam_lcd.bld"/>
     <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="spartcam_lcd.cmd_log"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="spartcam_lcd.lso"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_lcd.ncd" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="spartcam_lcd.ngc"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGD" xil_pn:name="spartcam_lcd.ngd"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="spartcam_lcd.ngr"/>
+    <file xil_pn:fileType="FILE_PAD_MISC" xil_pn:name="spartcam_lcd.pad"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAR_REPORT" xil_pn:name="spartcam_lcd.par" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PCF" xil_pn:name="spartcam_lcd.pcf" xil_pn:subbranch="Map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spartcam_lcd.prj"/>
+    <file xil_pn:fileType="FILE_TRCE_MISC" xil_pn:name="spartcam_lcd.ptwx"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="spartcam_lcd.stx"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="spartcam_lcd.syr"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="spartcam_lcd.twr" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="spartcam_lcd.twx" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="spartcam_lcd.unroutes" xil_pn:subbranch="Par"/>
+    <file xil_pn:fileType="FILE_XPI" xil_pn:name="spartcam_lcd.xpi"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="spartcam_lcd.xst"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_lcd_envsettings.html"/>
+    <file xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_lcd_guide.ncd" xil_pn:origination="imported"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_lcd_map.map" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="spartcam_lcd_map.mrp" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="spartcam_lcd_map.ncd" xil_pn:subbranch="Map"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGM" xil_pn:name="spartcam_lcd_map.ngm" xil_pn:subbranch="Map"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_lcd_map.xrpt"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_lcd_ngdbuild.xrpt"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_EXCEL_REPORT" xil_pn:name="spartcam_lcd_pad.csv" xil_pn:subbranch="Par"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_TXT_REPORT" xil_pn:name="spartcam_lcd_pad.txt" xil_pn:subbranch="Par"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_lcd_par.xrpt"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="spartcam_lcd_summary.html"/>
+    <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="spartcam_lcd_summary.xml"/>
+    <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="spartcam_lcd_usage.xml"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spartcam_lcd_vhdl.prj"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="spartcam_lcd_xst.xrpt"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
@@ -79,10 +103,12 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1363602472" xil_pn:in_ck="8733522860292318618" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="-6478557455517627123" xil_pn:start_ts="1363602459">
+    <transform xil_pn:end_ts="1363602664" xil_pn:in_ck="-2858688374611253693" xil_pn:name="TRANEXT_xstsynthesize_spartan3e" xil_pn:prop_ck="-6478557455517627123" xil_pn:start_ts="1363602647">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
       <outfile xil_pn:name="spartcam_lcd.lso"/>
       <outfile xil_pn:name="spartcam_lcd.ngc"/>
@@ -95,21 +121,54 @@
       <outfile xil_pn:name="webtalk_pn.xml"/>
       <outfile xil_pn:name="xst"/>
     </transform>
-    <transform xil_pn:end_ts="1363602308" xil_pn:in_ck="6039396653219142755" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-2184687075899119743" xil_pn:start_ts="1363602308">
+    <transform xil_pn:end_ts="1363602578" xil_pn:in_ck="7175952416464174549" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="-2184687075899119743" xil_pn:start_ts="1363602578">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="InputRemoved"/>
     </transform>
-    <transform xil_pn:end_ts="1363602479" xil_pn:in_ck="-8146104218394401802" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-7413014669444827207" xil_pn:start_ts="1363602472">
-      <status xil_pn:value="FailedRun"/>
+    <transform xil_pn:end_ts="1363602670" xil_pn:in_ck="4348999052606024040" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-7413014669444827207" xil_pn:start_ts="1363602664">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="_ngo"/>
+      <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
+      <outfile xil_pn:name="spartcam_lcd.bld"/>
+      <outfile xil_pn:name="spartcam_lcd.ngd"/>
+      <outfile xil_pn:name="spartcam_lcd_ngdbuild.xrpt"/>
+    </transform>
+    <transform xil_pn:end_ts="1363602678" xil_pn:in_ck="4348999052606024041" xil_pn:name="TRANEXT_map_spartan3" xil_pn:prop_ck="2327475146552349993" xil_pn:start_ts="1363602670">
+      <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputRemoved"/>
-      <status xil_pn:value="OutputRemoved"/>
+      <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
+      <outfile xil_pn:name="spartcam_lcd.pcf"/>
+      <outfile xil_pn:name="spartcam_lcd_map.map"/>
+      <outfile xil_pn:name="spartcam_lcd_map.mrp"/>
+      <outfile xil_pn:name="spartcam_lcd_map.ncd"/>
+      <outfile xil_pn:name="spartcam_lcd_map.ngm"/>
+      <outfile xil_pn:name="spartcam_lcd_map.xrpt"/>
+      <outfile xil_pn:name="spartcam_lcd_summary.xml"/>
+      <outfile xil_pn:name="spartcam_lcd_usage.xml"/>
+    </transform>
+    <transform xil_pn:end_ts="1363602693" xil_pn:in_ck="7236411074474738946" xil_pn:name="TRANEXT_par_spartan3" xil_pn:prop_ck="3129755442398015208" xil_pn:start_ts="1363602678">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
+      <outfile xil_pn:name="spartcam_lcd.ncd"/>
+      <outfile xil_pn:name="spartcam_lcd.pad"/>
+      <outfile xil_pn:name="spartcam_lcd.par"/>
+      <outfile xil_pn:name="spartcam_lcd.ptwx"/>
+      <outfile xil_pn:name="spartcam_lcd.unroutes"/>
+      <outfile xil_pn:name="spartcam_lcd.xpi"/>
+      <outfile xil_pn:name="spartcam_lcd_pad.csv"/>
+      <outfile xil_pn:name="spartcam_lcd_pad.txt"/>
+      <outfile xil_pn:name="spartcam_lcd_par.xrpt"/>
+    </transform>
+    <transform xil_pn:end_ts="1363602693" xil_pn:in_ck="4348999052606023909" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416186" xil_pn:start_ts="1363602690">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
+      <outfile xil_pn:name="spartcam_lcd.twr"/>
+      <outfile xil_pn:name="spartcam_lcd.twx"/>
     </transform>
   </transforms>
 
