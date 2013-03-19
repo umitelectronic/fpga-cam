@@ -45,20 +45,19 @@ port(
 end pgm_writer;
 
 architecture Behavioral of pgm_writer is
-file pgmfile           : text OPEN write_mode IS WRITE_PATH;
-
-signal hsync_old, hsync_re : std_logic ;
-signal pclk_old, pclk_re : std_logic ;
-
+file pgmfile           : text OPEN write_mode IS WRITE_PATH ;
+signal vsync_old, vsync_fe : std_logic ;
 begin
 
-	PROCESS (clk, resetn)
+	PROCESS (pixel_clock, resetn)
     VARIABLE vDataout     : integer;   -- variable written to line 
     VARIABLE vDataoutline : line;                     -- line variable written to file
 	 variable isInitialized	:	boolean := false ;
 	 BEGIN
 		if resetn = '0' then
-			if NOT isInitialized then
+			vsync_old <= '0' ;
+		elsif pixel_clock'event and pixel_clock = '1' then 
+			if vsync_fe = '1' and NOT isInitialized then
 				write(vDataoutline, string'("P2"));
 				writeline (pgmfile, vDataoutline);
 				write(vDataoutline, string'("#create from PGM writer"));
@@ -70,11 +69,7 @@ begin
 				write(vDataoutline, string'("255"));
 				writeline (pgmfile, vDataoutline);
 				isInitialized := TRUE ;
-			end if ;
-		elsif clk'event and clk = '1' then 
-			if hsync_re = '1' then 
-				--writeline (pgmfile, vDataoutline);
-			elsif pclk_re = '1' and hsync = '0' then 
+			elsif hsync = '0' and isInitialized then 
 				 if signed(value_in) > 0 then
 					if signed(value_in) > 255 then
 						vDataout := 255; 
@@ -89,21 +84,10 @@ begin
 				 --write (vDataoutline, string'(", "));               -- write variable to line
 				 writeline (pgmfile, vDataoutline);
 			end if ;
+			vsync_old <= vsync ;
 		end if ;
   END PROCESS;
-  
-  PROCESS (clk, resetn)
-	 BEGIN
-		if resetn = '0' then
-			hsync_old <= '0' ;
-			pclk_old <= '0' ;
-		elsif clk'event and clk = '1' then  
-			hsync_old <= hsync; 
-			pclk_old <= pixel_clock ;
-		end if ;
-  END PROCESS;
-  hsync_re <= hsync and (NOT hsync_old);
-  pclk_re <= pixel_clock and (NOT pclk_old) ;
+	vsync_fe <= vsync_old and (not vsync);
 
 end Behavioral;
 
