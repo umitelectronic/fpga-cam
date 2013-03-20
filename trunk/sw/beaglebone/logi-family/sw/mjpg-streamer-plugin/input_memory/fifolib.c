@@ -106,10 +106,11 @@ int fifo_read(char * data, unsigned int count){
 }
 
 void fifo_reset(){
-	printf("issuing reset to fifo \n");
 	if(fd > 0){
 		ioctl(fd, LOGIBONE_FIFO_RESET);
 	}
+	gpmc_pointer[FIFO_NB_AVAILABLE_A_OFFSET] = 0x00 ;
+	gpmc_pointer[FIFO_NB_AVAILABLE_B_OFFSET] = 0x00 ;
 }
 
 unsigned int fifo_getNbFree(){
