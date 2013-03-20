@@ -39,19 +39,10 @@
 #include "../../mjpg_streamer.h"
 #include "../../utils.h"
 #include "jpeg_func.h"
+#include "fifolib.h"
 
 
 #define INPUT_PLUGIN_NAME "MEMORY input plugin"
-
-/* Use 'p' as magic number */
-#define LOGIBONE_FIFO_IOC_MAGIC 'p'
-/* Please use a different 8-bit number in your code */
-#define LOGIBONE_FIFO_RESET _IO(LOGIBONE_FIFO_IOC_MAGIC, 0)
-
-
-#define LOGIBONE_FIFO_PEEK _IOR(LOGIBONE_FIFO_IOC_MAGIC, 1, short)
-#define LOGIBONE_FIFO_NB_FREE _IOR(LOGIBONE_FIFO_IOC_MAGIC, 2, short)
-#define LOGIBONE_FIFO_NB_AVAILABLE _IOR(LOGIBONE_FIFO_IOC_MAGIC, 3, short)
 
 
 
@@ -60,7 +51,6 @@ static pthread_t   worker;
 static globals     *pglobal;
 static pthread_mutex_t controls_mutex;
 static int plugin_number;
-static int fd;
 unsigned char grab_buffer[320*240*3] ; 
 
 void *worker_thread(void *);
@@ -106,7 +96,7 @@ int input_stop(int id)
 {
     DBG("will cancel input thread\n");
     pthread_cancel(worker);
-    close(fd);
+    fifo_close();
     return 0;
 }
 
@@ -122,10 +112,10 @@ int input_run(int id)
         fprintf(stderr, "could not allocate memory\n");
         exit(EXIT_FAILURE);
     }
-    fd = open("/dev/logibone0", O_RDWR | O_SYNC);
-    if(fd == -1){
-    	fprintf(stderr, "could not open logibone0 \n");
-        exit(EXIT_FAILURE);
+    fifo_open();
+    if( fifo_open() < 0){
+    	fprintf(stderr, "could not open fifo !  (try sudo ...)\n");
+	exit(EXIT_FAILURE);
     }
 
     if(pthread_create(&worker, 0, worker_thread, NULL) != 0) {
@@ -171,8 +161,8 @@ void *worker_thread(void *arg)
     while(!pglobal->stop) {
 
 	//TODO: need to iterate to get the vsync signal and then grab a full frame
-	ioctl(fd, LOGIBONE_FIFO_RESET);	
-	read(fd, grab_buffer, 320*240*3);
+	fifo_reset();	
+	fifo_read(grab_buffer, 320*240*3);
 	i = 0 ;
 	vsync = 0 ;
 	while(!vsync && i < (320*240*3)){

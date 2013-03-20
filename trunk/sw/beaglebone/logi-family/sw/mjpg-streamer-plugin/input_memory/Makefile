@@ -20,6 +20,6 @@ all: input_memory.so
 clean:
 	rm -f *.a *.o core *~ *.so *.lo
 
-input_memory.so: $(OTHER_HEADERS) input_memory.c jpeg_func.c
-	$(CC) $(CFLAGS) -o $@ input_memory.c jpeg_func.c
+input_memory.so: $(OTHER_HEADERS) input_memory.c jpeg_func.c fifolib.c
+	$(CC) $(CFLAGS) -o $@ input_memory.c jpeg_func.c fifolib.c
 
