@@ -169,11 +169,14 @@ void *worker_thread(void *arg)
 		unsigned short * shortVal ;
 		shortVal = &grab_buffer[i];
 		if(*shortVal == 0xAA55){
-			vsync = 1 ;
-			fPointer = &grab_buffer[i+2];	
-			break ;		
+			i+=2 ;
+			if(grab_buffer[i+(320*240)] = 0x55){
+				vsync = 1 ;
+				fPointer = &grab_buffer[i];	
+				break ;	
+			}	
 		}
-		i +=2 ;
+		i ++ ;
 	}
 	if(vsync){
 		printf("Vsync found !\n");
