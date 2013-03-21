@@ -30,15 +30,26 @@
 #define FIFO_READ_OFFSET	0
 #define FIFO_WRITE_OFFSET	0
 #define FIFO_BLOCK_SIZE	1024  //512 * 16 bits
+#define FIFO_SPACING 1024
+
+#define MAX_FIFO_NB 5
+
+struct _fifo{
+	unsigned char id;
+	char open ;
+	unsigned int offset;
+	unsigned int size ;
+};
 
 
-int fifo_open();
-void fifo_close();
-int fifo_write(char * data, unsigned int count);
-int fifo_read(char * data, unsigned int count);
-void fifo_reset();
-unsigned int fifo_getNbFree();
-unsigned int fifo_getNbAvailable();
+int fifo_open(unsigned char id);
+void fifo_close(unsigned char id);
+int fifo_write(unsigned char id, char * data, unsigned int count);
+int fifo_read(unsigned char id, char * data, unsigned int count);
+unsigned int fifo_getSize(unsigned char id);
+void fifo_reset(unsigned char id);
+unsigned int fifo_getNbFree(unsigned char id);
+unsigned int fifo_getNbAvailable(unsigned char id);
 
 
 
