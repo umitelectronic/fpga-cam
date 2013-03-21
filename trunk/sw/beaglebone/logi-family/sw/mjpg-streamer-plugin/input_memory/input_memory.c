@@ -159,7 +159,7 @@ void *worker_thread(void *arg)
     pthread_cleanup_push(worker_cleanup, NULL);
 
     while(!pglobal->stop) {
-
+	pthread_mutex_lock(&pglobal->in[plugin_number].db);
 	//TODO: need to iterate to get the vsync signal and then grab a full frame
 	fifo_reset();	
 	fifo_read(grab_buffer, 320*240*3);
@@ -170,7 +170,7 @@ void *worker_thread(void *arg)
 		shortVal = &grab_buffer[i];
 		if(*shortVal == 0xAA55){
 			i+=2 ;
-			if(grab_buffer[i+(320*240)] = 0x55){
+			if( (i < (320*240*2)) && grab_buffer[i+(320*240)] == 0x55){
 				vsync = 1 ;
 				fPointer = &grab_buffer[i];	
 				break ;	
@@ -179,10 +179,7 @@ void *worker_thread(void *arg)
 		i ++ ;
 	}
 	if(vsync){
-		printf("Vsync found !\n");
-		pthread_mutex_lock(&pglobal->in[plugin_number].db);
-	
-		printf("starting buffer compression \n");
+		DBG("Vsync found !\n");
 		if(!write_jpegmem_gray(fPointer, 320, 240, &pglobal->in[plugin_number].buf, &outlen, 100)){
 			printf("compression error !\n");	
 			exit(EXIT_FAILURE);
@@ -191,8 +188,9 @@ void *worker_thread(void *arg)
 
 		/* signal fresh_frame */
 		pthread_cond_broadcast(&pglobal->in[plugin_number].db_update);
-		pthread_mutex_unlock(&pglobal->in[plugin_number].db);
+		
 	}
+	pthread_mutex_unlock(&pglobal->in[plugin_number].db);
     }
 
     IPRINT("leaving input thread, calling cleanup function now\n");
