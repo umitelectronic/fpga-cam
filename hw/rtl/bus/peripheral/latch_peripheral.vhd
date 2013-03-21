@@ -55,13 +55,11 @@ begin
 	if resetn = '0' then
 		inputq <= (others => '0');
 	elsif clk'event and clk = '1' then
-		if cs_bus = '0' then
 			inputq <= latch_input ;
-		end if ;
 	end if ;
 end process; 
 data_bus_out <= inputq when cs_bus = '1' else
-					 (others => 'Z');
+					 (others => '1');
 
 process(clk, resetn)
 begin
