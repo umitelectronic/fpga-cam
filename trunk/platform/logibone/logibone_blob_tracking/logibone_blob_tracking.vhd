@@ -150,8 +150,8 @@ divider : simple_counter
 			  Q => counter_output
 			  );
 LED(0) <= counter_output(24);
-LED(1) <= cam_vsync ;
-
+--LED(1) <= cam_vsync ;
+LED(1) <= pixel_low_thresh(0);
 
 mem_interface0 : muxed_addr_interface
 generic map(ADDR_WIDTH => 16 , DATA_WIDTH =>  16)
@@ -160,6 +160,7 @@ port map(clk => clk_sys ,
 	  data	=> GPMC_AD,
 	  wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(1),
 	  be0n => GPMC_BE0N, be1n => GPMC_BE1N,
+	  --be0n => '1', be1n => '1',
 	  data_bus_out	=> bus_data_out,
 	  data_bus_in	=> bus_data_in ,
 	  addr_bus	=> bus_addr, 
@@ -169,10 +170,10 @@ port map(clk => clk_sys ,
 cs_image_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
 			  '0' ;
 
-cs_blob_fifo <= '1' when bus_addr(15 downto 8) = "00000100" else
+cs_blob_fifo <= '1' when bus_addr(15 downto 10) = "000001" else
 			  '0' ;
 			  
-cs_latches <= '1' when bus_addr(15 downto 2) = "00000101000000" else
+cs_latches <= '1' when bus_addr(15 downto 10) = "000010" else
 			  '0' ;
 
 bus_data_in <= bus_fifo_out when cs_image_fifo = '1' else
@@ -206,7 +207,7 @@ fifo_blobs : fifo_peripheral
 		generic map(ADDR_WIDTH => 16,
 						WIDTH => 16, 
 						SIZE => 1024, 
-						BURST_SIZE => 128,
+						BURST_SIZE => 512,
 						SYNC_LOGIC_INTERFACE => true)
 		port map(
 			clk => clk_sys,
@@ -228,8 +229,8 @@ fifo_blobs : fifo_peripheral
 			burst_available_B => open
 		);		
 		
-latches0 : addr_latches_peripheral
-generic map(ADDR_WIDTH => 16,   WIDTH => 16, NB => 1)
+latches0 : latch_peripheral
+generic map(ADDR_WIDTH => 16,   WIDTH => 16)
 port map(
 	clk => clk_sys,
 	resetn => sys_resetn,
@@ -239,9 +240,9 @@ port map(
 	cs_bus => cs_latches,
 	data_bus_in	=> bus_data_out,
 	data_bus_out => latches_data_out,
-	latch_input(0) => pixel_high_thresh  & pixel_low_thresh,
-	latch_output(0)(15 downto 8) => pixel_high_thresh ,
-	latch_output(0)(7 downto 0) => pixel_low_thresh
+	latch_input => pixel_high_thresh  & pixel_low_thresh,
+	latch_output(15 downto 8) => pixel_high_thresh ,
+	latch_output(7 downto 0) => pixel_low_thresh
 );
 
  
