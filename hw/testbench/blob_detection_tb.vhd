@@ -50,7 +50,10 @@ ARCHITECTURE behavior OF blob_detection_tb IS
          vsync : IN  std_logic;
          pixel_data_in : IN  std_logic_vector(7 downto 0);
 			blob_data : out std_logic_vector(7 downto 0);
-			send_blob : out std_logic
+				--memory_interface to copy results on vsync
+			mem_addr : out std_logic_vector(15 downto 0);
+			mem_data : inout std_logic_vector(15 downto 0);
+			mem_wr : out std_logic
         );
     END COMPONENT;
     
@@ -74,8 +77,7 @@ BEGIN
           hsync => hsync,
           vsync => vsync,
           pixel_data_in => pixel,
-			 blob_data => blob_data,
-			 send_blob => send_blob
+			 blob_data => blob_data
         );
 
 	process
