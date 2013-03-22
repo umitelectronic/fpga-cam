@@ -71,15 +71,17 @@ signal merge_posx0, merge_posx1 :std_logic_vector(9 downto 0);
 signal merge_posy0, merge_posy1 :std_logic_vector(9 downto 0);
 signal blob_data_to_write, current_blob_data, blob_to_merge_data : std_logic_vector(39 downto 0);
 signal index_in : std_logic_vector(7 downto 0);
-signal slv_next_blob_index_tp : std_logic_vector(7 downto 0);
+signal slv_next_blob_index_tp, next_free_addr, merged_free_addr : std_logic_vector(7 downto 0);
 signal current_blob_data_addr_mod, blob_to_merge_data_addr, current_blob_data_addr : std_logic_vector(7 downto 0);
 signal index_wr, blob_wr : std_logic ;
 signal merge_blob_latched, new_blob_latched, add_pixel_latched : std_logic ;
-signal merge_cycle_count, new_cycle_count, add_cycle_count: std_logic_vector(1 downto 0) ;
 signal index_addr : std_logic_vector(7 downto 0);
 signal done_send, sraz_blob_data_send, en_blob_data_send, sraz_blob_send_counter, en_blob_send_counter : std_logic ;
 signal blob_send_count : std_logic_vector(7 downto 0);
 signal blob_data_send_count : std_logic_vector(1 downto 0);
+signal already_merged : std_logic ;
+
+signal push_addr, pop_addr, en_free_addr_counter, fifo_empty : std_logic ;
 begin
 
 
@@ -97,11 +99,16 @@ begin
 end process ;
 
 
-index_in <= current_blob_data_addr when merge_blob='1' else
-				(slv_next_blob_index_tp-1) when new_blob='1' else
+index_in <= current_blob_data_addr when merge_blob_latched='1' else
+				next_free_addr when new_blob='1' and fifo_empty = '1' else
+				merged_free_addr when new_blob='1' and fifo_empty = '0' else
 				(others => '0');
-index_wr <= new_blob ;	
-
+				
+				
+index_wr <= '1' when new_blob = '1' else
+				'1' when merge_blob_latched = '1' else -- overwriting to point to new mem location
+				'0' ;	
+-- must add a stack of free addresses that get filled when freeing blobs
 
 index_addr <=  std_logic_vector(blob_index) when new_blob = '1'  else
 				   std_logic_vector(blob_index_to_merge) ;
@@ -118,6 +125,22 @@ blob_index_ram : dpram_NxN
 		dpra => std_logic_vector(blob_index)
 	); 
 	
+	
+push_addr <= '1' when merge_blob_latched = '1' and already_merged = '0' else
+				 '0' ;	
+pop_addr <= '1' when fifo_empty = '0' and new_blob = '1' else 
+				'0' ;
+free_addr_fifo : small_fifo
+generic map( WIDTH => 8, DEPTH => 8)
+port map(clk => clk, resetn => resetn,
+	  push => push_addr, pop => pop_addr,
+	  full => open, empty => fifo_empty,
+	  data_in => blob_to_merge_data_addr,
+	  data_out => merged_free_addr
+	  );
+	
+	
+	
 current_blob_data_addr_mod <= blob_send_count when manager_state = SEND else
 										(slv_next_blob_index_tp-1) when 	new_blob = '1' else
 										current_blob_data_addr ;
@@ -132,7 +155,8 @@ blob_data_ram : dpram_NxN -- 40bit data 1x32bit ram + 1x8 bit ram
  		a => current_blob_data_addr_mod,
 		dpra => blob_to_merge_data_addr
 	); 
-	
+already_merged <= '1' when current_blob_data_addr_mod = blob_to_merge_data_addr else
+						'0' ;
 	
 	
 current_blob_posx1 <= 	current_blob_data(39 downto 30);
@@ -170,6 +194,7 @@ merge_posy1 <= std_logic_vector(pixel_posy) when pixel_posy > unsigned(current_b
 
 	
 blob_data_to_write <= std_logic_vector(pixel_posx) & std_logic_vector(pixel_posy) & std_logic_vector(pixel_posx) & std_logic_vector(pixel_posy) when new_blob = '1' else
+							 add_pixel_posx1 & add_pixel_posy1 & add_pixel_posx0 & add_pixel_posy0 when merge_blob_latched = '1' and already_merged = '1' else
 							 merge_posx1 & merge_posy1 & merge_posy0 & merge_posx0 when merge_blob_latched = '1' else
 							 add_pixel_posx1 & add_pixel_posy1 & add_pixel_posx0 & add_pixel_posy0 when add_pixel_latched = '1' else
 							 (others => '0');
@@ -179,7 +204,7 @@ blob_wr <= '1' when new_blob = '1' else
 			  '1' when blob_data_send_count = 2 else
 			  '0' ;
 
-next_free_blob_pointer: up_down_counter
+next_free_index_pointer: simple_counter
 	 generic map(NBIT => 8 )
     port map( clk => clk,
            resetn => resetn,
@@ -187,10 +212,23 @@ next_free_blob_pointer: up_down_counter
 			  load => sraz,
 			  E => std_logic_vector(to_unsigned(1, 8)),
            en => new_blob, 
-			  up_downn => '1',
            Q => slv_next_blob_index_tp
 			  );
 next_blob_index <= unsigned(slv_next_blob_index_tp);
+
+next_free_addr_counter: simple_counter
+	 generic map(NBIT => 8 )
+    port map( clk => clk,
+           resetn => resetn,
+			  sraz => sraz,
+			  load => sraz,
+			  E => (others => '0'),
+           en => en_free_addr_counter, 
+           Q => next_free_addr
+			  );
+en_free_addr_counter <= new_blob when fifo_empty = '1' else
+								'0' ;
+
 
 
 process(clk, resetn)

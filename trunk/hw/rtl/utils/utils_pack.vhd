@@ -169,6 +169,26 @@ component clock_bridge is
 			);
 end component;
 
+component small_stack is
+generic( WIDTH : positive := 8 ; DEPTH : positive := 8);
+port(clk, resetn : in std_logic ;
+	  push, pop : in std_logic ;
+	  full, empty : out std_logic ;
+	  data_in : in std_logic_vector( WIDTH-1 downto 0);
+	  data_out : out std_logic_vector(WIDTH-1 downto 0)
+	  );
+end component;
+
+component small_fifo is
+generic( WIDTH : positive := 8 ; DEPTH : positive := 8);
+port(clk, resetn : in std_logic ;
+	  push, pop : in std_logic ;
+	  full, empty : out std_logic ;
+	  data_in : in std_logic_vector( WIDTH-1 downto 0);
+	  data_out : out std_logic_vector(WIDTH-1 downto 0)
+	  );
+end component;
+
 end utils_pack;
 
 package body utils_pack is
