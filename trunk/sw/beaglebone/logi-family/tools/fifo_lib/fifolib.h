@@ -50,6 +50,8 @@ unsigned int fifo_getSize(unsigned char id);
 void fifo_reset(unsigned char id);
 unsigned int fifo_getNbFree(unsigned char id);
 unsigned int fifo_getNbAvailable(unsigned char id);
+unsigned int direct_write(unsigned int offset, unsigned char * buffer, unsigned int length);
+unsigned int direct_read(unsigned int offset, unsigned char * buffer, unsigned int length);
 
 
 

@@ -11,6 +11,7 @@ struct _fifo fifo_array [MAX_FIFO_NB] ;
 
 int direct_memory_access_init(){
 	int page_size ;	
+	int nb_page ;
 	memory_fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if(memory_fd == -1){
 		printf("error opening /dev/mem \n");
@@ -18,7 +19,8 @@ int direct_memory_access_init(){
 	}
 
 	page_size = getpagesize();
-	gpmc_pointer = (volatile unsigned short *) mmap(0, 8*page_size, 
+	nb_page = 0x1FFFE/page_size ;
+	gpmc_pointer = (volatile unsigned short *) mmap(0, nb_page*page_size, 
 	PROT_READ | 
 	PROT_WRITE, 
 	MAP_SHARED ,memory_fd, 
@@ -73,6 +75,7 @@ void fifo_close(unsigned char id){
 
 int fifo_write(unsigned char id, char * data, unsigned int count){
 	if(fd > 0){
+		ioctl(fd, LOGIBONE_FIFO_MODE);
 		return write(fd, data, count);	
 	}
 	unsigned int transferred = 0 ;
@@ -99,6 +102,7 @@ int fifo_write(unsigned char id, char * data, unsigned int count){
 
 int fifo_read(unsigned char id, char * data, unsigned int count){
 	if(fd > 0){
+		ioctl(fd, LOGIBONE_FIFO_MODE);
 		return read(fd, data, count);	
 	}
 	unsigned int transferred = 0 ;
@@ -145,9 +149,20 @@ unsigned int fifo_getNbFree(unsigned char id){
 
 
 unsigned int fifo_getNbAvailable(unsigned char id){
+
 	if(fd > 0){
 		return ioctl(fd, LOGIBONE_FIFO_NB_AVAILABLE);
 	}
 	return (gpmc_pointer[fifo_array[id].offset + FIFO_NB_AVAILABLE_B_OFFSET]*2) ;
 }
+
+unsigned int direct_write(unsigned int offset, unsigned char * buffer, unsigned int length){
+	memcpy((void*) &gpmc_pointer[offset/2], buffer, length);
+	return length ;
+}
+unsigned int direct_read(unsigned int offset, unsigned char * buffer, unsigned int length){
+	memcpy(buffer, (void*)&gpmc_pointer[offset/2], length);
+	return length ;
+}
+
 
