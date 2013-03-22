@@ -29,6 +29,10 @@
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_tb_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="blob_detection_tb_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="blob_detection_tb_isim_beh.wdb"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="blob_detection_tb_stx_beh.prj"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="ipcore_dir/coregen.log"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
@@ -72,6 +76,15 @@
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="logibone_blob_tracking_summary.xml"/>
     <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="logibone_blob_tracking_usage.xml"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="logibone_blob_tracking_xst.xrpt"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="smal_stack.prj"/>
+    <file xil_pn:fileType="FILE_XST_STX" xil_pn:name="smal_stack.stx"/>
+    <file xil_pn:fileType="FILE_XST" xil_pn:name="smal_stack.xst"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="small_fifo.prj"/>
+    <file xil_pn:fileType="FILE_XST_STX" xil_pn:name="small_fifo.stx"/>
+    <file xil_pn:fileType="FILE_XST" xil_pn:name="small_fifo.xst"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="small_stack.prj"/>
+    <file xil_pn:fileType="FILE_XST_STX" xil_pn:name="small_stack.stx"/>
+    <file xil_pn:fileType="FILE_XST" xil_pn:name="small_stack.xst"/>
     <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="sobel3x3_pipeline_beh.prj"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="sobel3x3_pipeline_isim_beh.exe"/>
     <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="sobel3x3_pipeline_isim_beh.wdb"/>
@@ -90,7 +103,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1363677430" xil_pn:in_ck="5956770370801931812" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1363677430">
+    <transform xil_pn:end_ts="1363970123" xil_pn:in_ck="-1235240546373569362" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1363970123">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
@@ -130,6 +143,8 @@
       <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/small_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/small_stack.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/up_down_counter.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
       <outfile xil_pn:name="../../../hw/simulation/camera/camera_pack.vhd"/>
@@ -137,14 +152,15 @@
       <outfile xil_pn:name="../../../hw/simulation/camera/pgm.vhd"/>
       <outfile xil_pn:name="../../../hw/simulation/camera/pgm_writer.vhd"/>
       <outfile xil_pn:name="../../../hw/simulation/camera/virtual_camera.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/blob_detection_tb.vhd"/>
       <outfile xil_pn:name="../../../hw/testbench/sobel3x3_pipeline_tb.vhd"/>
       <outfile xil_pn:name="logibone_blob_tracking.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1363647422" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="-8887831588231967074" xil_pn:start_ts="1363647422">
+    <transform xil_pn:end_ts="1363970093" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="9038420105678284648" xil_pn:start_ts="1363970093">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1363647422" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-1053258006075875556" xil_pn:start_ts="1363647422">
+    <transform xil_pn:end_ts="1363970093" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-3237436699065512986" xil_pn:start_ts="1363970093">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
@@ -154,7 +170,7 @@
       <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
       <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1363677430" xil_pn:in_ck="4918613927903587180" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1363677430">
+    <transform xil_pn:end_ts="1363970123" xil_pn:in_ck="-1235240546373569362" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1363970123">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
@@ -195,6 +211,8 @@
       <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/small_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/small_stack.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/up_down_counter.vhd"/>
       <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
       <outfile xil_pn:name="../../../hw/simulation/camera/camera_pack.vhd"/>
@@ -202,12 +220,11 @@
       <outfile xil_pn:name="../../../hw/simulation/camera/pgm.vhd"/>
       <outfile xil_pn:name="../../../hw/simulation/camera/pgm_writer.vhd"/>
       <outfile xil_pn:name="../../../hw/simulation/camera/virtual_camera.vhd"/>
+      <outfile xil_pn:name="../../../hw/testbench/blob_detection_tb.vhd"/>
       <outfile xil_pn:name="../../../hw/testbench/sobel3x3_pipeline_tb.vhd"/>
-      <outfile xil_pn:name="ipcore_dir/clock_gen.vhd"/>
-      <outfile xil_pn:name="ipcore_dir/clock_gen/example_design/clock_gen_exdes.vhd"/>
       <outfile xil_pn:name="logibone_blob_tracking.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1363677432" xil_pn:in_ck="4918613927903587180" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-8592064454092712676" xil_pn:start_ts="1363677430">
+    <transform xil_pn:end_ts="1363970126" xil_pn:in_ck="-1235240546373569362" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-4313580237744140304" xil_pn:start_ts="1363970123">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
@@ -216,23 +233,23 @@
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="blob_detection_tb_beh.prj"/>
+      <outfile xil_pn:name="blob_detection_tb_isim_beh.exe"/>
       <outfile xil_pn:name="fuse.log"/>
       <outfile xil_pn:name="isim"/>
       <outfile xil_pn:name="isim.log"/>
-      <outfile xil_pn:name="sobel3x3_pipeline_beh.prj"/>
-      <outfile xil_pn:name="sobel3x3_pipeline_isim_beh.exe"/>
       <outfile xil_pn:name="xilinxsim.ini"/>
     </transform>
-    <transform xil_pn:end_ts="1363677433" xil_pn:in_ck="-5094963147633774641" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="-4879059195346508151" xil_pn:start_ts="1363677432">
+    <transform xil_pn:end_ts="1363970126" xil_pn:in_ck="-2925181402123211943" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="-3242375774910632163" xil_pn:start_ts="1363970126">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForProperties"/>
       <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="blob_detection_tb_isim_beh.wdb"/>
       <outfile xil_pn:name="isim.cmd"/>
       <outfile xil_pn:name="isim.log"/>
-      <outfile xil_pn:name="sobel3x3_pipeline_isim_beh.wdb"/>
     </transform>
     <transform xil_pn:end_ts="1363629750" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1363629750">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -264,7 +281,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1363884213" xil_pn:in_ck="7652635640508875809" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-445643325706268536" xil_pn:start_ts="1363884194">
+    <transform xil_pn:end_ts="1363973378" xil_pn:in_ck="-4202093717878502421" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="-445643325706268536" xil_pn:start_ts="1363973355">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -286,7 +303,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1363884220" xil_pn:in_ck="-8906355506245145328" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-4932302782947148134" xil_pn:start_ts="1363884213">
+    <transform xil_pn:end_ts="1363973387" xil_pn:in_ck="-8906355506245145328" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="-4932302782947148134" xil_pn:start_ts="1363973378">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -296,12 +313,10 @@
       <outfile xil_pn:name="logibone_blob_tracking.ngd"/>
       <outfile xil_pn:name="logibone_blob_tracking_ngdbuild.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1363884254" xil_pn:in_ck="3319952227147383889" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1363884220">
+    <transform xil_pn:end_ts="1363973434" xil_pn:in_ck="3319952227147383889" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1363973387">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="logibone_blob_tracking.pcf"/>
       <outfile xil_pn:name="logibone_blob_tracking_map.map"/>
@@ -312,7 +327,7 @@
       <outfile xil_pn:name="logibone_blob_tracking_summary.xml"/>
       <outfile xil_pn:name="logibone_blob_tracking_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1363884276" xil_pn:in_ck="74197875084572714" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1363884254">
+    <transform xil_pn:end_ts="1363973469" xil_pn:in_ck="74197875084572714" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="93661965788626211" xil_pn:start_ts="1363973434">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -327,7 +342,7 @@
       <outfile xil_pn:name="logibone_blob_tracking_pad.txt"/>
       <outfile xil_pn:name="logibone_blob_tracking_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1363884289" xil_pn:in_ck="6225595878671996226" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1363884276">
+    <transform xil_pn:end_ts="1363973484" xil_pn:in_ck="6225595878671996226" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1363973469">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -340,7 +355,7 @@
       <outfile xil_pn:name="webtalk.log"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1363884276" xil_pn:in_ck="-5685934167935482163" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1363884269">
+    <transform xil_pn:end_ts="1363973469" xil_pn:in_ck="-5685934167935482163" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1363973462">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
