@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 
 -- 
 -- Create Date:    10:31:34 05/25/2012 
 -- Design Name: 
 -- Module Name:    reset_generator - Behavioral 
 -- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Target Devices: Spartan 6 
+-- Tool versions: ISE 14.1 
 -- Description: 
 --
 -- Dependencies: 

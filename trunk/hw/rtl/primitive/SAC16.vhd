@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 
 -- 
 -- Create Date:    18:43:10 03/05/2012 
 -- Design Name: 
 -- Module Name:    SAC16 - Behavioral 
 -- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Target Devices: Spartan 6 
+-- Tool versions: ISE 14.1 
 -- Description: 
 -- Shift and Accumulate operation, to be used when multiplication is fo power two and < 8
 -- Dependencies: 

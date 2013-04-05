@@ -4,8 +4,8 @@
 -- Create Date:     15:36:20 05/15/2011
 -- Module Name:     SPI_SLAVE - RTL
 -- Project Name:    SPI INTERFACE
--- Target Devices:  Spartan-6
--- Tool versions:   ISE 13.1
+-- Target Devices: Spartan 6  Spartan-6
+-- Tool versions: ISE 14.1   ISE 13.1
 -- Description: 
 --
 --      This block is the SPI slave interface, implemented in one single entity.

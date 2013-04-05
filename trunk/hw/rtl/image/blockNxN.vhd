@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 
 -- 
 -- Create Date:    14:38:37 03/08/2012 
 -- Design Name: 
 -- Module Name:    block3X3 - Behavioral 
 -- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Target Devices: Spartan 6 
+-- Tool versions: ISE 14.1 
 -- Description: 
 --
 -- Dependencies: 

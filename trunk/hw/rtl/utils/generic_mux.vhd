@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 
 -- 
 -- Create Date:    19:31:28 04/14/2012 
 -- Design Name: 
 -- Module Name:    generic_mux - Behavioral 
 -- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Target Devices: Spartan 6 
+-- Tool versions: ISE 14.1 
 -- Description: 
 --
 -- Dependencies: 

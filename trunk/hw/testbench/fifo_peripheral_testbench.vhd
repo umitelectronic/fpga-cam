@@ -1,13 +1,13 @@
 --------------------------------------------------------------------------------
--- Company: 
--- Engineer:
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com>
 --
 -- Create Date:   13:03:11 06/19/2012
 -- Design Name:   
 -- Module Name:   /home/jpiat/development/FPGA/projects/fpga-cam/hdl/test_benches/fifo_peripheral_testbench.vhd
 -- Project Name:  SPARTCAM
 -- Target Device:  
--- Tool versions:  
+-- Tool versions: ISE 14.1  
 -- Description:   
 -- 
 -- VHDL Test Bench Created by ISE for module: fifo_peripheral

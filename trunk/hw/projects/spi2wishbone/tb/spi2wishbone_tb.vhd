@@ -1,13 +1,13 @@
 --------------------------------------------------------------------------------
--- Company: 
--- Engineer:
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com>
 --
 -- Create Date:   18:00:34 12/08/2012
 -- Design Name:   
 -- Module Name:   C:/Users/bwiec/Documents/cert_projects/rpi/spi2wishbone/tb/spi2wishbone_tb.vhd
 -- Project Name:  ise
 -- Target Device:  
--- Tool versions:  
+-- Tool versions: ISE 14.1  
 -- Description:   
 -- 
 -- VHDL Test Bench Created by ISE for module: spi2wishbone

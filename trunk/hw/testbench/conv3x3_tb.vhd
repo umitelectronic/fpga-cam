@@ -1,13 +1,13 @@
 --------------------------------------------------------------------------------
--- Company: 
--- Engineer:
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com>
 --
 -- Create Date:   13:58:03 09/07/2012
 -- Design Name:   
 -- Module Name:   /home/jpiat/development/FPGA/projects/fpga-cam/hdl/test_benches/conv3x3_tb.vhd
 -- Project Name:  SPARTCAM
 -- Target Device:  
--- Tool versions:  
+-- Tool versions: ISE 14.1  
 -- Description:   
 -- 
 -- VHDL Test Bench Created by ISE for module: conv3x3

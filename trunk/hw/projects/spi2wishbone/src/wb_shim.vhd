@@ -1,12 +1,12 @@
 ----------------------------------------------------------------------------------
--- Company: 		 N/A
--- Engineer: 		 Brian Wiec
+-- Company:LAAS-CNRS 		 N/A
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 		 Brian Wiec
 -- Create Date:    16:02:13 12/08/2012 
 -- Design Name: 	 spi2wishbone
 -- Module Name:    wb_shim - Behavioral 
 -- Project Name: 	 Mark-1
--- Target Devices: xc6slx9
--- Tool versions:  ISE 14.3
+-- Target Devices: Spartan 6 xc6slx9
+-- Tool versions: ISE 14.1  ISE 14.3
 -- Description:	 This module implements the shim/glue logic between the
 --						 spi_slave module and the Wishbone interface (from the Wishbone
 --						 B4 spec)
