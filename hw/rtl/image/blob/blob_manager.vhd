@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 
 -- 
 -- Create Date:    22:49:30 03/13/2013 
 -- Design Name: 
 -- Module Name:    blob_manager - Behavioral 
 -- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Target Devices: Spartan 6 
+-- Tool versions: ISE 14.1 
 -- Description: 
 --
 -- Dependencies: 
@@ -142,7 +142,8 @@ port map(clk => clk, resetn => resetn,
 	
 	
 current_blob_data_addr_mod <= blob_send_count when manager_state = SEND else
-										(slv_next_blob_index_tp-1) when 	new_blob = '1' else
+										next_free_addr when new_blob='1' and fifo_empty = '1' else
+										merged_free_addr when new_blob='1' and fifo_empty = '0' else
 										current_blob_data_addr ;
 blob_data_ram : dpram_NxN -- 40bit data 1x32bit ram + 1x8 bit ram
 	generic map(SIZE => 256 , NBIT => 40, ADDR_WIDTH => 8)
@@ -155,7 +156,7 @@ blob_data_ram : dpram_NxN -- 40bit data 1x32bit ram + 1x8 bit ram
  		a => current_blob_data_addr_mod,
 		dpra => blob_to_merge_data_addr
 	); 
-already_merged <= '1' when current_blob_data_addr_mod = blob_to_merge_data_addr else
+already_merged <= '1' when current_blob_data_addr = blob_to_merge_data_addr else
 						'0' ;
 	
 	

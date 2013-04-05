@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company:LAAS-CNRS 
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 
 -- 
 -- Create Date:    09:45:03 06/19/2012 
 -- Design Name: 
 -- Module Name:    muxed_addr_interface - Behavioral 
 -- Project Name: 
--- Target Devices: 
--- Tool versions: 
+-- Target Devices: Spartan 6 
+-- Tool versions: ISE 14.1 
 -- Description: 
 --
 -- Dependencies: 
@@ -69,18 +69,11 @@ if resetn ='0' then
 	rdt <= '0' ;
 	data_bus_out_t <= (others => 'Z');
 elsif clk'event and clk ='1' then
-	wrt <= (NOT wrn) and (NOT csn) and (NOT latch_addr) ;--and (be0n); -- only write on  high bytes
+	wrt <= (NOT wrn) and (NOT csn) and (NOT latch_addr) ;
 	rdt <= (NOT oen) and (NOT csn)  and (NOT latch_addr) ;
 	if latch_addr = '0' and wrn = '0' and csn = '0' then
 		data_bus_out_t <= data ;
 	end if ;
---	if latch_addr = '0' and wrn = '0' and csn = '0' and be0n = '0' and be1n = '1' then
---		data_bus_out_t(7 downto 0) <= data(7 downto 0) ;
---	elsif latch_addr = '0' and wrn = '0' and csn = '0' and be0n = '1' and be1n = '0' then
---		data_bus_out_t(15 downto 8) <= data(15 downto 8) ;
---	elsif latch_addr = '0' and wrn = '0' and csn = '0' and be0n = '1' and be1n = '1' then
---		data_bus_out_t <= data ;
---	end if;
 end if ;
 end process;
 
@@ -91,7 +84,7 @@ data <= data_bus_in when (oen = '0' and csn = '0') else
 		  (others => 'Z');
 
 
---data_bus_out <= data_bus_out_t ;
+-- byte access might kill the fifos !
 data_bus_out <= data_bus_out_t when be0n = '1' and be1n = '1' else
 					 data_bus_out_t when be0n = '0' and be1n = '0' else
 					 (data_bus_out_t(15 downto 8) & data_bus_in(7 downto 0)) when be1n = '0' else

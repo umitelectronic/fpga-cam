@@ -1,12 +1,12 @@
 ----------------------------------------------------------------------------------
--- Company: 		 N/A
--- Engineer: 		 Brian Wiec
+-- Company:LAAS-CNRS 		 N/A
+-- Author:Jonathan Piat <piat.jonathan@gmail.com> 		 Brian Wiec
 -- Create Date:    12:05:27 12/08/2012 
 -- Design Name: 	 spi2wishbone
 -- Module Name:    spi2wishbone - Behavioral 
 -- Project Name: 	 Mark-1
--- Target Devices: xc6slx9
--- Tool versions:  ISE 14.3
+-- Target Devices: Spartan 6 xc6slx9
+-- Tool versions: ISE 14.1  ISE 14.3
 -- Description: 	 This module implements a SPI to wishbone shim for use with
 --						 commonly available wishbone-compliant IP cores.
 -- Dependencies: 
