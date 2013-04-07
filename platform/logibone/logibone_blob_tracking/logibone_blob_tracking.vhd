@@ -117,7 +117,7 @@ architecture Behavioral of logibone_blob_tracking is
 	signal write_pixel : std_logic ;
 	
 	for all : yuv_register_rom use entity work.yuv_register_rom(ov7725_qvga);
-	
+	for all : muxed_addr_interface use entity work.muxed_addr_interface(RTL);
 begin
 	
 	resetn <= PB(0) ;
