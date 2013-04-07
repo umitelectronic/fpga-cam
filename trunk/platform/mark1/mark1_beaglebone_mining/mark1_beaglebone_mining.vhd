@@ -112,6 +112,8 @@ architecture Behavioral of mark1_beaglebone_mining is
 	signal toggle : std_logic ;
 	signal sraz_nonce, wr_rising_edge, wr_old : std_logic ;
 	signal latch_loop : std_logic_vector(15 downto 0);
+	
+	for all : muxed_addr_interface use entity work.muxed_addr_interface(Behavioral);
 begin
 	
 	resetn <= PB(0) ;
