@@ -68,20 +68,19 @@ architecture Behavioral of logibone_tracking is
 	
 	signal clk_sys, clk_100, clk_24, clk_48, clk_locked : std_logic ;
 	signal resetn , sys_resetn : std_logic ;
-	
 	signal counter_output : std_logic_vector(31 downto 0);
-	signal fifo_output : std_logic_vector(15 downto 0);
-	signal fifo_input : std_logic_vector(15 downto 0);
-	signal latch_output : std_logic_vector(15 downto 0);
-	signal fifoB_wr, fifoA_rd, fifoA_rd_old, fifoA_empty, fifoA_full, fifoB_empty, fifoB_full : std_logic ;
-	signal fifo_full_rising_edge, fifo_full_old : std_logic ;
+	signal fifo_image_output, fifo_image_input : std_logic_vector(15 downto 0);
+	signal fifo_correl_output, fifo_correl_input : std_logic_vector(15 downto 0);
+	signal fifo_feat_output, fifo_feat_input : std_logic_vector(15 downto 0);
+	signal fifo_image_wr, fifo_image_rd : std_logic ;
+	signal fifo_feat_wr, fifo_feat_rd : std_logic ;
+	signal fifo_correl_wr, fifo_correl_rd : std_logic ;
 	signal bus_data_in, bus_data_out : std_logic_vector(15 downto 0);
-	signal bus_fifo_out, bus_fifo_feat_out,bus_latch_out, bus_as_mem_out : std_logic_vector(15 downto 0);
+	signal bus_fifo_image_out, bus_fifo_feat_out,bus_fifo_correl_out : std_logic_vector(15 downto 0);
 	signal bus_addr : std_logic_vector(15 downto 0);
 	signal bus_wr, bus_rd, bus_cs : std_logic ;
-	signal cs_image_fifo, cs_feat_fifo, cs_latch, cs_as_mem : std_logic ;
-	signal feat_fifo_wr : std_logic ;
-	signal feat_fifo_in : std_logic_vector(15 downto 0);
+	signal cs_image_fifo, cs_feat_fifo, cs_correl_fifo : std_logic ;
+	signal fifo_image_empty : std_logic ;
 	
 	signal cam_data : std_logic_vector(7 downto 0);
 	signal cam_sioc, cam_siod : std_logic ;
@@ -93,29 +92,13 @@ architecture Behavioral of logibone_tracking is
 	signal pixel_from_interface : std_logic_vector(7 downto 0);
 	signal pxclk_from_interface, href_from_interface, vsync_from_interface : std_logic ;
 
-	signal pixel_from_sobel : std_logic_vector(7 downto 0);
-	signal pxclk_from_sobel, href_from_sobel, vsync_from_sobel : std_logic ;
-	
-	signal pixel_from_brief : std_logic_vector(7 downto 0);
-	signal pxclk_from_brief, href_from_brief, vsync_from_brief : std_logic ;
-
 	signal pixel_from_harris : std_logic_vector(7 downto 0);
 	signal raw_from_harris : std_logic_vector(15 downto 0);
 	signal pxclk_from_harris, href_from_harris, vsync_from_harris : std_logic ;
 	
 	signal output_pxclk, output_href , output_vsync : std_logic ;
-	signal output_pixel : std_logic_vector(7 downto 0);
-	signal hsync_rising_edge, vsync_rising_edge, pxclk_rising_edge, hsync_old, vsync_old, pxclk_old, write_pixel_old : std_logic ;
-	signal pixel_buffer : std_logic_vector(15 downto 0);	
-	signal pixel_count :std_logic_vector(7 downto 0);
-	signal write_pixel : std_logic ;
+	signal output_pixel : std_logic_vector(7 downto 0) ;
 	
-	
-	signal as_mem_addr : std_logic_vector(7 downto 0);
-	signal as_mem_data_in : std_logic_vector(15 downto 0);
-	signal as_mem_data_out : std_logic_vector(15 downto 0);
-	signal as_mem_wr : std_logic ;
-	signal wait_as_mem : std_logic ;
 	signal feat_desc, feature_descriptor : std_logic_vector((DESC_SIZE-1) downto 0);
 	
 	signal new_feature, new_desc, write_feature, latch_desc : std_logic ;
@@ -128,7 +111,7 @@ begin
 		CLK_IN1 => OSC_FPGA,
 		CLK_OUT1 => clk_100,
 		CLK_OUT2 => clk_24,
-		CLK_OUT3 => clk_sys, --120Mhz system clock
+		CLK_OUT3 => clk_sys, --60Mhz system clock
 		LOCKED => clk_locked
 	);
 
@@ -153,12 +136,12 @@ divider : simple_counter
 			  );
 LED(0) <= counter_output(24);
 LED(1) <= NOT GPMC_CSN(1) ;
-mem_interface0 : muxed_addr_interface
+mem_interface0 : sync_muxed_addr_interface
 generic map(ADDR_WIDTH => 16 , DATA_WIDTH =>  16)
 port map(clk => clk_sys ,
 	  resetn => sys_resetn ,
 	  data	=> GPMC_AD,
-	  wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(1),
+	  ext_clk => gpmc_clk, wrn => GPMC_WEN, oen => GPMC_OEN, addr_en_n => GPMC_ADVN, csn => GPMC_CSN(1),
 	  be0n => GPMC_BE0N, be1n => GPMC_BE1N,
 	  data_bus_out	=> bus_data_out,
 	  data_bus_in	=> bus_data_in ,
@@ -170,12 +153,12 @@ cs_image_fifo <= '1' when bus_addr(15 downto 10) = "000000" else
 			  '0' ;	  
 cs_feat_fifo <= '1' when bus_addr(15 downto 10) = "000001" else
 			  '0' ;
-cs_as_mem <= '1' when bus_addr(15 downto 10) = "000010" else
+cs_correl_fifo <= '1' when bus_addr(15 downto 10) = "000010" else
 			  '0' ;
 
-bus_data_in <= bus_fifo_out when cs_image_fifo = '1' else
+bus_data_in <= bus_fifo_image_out when cs_image_fifo = '1' else
 					bus_fifo_feat_out when cs_feat_fifo = '1' else
-					bus_as_mem_out when cs_as_mem = '1' else
+					bus_fifo_correl_out when cs_correl_fifo = '1' else
 					(others => '1');
 
 image_fifo : fifo_peripheral 
@@ -190,16 +173,16 @@ image_fifo : fifo_peripheral
 			wr_bus => bus_wr,
 			rd_bus => bus_rd,
 			cs_bus => cs_image_fifo,
-			wrB => fifoB_wr,
-			rdA => fifoA_rd,
+			wrB => fifo_image_wr,
+			rdA => fifo_image_rd,
 			data_bus_in => bus_data_out,
-			data_bus_out => bus_fifo_out,
-			inputB => fifo_input, 
-			outputA => fifo_output,
-			emptyA => fifoA_empty,
-			fullA => fifoA_full,
-			emptyB => fifoB_empty,
-			fullB => fifoB_full
+			data_bus_out => bus_fifo_image_out,
+			inputB => fifo_image_input, 
+			outputA => fifo_image_output,
+			emptyA => fifo_image_empty,
+			fullA => open,
+			emptyB => open,
+			fullB => open
 		);
 		
 		feat_fifo : fifo_peripheral 
@@ -216,62 +199,51 @@ image_fifo : fifo_peripheral
 			wr_bus => bus_wr,
 			rd_bus => bus_rd,
 			cs_bus => cs_feat_fifo,
-			wrB => feat_fifo_wr,
+			wrB => fifo_feat_wr,
 			rdA => '0',
 			data_bus_in => bus_data_out,
 			data_bus_out => bus_fifo_feat_out,
-			inputB => feat_fifo_in, 
+			inputB => fifo_feat_input, 
 			outputA => open,
 			emptyA => open,
 			fullA => open,
 			emptyB => open,
 			fullB => open
 		);
-
-	shared_mem: shared_mem_peripheral
-	generic map(SIZE => 1024, 
-				DATA_WIDTH => 16,
-				ADDR_WIDTH => 8,
-				LOGIC_PRIORITY => false)
-	port map(clk => clk_sys, resetn => sys_resetn,
-		  addr_bus => bus_addr(7 downto 0),
-		  data_in_bus => bus_data_out,
-		  data_out_bus => bus_as_mem_out,
-		  wr_bus => bus_wr, rd_bus => bus_rd, cs_bus => cs_as_mem,
-		  wait_bus => open,
-		  addr_logic => as_mem_addr,
-		  data_in_logic => as_mem_data_out,
-		  data_out_logic => as_mem_data_in, 
-		  wr_logic => as_mem_wr, rd_logic => '1', cs_logic => '1',
-		  wait_logic => wait_as_mem 
-		);
-
-
-	pixel_from_fifo : fifo2pixel
-	generic map(WIDTH => IMG_WIDTH , HEIGHT => IMG_HEIGHT)
-	port map(
-		clk => clk_sys, resetn => sys_resetn ,
-
-		-- fifo side
-		fifo_empty => fifoA_empty ,
-		fifo_rd => fifoA_rd ,
-		fifo_data =>fifo_output,
 		
-		-- pixel side 
-		pixel_clk => clk_24,
-		y_data =>  pixel_from_interface , 
- 		pixel_clock_out => pxclk_from_interface, 
-		hsync_out => href_from_interface, 
-		vsync_out =>vsync_from_interface 
-	
-	);
+		
+		correl_fifo : fifo_peripheral 
+		generic map(ADDR_WIDTH => 16,
+						WIDTH => 16, 
+						SIZE => 1024, 
+						BURST_SIZE => 512,
+						SYNC_LOGIC_INTERFACE => true
+		)
+		port map(
+			clk => clk_sys,
+			resetn => sys_resetn,
+			addr_bus => bus_addr,
+			wr_bus => bus_wr,
+			rd_bus => bus_rd,
+			cs_bus => cs_correl_fifo,
+			wrB => fifo_correl_wr,
+			rdA => fifo_correl_rd,
+			data_bus_in => bus_data_out,
+			data_bus_out => bus_fifo_correl_out,
+			inputB => fifo_correl_input, 
+			outputA => fifo_correl_output, 
+			emptyA => open,
+			fullA => open,
+			emptyB => open,
+			fullB => open
+		);
 
 
 brief0: BRIEF_MANAGER 
 generic map(WIDTH => IMG_WIDTH,
 		  HEIGHT => IMG_HEIGHT,
 		  DESC_SIZE => DESC_SIZE,
-		  NB_LMK => 8, 
+		  NB_LMK => 4, 
 		  DELAY => 1 )
 port map(
  		clk => clk_sys,
@@ -280,14 +252,14 @@ port map(
 		hsync => href_from_interface, 
 		vsync => vsync_from_interface, 
  		pixel_data_in => pixel_from_interface,
--- active search interface, need two memories ...
-	   as_mem_addr => as_mem_addr,
-		as_mem_data_in => as_mem_data_in,
-		as_mem_data_out => as_mem_data_out, 
-		as_mem_wr => as_mem_wr,
-		as_mem_wait => wait_as_mem,
+-- active search interface
+		correl_fifo_in => fifo_correl_output ,
+		rd_correl_fifo => fifo_correl_rd,
+		
+		correl_fifo_out => fifo_correl_input,
+		wr_correl_fifo => fifo_correl_wr,
 
--- feature extractor interface
+-- feature descriptor interface
 		feature_descriptor => feat_desc,
 		new_descriptor => new_desc			
 
@@ -320,20 +292,21 @@ tessel_harris: HARRIS_TESSELATION
 			harris_score_out	=> feat_score, -- fifo input
 			latch_maxima	=> latch_desc -- unused ...
 	);
+
+
 feat2fif : feature2fifo
 generic map(FEATURE_SIZE => DESC_SIZE)
 port map(
 	clk => clk_sys, resetn => sys_resetn,
 	feature_desc => feat_desc,
 	new_feature_desc => new_desc, 
-	
 	harris_posx => featx, harris_posy => featy, harris_score => feat_score,
 	new_max => latch_desc,
 	write_feature => write_feature,
 	
 	--fifo interface
-	fifo_data => feat_fifo_in,
-	fifo_wr => feat_fifo_wr
+	fifo_data => fifo_feat_input,
+	fifo_wr => fifo_feat_wr
 
 );
 
@@ -353,9 +326,29 @@ port map(
 	clk => clk_sys, resetn => sys_resetn ,
 	pixel_clock => output_pxclk, hsync => output_href, vsync => output_vsync,
 	pixel_data_in => output_pixel ,
-	fifo_data => fifo_input,
-	fifo_wr => fifoB_wr
+	fifo_data => fifo_image_input,
+	fifo_wr => fifo_image_wr
 );
 
+pixel_from_fifo : fifo2pixel
+generic map(WIDTH => IMG_WIDTH , HEIGHT => IMG_HEIGHT)
+port map(
+	clk => clk_sys, resetn => sys_resetn ,
+
+	-- fifo side
+	fifo_empty => fifo_image_empty ,
+	fifo_rd => fifo_image_rd ,
+	fifo_data =>fifo_image_output,
+	
+	-- pixel side 
+	pixel_clk => clk_24,
+	y_data =>  pixel_from_interface , 
+	pixel_clock_out => pxclk_from_interface, 
+	hsync_out => href_from_interface, 
+	vsync_out =>vsync_from_interface 
+
+);
+	
+	
 end Behavioral;
 
