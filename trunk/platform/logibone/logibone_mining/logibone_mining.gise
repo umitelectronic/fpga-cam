@@ -29,7 +29,10 @@
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="ipcore_dir/coregen.log"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_CMD" xil_pn:name="isim.cmd"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="logibone_mining.bgn" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="logibone_mining.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="logibone_mining.bld"/>
@@ -68,14 +71,133 @@
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="logibone_mining_summary.xml"/>
     <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="logibone_mining_usage.xml"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="logibone_mining_xst.xrpt"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spi2ad_bus.prj"/>
+    <file xil_pn:fileType="FILE_XST_STX" xil_pn:name="spi2ad_bus.stx"/>
+    <file xil_pn:fileType="FILE_XST" xil_pn:name="spi2ad_bus.xst"/>
+    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="spi2ad_testbench_beh.prj"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="spi2ad_testbench_isim_beh.exe"/>
+    <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="spi2ad_testbench_isim_beh.wdb"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_INI" xil_pn:name="xilinxsim.ini"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
+    <transform xil_pn:end_ts="1365498724" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1365498724">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1365499592" xil_pn:in_ck="2901803006707417736" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1365499592">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../../logi-family/logi-hard/interface/spi2ad_bus.vhd"/>
+      <outfile xil_pn:name="../../../../logi-family/logi-hard/test_bench/spi2ad_testbench.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/addr_latches_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/latch_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/miner.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_ch.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_e0.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_e1.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_maj.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_pipeline.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_s0.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_s1.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_transform.vhd"/>
+      <outfile xil_pn:name="logibone_mining.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1365499566" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="-234049773620448424" xil_pn:start_ts="1365499566">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1365499566" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-270342382157776938" xil_pn:start_ts="1365499566">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1365498724" xil_pn:in_ck="2088049057168484748" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="6969267336884357632" xil_pn:start_ts="1365498724">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1365499592" xil_pn:in_ck="2901803006707417736" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1365499592">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="../../../../logi-family/logi-hard/interface/spi2ad_bus.vhd"/>
+      <outfile xil_pn:name="../../../../logi-family/logi-hard/test_bench/spi2ad_testbench.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/bus_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/addr_latches_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/fifo_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/latch_peripheral.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/bus/peripheral/peripheral_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/image/image_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/interface_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/interface/muxed_addr_interface.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/dpram_NxN.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/primitive/primitive_pack.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/dp_fifo.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/generic_latch.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/reset_generator.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/simple_counter.vhd"/>
+      <outfile xil_pn:name="../../../hw/rtl/utils/utils_pack.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/miner.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_ch.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_e0.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_e1.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_maj.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_pipeline.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_s0.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_s1.vhd"/>
+      <outfile xil_pn:name="Open-Source-FPGA-Bitcoin-Miner-master/projects/VHDL_Xilinx_Port/sha256_transform.vhd"/>
+      <outfile xil_pn:name="logibone_mining.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1365499596" xil_pn:in_ck="-7962590288718226320" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="-2799638219083714544" xil_pn:start_ts="1365499592">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="fuse.log"/>
+      <outfile xil_pn:name="isim"/>
+      <outfile xil_pn:name="spi2ad_testbench_beh.prj"/>
+      <outfile xil_pn:name="spi2ad_testbench_isim_beh.exe"/>
+      <outfile xil_pn:name="xilinxsim.ini"/>
+    </transform>
+    <transform xil_pn:end_ts="1365499596" xil_pn:in_ck="8920879603130375697" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="3947115604238639965" xil_pn:start_ts="1365499596">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="isim.cmd"/>
+      <outfile xil_pn:name="spi2ad_testbench_isim_beh.wdb"/>
+    </transform>
     <transform xil_pn:end_ts="1359110975" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1359110975">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -110,7 +232,10 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputAdded"/>
+      <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
       <outfile xil_pn:name="logibone_mining.lso"/>
@@ -132,6 +257,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
       <outfile xil_pn:name="logibone_mining.bld"/>
@@ -141,6 +267,9 @@
     <transform xil_pn:end_ts="1365338540" xil_pn:in_ck="-4550688412176713581" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="1448924893915930207" xil_pn:start_ts="1365338302">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="logibone_mining.pcf"/>
       <outfile xil_pn:name="logibone_mining_map.map"/>
@@ -155,6 +284,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
       <outfile xil_pn:name="logibone_mining.ncd"/>
       <outfile xil_pn:name="logibone_mining.pad"/>
@@ -169,6 +299,7 @@
     <transform xil_pn:end_ts="1365339033" xil_pn:in_ck="-6037916166367376429" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="5341574683187206424" xil_pn:start_ts="1365338933">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
       <outfile xil_pn:name="logibone_mining.bgn"/>
       <outfile xil_pn:name="logibone_mining.bit"/>
@@ -182,6 +313,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="InputAdded"/>
       <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="InputRemoved"/>
@@ -189,6 +321,7 @@
     <transform xil_pn:end_ts="1365338933" xil_pn:in_ck="-6506019558119928177" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="445577401284416184" xil_pn:start_ts="1365338874">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="logibone_mining.twr"/>
       <outfile xil_pn:name="logibone_mining.twx"/>
